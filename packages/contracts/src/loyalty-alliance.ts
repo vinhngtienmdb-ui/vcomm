@@ -123,3 +123,90 @@ export interface LoyaltySettlementResponse extends LoyaltySettlementItem {
   paymentKind: "loyalty_intercompany_receipt" | "loyalty_intercompany_payment" | null;
   paymentRemaining: string;
 }
+
+// Chống gian lận nâng cao (API_251, API_252, API_254; QUYTAC_NGHIEPVU_474 đến 477).
+export const loyaltyFraudRuleCodes = ["shared_device", "redeem_burst", "earn_return", "staff_anomaly"] as const;
+export type LoyaltyFraudRuleCode = (typeof loyaltyFraudRuleCodes)[number];
+export const loyaltyFraudActions = ["alert", "block", "block_and_lock"] as const;
+export type LoyaltyFraudAction = (typeof loyaltyFraudActions)[number];
+export const loyaltyFraudCaseStatuses = ["new", "reviewing", "violation", "no_violation"] as const;
+export type LoyaltyFraudCaseStatus = (typeof loyaltyFraudCaseStatuses)[number];
+
+const fraudParam = z.number().int().min(1).max(100_000_000).nullable();
+export const loyaltyFraudRuleSchema = z
+  .object({
+    enabled: z.boolean(),
+    action: z.enum(loyaltyFraudActions),
+    // Ngưỡng theo quy tắc: maxAccounts, days; maxCount, maxPoints, balancePercent, newDeviceHours; ratioPercent, minEarnedPoints; maxSalesPerCustomerDay.
+    params: z.record(z.string().regex(/^[a-zA-Z]{1,40}$/), fraudParam),
+    version: z.number().int().min(0),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    for (const key of ["balancePercent", "ratioPercent"])
+      if (typeof value.params[key] === "number" && value.params[key]! > 100) context.addIssue({ code: "custom", path: ["params", key], message: "invalidValue" });
+    for (const key of ["maxAccounts", "days", "maxCount", "newDeviceHours", "minEarnedPoints", "maxSalesPerCustomerDay"])
+      if (key in value.params && value.params[key] === null) context.addIssue({ code: "custom", path: ["params", key], message: "invalidValue" });
+  });
+export type LoyaltyFraudRuleInput = z.infer<typeof loyaltyFraudRuleSchema>;
+export interface LoyaltyFraudRule {
+  code: LoyaltyFraudRuleCode;
+  name: string;
+  enabled: boolean;
+  params: Record<string, number | null>;
+  action: LoyaltyFraudAction;
+  updatedByName: string | null;
+  updatedAt: string;
+  version: number;
+}
+export interface LoyaltyFraudRuleHistoryItem {
+  code: LoyaltyFraudRuleCode;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
+  actorName: string;
+  createdAt: string;
+}
+export const loyaltyFraudCaseListQuerySchema = z
+  .object({
+    ruleCode: z.enum(loyaltyFraudRuleCodes).optional(),
+    status: z.enum([...loyaltyFraudCaseStatuses, "open"]).optional(),
+    action: z.enum(loyaltyFraudActions).optional(),
+    userId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyFraudCaseVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export const loyaltyFraudCaseConcludeSchema = z.object({ version: z.number().int().min(0), violation: z.boolean(), note: z.string().trim().min(1).max(1000) }).strict();
+export interface LoyaltyFraudCaseItem {
+  id: string;
+  documentNo: string;
+  ruleCode: LoyaltyFraudRuleCode;
+  action: LoyaltyFraudAction;
+  subjectKind: "user" | "device" | "staff";
+  userId: string | null;
+  userName: string | null;
+  userPhone: string | null;
+  device: string | null;
+  staffName: string | null;
+  companyName: string | null;
+  metrics: Record<string, unknown>;
+  hitCount: number;
+  caseDay: string;
+  status: LoyaltyFraudCaseStatus;
+  reviewerName: string | null;
+  conclusionNote: string | null;
+  createdAt: string;
+  version: number;
+}
+export interface LoyaltyFraudCaseDetail extends LoyaltyFraudCaseItem {
+  documents: { sourceType: string; sourceId: string; documentNo: string | null; effect: string; userName: string | null; createdAt: string }[];
+  deviceAccounts: string[];
+}
+export interface LoyaltyDeviceItem {
+  device: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  seenCount: number;
+  otherAccounts: string[];
+}

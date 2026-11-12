@@ -162,8 +162,8 @@ export class LoyaltyAdminService implements OnModuleInit {
     const tiers = await this.database.execute<{ from_name: string | null; to_name: string; reason: "order_completed" | "year_start" | "tiers_changed"; created_at: Date }>(sql`
       SELECT f.name_vi AS from_name, t.name_vi AS to_name, h.reason, h.created_at FROM loyalty.tier_history h JOIN loyalty.tiers t ON t.id = h.to_tier_id
       LEFT JOIN loyalty.tiers f ON f.id = h.from_tier_id WHERE h.user_id = ${userId} ORDER BY h.created_at DESC LIMIT 50`);
-    const locks = await this.database.execute<{ action: "lock" | "unlock"; reason: string; actor_name: string; created_at: Date }>(sql`
-      SELECT h.action, h.reason, u.full_name AS actor_name, h.created_at FROM loyalty.lock_history h JOIN core.users u ON u.id = h.actor_user_id
+    const locks = await this.database.execute<{ action: "lock" | "unlock"; reason: string; actor_name: string | null; created_at: Date }>(sql`
+      SELECT h.action, h.reason, u.full_name AS actor_name, h.created_at FROM loyalty.lock_history h LEFT JOIN core.users u ON u.id = h.actor_user_id
       WHERE h.user_id = ${userId} ORDER BY h.created_at DESC LIMIT 50`);
     return {
       ...(await this.accounts.progress(this.database, userId, await this.program.tiers(this.database))),

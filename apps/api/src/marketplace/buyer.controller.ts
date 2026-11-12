@@ -2,6 +2,7 @@
 // Người mua không thuộc công ty nào nên các API này không dùng header X-Company-Id.
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req } from "@nestjs/common";
 import { UuidPipe } from "../common/uuid.pipe";
+import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import {
   buyerLoginSchema,
   buyerOtpVerifySchema,
@@ -41,6 +42,7 @@ import { WithdrawalsService } from "./withdrawals.service";
 @Controller("buyer")
 export class BuyerController {
   constructor(
+    private readonly fraud: LoyaltyFraudService,
     private readonly buyers: BuyerAccountsService,
     private readonly care: SalesCareService,
     private readonly revenue: SalesRevenueService,
@@ -71,7 +73,10 @@ export class BuyerController {
   @HttpCode(200)
   async login(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
     const input = buyerLoginSchema.parse(body);
-    return this.buyers.login(input.phone, input.password, clientInfo(request));
+    const result = await this.buyers.login(input.phone, input.password, clientInfo(request));
+    // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): ghi thiết bị đăng nhập.
+    await this.fraud.link(result.user.id, clientInfo(request).deviceId);
+    return result;
   }
 
   @Public()
@@ -87,7 +92,9 @@ export class BuyerController {
   @HttpCode(200)
   async verifyLoginOtp(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
     const input = buyerOtpVerifySchema.parse(body);
-    return this.buyers.verifyLoginOtp(input.phone, input.code, clientInfo(request));
+    const result = await this.buyers.verifyLoginOtp(input.phone, input.code, clientInfo(request));
+    await this.fraud.link(result.user.id, clientInfo(request).deviceId);
+    return result;
   }
 
   @Public()

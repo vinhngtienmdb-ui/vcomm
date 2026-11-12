@@ -17,6 +17,7 @@ import { OutboxService } from "../common/outbox.service";
 import { EinvoicesService } from "../einvoice/einvoices.service";
 import { LoyaltyJobsService } from "../loyalty/jobs.service";
 import { LoyaltySettlementsService } from "../loyalty/settlements.service";
+import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
@@ -65,6 +66,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const payments = application.get(MarketplacePaymentsService);
   const loyalty = application.get(LoyaltyJobsService);
   const loyaltySettlements = application.get(LoyaltySettlementsService);
+  const loyaltyFraud = application.get(LoyaltyFraudService);
   const groupBuys = application.get(GroupBuysService);
   const affiliateVouchers = application.get(AffiliateVouchersService);
   const affiliateSettlements = application.get(AffiliateSettlementsService);
@@ -152,7 +154,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "station-order-hold") return stationOrders.expireDue();
       if (job.name === "marketplace-sales-follow-ups") return salesCare.remindDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
-      if (job.name === "loyalty-daily") return loyalty.runDaily();
+      // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): xóa dữ liệu thiết bị quá 12 tháng cùng lượt.
+      if (job.name === "loyalty-daily") return { ...(await loyalty.runDaily()), purgedDevices: await loyaltyFraud.purgeDevices() };
       if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();
       if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
       if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };

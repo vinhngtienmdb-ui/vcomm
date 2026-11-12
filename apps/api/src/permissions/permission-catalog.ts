@@ -96,6 +96,8 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage loyalty program, lock point accounts, adjust points",
     isSensitive: true,
   },
+  // CONG_VIEC_60: chống gian lận nâng cao (QUYTAC_NGHIEPVU_479), xét tại công ty vận hành sàn.
+  { code: "loyalty.fraud.manage", appCode: "crm", nameVi: "Sửa quy tắc chống gian lận điểm, xử lý vụ việc", nameEn: "Manage loyalty fraud rules and cases", isSensitive: true },
   // CONG_VIEC_55: cửa hàng liên kết (xét tại công ty vận hành sàn).
   { code: "affiliate.view", appCode: "crm", nameVi: "Xem cửa hàng liên kết, giao dịch, voucher, đối soát", nameEn: "View affiliate stores, transactions, vouchers, settlements", isSensitive: false },
   {
@@ -228,6 +230,7 @@ const companyAdminPermissions = [
   "marketplace.payment.manage",
   "loyalty.view",
   "loyalty.manage",
+  "loyalty.fraud.manage",
   "affiliate.view",
   "affiliate.manage",
   "marketplace.community.manage",

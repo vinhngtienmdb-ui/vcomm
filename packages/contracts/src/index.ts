@@ -7754,7 +7754,8 @@ export interface LoyaltyDocumentPoints {
   expectedPoints: number;
   earnedPoints: number | null;
   earnStatus: "pending" | "earned" | "skipped" | "cancelled";
-  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | null;
+  // CONG_VIEC_60: fraud_rule – quy tắc chống gian lận chặn tích (QUYTAC_NGHIEPVU_475).
+  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "fraud_rule" | null;
   expiresOn: string | null;
   tierName: string | null;
   multiplier: string;
@@ -7821,7 +7822,8 @@ export interface LoyaltyAccountDetail extends LoyaltyTierProgress {
   lockReason: string | null;
   lots: LoyaltyLotItem[];
   tierHistory: { fromTierName: string | null; toTierName: string; reason: "order_completed" | "year_start" | "tiers_changed"; createdAt: string }[];
-  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string; createdAt: string }[];
+  // CONG_VIEC_60: actorName null khi hệ thống tự khóa theo quy tắc chống gian lận.
+  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string | null; createdAt: string }[];
   canManage: boolean;
 }
 

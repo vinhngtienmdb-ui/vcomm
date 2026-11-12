@@ -1,7 +1,8 @@
 "use client";
 
 // MAN_HINH_147 Ví điểm – chi tiết (CONG_VIEC_51; CHUC_NANG_181; API_179; QUYTAC_NGHIEPVU_352): số dư, hạng, chi tiêu, lô điểm, sổ cái, lịch sử hạng, lịch sử khóa; khóa, mở.
-import type { LoyaltyAccountDetail, LoyaltyEntryItem, PageResponse } from "contracts";
+// MAN_HINH_223 (CONG_VIEC_60; API_252, API_254; QUYTAC_NGHIEPVU_474, 477): thẻ thiết bị, vụ việc gian lận của ví.
+import type { LoyaltyAccountDetail, LoyaltyDeviceItem, LoyaltyEntryItem, LoyaltyFraudCaseItem, PageResponse } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -61,6 +62,71 @@ function Ledger({ userId }: { userId: string }) {
   );
 }
 
+function Devices({ userId }: { userId: string }) {
+  const t = useTranslations("loyaltyFraud");
+  const { state, reload } = useApi<LoyaltyDeviceItem[]>(`/loyalty/accounts/${userId}/devices`);
+  return (
+    <Loaded state={state} onRetry={() => void reload()}>
+      {(devices) =>
+        devices.length === 0 ? (
+          <div className="the chu-thich">{t("noDevices")}</div>
+        ) : (
+          <>
+            <div className="khung-bang">
+              <table>
+                <thead>
+                  <tr>
+                    {["device", "firstSeen", "lastSeen", "seenCount", "otherAccounts"].map((key) => (
+                      <th key={key}>{t(`deviceColumn_${key}`)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {devices.map((device) => (
+                    <tr key={device.device}>
+                      <td data-nhan={t("deviceColumn_device")}>{device.device}</td>
+                      <td data-nhan={t("deviceColumn_firstSeen")}>{formatDateTime(device.firstSeenAt)}</td>
+                      <td data-nhan={t("deviceColumn_lastSeen")}>{formatDateTime(device.lastSeenAt)}</td>
+                      <td data-nhan={t("deviceColumn_seenCount")}>{formatNumber(device.seenCount, 0)}</td>
+                      <td data-nhan={t("deviceColumn_otherAccounts")}>{device.otherAccounts.length === 0 ? "0" : `${device.otherAccounts.length} · ${device.otherAccounts.join(", ")}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <span className="chu-thich">{t("devicesHint")}</span>
+          </>
+        )
+      }
+    </Loaded>
+  );
+}
+
+function Cases({ userId }: { userId: string }) {
+  const t = useTranslations("loyaltyFraud");
+  const { state, reload } = useApi<PageResponse<LoyaltyFraudCaseItem>>(`/loyalty/fraud-cases?userId=${userId}&status=open`);
+  const closed = useApi<PageResponse<LoyaltyFraudCaseItem>>(`/loyalty/fraud-cases?userId=${userId}&status=violation`);
+  return (
+    <Loaded state={state} onRetry={() => void reload()}>
+      {(open) => {
+        const items = [...open.data, ...(closed.state.kind === "ready" ? closed.state.data.data : [])];
+        return items.length === 0 ? (
+          <div className="the chu-thich">{t("noCases")}</div>
+        ) : (
+          <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+            {items.map((item) => (
+              <span key={item.id}>
+                <Link href="/loyalty/fraud-cases">{item.documentNo}</Link>
+                {` · ${formatDate(item.caseDay)} · ${t(`rule_${item.ruleCode}`)} · ${t(`action_${item.action}`)} · ${t(`status_${item.status}`)}`}
+              </span>
+            ))}
+          </div>
+        );
+      }}
+    </Loaded>
+  );
+}
+
 export default function LoyaltyAccountPage() {
   const t = useTranslations("loyalty");
   const { notify } = useAdmin();
@@ -69,7 +135,7 @@ export default function LoyaltyAccountPage() {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"ledger" | "lots" | "tiers" | "locks">("ledger");
+  const [tab, setTab] = useState<"ledger" | "lots" | "tiers" | "locks" | "devices" | "cases">("ledger");
   async function toggle(locked: boolean) {
     setBusy(true);
     setError(null);
@@ -108,13 +174,15 @@ export default function LoyaltyAccountPage() {
           </div>
           {account.locked ? <div className="khoi-canh-bao loi">{t("lockedReason", { reason: account.lockReason ?? "" })}</div> : null}
           <div className="nhom-nut" role="tablist">
-            {(["ledger", "lots", "tiers", "locks"] as const).map((item) => (
+            {(["ledger", "lots", "tiers", "locks", "devices", "cases"] as const).map((item) => (
               <button key={item} type="button" role="tab" aria-selected={tab === item} className={`nut ${tab === item ? "chinh" : "phu"}`} onClick={() => setTab(item)}>
                 {t(`accountTab_${item}`)}
               </button>
             ))}
           </div>
           {tab === "ledger" ? <Ledger userId={userId} /> : null}
+          {tab === "devices" ? <Devices userId={userId} /> : null}
+          {tab === "cases" ? <Cases userId={userId} /> : null}
           {tab === "lots" ? (
             <div className="khung-bang">
               <table>
@@ -152,7 +220,7 @@ export default function LoyaltyAccountPage() {
             <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
               {account.lockHistory.length === 0 ? <span className="chu-thich">{t("noHistory")}</span> : null}
               {account.lockHistory.map((item, index) => (
-                <span key={index}>{`${formatDateTime(item.createdAt)} · ${t(`lockAction_${item.action}`)} · ${item.actorName} · ${item.reason}`}</span>
+                <span key={index}>{`${formatDateTime(item.createdAt)} · ${t(`lockAction_${item.action}`)} · ${item.actorName ?? t("systemActor")} · ${item.reason}`}</span>
               ))}
             </div>
           ) : null}

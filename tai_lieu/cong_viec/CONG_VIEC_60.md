@@ -176,7 +176,7 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 - L0: database migration 0125 phần kiểu chia chi phí; hạch toán ba kiểu (sửa API_176, MAN_HINH_146). Xem trước: đổi kiểu cho giai đoạn sắp tới, xem bút toán thử ba kiểu.
 - L1: phần còn lại của 0125; bảng đối soát, đối chiếu, xác nhận, khiếu nại (API_249, 250; MAN_HINH_218, 219). Xem trước: lập bảng tháng thử, hai bên xác nhận.
 - L2: phần thanh toán của 0125 (loại phiếu `loyalty_intercompany_receipt`, `loyalty_intercompany_payment`, `finance.payments.loyalty_settlement_id`, số đã trả, đã nhận); phiếu thu chi nội bộ lập từ bảng đối soát, tất toán (API `POST /loyalty/settlements/{id}/payments`; MAN_HINH_219 khối Thanh toán). Xem trước: lập phiếu, bảng tất toán.
-- L3: database migration 0126; mã cài đặt ứng dụng, quy tắc, vụ việc (API_251, 252, 254; MAN_HINH_220, 221, 223). Xem trước: đặt đơn dùng điểm từ nhiều tài khoản trên một thiết bị, xem vụ việc, chặn.
+- L3: database migration 0126; mã cài đặt ứng dụng, quy tắc, vụ việc (API_251, 252, 254; MAN_HINH_220, 221, 223). Xem trước: đặt đơn dùng điểm từ nhiều tài khoản trên một thiết bị, xem vụ việc, chặn. Đã làm: bảng loyalty.device_links, fraud_rules, fraud_rule_history, fraud_cases, fraud_case_documents; `loyalty.document_points.device_hash`; định nghĩa lại `document_points_skip_reason_check`, `affiliate.transactions` `transactions_skip_reason_check` (thêm `fraud_rule`); `lock_history.actor_user_id` cho phép trống; quyền `loyalty.fraud.manage`; tiêu đề `X-Device-Id` (CORS ứng dụng).
 - L4: báo cáo liên minh và gian lận (API_253; MAN_HINH_222). Xem trước: báo cáo tháng, xuất Excel.
 
 ## 16. Điểm chưa xác định
@@ -212,3 +212,9 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 5. Màn hình đối soát trong mini app Tài chính, công ty đang chọn quyết định phía xem (công ty vận hành sàn hoặc công ty con).
 6. Phiếu thu chi nợ nội bộ điểm lập và gửi ngay từ bảng đối soát (dùng luồng gửi, duyệt, ghi sổ của phiếu thu chi hiện có); không sửa được ở màn hình phiếu thu chi chung; không trừ công nợ 131, 331. Số đã trả tính phiếu chi đã ghi sổ của bên trả, số đã nhận tính phiếu thu đã ghi sổ của bên nhận; hai số đủ bằng số còn phải thanh toán thì Đã tất toán.
 7. Đối chiếu phần thanh toán theo tổng phiếu của mỗi bên (mỗi bên một phiếu riêng): một bên chưa ghi thì bảng kỳ sau Không khớp đến khi bên kia ghi.
+8. Quy tắc 4 phần "trùng số điện thoại": số điện thoại tài khoản là duy nhất nên xét khách là chính tài khoản thu ngân hoặc trùng số điện thoại.
+9. Chặn dùng điểm hủy giao dịch của bên gọi, nên vụ việc và khóa ví lúc đó ghi bằng kết nối riêng (vẫn còn sau khi báo lỗi cho khách).
+10. Vụ việc đánh số `GL-<năm>-<số>` theo dãy riêng toàn hệ thống (không theo cấu hình dãy số của công ty).
+11. Quy tắc áp dụng cả giao dịch cửa hàng liên kết (CONG_VIEC_55) vì dùng chung sổ cái điểm; mở rộng lý do không tích của giao dịch cửa hàng liên kết thêm `fraud_rule`.
+12. Ghi liên kết thiết bị khi đăng nhập (mật khẩu, mã OTP), xem trước và đặt đơn; xét quy tắc thiết bị khi tích điểm đơn VComm theo thiết bị lúc đặt.
+13. Mức "Chặn giao dịch" của quy tắc 3 (trả hàng không chặn được) coi như cảnh báo.
