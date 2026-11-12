@@ -9,6 +9,9 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_58 (kế hoạch mua theo ngân sách) lát L0 đến L3, pull request #123 (kiểm thử 561/561): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng; số còn được mua; kiểm tra ngân sách đơn mua và luồng duyệt vượt ngân sách; phiếu điều chỉnh; menu phẳng trong mini app Mua hàng.
+- Trình nghiệm thu CONG_VIEC_22 (thành phần Kinh doanh trên ứng dụng VComm, THAY_DOI_26, 28) lát L0 đến L4, pull request #122 (kiểm thử 556/556); người dùng yêu cầu đo hiệu năng (đạt) và sửa hai giới hạn, sau đó nghiệm thu bản cuối (kiểm thử 557/557). Rà soát độc lập sửa 1 lỗi Trung bình (ước lượng người phụ trách cho đơn cũ trong database migration 0114), 6 lỗi Thấp; không cấp mã LOI.
+- CONG_VIEC_56 xong lát L2 (nộp thuế hải quan, tiền chậm nộp, nhận hoàn thuế); CONG_VIEC_55 xong lát L2 (voucher liên kết).
 - Người dùng nghiệm thu CONG_VIEC_57 (trạm giao hàng O2O) lát L0 đến L6, pull request #118 (kiểm thử 573/573).
 - CONG_VIEC_22 xong lát L2 (ghi chú chăm sóc, hẹn của tôi), L3 (nhắc hẹn bằng thông báo trong ứng dụng), L4 (doanh số của tôi, database migration 0114 thêm người phụ trách vào đơn VComm); CONG_VIEC_58 xong lát L1 đến L3; CONG_VIEC_55 xong lát L1, L2; CONG_VIEC_56 xong lát L0, L1.
 - Người dùng nghiệm thu CONG_VIEC_53 lát L6 (điểm tại quầy với Smart OTP), pull request #125, hồi quy 557/557 đạt: thu ngân tra khách VComm theo số điện thoại; tích điểm chỉ cần số điện thoại; dùng điểm trừ tiền cần mã Smart OTP; trả hàng hoàn và thu hồi điểm; hóa đơn in điểm dùng, điểm tích, số dư; ứng dụng VComm thêm thẻ Smart OTP (kích hoạt bằng mã SMS, khóa lưu bộ nhớ an toàn của máy). Database migration 0119; API_198, 199; thư viện otpauth 9.6.0 cho ứng dụng (cùng bản máy chủ). Sửa khi chạy thật: số dư sau giao dịch in 0 khi vừa dùng vừa tích; phím F9 mất tác dụng sau khi chọn khách.
@@ -26,6 +29,9 @@
 
 ### Quyết định
 
+- Người dùng quyết định phát hành 0.6.0 ngay với CONG_VIEC_22, 53 (lát L6), 57, 58; CONG_VIEC_52 vào bản sau khi đối chiếu xong Nghị định 30/2020/NĐ-CP. Dành database migration 0120 cho bản phát hành 0.6.0. Người dùng đồng ý CONG_VIEC_56 lát L2.
+- CONG_VIEC_22: người dùng giữ nút Chia sẻ dùng bảng chia sẻ chung của máy, không làm nút riêng cho từng ứng dụng nhắn tin, mạng xã hội.
+- CONG_VIEC_22, người dùng quyết định khi nghiệm thu: duyệt thư viện `expo-clipboard` ~58.0.4 (MIT) để nút Sao chép trên ứng dụng VComm chạy được trên máy thật (gồm nút ở trang sản phẩm, Tài khoản, Mời bạn bè, Mua chung của CONG_VIEC_49); database migration 0114 bỏ phần ước lượng người phụ trách cho đơn cũ, đơn cũ không tính doanh số cho ai.
 - CONG_VIEC_57, người dùng quyết định khi lập trình: mua chung chỉ giao qua đơn vị vận chuyển; phiếu xuất tại kho trạm lập và ghi sổ khi giao thành công; không gửi mã nhận hàng qua Zalo ZNS; vai trò Nhân viên giao hàng trạm; trả hàng đơn của trạm: khách mang hàng đến trạm của đơn, trạm xác nhận đã nhận; vận hành sàn chỉ xem đơn của trạm (không hủy, không giao vận chuyển, không thấy mã nhận hàng); trạm hủy khi Chờ soạn hàng hoặc Sẵn sàng nhận, đơn Đang giao phải báo không giao được trước.
 - CONG_VIEC_56: đánh giá lại ngoại tệ chặn theo thứ tự ngày; giữ dãy số riêng MNT cho phiếu mua ngoại tệ; lát L2 làm trước với mức tiền chậm nộp và hạn nộp thuế hải quan là tham số có ngày hiệu lực, đối chiếu nguyên văn luật trước khi nghiệm thu.
 - CONG_VIEC_58: đơn mua chờ duyệt không giữ chỗ ngân sách.
