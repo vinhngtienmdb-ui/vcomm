@@ -24,7 +24,7 @@
 - Khả năng tương thích: tương thích ngược với 0.6.0; database migration thêm schema, bảng, cột (có mặc định cho dữ liệu cũ) và mở rộng ràng buộc kiểm tra.
 - Công việc gộp trong phiên bản: CONG_VIEC_55 (pull request #120), CONG_VIEC_61 lát L1, L2 (#134); THAY_DOI_27, THAY_DOI_29. Thứ tự hợp nhất: 55, 61. Không gộp CONG_VIEC_52, 56, 59, 60.
 - Đánh lại số mục tài liệu trùng khi gộp: không cần (các mục của CONG_VIEC_55 không đánh số, mã định danh của hai công việc không trùng dải).
-- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 18/18 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 7872 khóa; kiểm thử API toàn bộ: ghi bổ sung khi chạy xong.
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 18/18 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 7872 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`) 120 tệp, 633 kiểm thử đạt.
 - Tag: `v0.7.0` trên commit hợp nhất nhánh `phat-hanh/v0.7.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.6.0`; gỡ ứng dụng `apps/web-affiliate` khỏi máy chủ.
