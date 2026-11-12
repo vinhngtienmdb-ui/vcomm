@@ -19,6 +19,9 @@ import { CounterpartPanel } from "@/components/CounterpartPanel";
 import { SalesOrderEditor } from "@/components/SalesOrderEditor";
 import { SalesStatus } from "@/components/SalesStatus";
 
+// CONG_VIEC_62: màu nhãn trạng thái giao của đơn mua dropship.
+const dropshipTone = { awaiting: "canh-bao", shipping: "thong-tin", delivered: "thanh-cong", failed: "loi", cancelled: "trung-tinh" } as const;
+
 export default function SalesOrderPage() {
   const t = useTranslations("salesOrders");
   const { id } = useParams<{ id: string }>();
@@ -170,6 +173,46 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
             <dd>{order.deliveryAddress}</dd>
           </dl>
           <div className="chu-thich">{t("recipientHint")}</div>
+        </section>
+      )}
+      {order.dropship.length > 0 && (
+        <section className="the">
+          <h2 style={{ margin: 0 }}>{t("dropship")}</h2>
+          <div className="khung-bang">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{t("dropshipOrder")}</th>
+                  <th scope="col">{t("dropshipSupplier")}</th>
+                  <th scope="col">{t("dropshipLines")}</th>
+                  <th scope="col">{t("dropshipStatus")}</th>
+                  <th scope="col">{t("dropshipTracking")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.dropship.map((item) => (
+                  <tr key={item.id}>
+                    <td data-nhan={t("dropshipOrder")}>
+                      <a href={`/purchasing/dropship-orders/${item.id}`}>{item.documentNo}</a>
+                    </td>
+                    <td data-nhan={t("dropshipSupplier")}>
+                      <span>{item.supplierName}</span>
+                    </td>
+                    <td data-nhan={t("dropshipLines")}>
+                      <span>{item.lineCount}</span>
+                    </td>
+                    <td data-nhan={t("dropshipStatus")}>
+                      <span className={`nhan ${dropshipTone[item.status]}`}>{t(`dropshipStatus_${item.status}`)}</span>
+                    </td>
+                    <td data-nhan={t("dropshipTracking")}>
+                      <span>{[item.carrierName, item.trackingCode].filter(Boolean).join(" · ") || "—"}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="chu-thich">{t("dropshipHint")}</div>
         </section>
       )}
       <div className="khung-bang">

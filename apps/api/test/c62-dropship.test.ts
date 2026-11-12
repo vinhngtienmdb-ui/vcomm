@@ -84,12 +84,12 @@ async function partner(name: string, taxCode: string, profile: Record<string, un
   return created.body.id as string;
 }
 
-async function draftOrder(lines: { variantId: string; quantity: string }[], warehouseId = dropshipWarehouse) {
+async function draftOrder(lines: { variantId: string; quantity: string }[], warehouseId = dropshipWarehouse, customerId: string | null = null) {
   const created = await call(admin, "post", "/sales/orders", {
     channelId,
     warehouseId,
     orderDate: today,
-    buyerName: "Khách lẻ",
+    ...(customerId ? { customerId } : { buyerName: "Khách lẻ" }),
     deliveryAddress: "45 Nguyễn Gia Trí, Bình Thạnh, TP. Hồ Chí Minh",
     lines: lines.map((line) => ({ ...line, unitId: unit("CAI"), discountPercent: "0" })),
   });
@@ -109,6 +109,7 @@ beforeAll(async () => {
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;
   const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   expect((await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code: "DSHIP", nameVi: "Dropship", nameEn: "Dropship" } })).status).toBe(201);
+  expect((await groupAdmin.call("post", "/finance/ledger/setup", { companyId: retail })).status).toBe(201);
   variants.juice = await product("Nước cốt bưởi 500ml");
   variants.honey = await product("Mật ong tràm 1kg");
   variants.noPrice = await product("Khô gà lá chanh");
@@ -264,5 +265,160 @@ describe("TIEUCHI_NGHIEMTHU_460: giữ chỗ theo tồn khai báo", () => {
     const missing = await call(admin, "post", `/sales/orders/${noPrice.id}/submit`);
     expect(missing.status).toBe(400);
     expect(missing.body.error.fields).toMatchObject(fieldsOf({ "lines.0.variantId": "dropshipPriceMissing" }));
+  });
+});
+
+// Lát L2: đơn mua tự lập, báo giao, ghi sổ, giao thất bại.
+type DropshipOrder = {
+  id: string;
+  documentNo: string;
+  status: string;
+  supplierName: string;
+  version: number;
+  totalAmount: string;
+  receipt: { id: string } | null;
+  issue: { id: string } | null;
+  lines: { quantity: string; unitPrice: string }[];
+};
+let supplierB: string;
+let customerId: string;
+async function confirmedDropshipOrder(lines: { variantId: string; quantity: string }[]) {
+  const order = await draftOrder(lines, dropshipWarehouse, customerId);
+  const submitted = await call(admin, "post", `/sales/orders/${order.id}/submit`);
+  expect(submitted.status, JSON.stringify(submitted.body)).toBe(201);
+  expect(submitted.body.status).toBe("confirmed");
+  return submitted.body as { id: string; dropship: { id: string; documentNo: string; supplierName: string; status: string }[] };
+}
+async function dropshipOrder(id: string): Promise<DropshipOrder> {
+  const detail = await call(purchaser, "get", `/purchasing/dropship-orders/${id}`);
+  expect(detail.status, JSON.stringify(detail.body)).toBe(200);
+  return detail.body as DropshipOrder;
+}
+
+describe("TIEUCHI_NGHIEMTHU_461: đơn mua tự lập theo nhà cung cấp", () => {
+  it("KICHBAN_KIEMTHU_642: đơn bán hai nhà cung cấp xác nhận thì có hai đơn mua Đã duyệt, giá theo bảng giá mua, không có yêu cầu duyệt mua", async () => {
+    supplierB = await partner("Hợp tác xã Ong Tràm U Minh", "0320006203", { isSupplier: true });
+    customerId = await partner("Công ty TNHH Khách dropship", "0320006204", { isCustomer: true, paymentTermDays: 10 });
+    variants.tea = await product("Trà ô long 100g");
+    await supplierPrice(variants.tea, supplierB, "88000");
+    expect((await call(purchaser, "post", "/purchasing/dropship-products", { variantId: variants.tea, supplierId: supplierB, unitId: unit("CAI"), declaredQuantity: "50" })).status).toBe(201);
+    const priceList = (await pool.query<{ id: string }>("SELECT id FROM catalog.price_lists WHERE company_id = $1 AND code = 'DSHIP'", [retail])).rows[0]!.id;
+    const change = await call(admin, "post", "/catalog/price-changes", { priceListId: priceList, effectiveFrom: today, lines: [{ variantId: variants.tea, unitId: unit("CAI"), price: "120000" }] });
+    expect((await call(admin, "post", `/catalog/price-changes/${change.body.id}/submit`)).status).toBe(201);
+    const requestsBefore = (await pool.query<{ total: number }>("SELECT count(*)::int AS total FROM core.approval_requests WHERE document_type_code LIKE 'purchasing.%'")).rows[0]!.total;
+
+    const sales = await confirmedDropshipOrder([
+      { variantId: variants.honey!, quantity: "2" },
+      { variantId: variants.tea!, quantity: "3" },
+    ]);
+    expect(sales.dropship).toHaveLength(2);
+    expect(sales.dropship.every((item) => item.status === "awaiting")).toBe(true);
+    const bySupplier = Object.fromEntries(await Promise.all(sales.dropship.map(async (item) => [item.supplierName, await dropshipOrder(item.id)] as const)));
+    expect(bySupplier["Công ty TNHH Nông sản Hòa Bình"]!.lines).toMatchObject([{ quantity: "2", unitPrice: "215000" }]);
+    expect(bySupplier["Hợp tác xã Ong Tràm U Minh"]!.lines).toMatchObject([{ quantity: "3", unitPrice: "88000" }]);
+    const statuses = await pool.query<{ status: string; warehouse_id: string }>("SELECT status, warehouse_id FROM purchasing.orders WHERE dropship_sales_order_id = $1", [sales.id]);
+    expect(statuses.rows.every((row) => row.status === "approved" && row.warehouse_id === dropshipWarehouse)).toBe(true);
+    expect((await pool.query<{ total: number }>("SELECT count(*)::int AS total FROM core.approval_requests WHERE document_type_code LIKE 'purchasing.%'")).rows[0]!.total).toBe(requestsBefore);
+    // Giữ chỗ không hết hạn khi đã có đơn mua.
+    const held = await pool.query<{ expires_at: Date | null }>("SELECT expires_at FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [sales.id]);
+    expect(held.rows.length).toBe(2);
+    expect(held.rows.every((row) => row.expires_at === null)).toBe(true);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_462: báo đã giao ghi sổ nhập mua, xuất bán", () => {
+  it("KICHBAN_KIEMTHU_643: chứng từ, công nợ hai bên, bút toán, giá vốn bằng giá mua, tồn về 0; báo lại không đổi; hai yêu cầu cùng lúc chỉ một bộ chứng từ", async () => {
+    const sales = await confirmedDropshipOrder([{ variantId: variants.honey!, quantity: "2" }]);
+    const order = await dropshipOrder(sales.dropship[0]!.id);
+    const shipping = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/shipping`, { carrierName: "Viettel Post", trackingCode: "VTP8812345601", version: order.version });
+    expect(shipping.status, JSON.stringify(shipping.body)).toBe(201);
+    expect(shipping.body).toMatchObject({ status: "shipping", carrierName: "Viettel Post", trackingCode: "VTP8812345601" });
+    const future = new Date(Date.parse(`${today}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+    const wrongDate = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: future, version: shipping.body.version });
+    expect(wrongDate.status).toBe(400);
+
+    const [first, second] = await Promise.all([
+      call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: today, version: shipping.body.version }),
+      call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: today, version: shipping.body.version }),
+    ]);
+    expect([first.status, second.status].sort(), JSON.stringify([first.body, second.body])).toContain(201);
+    const delivered = await dropshipOrder(order.id);
+    expect(delivered).toMatchObject({ status: "delivered", deliveredOn: today });
+    expect(delivered.receipt).not.toBeNull();
+    expect(delivered.issue).not.toBeNull();
+    const again = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: today, version: delivered.version });
+    expect(again.status).toBe(201);
+
+    const documents = await pool.query<{ id: string; type: string; status: string; document_date: string }>(
+      "SELECT id, type, status, document_date::text FROM inventory.documents WHERE (source_id = $1 AND type = 'purchase_receipt') OR (source_id = $2 AND type = 'sales_issue')",
+      [order.id, sales.id],
+    );
+    expect(documents.rows.map((row) => [row.type, row.status, row.document_date]).sort()).toEqual([
+      ["purchase_receipt", "posted", today],
+      ["sales_issue", "posted", today],
+    ]);
+    const issueId = documents.rows.find((row) => row.type === "sales_issue")!.id;
+    const cost = await pool.query<{ cost_value: string }>("SELECT abs(cost_value)::text AS cost_value FROM inventory.document_lines WHERE document_id = $1", [issueId]);
+    expect(Number(cost.rows[0]!.cost_value)).toBe(430000);
+    const balance = await pool.query<{ quantity: string }>("SELECT coalesce(sum(quantity), 0)::text AS quantity FROM inventory.balances WHERE warehouse_id = $1", [dropshipWarehouse]);
+    expect(Number(balance.rows[0]!.quantity)).toBe(0);
+    const debts = await pool.query<{ side: string; partner_id: string; amount: string }>(
+      "SELECT side, partner_id, amount::text FROM finance.debt_items WHERE source_id = ANY($1::uuid[]) ORDER BY side",
+      [documents.rows.map((row) => row.id)],
+    );
+    expect(debts.rows.map((row) => [row.side, row.partner_id, Number(row.amount)])).toEqual([
+      ["payable", supplierId, 464400],
+      ["receivable", customerId, 120000],
+    ]);
+    const journals = await pool.query<{ total: number }>("SELECT count(*)::int AS total FROM accounting.journals WHERE source_type = 'inventory_document' AND source_id = ANY($1::uuid[])", [
+      documents.rows.map((row) => row.id),
+    ]);
+    expect(journals.rows[0]!.total).toBe(2);
+    const lines = await pool.query<{ code: string; debit: string; credit: string }>(
+      `SELECT a.code, sum(jl.debit)::text AS debit, sum(jl.credit)::text AS credit FROM accounting.journals j JOIN accounting.journal_lines jl ON jl.journal_id = j.id
+       JOIN accounting.accounts a ON a.id = jl.account_id WHERE j.source_type = 'inventory_document' AND j.source_id = ANY($1::uuid[]) GROUP BY a.code ORDER BY a.code`,
+      [documents.rows.map((row) => row.id)],
+    );
+    const byAccount = Object.fromEntries(lines.rows.map((row) => [row.code, Number(row.debit) - Number(row.credit)]));
+    expect(byAccount).toMatchObject({ "156": 0, "632": 430000, "331": -464400, "131": 120000 });
+    const salesAfter = await call(admin, "get", `/sales/orders/${sales.id}`);
+    expect(salesAfter.body.status).toBe("delivered");
+    expect(salesAfter.body.dropship[0]).toMatchObject({ status: "delivered", trackingCode: "VTP8812345601" });
+    expect((await pool.query("SELECT 1 FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [sales.id])).rows).toHaveLength(0);
+    expect((await call(keeper, "get", `/purchasing/dropship-orders/${order.id}`)).status).toBe(403);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_463: giao thất bại", () => {
+  it("KICHBAN_KIEMTHU_644: thất bại khi chưa nhà cung cấp nào giao thì hủy đơn bán; khi nhà cung cấp kia đã giao thì đóng phần còn lại", async () => {
+    const declaredBefore = (await call(purchaser, "get", `/purchasing/dropship-products?search=${encodeURIComponent("Trà ô long")}`)).body.data[0];
+    const single = await confirmedDropshipOrder([{ variantId: variants.tea!, quantity: "2" }]);
+    const order = await dropshipOrder(single.dropship[0]!.id);
+    const noReason = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/failed`, { reason: "", version: order.version });
+    expect(noReason.status).toBe(400);
+    const failed = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/failed`, { reason: "Người nhận không nghe máy", version: order.version });
+    expect(failed.status, JSON.stringify(failed.body)).toBe(201);
+    expect(failed.body).toMatchObject({ status: "failed", reason: "Người nhận không nghe máy" });
+    expect((await call(admin, "get", `/sales/orders/${single.id}`)).body.status).toBe("cancelled");
+    const declaredAfter = (await call(purchaser, "get", `/purchasing/dropship-products?search=${encodeURIComponent("Trà ô long")}`)).body.data[0];
+    expect(declaredAfter.availableQuantity).toBe(declaredBefore.availableQuantity);
+    expect(declaredAfter.declaredQuantity).toBe(declaredBefore.declaredQuantity);
+    const reopen = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/shipping`, { carrierName: null, trackingCode: null, version: failed.body.version });
+    expect(reopen.status).toBe(409);
+
+    const mixed = await confirmedDropshipOrder([
+      { variantId: variants.honey!, quantity: "1" },
+      { variantId: variants.tea!, quantity: "1" },
+    ]);
+    const honey = mixed.dropship.find((item) => item.supplierName === "Công ty TNHH Nông sản Hòa Bình")!;
+    const tea = mixed.dropship.find((item) => item.supplierName === "Hợp tác xã Ong Tràm U Minh")!;
+    const honeyOrder = await dropshipOrder(honey.id);
+    expect((await call(purchaser, "post", `/purchasing/dropship-orders/${honey.id}/delivered`, { deliveredOn: today, version: honeyOrder.version })).status).toBe(201);
+    expect((await call(admin, "get", `/sales/orders/${mixed.id}`)).body.status).toBe("confirmed");
+    const teaOrder = await dropshipOrder(tea.id);
+    expect((await call(purchaser, "post", `/purchasing/dropship-orders/${tea.id}/cancel`, { reason: "Nhà cung cấp hết hàng", version: teaOrder.version })).status).toBe(201);
+    const closed = await call(admin, "get", `/sales/orders/${mixed.id}`);
+    expect(closed.body.status).toBe("closed");
+    expect((await pool.query("SELECT 1 FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [mixed.id])).rows).toHaveLength(0);
   });
 });

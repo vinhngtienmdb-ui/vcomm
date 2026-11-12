@@ -84,3 +84,112 @@ export interface DropshipStockImportResponse {
 
 // Cột tệp Excel nhập tồn (dòng đầu là tiêu đề).
 export const dropshipStockImportColumns = ["Mã biến thể", "Tồn khai báo"] as const;
+
+// Đơn mua dropship (API_267, API_268; QUYTAC_NGHIEPVU_500 đến 502, 504).
+export const dropshipStatuses = ["awaiting", "shipping", "delivered", "failed", "cancelled"] as const;
+export type DropshipStatus = (typeof dropshipStatuses)[number];
+const isoDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const reasonText = z.string().trim().min(1).max(500);
+const optionalText = (maximum: number) =>
+  z
+    .string()
+    .trim()
+    .max(maximum)
+    .nullable()
+    .optional()
+    .transform((value) => (value ? value : null));
+
+export const dropshipOrderListQuerySchema = z
+  .object({
+    status: z.enum(dropshipStatuses).optional(),
+    supplierId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    overdueOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    missingInvoiceOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export const dropshipShippingSchema = z.object({ carrierName: optionalText(100), trackingCode: optionalText(100), version: z.number().int().min(1) }).strict();
+export const dropshipDeliveredSchema = z.object({ deliveredOn: isoDay, version: z.number().int().min(1) }).strict();
+export const dropshipReasonSchema = z.object({ reason: reasonText, version: z.number().int().min(1) }).strict();
+export const dropshipSupplierInvoiceSchema = z.object({ invoiceNo: z.string().trim().min(1).max(50), invoiceDate: isoDay, version: z.number().int().min(1) }).strict();
+export type DropshipShippingRequest = z.input<typeof dropshipShippingSchema>;
+export type DropshipDeliveredRequest = z.input<typeof dropshipDeliveredSchema>;
+export type DropshipReasonRequest = z.input<typeof dropshipReasonSchema>;
+export type DropshipSupplierInvoiceRequest = z.input<typeof dropshipSupplierInvoiceSchema>;
+
+export interface DropshipOrderListItem {
+  id: string;
+  documentNo: string;
+  salesOrderId: string;
+  salesOrderNo: string | null;
+  supplierId: string;
+  supplierName: string;
+  recipientName: string | null;
+  deliveryAddress: string | null;
+  lineCount: number;
+  totalAmount: string;
+  currency: string;
+  status: DropshipStatus;
+  orderDate: string;
+  // Chờ giao quá 2 ngày kể từ ngày đơn.
+  overdue: boolean;
+  supplierInvoiceNo: string | null;
+}
+
+export interface DropshipOrderLine {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  supplierSku: string | null;
+  unitName: string;
+  quantity: string;
+  unitPrice: string;
+  vatRate: string;
+  amount: string;
+}
+
+export interface DropshipEventResponse {
+  status: DropshipStatus;
+  note: string | null;
+  actorName: string;
+  createdAt: string;
+}
+
+export interface DropshipOrderResponse extends DropshipOrderListItem {
+  salesOrderStatus: string;
+  warehouseName: string;
+  recipientPhone: string | null;
+  carrierName: string | null;
+  trackingCode: string | null;
+  deliveredOn: string | null;
+  reason: string | null;
+  supplierInvoiceDate: string | null;
+  taxAmount: string;
+  receipt: { id: string; documentNo: string } | null;
+  issue: { id: string; documentNo: string } | null;
+  lines: DropshipOrderLine[];
+  events: DropshipEventResponse[];
+  canManage: boolean;
+  version: number;
+}
+
+// Khối Dropship trong chi tiết đơn bán.
+export interface SalesOrderDropshipItem {
+  id: string;
+  documentNo: string;
+  supplierName: string;
+  lineCount: number;
+  status: DropshipStatus;
+  carrierName: string | null;
+  trackingCode: string | null;
+}

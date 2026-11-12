@@ -2864,6 +2864,8 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   deliveryAddress: string | null;
   recipient: { name: string; phone: string } | null;
   customerCreatedViaOpenApi: boolean;
+  // CONG_VIEC_62: đơn mua dropship theo nhà cung cấp khi kho xuất là kho Dropship (rỗng với kho thường).
+  dropship: import("./dropship").SalesOrderDropshipItem[];
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];

@@ -273,6 +273,19 @@ export class ReservationsService {
     if (rows.rows.length === 0) throw new ApiError("BUSINESS_RULE", "dropshipPriceMissing");
   }
 
+  // Đơn bán dropship đã có đơn mua: giữ chỗ không hết hạn đến khi giao, thất bại hoặc hủy (QUYTAC_NGHIEPVU_498, 500).
+  async holdWithoutExpiry(transaction: Executor, sourceType: string, sourceId: string): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE inventory.reservations SET expires_at = NULL, version = version + 1 WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND status = 'active'`);
+  }
+
+  // Nhả phần giữ của một số mặt hàng của nguồn (nhà cung cấp dropship giao thất bại, hủy) (QUYTAC_NGHIEPVU_502).
+  async releaseVariants(transaction: Executor, sourceType: string, sourceId: string, variantIds: string[]): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE inventory.reservations SET status = 'released', released_at = now(), version = version + 1
+      WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND status = 'active' AND variant_id = ANY(${pgArray(variantIds)}::uuid[])`);
+  }
+
   async closeBySource(transaction: Executor, sourceType: string, sourceId: string, status: "released" | "consumed"): Promise<void> {
     await transaction.execute(sql`
       UPDATE inventory.reservations SET status = ${status}, released_at = now(), version = version + 1
