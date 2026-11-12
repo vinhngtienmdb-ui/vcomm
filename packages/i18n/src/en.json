@@ -561,7 +561,8 @@
     "retailReturnsDisabled": "This store does not accept returns.",
     "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
     "followUpDateRange": "The follow-up date must be between today and 365 days from now.",
-    "followUpAlreadyDone": "This follow-up is already marked as done."
+    "followUpAlreadyDone": "This follow-up is already marked as done.",
+    "revenueMonthRange": "Pick a month between when you joined the sales team and the current month, up to 24 months."
   },
   "login": {
     "title": "Sign in",
@@ -3766,7 +3767,16 @@
     "notificationsTitle": "Notifications",
     "notificationsUnread": "{count} unread",
     "noNotifications": "No notifications yet.",
-    "notificationNew": "New"
+    "notificationNew": "New",
+    "revenueTitle": "Revenue",
+    "revenueThisMonth": "Revenue this month",
+    "revenueMine": "Mine",
+    "revenueCompleted": "Orders completed this month",
+    "revenueCompletedHint": "{orders} orders · {customers} customers",
+    "revenueOpen": "In progress (now)",
+    "revenueBranch": "My branch · total {amount}",
+    "revenueBranchOpen": "In progress across the branch: {count} orders · {amount}",
+    "revenueMemberHint": "{title} · {orders} orders · {customers} customers"
   },
   "buyers": {
     "title": "Buyer accounts",

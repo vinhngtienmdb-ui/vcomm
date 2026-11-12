@@ -17,6 +17,8 @@ import {
   careNoteListQuerySchema,
   createCareNoteSchema,
   type FollowUpsResponse,
+  salesRevenueQuerySchema,
+  type SalesRevenueResponse,
   type BuyerSalesCustomerItem,
   type MySalesTeamResponse,
   type BuyerWalletResponse,
@@ -31,6 +33,7 @@ import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.
 import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
 import { SalesCareService } from "./sales-care.service";
+import { SalesRevenueService } from "./sales-revenue.service";
 import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { WithdrawalsService } from "./withdrawals.service";
@@ -40,6 +43,7 @@ export class BuyerController {
   constructor(
     private readonly buyers: BuyerAccountsService,
     private readonly care: SalesCareService,
+    private readonly revenue: SalesRevenueService,
     private readonly proposals: SalesProposalsService,
     private readonly commissions: MarketplaceCommissionsService,
     private readonly withdrawals: WithdrawalsService,
@@ -150,6 +154,12 @@ export class BuyerController {
   @HttpCode(200)
   async followUpDone(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<CareNoteItem> {
     return this.care.markDone(request.auth.userId, id, clientInfo(request));
+  }
+
+  // API_231: doanh số tháng của tôi và của nhánh (CONG_VIEC_22).
+  @Get("sales/revenue")
+  async salesRevenue(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<SalesRevenueResponse> {
+    return this.revenue.revenue(request.auth.userId, salesRevenueQuerySchema.parse(query).month);
   }
 
   // API_135: ví hoa hồng của chính người gọi (CONG_VIEC_26).

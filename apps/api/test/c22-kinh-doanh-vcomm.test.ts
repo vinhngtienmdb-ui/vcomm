@@ -250,10 +250,16 @@ describe("CONG_VIEC_22 ghi chú chăm sóc, hẹn", () => {
     await service.remindDue();
     expect((await pool.query("SELECT count(*)::int AS total FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.other])).rows[0].total).toBe(0);
     await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.other, customers.ofOther]);
-    // Bỏ đánh dấu nhân viên kinh doanh: không nhắc.
+    // Bỏ đánh dấu nhân viên kinh doanh: không nhắc (trả lại đánh dấu sau khi thử).
+    const flagged = (await pool.query("SELECT sales_company_id, sales_department_id FROM marketplace.buyer_accounts WHERE user_id = $1", [people.other])).rows[0];
     await pool.query("UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL WHERE user_id = $1", [people.other]);
     await service.remindDue();
     expect((await pool.query("SELECT count(*)::int AS total FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.other])).rows[0].total).toBe(0);
+    await pool.query("UPDATE marketplace.buyer_accounts SET is_sales_staff = true, sales_company_id = $2, sales_department_id = $3 WHERE user_id = $1", [
+      people.other,
+      flagged.sales_company_id,
+      flagged.sales_department_id,
+    ]);
     expect(other).toEqual(expect.any(String));
     // QUYTAC_NGHIEPVU_438: ứng dụng đọc thông báo của chính mình qua API_48, đánh dấu đã đọc.
     const list = await sessions.head("get", "/notifications");
@@ -265,5 +271,69 @@ describe("CONG_VIEC_22 ghi chú chăm sóc, hẹn", () => {
     expect((await sessions.head("get", "/notifications")).body.unreadCount).toBe(unread - 1);
     // Không đọc được thông báo của người khác.
     expect((await sessions.staff("post", `/notifications/${reminder.id}/read`)).status).toBe(404);
+  });
+});
+
+describe("CONG_VIEC_22 doanh số", () => {
+  const currentMonth = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date()).slice(0, 7);
+  const amountOf = async (orderId: string, column: "completed_amount" | "goods_amount") =>
+    Number((await pool.query(`SELECT ${column}::float AS value FROM marketplace.orders WHERE id = $1`, [orderId])).rows[0].value);
+
+  it("KICHBAN_KIEMTHU_578: doanh số tháng của tôi theo đơn hoàn tất (tiền hoàn tất, ranh giới tháng giờ Việt Nam), đơn đang xử lý; đơn tính cho người phụ trách lúc đặt; tháng ngoài phạm vi 400; người không được đánh dấu 403", async () => {
+    const month = currentMonth();
+    // Đơn của kịch bản 574: một hoàn tất, một đang chờ giao, một đã hủy; người phụ trách lúc đặt là Nhân viên Một.
+    const orders = (await pool.query("SELECT id, status, sales_staff_user_id FROM marketplace.orders WHERE buyer_user_id = $1 ORDER BY created_at", [customers.ofStaff])).rows;
+    expect(orders.map((row: { sales_staff_user_id: string }) => row.sales_staff_user_id)).toEqual([people.staff, people.staff, people.staff]);
+    const completed = orders.find((row: { status: string }) => row.status === "completed").id as string;
+    const open = orders.filter((row: { status: string }) => !["completed", "cancelled"].includes(row.status));
+    const mine = (await sessions.staff("get", "/buyer/sales/revenue")).body;
+    expect(mine.month).toBe(month);
+    expect(mine.months[0]).toBe(month);
+    expect(mine.me).toMatchObject({ userId: people.staff, title: "staff", completedOrderCount: 1, customerCount: 1, openOrderCount: open.length });
+    expect(Number(mine.me.completedAmount)).toBe(await amountOf(completed, "completed_amount"));
+    expect(Number(mine.me.openAmount)).toBe(await amountOf(open[0].id, "goods_amount"));
+    expect(mine.members).toEqual([]);
+    // Ranh giới tháng: hoàn tất lúc 23:59:59 ngày cuối tháng trước (giờ Việt Nam) thì không tính vào tháng này.
+    const original = (await pool.query("SELECT completed_at FROM marketplace.orders WHERE id = $1", [completed])).rows[0].completed_at as Date;
+    await pool.query("UPDATE marketplace.orders SET completed_at = ($2::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh') - interval '1 second' WHERE id = $1", [completed, `${month}-01`]);
+    expect((await sessions.staff("get", "/buyer/sales/revenue")).body.me.completedOrderCount).toBe(0);
+    await pool.query("UPDATE marketplace.orders SET completed_at = ($2::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh') WHERE id = $1", [completed, `${month}-01`]);
+    expect((await sessions.staff("get", "/buyer/sales/revenue")).body.me.completedOrderCount).toBe(1);
+    await pool.query("UPDATE marketplace.orders SET completed_at = $2 WHERE id = $1", [completed, original]);
+    // Khách chuyển sang Trưởng phòng phụ trách: đơn mới tính cho Trưởng phòng, đơn cũ vẫn của Nhân viên Một.
+    await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.head, customers.ofStaff]);
+    const later = await placeOrder(sessions.buyer, [{ variantId: store.variants.cream, quantity: 1 }]);
+    expect((await pool.query("SELECT sales_staff_user_id FROM marketplace.orders WHERE id = $1", [later.id])).rows[0].sales_staff_user_id).toBe(people.head);
+    expect((await sessions.staff("get", "/buyer/sales/revenue")).body.me.completedOrderCount).toBe(1);
+    expect((await sessions.head("get", "/buyer/sales/revenue")).body.me.openOrderCount).toBe(1);
+    await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.staff, customers.ofStaff]);
+    // Người giới thiệu thường: đơn không có người phụ trách.
+    const plainBuyer = await store.buyerSession("0939100003");
+    const plainOrder = await placeOrder(plainBuyer, [{ variantId: store.variants.cream, quantity: 1 }]);
+    expect((await pool.query("SELECT sales_staff_user_id FROM marketplace.orders WHERE id = $1", [plainOrder.id])).rows[0].sales_staff_user_id).toBeNull();
+    // Tháng ngoài phạm vi, sai dạng: 400; người không được đánh dấu: 403.
+    const future = await sessions.staff("get", "/buyer/sales/revenue?month=2099-01");
+    expect(future.status).toBe(400);
+    expect(future.body.error.fields.month).toBe("Chọn tháng từ khi được đánh dấu nhân viên kinh doanh đến tháng hiện tại, tối đa 24 tháng.");
+    expect((await sessions.staff("get", "/buyer/sales/revenue?month=2026-13")).status).toBe(400);
+    expect((await sessions.plain("get", "/buyer/sales/revenue")).status).toBe(403);
+  });
+
+  it("KICHBAN_KIEMTHU_579: người quản lý xem doanh số từng người trong nhánh, tổng nhánh khớp; không thấy người ngoài nhánh; nhân viên không có cấp dưới chỉ thấy của mình", async () => {
+    const head = (await sessions.head("get", "/buyer/sales/revenue")).body;
+    expect(head.me).toMatchObject({ userId: people.head, title: "team_head" });
+    expect(head.members.map((row: { userId: string }) => row.userId)).toEqual([people.staff]);
+    const rows = [head.me, ...head.members];
+    expect(head.branchTotal.completedOrderCount).toBe(rows.reduce((total: number, row: { completedOrderCount: number }) => total + row.completedOrderCount, 0));
+    expect(Number(head.branchTotal.completedAmount)).toBeCloseTo(
+      rows.reduce((total: number, row: { completedAmount: string }) => total + Number(row.completedAmount), 0),
+      2,
+    );
+    expect(head.branchTotal.openOrderCount).toBe(rows.reduce((total: number, row: { openOrderCount: number }) => total + row.openOrderCount, 0));
+    expect(head.members[0]).toMatchObject({ completedOrderCount: 1, customerCount: 1 });
+    // Nhân viên phòng khác không thuộc nhánh của Trưởng phòng; xem được của mình.
+    const other = (await sessions.other("get", "/buyer/sales/revenue")).body;
+    expect(other.me.userId).toBe(people.other);
+    expect(other.members).toEqual([]);
   });
 });

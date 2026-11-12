@@ -81,11 +81,11 @@ MAN_HINH_202, 203 để dự phòng.
 ## 8. Dữ liệu và API
 
 - Database migration 0113 `marketplace.customer_care_notes`: `id`, `company_id` (công ty vận hành sàn), `buyer_user_id`, `author_user_id`, `channel` (`call`, `message`, `meeting`, `other`), `content` (1 đến 1.000 ký tự), `follow_up_on` (date, có thể trống), `follow_up_done_at`, `created_at`; kiểm tra `follow_up_done_at` chỉ có khi có `follow_up_on`. Chỉ mục theo khách và thời điểm; chỉ mục một phần theo người ghi và ngày hẹn cho hẹn chờ. Không sửa, không xóa (trừ cột đã xong).
-- Database migration 0114: thêm cột `marketplace.orders.sales_staff_user_id` (người phụ trách khách lúc đặt đơn, có thể trống), ghi khi đặt đơn (sửa dịch vụ đặt hàng của CONG_VIEC_24, không đổi hợp đồng API); điền cho đơn cũ từ dòng hoa hồng phần `staff` của đơn nếu có; chỉ mục theo người phụ trách và `completed_at` cho đơn hoàn tất.
+- Database migration 0114: thêm cột `marketplace.orders.sales_staff_user_id` (người phụ trách khách lúc đặt đơn, có thể trống), ghi khi đặt đơn cùng chỗ chụp người giới thiệu và người hưởng hoa hồng (`MarketplaceCommissionsService.snapshot`, không đổi hợp đồng API); điền cho đơn cũ từ dòng hoa hồng phần `staff` của đơn nếu có; chỉ mục theo người phụ trách và `completed_at` cho đơn hoàn tất.
 - API_228 `GET /buyer/sales/customers/:id`: chi tiết khách (QUYTAC_NGHIEPVU_432, 433).
 - API_229 `POST /buyer/sales/customers/:id/notes`: thêm ghi chú (QUYTAC_NGHIEPVU_435; ngày hẹn sai trả 400 ở ô `followUpOn`). `GET /buyer/sales/customers/:id/notes?page=`: 20 ghi chú mỗi trang, mới nhất trước, kèm `hasMore`.
 - API_230 `GET /buyer/sales/follow-ups`: hẹn của tôi (QUYTAC_NGHIEPVU_436); `POST /buyer/sales/follow-ups/:noteId/done`: đánh dấu đã xong (chỉ người ghi).
-- API_231 `GET /buyer/sales/revenue?month=YYYY-MM`: doanh số của tôi và nhánh (QUYTAC_NGHIEPVU_439, 440).
+- API_231 `GET /buyer/sales/revenue?month=YYYY-MM`: doanh số của tôi và nhánh (QUYTAC_NGHIEPVU_439, 440); trả `months` (tháng chọn được), `me`, `members`, `branchTotal`; tháng ngoài phạm vi trả 400 ở ô `month`.
 - API_48 dùng lại cho thông báo trên ứng dụng. API_232 đến 234 để dự phòng.
 - Việc nền `marketplace-sales-follow-ups` (BullMQ, `0 7 * * *` giờ Việt Nam) tạo thông báo nhắc hẹn.
 - Sửa API_114: `POST /crm/visits` trả 409 `BUSINESS_RULE` (QUYTAC_NGHIEPVU_441).
@@ -123,7 +123,7 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
 
-Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt).
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt; người dùng đồng ý 2026-11-12). L4 xong (migration 0114, API_231, MAN_HINH_199; KICHBAN_KIEMTHU_578, 579 đạt). KICHBAN_KIEMTHU_583 (hiệu năng, Mong muốn) chưa chạy.
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật

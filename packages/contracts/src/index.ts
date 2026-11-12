@@ -4085,6 +4085,30 @@ export interface FollowUpsResponse {
   upcoming: FollowUpItem[];
 }
 
+// API_231: doanh số tháng của tôi và của nhánh (CONG_VIEC_22; QUYTAC_NGHIEPVU_439, 440).
+export const salesRevenueQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() }).strict();
+
+export interface SalesRevenueRow {
+  userId: string;
+  fullName: string;
+  title: SalesTitle;
+  completedOrderCount: number;
+  customerCount: number;
+  completedAmount: string;
+  openOrderCount: number;
+  openAmount: string;
+}
+
+export interface SalesRevenueResponse {
+  month: string;
+  // Các tháng chọn được, mới nhất trước.
+  months: string[];
+  me: SalesRevenueRow;
+  // Người trong nhánh (người quản lý); nhân viên không có cấp dưới thì rỗng.
+  members: SalesRevenueRow[];
+  branchTotal: { completedOrderCount: number; completedAmount: string; openOrderCount: number; openAmount: string };
+}
+
 export interface BuyerAccountListItem {
   id: string;
   fullName: string;

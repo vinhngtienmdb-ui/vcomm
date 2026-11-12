@@ -561,7 +561,8 @@
     "retailReturnsDisabled": "Cửa hàng không nhận trả hàng.",
     "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản.",
     "followUpDateRange": "Ngày hẹn phải từ hôm nay đến 365 ngày sau.",
-    "followUpAlreadyDone": "Hẹn này đã được đánh dấu xong."
+    "followUpAlreadyDone": "Hẹn này đã được đánh dấu xong.",
+    "revenueMonthRange": "Chọn tháng từ khi được đánh dấu nhân viên kinh doanh đến tháng hiện tại, tối đa 24 tháng."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3766,7 +3767,16 @@
     "notificationsTitle": "Thông báo",
     "notificationsUnread": "{count} chưa đọc",
     "noNotifications": "Chưa có thông báo.",
-    "notificationNew": "Mới"
+    "notificationNew": "Mới",
+    "revenueTitle": "Doanh số",
+    "revenueThisMonth": "Doanh số tháng này",
+    "revenueMine": "Của tôi",
+    "revenueCompleted": "Đơn hoàn tất trong tháng",
+    "revenueCompletedHint": "{orders} đơn · {customers} khách",
+    "revenueOpen": "Đang xử lý (hiện tại)",
+    "revenueBranch": "Nhánh của tôi · tổng {amount}",
+    "revenueBranchOpen": "Đang xử lý cả nhánh: {count} đơn · {amount}",
+    "revenueMemberHint": "{title} · {orders} đơn · {customers} khách"
   },
   "buyers": {
     "title": "Tài khoản người mua",

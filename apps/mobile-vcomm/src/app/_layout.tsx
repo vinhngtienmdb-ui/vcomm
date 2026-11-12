@@ -49,6 +49,7 @@ function Gate() {
       <Stack.Screen name="ghi-chu/[id]" />
       <Stack.Screen name="hen" />
       <Stack.Screen name="thong-bao" />
+      <Stack.Screen name="doanh-so" />
       <Stack.Screen name="de-xuat" />
       <Stack.Screen name="san-pham/[id]" />
       <Stack.Screen name="gio-hang" />
