@@ -2101,6 +2101,27 @@ Yêu cầu phi chức năng:
 - Việc nền (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn nộp, đề nghị quá hạn trả lời), `hr-candidate-erasure` lúc 1 giờ (xóa ứng viên đến ngày xóa), `hr-review-reminders` lúc 8 giờ (nhắc quá hạn đặt mục tiêu, quá hạn chấm).
 - Không thêm thư viện. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
 
+## MODULE_13 Văn phòng số (phần 1: công việc, quy trình, công văn, bảng tin, CONG_VIEC_52)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_182 | Công việc: lập, giao (cả người công ty khác trong tập đoàn), việc con, cập nhật tiến độ, chuyển trạng thái, người theo dõi, bình luận, đính kèm, nhắc hạn; danh sách Việc của tôi, Tôi giao, Theo dõi, Việc của công ty | YCAU_NGHIEPVU_98, 99 |
+| CHUC_NANG_183 | Quy trình theo mẫu: thiết kế mẫu (biểu mẫu khởi tạo, bước, kết quả, điều kiện chuyển, song song, gộp), kiểm tra hợp lệ, phiên bản; khởi tạo, chạy, theo dõi, hủy phiên quy trình; sơ đồ luồng chỉ xem | YCAU_NGHIEPVU_100 |
+| CHUC_NANG_184 | Công văn đến, đi: sổ, loại văn bản, thông tin thể thức của công ty; vào sổ công văn đến, trình, giao xử lý thành công việc; soạn công văn đi theo thể thức, xuất PDF, Word, trình ký qua luồng duyệt, cấp số, tải bản đã ký, phát hành nội bộ và liên công ty; xuất sổ | YCAU_NGHIEPVU_101, 102, 103 |
+| CHUC_NANG_185 | Bảng tin nội bộ: đăng tin theo đối tượng, ghim, hẹn giờ, hết hạn hiển thị, đính kèm, xác nhận đã đọc, bình luận, thu hồi | YCAU_NGHIEPVU_104 |
+
+- Quy tắc: QUYTAC_NGHIEPVU_356 đến QUYTAC_NGHIEPVU_359 → CHUC_NANG_182; QUYTAC_NGHIEPVU_360 đến QUYTAC_NGHIEPVU_362 → CHUC_NANG_183; QUYTAC_NGHIEPVU_363 đến QUYTAC_NGHIEPVU_366 → CHUC_NANG_184; QUYTAC_NGHIEPVU_367 → CHUC_NANG_185
+- Màn hình: MAN_HINH_153 đến MAN_HINH_160 (mini app `apps/web-office`, đường dẫn `/office`); API: API_184 đến API_191; Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_339 đến TIEUCHI_NGHIEMTHU_348; database migration 0090 đến 0093 (schema `office`)
+
+Yêu cầu phi chức năng:
+- Cách ly dữ liệu: mọi bản ghi thuộc công ty; người công ty khác trong tập đoàn chỉ thấy việc mình tham gia và tin toàn tập đoàn; không có quyền xem trả `404`.
+- Đồng thời: cấp số đến, số đi qua bộ đếm theo sổ và năm trong cùng giao dịch (`INSERT … ON CONFLICT … RETURNING`); xét chuyển bước quy trình khóa phiên (`FOR UPDATE`); mọi thao tác đổi trạng thái kiểm phiên bản.
+- Tệp: tối đa 20 MB, kiểm phần mở rộng và chữ ký đầu tệp; bản quét công văn đến chỉ PDF, JPG, PNG; tải xuống có `content-disposition` an toàn, `x-content-type-options: nosniff`.
+- Nội dung có định dạng không lưu, không chèn HTML; đường dẫn trong tin chỉ http, https.
+- Thể thức xuất PDF (phông Liberation Serif, SIL OFL 1.1) và Word (thư viện `docx` 9.15.3, MIT) theo Phụ lục I Nghị định 30/2020/NĐ-CP; người dùng duyệt thêm thư viện, phông ngày 2026-11-11 (tài liệu `13`).
+- Việc nền (BullMQ): `office-task-reminders` mỗi 15 phút (nhắc hạn), `office-post-publish` mỗi phút (thông báo tin hẹn giờ cần xác nhận đọc).
+- Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_52.md`.
+
 ## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
 
 ### CHUC_NANG_178: Chương trình điểm theo giai đoạn và bảng hạng
