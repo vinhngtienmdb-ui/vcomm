@@ -4128,6 +4128,17 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
 - Lát: L5 (CONG_VIEC_57)
 
+### KICHBAN_KIEMTHU_572: Trả hàng đơn của trạm, vận hành sàn chỉ xem đơn của trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_400, TIEUCHI_NGHIEMTHU_401 (phần phạm vi)
+- Chức năng: CHUC_NANG_203
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Khách mua; Nhân viên vận hành sàn; Cửa hàng trưởng trạm của đơn; Cửa hàng trưởng trạm khác
+- Điều kiện ban đầu và dữ liệu: Trạm Thủ Đức, Quận 1; đơn nhận tại trạm Thủ Đức 2 kem, trả khi nhận.
+- Các bước: (1) Vận hành lọc đơn theo trạm, cách nhận; xem chi tiết đơn Sẵn sàng nhận; thử hủy. (2) Giao tại trạm, khách gửi yêu cầu trả 1 kem. (3) Vận hành duyệt, thử "Đã nhận hàng trả". (4) Trạm khác xem, nhận. (5) Trạm của đơn nhận với phiên bản cũ, rồi đúng phiên bản, rồi nhận lần nữa.
+- Kết quả mong đợi: Bước 1: lọc đúng; chi tiết có hạn giữ, không có mã nhận hàng, không hủy, không giao vận chuyển; hủy bị chặn. Bước 2: yêu cầu có trạm nhận hàng trả. Bước 3: thông báo duyệt ghi tên, địa chỉ, giờ mở cửa trạm; vận hành nhận bị chặn. Bước 4: không thấy, `404`. Bước 5: `409` phiên bản; phiếu nhận hàng trả lại ghi sổ vào kho trạm (tồn 3 → 4), việc chờ hoàn 250.000, người nhận; nhận lần nữa bị chặn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-returns.test.ts`
+- Lát: L6 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

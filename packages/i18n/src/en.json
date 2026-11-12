@@ -566,6 +566,8 @@
     "stationUnavailable": "The chosen station no longer accepts orders for this method or address. Choose another station.",
     "stationOutOfStock": "The chosen station no longer has enough stock. Choose another station.",
     "stationOrderNotShippable": "This order is fulfilled by a station, not by a carrier.",
+    "stationReturnAtStation": "Returns of station orders are received by the station.",
+    "stationOrderOperatorReadOnly": "Station orders are handled by the station; marketplace staff can only view them.",
     "stationOrderNotPreparable": "The order is not awaiting preparation.",
     "stationOrderNotReady": "The order is not ready for pickup, or was handed over or cancelled.",
     "stationCodeNotFound": "No order waiting for pickup with this code at this station.",
@@ -3764,7 +3766,8 @@
     "pickupCodeTitle": "Pickup code",
     "pickupReady": "Your order is ready. Come to the station before {time} and show this code.",
     "stationPreparing": "The station is preparing your order. You will be notified when it is ready.",
-    "orderStatus_delivery_failed": "Delivery failed"
+    "orderStatus_delivery_failed": "Delivery failed",
+    "returnToStation": "Bring the goods to station {name}: {address} (open {hours}). The station checks and confirms receipt."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -4109,7 +4112,17 @@
     "pointsSkipped_zero": "Not earned: 0 points or cap reached",
     "pointsCancelled": "Cancelled; no points",
     "status_awaiting_group": "Awaiting group close",
-    "status_ready_for_pickup": "Ready for pickup"
+    "status_ready_for_pickup": "Ready for pickup",
+    "fulfillment": "Fulfillment",
+    "fulfillment_carrier": "Carrier delivery",
+    "fulfillment_station_pickup": "Station pickup",
+    "fulfillment_station_delivery": "Station delivery",
+    "station": "Station",
+    "stationReadyAt": "Ready at",
+    "stationHoldUntil": "Held until",
+    "stationDelivery": "Station delivery",
+    "stationDeliveryValue": "Failed attempts: {attempts}/3 · Courier: {courier}",
+    "stationReadOnly": "Station orders are prepared, delivered and cancelled by the station in the Retail app; view only here."
   },
   "returnRequests": {
     "title": "Return requests",
@@ -4141,7 +4154,8 @@
     "done_approve": "Request approved.",
     "done_reject": "Request rejected.",
     "done_receive": "Goods received back into stock.",
-    "done_not-received": "Request closed."
+    "done_not-received": "Request closed.",
+    "returnStation": "Return goods to station: {station}. The station confirms receipt."
   },
   "paymentMethods": {
     "cod": "Cash on delivery",
@@ -6857,7 +6871,8 @@
     "returns": "Returns",
     "onlineOrders": "Online orders",
     "handover": "Hand over",
-    "deliveries": "My deliveries"
+    "deliveries": "My deliveries",
+    "stationReturns": "Receive returns"
   },
   "retailStores": {
     "title": "Store setup",
@@ -7236,5 +7251,26 @@
     "assignTo": "Choose a courier",
     "assignDone": "Courier assigned.",
     "readyDeliveryHint": "Assign a courier or let couriers take it. The customer reads the pickup code on delivery."
+  },
+  "retailStationReturns": {
+    "title": "Receive returns at station",
+    "store": "Station",
+    "allStores": "All stations",
+    "status": "Status",
+    "status_approved": "Awaiting receipt",
+    "status_received": "Received",
+    "searchPlaceholder": "Order number or phone",
+    "order": "Order",
+    "customer": "Customer",
+    "goods": "Returned goods",
+    "approvedAt": "Approved at",
+    "receivedAt": "Received at",
+    "receive": "Goods received",
+    "confirm": "Confirm all returned goods of order {order} were received? A sales return document into the station warehouse and a refund task will be created.",
+    "done": "Return received, document {document}.",
+    "receivedBy": "{name} · document {document}",
+    "none": "No approved returns awaiting receipt.",
+    "noneReceived": "No returns received yet.",
+    "hint": "\"Goods received\" creates a sales return into the station warehouse at the issue cost and a refund task in the existing VComm refund flow. If the customer never brings the goods, VComm staff close the request."
   }
 }

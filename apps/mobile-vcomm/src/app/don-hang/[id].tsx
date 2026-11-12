@@ -255,7 +255,16 @@ export default function OrderScreen() {
                     <Muted>{request.lines.map((line) => `${line.quantity} × ${line.productName}`).join(", ")}</Muted>
                     <Muted>{`${dateTime(request.createdAt)} · ${request.description}`}</Muted>
                     {request.decisionNote ? <Muted>{t("returnNote", { note: request.decisionNote })}</Muted> : null}
-                    {request.status === "approved" ? <Notice tone="info" text={t("returnSendBack")} /> : null}
+                    {request.status === "approved" ? (
+                      <Notice
+                        tone="info"
+                        text={
+                          request.returnStation
+                            ? t("returnToStation", { name: request.returnStation.name, address: request.returnStation.address, hours: request.returnStation.openingHours })
+                            : t("returnSendBack")
+                        }
+                      />
+                    ) : null}
                     {request.canWithdraw ? <Button label={t("returnWithdraw")} kind="secondary" onPress={() => void withdraw(request.id, request.version)} /> : null}
                   </View>
                 ))}

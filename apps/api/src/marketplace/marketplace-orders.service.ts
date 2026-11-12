@@ -591,24 +591,37 @@ export class MarketplaceOrdersService {
   }
 
   async adminCancel(actor: BuyerAdminActor, orderId: string, version: number, reason: string): Promise<MarketplaceOrderDetail> {
+    // Đơn của trạm do trạm hủy; vận hành sàn chỉ xem (QUYTAC_NGHIEPVU_424, 431).
+    const station = (await this.database.execute<{ station_id: string | null }>(sql`SELECT station_id FROM marketplace.orders WHERE id = ${orderId}`)).rows[0];
+    if (station?.station_id) throw new ApiError("BUSINESS_RULE", "stationOrderOperatorReadOnly");
     await this.cancelWithin({ userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client }, orderId, version, reason, "staff", null);
     return this.adminDetail(actor, orderId, true);
   }
 
   async adminList(
     actor: BuyerAdminActor,
-    query: { status?: MarketplaceOrderStatus | undefined; search?: string | undefined; page: number; pageSize: number },
+    query: {
+      status?: MarketplaceOrderStatus | undefined;
+      search?: string | undefined;
+      fulfillmentMode?: FulfillmentMode | undefined;
+      stationId?: string | undefined;
+      page: number;
+      pageSize: number;
+    },
   ): Promise<PageResponse<MarketplaceOrderListItem>> {
     const text = query.search?.trim() ?? "";
     const digits = text.replace(/[^0-9]/g, "");
     const phone = digits.startsWith("0") ? `+84${digits.slice(1)}` : digits;
     const where = sql`m.company_id = ${actor.operatorCompanyId} AND (${query.status ?? null}::text IS NULL OR m.status = ${query.status ?? null}::text)
+      AND (${query.fulfillmentMode ?? null}::text IS NULL OR m.fulfillment_mode = ${query.fulfillmentMode ?? null}::text)
+      AND (${query.stationId ?? null}::uuid IS NULL OR m.station_id = ${query.stationId ?? null}::uuid)
       AND (${text}::text = '' OR upper(so.document_no) = upper(${text}::text) OR (${digits.length >= 6} AND (u.phone LIKE ${`%${phone}%`}::text OR m.recipient_phone LIKE ${`%${phone}%`}::text)))`;
     const total = (
       await this.database.execute<{ total: number }>(sql`
       SELECT count(*)::int AS total FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN core.users u ON u.id = m.buyer_user_id WHERE ${where}`)
     ).rows[0]!.total;
     const rows = await this.database.execute<OrderRow>(sql`${orderSelect} WHERE ${where} ORDER BY m.created_at DESC, m.id LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
+    const stationNames = new Map((await this.stations(actor)).map((station) => [station.id, station.name]));
     return {
       data: rows.rows.map((row) => ({
         ...listItem(row),
@@ -616,11 +629,24 @@ export class MarketplaceOrdersService {
         buyerPhone: localPhone(row.buyer_phone ?? ""),
         recipientName: row.recipient_name,
         carrierStatus: row.carrier_status,
+        fulfillmentMode: row.fulfillment_mode,
+        stationName: row.station_id ? (stationNames.get(row.station_id) ?? null) : null,
       })),
       page: query.page,
       pageSize: query.pageSize,
       total,
     };
+  }
+
+  // Trạm của công ty vận hành sàn để lọc đơn (MAN_HINH_195): trạm đang bật hoặc đã có đơn.
+  async stations(actor: BuyerAdminActor): Promise<{ id: string; name: string }[]> {
+    return (
+      await this.database.execute<{ id: string; name: string }>(sql`
+      SELECT s.id, s.display_name AS name FROM retail.stores s
+      WHERE s.company_id = ${actor.operatorCompanyId} AND s.display_name IS NOT NULL
+        AND (s.pickup_enabled OR s.delivery_enabled OR EXISTS (SELECT 1 FROM marketplace.orders m WHERE m.station_id = s.id))
+      ORDER BY s.display_name`)
+    ).rows;
   }
 
   async adminDetail(actor: BuyerAdminActor, orderId: string, canManage: boolean, canRecordPayment = false): Promise<MarketplaceOrderDetail> {
@@ -651,9 +677,26 @@ export class MarketplaceOrdersService {
       sql`SELECT reference, method, amount::text, status, response_code, gateway_transaction_no, gateway_code, created_at, completed_at FROM marketplace.payments WHERE order_id = ${orderId} ORDER BY created_at`,
     );
     const detail = await this.detailOf(row);
+    const hold = row.station_id
+      ? (
+          await this.database.execute<{ ready_at: Date | null; hold_until: Date | null; delivery_attempts: number; courier_name: string | null }>(sql`
+          SELECT st.ready_at, st.hold_until, st.delivery_attempts, u.full_name AS courier_name FROM retail.station_orders st LEFT JOIN core.users u ON u.id = st.courier_user_id
+          WHERE st.order_id = ${orderId}`)
+        ).rows[0]
+      : undefined;
     return {
       ...detail,
-      canCancel: canManage && detail.canCancel,
+      // Mã nhận hàng chỉ người mua thấy (QUYTAC_NGHIEPVU_425).
+      pickup: null,
+      stationHold: row.station_id
+        ? {
+            readyAt: iso(hold?.ready_at ?? null),
+            holdUntil: ["ready_for_pickup", "shipping"].includes(row.status) ? iso(hold?.hold_until ?? null) : null,
+            deliveryAttempts: hold?.delivery_attempts ?? 0,
+            courierName: hold?.courier_name ?? null,
+          }
+        : null,
+      canCancel: canManage && detail.canCancel && !row.station_id,
       buyerId: row.buyer_user_id,
       buyerName: row.buyer_name,
       buyerPhone: localPhone(row.buyer_phone ?? ""),
@@ -687,7 +730,7 @@ export class MarketplaceOrdersService {
         credited: item.credited,
       })),
       canConfirmTransfer: canRecordPayment && payments.rows.some((payment) => payment.gateway_code === "bank_transfer" && payment.status === "pending"),
-      canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
+      canShip: canManage && row.fulfillment_mode === "carrier" && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
       canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),
     };

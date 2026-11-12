@@ -37,6 +37,10 @@ import {
   type RetailShiftListResponse,
   type RetailShiftResponse,
   type RetailStoreResponse,
+  stationReturnListQuerySchema,
+  type StationReturnItem,
+  type StationReturnListResponse,
+  stationReturnReceiveSchema,
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -47,6 +51,7 @@ import { RetailReturnsService } from "./retail-returns.service";
 import { RetailSalesService } from "./retail-sales.service";
 import { RetailShiftsService } from "./retail-shifts.service";
 import { RetailStationOrdersService } from "./retail-station-orders.service";
+import { RetailStationReturnsService } from "./retail-station-returns.service";
 import { RetailStoresService } from "./retail-stores.service";
 
 @Controller("retail")
@@ -58,6 +63,7 @@ export class RetailController {
     private readonly sales: RetailSalesService,
     private readonly returns: RetailReturnsService,
     private readonly stationOrders: RetailStationOrdersService,
+    private readonly stationReturns: RetailStationReturnsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -110,6 +116,18 @@ export class RetailController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<StationOrderDetail> {
     return this.stationOrders.byCode(await this.actor(request, companyId), storeId, String(code ?? "").slice(0, 120));
+  }
+
+  // API_226: nhận hàng trả tại trạm (CONG_VIEC_57).
+  @Get("station-returns")
+  async stationReturnList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StationReturnListResponse> {
+    return this.stationReturns.list(await this.actor(request, companyId), stationReturnListQuerySchema.parse(query));
+  }
+
+  @Post("station-returns/:id/receive")
+  @HttpCode(200)
+  async stationReturnReceive(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationReturnItem> {
+    return this.stationReturns.receive(await this.actor(request, companyId), id, stationReturnReceiveSchema.parse(body).version);
   }
 
   // API_225: trạm giao tận nơi (CONG_VIEC_57).

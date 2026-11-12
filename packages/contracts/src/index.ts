@@ -4745,6 +4745,9 @@ export interface MarketplaceOrderListItem extends BuyerOrderListItem {
   buyerPhone: string;
   recipientName: string;
   carrierStatus: string | null;
+  // CONG_VIEC_57: cách nhận, trạm của đơn (MAN_HINH_195).
+  fulfillmentMode: FulfillmentMode;
+  stationName: string | null;
 }
 
 export interface MarketplaceShipmentItem {
@@ -4787,12 +4790,17 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   canShip: boolean;
   canRefreshShipment: boolean;
   carriers: CarrierItem[];
+  // CONG_VIEC_57: hạn giữ, lần giao của đơn tại trạm; nhân viên vận hành chỉ xem, không thấy mã nhận hàng (QUYTAC_NGHIEPVU_425, 431).
+  stationHold: { readyAt: string | null; holdUntil: string | null; deliveryAttempts: number; courierName: string | null } | null;
 }
 
 export const marketplaceOrderListQuerySchema = z
   .object({
     status: z.enum(marketplaceOrderStatuses).optional(),
     search: z.string().trim().max(100).optional(),
+    // CONG_VIEC_57: lọc cách nhận, trạm (QUYTAC_NGHIEPVU_431).
+    fulfillmentMode: z.enum(fulfillmentModes).optional(),
+    stationId: z.uuid().optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -4832,6 +4840,8 @@ export interface ReturnRequestItem {
   decidedAt: string | null;
   closedAt: string | null;
   canWithdraw: boolean;
+  // CONG_VIEC_57: đơn của trạm thì mang hàng trả đến trạm của đơn (QUYTAC_NGHIEPVU_430).
+  returnStation: StationOption | null;
   version: number;
 }
 
@@ -4840,6 +4850,8 @@ export interface ReturnRequestAdminItem extends ReturnRequestItem {
   buyerPhone: string;
   canDecide: boolean;
   canClose: boolean;
+  // Đơn của trạm: chỉ trạm xác nhận đã nhận hàng trả (QUYTAC_NGHIEPVU_430).
+  canReceive: boolean;
 }
 
 export const createReturnRequestSchema = z
@@ -5561,6 +5573,40 @@ export interface MyDeliveriesResponse {
   available: StationOrderDetail[];
   mine: StationOrderDetail[];
 }
+// API_226: nhận hàng trả tại trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_430; MAN_HINH_194).
+export const stationReturnStatuses = ["approved", "received"] as const;
+export const stationReturnListQuerySchema = z
+  .object({
+    status: z.enum(stationReturnStatuses).default("approved"),
+    storeId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export interface StationReturnItem {
+  id: string;
+  orderId: string;
+  documentNo: string;
+  store: { id: string; name: string };
+  buyerName: string;
+  buyerPhone: string;
+  status: ReturnRequestStatus;
+  reason: ReturnReason;
+  description: string;
+  lines: ReturnRequestItem["lines"];
+  decidedAt: string | null;
+  closedAt: string | null;
+  receivedByName: string | null;
+  stockDocument: { id: string; documentNo: string } | null;
+  canReceive: boolean;
+  version: number;
+}
+export interface StationReturnListResponse {
+  items: StationReturnItem[];
+  total: number;
+  page: number;
+}
+export const stationReturnReceiveSchema = z.object({ version: z.number().int().min(1) }).strict();
 export interface RetailRegionItem {
   code: string;
   name: string;

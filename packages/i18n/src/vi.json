@@ -566,6 +566,8 @@
     "stationUnavailable": "Trạm đã chọn không còn nhận đơn cho cách nhận hoặc địa chỉ này. Chọn trạm khác.",
     "stationOutOfStock": "Trạm đã chọn không còn đủ hàng. Chọn trạm khác.",
     "stationOrderNotShippable": "Đơn nhận tại trạm hoặc trạm giao, không giao qua đơn vị vận chuyển.",
+    "stationReturnAtStation": "Hàng trả của đơn tại trạm do trạm xác nhận đã nhận.",
+    "stationOrderOperatorReadOnly": "Đơn của trạm do trạm xử lý; nhân viên vận hành sàn chỉ xem.",
     "stationOrderNotPreparable": "Đơn không ở trạng thái Chờ soạn hàng.",
     "stationOrderNotReady": "Đơn chưa sẵn sàng nhận hoặc đã giao, đã hủy.",
     "stationCodeNotFound": "Không có đơn đang chờ nhận với mã này tại trạm.",
@@ -3764,7 +3766,8 @@
     "pickupCodeTitle": "Mã nhận hàng",
     "pickupReady": "Đơn đã sẵn sàng. Đến trạm trước {time} và đưa mã cho nhân viên.",
     "stationPreparing": "Trạm đang soạn hàng. Bạn sẽ nhận thông báo khi đơn sẵn sàng.",
-    "orderStatus_delivery_failed": "Giao không thành công"
+    "orderStatus_delivery_failed": "Giao không thành công",
+    "returnToStation": "Mang hàng trả đến trạm {name}: {address} (giờ mở cửa {hours}). Trạm kiểm hàng và xác nhận đã nhận."
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -4109,7 +4112,17 @@
     "pointsSkipped_zero": "Không tích: 0 điểm hoặc đã đạt trần",
     "pointsCancelled": "Đơn hủy, không tích",
     "status_awaiting_group": "Chờ chốt nhóm",
-    "status_ready_for_pickup": "Sẵn sàng nhận"
+    "status_ready_for_pickup": "Sẵn sàng nhận",
+    "fulfillment": "Cách nhận",
+    "fulfillment_carrier": "Giao qua đơn vị vận chuyển",
+    "fulfillment_station_pickup": "Nhận tại trạm",
+    "fulfillment_station_delivery": "Trạm giao",
+    "station": "Trạm",
+    "stationReadyAt": "Sẵn sàng nhận lúc",
+    "stationHoldUntil": "Giữ hàng đến",
+    "stationDelivery": "Trạm giao",
+    "stationDeliveryValue": "Lần giao không thành công: {attempts}/3 · Nhân viên giao: {courier}",
+    "stationReadOnly": "Đơn của trạm do trạm soạn, giao, hủy trong mini app Bán lẻ; ở đây chỉ xem."
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",
@@ -4141,7 +4154,8 @@
     "done_approve": "Đã duyệt yêu cầu.",
     "done_reject": "Đã từ chối yêu cầu.",
     "done_receive": "Đã nhận hàng trả, nhập lại kho.",
-    "done_not-received": "Đã kết thúc yêu cầu."
+    "done_not-received": "Đã kết thúc yêu cầu.",
+    "returnStation": "Mang hàng trả đến trạm: {station}. Trạm xác nhận đã nhận."
   },
   "paymentMethods": {
     "cod": "Thanh toán khi nhận hàng",
@@ -6857,7 +6871,8 @@
     "returns": "Trả hàng",
     "onlineOrders": "Đơn trực tuyến",
     "handover": "Giao cho khách",
-    "deliveries": "Đơn tôi đang giao"
+    "deliveries": "Đơn tôi đang giao",
+    "stationReturns": "Nhận hàng trả"
   },
   "retailStores": {
     "title": "Cài đặt cửa hàng",
@@ -7236,5 +7251,26 @@
     "assignTo": "Chọn nhân viên giao",
     "assignDone": "Đã giao đơn cho nhân viên.",
     "readyDeliveryHint": "Giao đơn cho nhân viên giao hoặc để nhân viên giao tự nhận. Khách đọc mã nhận hàng khi nhận."
+  },
+  "retailStationReturns": {
+    "title": "Nhận hàng trả tại trạm",
+    "store": "Trạm",
+    "allStores": "Tất cả trạm",
+    "status": "Trạng thái",
+    "status_approved": "Chờ nhận",
+    "status_received": "Đã nhận",
+    "searchPlaceholder": "Số đơn hoặc số điện thoại",
+    "order": "Đơn",
+    "customer": "Khách",
+    "goods": "Hàng trả",
+    "approvedAt": "Duyệt lúc",
+    "receivedAt": "Nhận lúc",
+    "receive": "Đã nhận hàng trả",
+    "confirm": "Xác nhận đã nhận đủ hàng trả của đơn {order}? Hệ thống lập phiếu nhận hàng trả lại vào kho trạm và việc hoàn tiền.",
+    "done": "Đã nhận hàng trả, phiếu {document}.",
+    "receivedBy": "{name} · phiếu {document}",
+    "none": "Không có yêu cầu trả hàng chờ nhận.",
+    "noneReceived": "Chưa nhận hàng trả nào.",
+    "hint": "\"Đã nhận hàng trả\": hệ thống lập phiếu nhận hàng trả lại vào kho trạm theo giá vốn lúc xuất, lập việc hoàn tiền theo luồng hoàn tiền VComm hiện có. Khách không mang hàng đến thì nhân viên vận hành VComm kết thúc yêu cầu."
   }
 }
