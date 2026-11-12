@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.15
-- Ngày cập nhật: 2026-11-11
+- Phiên bản: 2.16
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
@@ -31,6 +31,7 @@
 - Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
 - Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
+- Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 75, mục 76); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
 
 ## MODULE_01 Nền tảng
 
@@ -2238,6 +2239,72 @@ flowchart TD
 - MAN_HINH_166 (`/retail/stores`): danh sách cửa hàng ("Chưa có cửa hàng bán lẻ."), nút "Thêm cửa hàng", "Sửa"; ngăn kéo: Chi nhánh, Kho bán, Kênh bán, Quỹ tiền mặt, Quỹ chuyển khoản ("Không nhận chuyển khoản"), Mã ngân hàng VietQR (6 chữ số), Tên chủ tài khoản (in hoa không dấu), Số ngày được trả hàng ("0 là không nhận trả hàng."), Chân hóa đơn bán lẻ, Trạng thái; "Lưu", "Hủy"; công ty chưa có chi nhánh loại Cửa hàng: "Công ty chưa có chi nhánh loại Cửa hàng. Thêm chi nhánh ở mini app Quản trị hệ thống."; danh sách "Quầy thu ngân" (Mã quầy, Tên quầy, trạng thái, "Ca mở: <tên>"), "Thêm quầy", sửa, ngừng. Người không có `retail.setup` chỉ xem. API_192.
 - MAN_HINH_167 (thành phần `Receipt`, `ReturnSlip`, biên bản đóng ca): khổ 80 mm (vùng in 72 mm), in bằng hộp thoại in của trình duyệt; tên, mã số thuế, địa chỉ công ty, cửa hàng; "HÓA ĐƠN BÁN LẺ", "Số: <số>", ngày giờ, "Quầy <mã>", "Thu ngân: <tên>"; dòng hàng ("tặng", "KM", "giảm <phần trăm>%"), Tiền hàng, "Khuyến mãi, giảm giá", "TỔNG THANH TOÁN", "Trong đó thuế GTGT", thanh toán, Tiền thừa; "Người mua: …", "MST người mua: …"; "Hóa đơn điện tử khởi tạo từ máy tính tiền", "Mẫu số … · Ký hiệu … · Số …", "Mã tra cứu: …", "Mã CQT: …" (khi có); mã QR số hóa đơn (để quét khi trả hàng); chân hóa đơn của cửa hàng hoặc "Cảm ơn quý khách!", "Đổi trả trong <số ngày> ngày kèm hóa đơn này.". Phiếu trả hàng ("PHIẾU TRẢ HÀNG", "Theo hóa đơn <số>"), biên bản đóng ca ("BIÊN BẢN ĐÓNG CA") cùng khuôn. Dòng điểm tích, số dư điểm: chưa làm, chờ CONG_VIEC_51.
 - Trạng thái phê duyệt: bản mẫu MAN_HINH_161, 162, 164, 167 duyệt 2026-11-11; MAN_HINH_163, 165, 166 xem trước từng lát thay cho bản mẫu.
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 2: Trạm giao hàng O2O, CONG_VIEC_57)
+
+## 75. Danh sách màn hình và điều hướng (MODULE_14 phần 2)
+
+Mini app Bán lẻ (`apps/web-retail`, `/retail`) thêm mục menu (hiện theo quyền): Đơn trực tuyến, Giao cho khách (`retail.o2o`), Đơn tôi đang giao (`retail.o2o.deliver`), Nhận hàng trả (`retail.o2o`). Ứng dụng VComm (`apps/mobile-vcomm`) sửa màn hình Đặt hàng, Chi tiết đơn; web-crm sửa màn hình Đơn VComm.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_188 | Đơn trực tuyến tại trạm (danh sách, chi tiết) | CHUC_NANG_202 | `retail.o2o`; xem: thêm `retail.o2o.deliver` (trong phạm vi chi nhánh) | Menu "Đơn trực tuyến"; thông báo đơn mới; MAN_HINH_194 (số đơn) | `tai_lieu/ban_mau/MAN_HINH_188_DON_TRUC_TUYEN_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_189 | Giao cho khách tại trạm (quét mã, thu tiền, in phiếu giao hàng) | CHUC_NANG_202 | `retail.o2o` (Thu ngân, Cửa hàng trưởng, quản trị) | Menu "Giao cho khách"; nút "Giao cho khách" ở MAN_HINH_188 | `tai_lieu/ban_mau/MAN_HINH_189_GIAO_CHO_KHACH_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_190 | Đơn tôi đang giao (tối ưu điện thoại) | CHUC_NANG_202 | `retail.o2o.deliver` (Nhân viên giao hàng trạm, Cửa hàng trưởng, quản trị) | Menu "Đơn tôi đang giao" | `tai_lieu/ban_mau/MAN_HINH_190_DON_TOI_DANG_GIAO.html` (duyệt 2026-11-11) |
+| MAN_HINH_191 | Cài đặt trạm (phần thêm trong ngăn kéo cửa hàng của MAN_HINH_166) | CHUC_NANG_200 | Sửa: `retail.setup` (quản trị, công ty vận hành sàn); xem: như MAN_HINH_166 | MAN_HINH_166, nút "Cài đặt trạm" | `tai_lieu/ban_mau/MAN_HINH_191_CAI_DAT_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_192 | Ứng dụng VComm: Đặt hàng (sửa MAN_HINH_93: cách nhận, trạm, phí giao, thanh toán khi nhận tại trạm) | CHUC_NANG_201 | Người mua | Như MAN_HINH_93 | `tai_lieu/ban_mau/MAN_HINH_192_DAT_HANG_CHON_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_193 | Ứng dụng VComm: Chi tiết đơn của trạm (sửa MAN_HINH_96: trạm, mã nhận hàng, mã QR, hạn giữ, nơi mang hàng trả) | CHUC_NANG_201, CHUC_NANG_202, CHUC_NANG_203 | Người mua (đơn của mình) | Như MAN_HINH_96; thông báo của đơn | `tai_lieu/ban_mau/MAN_HINH_193_CHI_TIET_DON_CUA_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_194 | Nhận hàng trả tại trạm | CHUC_NANG_203 | `retail.o2o` (trong phạm vi chi nhánh) | Menu "Nhận hàng trả" | `tai_lieu/ban_mau/MAN_HINH_194_NHAN_HANG_TRA_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_195 | Web-crm: Đơn VComm của nhân viên vận hành (sửa MAN_HINH_88: cột, bộ lọc cách nhận, trạm; chi tiết đơn của trạm) | CHUC_NANG_203 | `marketplace.order.view` (chỉ xem đơn của trạm) | Như MAN_HINH_88 | Không làm |
+
+Sửa:
+- MAN_HINH_166 (Cài đặt cửa hàng): ngăn kéo thêm "Loại" (Cửa hàng (bán tại quầy), Điểm giao nhận (không bán tại quầy)); danh sách chi nhánh gồm chi nhánh loại Khác cho điểm giao nhận; danh sách cửa hàng hiện "Trạm giao hàng" hoặc "Chưa bật trạm"; nút "Cài đặt trạm" mở MAN_HINH_191.
+- MAN_HINH_161 (Bán hàng tại quầy): điểm giao nhận không bán tại quầy; người chỉ có `retail.o2o.deliver` không vào màn hình bán.
+- MAN_HINH_162, MAN_HINH_165 (ca thu ngân): người có `retail.o2o.deliver` mở, xem, đóng ca của mình; tiền hệ thống tính, phiếu thu theo quỹ gồm tiền thu đơn trực tuyến (API_193 trả `onlineCollected`).
+- MAN_HINH_89 (web-crm Yêu cầu trả hàng): yêu cầu của đơn của trạm không có nút "Đã nhận hàng trả" (trạm xác nhận ở MAN_HINH_194); vẫn có "Không nhận được hàng".
+- Mục thiết lập tích hợp Zalo ZNS (web-platform): thêm bốn mẫu đơn của trạm (sẵn sàng nhận, nhắc hết hạn giữ, đang giao, đã hủy).
+
+| Màn hình | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Nhân viên giao hàng trạm | Nhân viên vận hành sàn |
+|---|---|---|---|---|---|
+| MAN_HINH_188 | Xem, Đã soạn xong, Giao cho khách, Giao cho nhân viên, Hủy đơn | Như quản trị (chi nhánh) | Như quản trị (chi nhánh) | Xem (chi nhánh) | Không thấy |
+| MAN_HINH_189 | Dùng | Dùng (chi nhánh) | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_190 | Dùng | Dùng (chi nhánh) | Không thấy | Dùng (chi nhánh) | Không thấy |
+| MAN_HINH_191 | Xem, Sửa | Xem | Xem | Không thấy | Không thấy |
+| MAN_HINH_194 | Dùng | Dùng (chi nhánh) | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_195 | Theo `marketplace.order.view` | Không thấy | Không thấy | Không thấy | Xem, lọc (không giao cho đơn vị vận chuyển, không hủy đơn của trạm) |
+
+```mermaid
+flowchart TD
+    M{Menu Bán lẻ} -->|Đơn trực tuyến| L[MAN_HINH_188 Danh sách đơn trực tuyến]
+    L -->|số đơn| C[MAN_HINH_188 Chi tiết đơn]
+    C -->|In phiếu soạn hàng, Đã soạn xong, Hủy đơn, Giao cho nhân viên| C
+    C -->|Giao cho khách| G[MAN_HINH_189 Giao cho khách tại trạm]
+    M -->|Giao cho khách| G
+    G -->|In phiếu giao hàng| P[MAN_HINH_167 Mẫu in khổ 80 mm]
+    G -->|đơn chưa thu, chưa có ca| O[MAN_HINH_162 Mở ca]
+    M -->|Đơn tôi đang giao| D[MAN_HINH_190 Đơn tôi đang giao]
+    D -->|Nhận đi giao, Giao thành công, Không giao được| D
+    M -->|Nhận hàng trả| R[MAN_HINH_194 Nhận hàng trả tại trạm]
+    R -->|số đơn| C
+    M -->|Cài đặt cửa hàng| S[MAN_HINH_166 Cài đặt cửa hàng]
+    S -->|Cài đặt trạm| T[MAN_HINH_191 Cài đặt trạm]
+    A[MAN_HINH_192 Đặt hàng trên ứng dụng VComm] -->|đặt xong| B[MAN_HINH_193 Chi tiết đơn của trạm]
+    W[MAN_HINH_195 Đơn VComm web-crm] -->|chi tiết| W
+```
+
+## 76. Đặc tả màn hình (MODULE_14 phần 2)
+
+- MAN_HINH_188 (`/retail/online-orders`, `/retail/online-orders/<id>`): danh sách lọc Trạm ("Tất cả trạm"), Trạng thái (mặc định "Chưa kết thúc": Chờ soạn hàng, Sẵn sàng nhận, Đang giao; Đã giao, Hoàn tất, Đã hủy), Cách nhận (Nhận tại trạm, Trạm giao tận nơi), Thanh toán (Đã trả trước, Trả khi nhận), "Sắp hết hạn giữ (dưới 24 giờ)", tìm "Số đơn, số điện thoại"; cột Số đơn, Đặt lúc, Khách, Cách nhận, Trạng thái, Phải thu tại trạm ("Đã trả trước"), Hạn giữ; phân trang 20; rỗng "Không có đơn.". Nút "Giao cho khách" mở MAN_HINH_189. Chi tiết: khách, số điện thoại, địa chỉ giao (trạm giao), dòng hàng (hàng tặng), Tiền hàng, Phí giao, Tổng, thanh toán ("Trả khi nhận · <số tiền>"), Hạn giữ, "Lần giao <n>/3", "Nhân viên giao: <tên>", Phiếu xuất, Lịch sử (khách đặt đơn, đã giữ hàng; sẵn sàng nhận; đang giao; giao không thành công; đã giao; đã hủy); nút "In phiếu soạn hàng" (khổ 80 mm, "PHIẾU SOẠN HÀNG"), "Đã soạn xong" (gợi ý "Khách đưa mã nhận hàng 6 số hoặc mã QR trong ứng dụng VComm để nhận hàng."), "Giao cho khách", "Giao cho nhân viên" (chọn nhân viên có `retail.o2o.deliver`; gợi ý "Giao đơn cho nhân viên giao hoặc để nhân viên giao tự nhận. Khách đọc mã nhận hàng khi nhận."), "Hủy đơn" (lý do bắt buộc, "Xác nhận hủy đơn"); nút hiện theo trạng thái, cách nhận và quyền. Chi tiết không hiện mã nhận hàng. Nhân viên trạm nhận thông báo trong hệ thống khi có đơn mới, mở chi tiết đơn. API_223, API_225.
+- MAN_HINH_189 (`/retail/online-orders/handover`): ô "Quét mã QR hoặc nhập mã 6 số" (luôn nhận bàn phím), nút "Tìm đơn"; hiện đơn, khách, dòng hàng, "Mã đúng", số còn phải thu; đơn trả trước "Đơn đã trả trước, không thu tiền."; đơn chưa thu: thu tiền mặt (khách đưa, tiền thừa), chuyển khoản mã VietQR (mã giao dịch không bắt buộc) hoặc kết hợp như hộp thoại thanh toán MAN_HINH_161; chưa có ca "Đơn chưa thu tiền: mở ca tại quầy của trạm này trước khi giao.", nút "Mở ca"; nút "Giao cho khách" (F9); xong "Đã giao đơn <số>.", "In phiếu giao hàng" (khổ 80 mm, "PHIẾU GIAO HÀNG"). Mã sai: "Mã nhận hàng không đúng.", lần thứ 4 báo sắp khóa, lần thứ 5 khóa 15 phút. API_224.
+- MAN_HINH_190 (`/retail/deliveries`): tối ưu điện thoại; ca hiện tại ("Ca đang mở: quầy <quầy>, <trạm>, từ <giờ>", "Đóng ca") hoặc phần mở ca (Quầy của trạm, Tiền đầu ca; "Mở ca để giữ tiền thu khi giao đơn chưa thanh toán."); "Đang giao (<số>)": đơn đang giao của tôi (địa chỉ, số điện thoại bấm gọi, số tiền phải thu, "Lần giao <n>/3"), nút "Giao thành công" (mã khách đọc hoặc quét QR, thu tiền vào ca của mình), "Không giao được" (Khách vắng, Khách từ chối nhận (đơn sẽ hủy), Sai địa chỉ, Khác kèm ghi chú; gợi ý "Đơn về Sẵn sàng nhận tại trạm. Lần thứ 3 không thành công thì đơn hủy."); "Sẵn sàng, chờ người giao (<số>)": đơn trạm giao chưa giao cho ai hoặc giao cho tôi, nút "Nhận đi giao". Rỗng "Bạn chưa nhận đơn nào đi giao.", "Không có đơn chờ giao.". API_225, API_193.
+- MAN_HINH_191 (ngăn kéo "Cài đặt trạm" trong `/retail/stores`): Loại (từ ngăn kéo cửa hàng); công tắc "Nhận tại trạm", "Trạm giao tận nơi"; "Thông tin hiện cho khách": Tên hiển thị, Tỉnh, Xã, Địa chỉ, Số điện thoại, Giờ mở cửa; "Số ngày giữ hàng" ("1 đến 14 ngày, tính đến 23:59 của ngày cuối."); phần "Trạm giao tận nơi": "Xã được giao (<số>)" chọn nhiều theo tỉnh ("Thêm xã", "Bỏ"), "Phí giao mỗi đơn", "Miễn phí giao khi tiền hàng từ" ("Để trống: không miễn."); cảnh báo "Tắt trạm khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý, chỉ chặn đơn mới."; công ty không vận hành sàn: "Công ty này không vận hành sàn VComm nên không bật được trạm giao hàng."; lưu "Đã lưu cài đặt trạm.". API_220.
+- MAN_HINH_192 (ứng dụng `/dat-hang`): thẻ "Cách nhận hàng": Giao qua đơn vị vận chuyển, Nhận tại trạm, Trạm giao tận nơi; chọn trạm: danh sách tên, địa chỉ, giờ mở cửa, nhãn "Cùng phường, xã", lọc tỉnh ("Tất cả tỉnh"), gợi ý "Chỉ hiện trạm còn đủ hàng cho cả đơn. Hàng được giữ tại trạm sau khi đặt."; không có trạm: "Chưa có trạm nào còn đủ hàng cho đơn này. Chọn giao qua đơn vị vận chuyển." hoặc "Chưa có trạm nào giao tới địa chỉ này mà còn đủ hàng. Chọn cách nhận khác."; địa chỉ trong sổ vẫn bắt buộc (người nhận; trạm giao lấy cả địa chỉ); phí giao theo cách nhận, trạm; phương thức "Thanh toán khi nhận tại trạm" chỉ với cách nhận của trạm (không có thanh toán khi nhận hàng qua đơn vị vận chuyển); đơn mua chung chỉ giao qua đơn vị vận chuyển. API_221, API_222.
+- MAN_HINH_193 (ứng dụng `/don-hang/<id>`): thẻ trạm (cách nhận, tên, địa chỉ, giờ mở cửa, số điện thoại); trạng thái Chờ soạn hàng ("Trạm đang soạn hàng. Bạn sẽ nhận thông báo khi đơn sẵn sàng."), Sẵn sàng nhận, Đang giao; khi Sẵn sàng nhận hoặc Đang giao: "Mã nhận hàng" 6 số chữ lớn, mã QR, "Đơn đã sẵn sàng. Đến trạm trước <hạn giữ> và đưa mã cho nhân viên."; hủy đơn khi Chờ soạn hàng hoặc Sẵn sàng nhận; yêu cầu trả hàng đã duyệt: "Mang hàng trả đến trạm <tên>: <địa chỉ> (giờ mở cửa <giờ>). Trạm kiểm hàng và xác nhận đã nhận.". API_222, API_126 (bổ sung).
+- MAN_HINH_194 (`/retail/station-returns`): lọc Trạm, Trạng thái (Chờ nhận, Đã nhận), tìm "Số đơn hoặc số điện thoại"; cột Đơn (liên kết MAN_HINH_188), Khách, Hàng trả (dòng, số lượng), Duyệt lúc, Nhận lúc ("<người nhận> · phiếu <số>"); nút "Đã nhận hàng trả" (xác nhận "Xác nhận đã nhận đủ hàng trả của đơn <số>? Hệ thống lập phiếu nhận hàng trả lại vào kho trạm và việc hoàn tiền."); xong "Đã nhận hàng trả, phiếu <số>."; gợi ý: khách không mang hàng đến thì nhân viên vận hành VComm kết thúc yêu cầu; rỗng "Không có yêu cầu trả hàng chờ nhận.", "Chưa nhận hàng trả nào.". API_226.
+- MAN_HINH_195 (web-crm `/crm/orders`, `/crm/orders/<id>`): danh sách thêm cột "Cách nhận" (Giao qua đơn vị vận chuyển, Nhận tại trạm, Trạm giao; kèm tên trạm), bộ lọc Cách nhận, Trạm (`GET /marketplace/order-stations`); chi tiết đơn của trạm: "Cách nhận" (cách nhận · trạm · địa chỉ · số điện thoại), "Sẵn sàng nhận lúc", "Giữ hàng đến", "Trạm giao" ("Lần giao không thành công: <n>/3 · Nhân viên giao: <tên>"); không có mã nhận hàng; ẩn "Giao cho đơn vị vận chuyển", "Hủy đơn" với đơn của trạm. API_127, API_226.
+- Mẫu in (MAN_HINH_167, cùng khuôn khổ 80 mm): "PHIẾU SOẠN HÀNG", "PHIẾU GIAO HÀNG" (thành phần `StationSlip`: đơn, dòng hàng kèm hàng tặng, Tổng, Phải thu tại trạm, Tiền thừa). Biên bản đóng ca tách dòng "Thu đơn trực tuyến" (QUYTAC_NGHIEPVU_431): màn hình chi tiết ca (biên bản đóng ca) hiện dòng "Thu đơn trực tuyến" từ `onlineCollected` của API_193 khi có; bảng theo phương thức đã gồm khoản này.
+- Trạng thái phê duyệt: bản mẫu MAN_HINH_188 đến 194 duyệt 2026-11-11; MAN_HINH_195 xem trước ở lát L6 thay cho bản mẫu.
+
 ## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
 
 Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_114` đến `MAN_HINH_119` (tệp `nhan_su.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md` mục 8.

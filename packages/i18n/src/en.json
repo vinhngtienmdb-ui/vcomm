@@ -6992,7 +6992,8 @@
     "fundDocumentsHint": "On closing, the system posts retail receipts and refunds per fund and a shortage or surplus document for any difference.",
     "fund": "Fund",
     "documentNo": "Document number",
-    "documentKind": "Document type"
+    "documentKind": "Document type",
+    "onlineCollected": "Online order collections (included in the table by method)"
   },
   "retailCounter": {
     "scanPlaceholder": "Scan a barcode or serial, or type a code or name, then press Enter",

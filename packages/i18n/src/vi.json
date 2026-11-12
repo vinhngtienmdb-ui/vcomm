@@ -6992,7 +6992,8 @@
     "fundDocumentsHint": "Khi đóng ca, hệ thống lập và ghi sổ phiếu thu bán lẻ, phiếu chi hoàn tiền theo từng quỹ và phiếu chi thiếu tiền hoặc phiếu thu thừa tiền khi lệch.",
     "fund": "Quỹ",
     "documentNo": "Số chứng từ",
-    "documentKind": "Loại chứng từ"
+    "documentKind": "Loại chứng từ",
+    "onlineCollected": "Thu đơn trực tuyến (đã gồm trong bảng theo phương thức)"
   },
   "retailCounter": {
     "scanPlaceholder": "Quét mã vạch, serial hoặc gõ mã, tên hàng rồi nhấn Enter",
