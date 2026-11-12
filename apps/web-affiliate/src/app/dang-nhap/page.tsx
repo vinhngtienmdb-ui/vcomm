@@ -2,9 +2,10 @@
 
 // Đăng nhập cổng cửa hàng bằng số điện thoại và mã OTP; kích hoạt lời mời (CONG_VIEC_55; QUYTAC_NGHIEPVU_393; API_02, API_03, API_207).
 // Hệ thống chỉ gửi được tin theo mẫu mã OTP đã đăng ký nên lời mời kích hoạt bằng số điện thoại và mã OTP, không có đường dẫn.
-import type { LoginResponse } from "contracts";
+// Đăng nhập bằng Zalo sau khi liên kết từ Cửa hàng của tôi (THAY_DOI_01; CONG_VIEC_55 lát L4).
+import type { AuthMethodsResponse, LoginResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch, forgetCompany } from "ui/lib/api";
 
@@ -17,6 +18,16 @@ export default function PortalLoginPage() {
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const errors = useTranslations("errors");
+  const [zalo, setZalo] = useState(false);
+  const [returned, setReturned] = useState<string | null>(null);
+  useEffect(() => {
+    apiFetch<AuthMethodsResponse>("/auth/methods")
+      .then((methods) => setZalo(methods.zalo))
+      .catch(() => setZalo(false));
+    const key = new URLSearchParams(window.location.search).get("loi");
+    if (key) setReturned(errors.has(key as "notFound") ? errors(key as "notFound") : errors("oauthFailed"));
+  }, [errors]);
   const switchMode = (next: Mode) => {
     setMode(next);
     setCodeSent(false);
@@ -67,7 +78,7 @@ export default function PortalLoginPage() {
               />
             </Field>
           )}
-          <FormError text={formError} />
+          <FormError text={formError ?? returned} />
           <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || !phone.trim() || (codeSent && code.length !== 6)}>
             {codeSent ? t(mode === "login" ? "signIn" : "activate") : t("sendCode")}
           </button>
@@ -77,6 +88,19 @@ export default function PortalLoginPage() {
             </button>
           )}
         </form>
+        {zalo && mode === "login" && (
+          <>
+            <p className="chu-thich" style={{ textAlign: "center", margin: 0 }}>
+              {t("or")}
+            </p>
+            <a className="nut phu" href="/api/v1/auth/oauth/zalo/start?mode=login&app=merchant" style={{ justifyContent: "center" }}>
+              {t("zaloLogin")}
+            </a>
+            <p className="chu-thich" style={{ margin: 0 }}>
+              {t("zaloHint")}
+            </p>
+          </>
+        )}
       </div>
     </main>
   );

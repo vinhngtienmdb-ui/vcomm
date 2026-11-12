@@ -464,3 +464,64 @@ export interface AffiliateSettlementDetail extends AffiliateSettlementItem {
   paidAt: string | null;
   transactions: AffiliateSettlementTransaction[];
 }
+
+// ---------------------------------------------------------------------------
+// Lát L4: báo cáo, cảnh báo (QUYTAC_NGHIEPVU_405; API_213).
+// ---------------------------------------------------------------------------
+export const affiliateReportQuerySchema = z
+  .object({
+    from: isoDate,
+    to: isoDate,
+    outletId: z.string().uuid().optional(),
+    merchantId: z.string().uuid().optional(),
+    groupBy: z.enum(["day", "week", "month"]).default("day"),
+  })
+  .refine((value) => value.to >= value.from, { message: "invalidValue", path: ["to"] })
+  .refine((value) => Date.parse(value.to) - Date.parse(value.from) <= 366 * 86_400_000, { message: "invalidValue", path: ["from"] });
+
+// Chỉ tiêu của giao dịch hoàn tất (giờ Việt Nam); khách mới: lần đầu giao dịch hoàn tất tại cửa hàng nằm trong kỳ.
+export interface AffiliateReportMetrics {
+  transactions: number;
+  billAmount: string;
+  customers: number;
+  newCustomers: number;
+  earnedPoints: number;
+  earnedAmount: string;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  vouchersUsed: number;
+  cancelled: number;
+}
+export interface AffiliateExposure {
+  amount: string;
+  creditLimit: string;
+  remaining: string;
+  percent: string;
+}
+export interface MerchantPortalReport {
+  totals: AffiliateReportMetrics;
+  rows: (AffiliateReportMetrics & { period: string })[];
+  exposure: AffiliateExposure;
+}
+export interface AffiliateCompanyReport {
+  totals: AffiliateReportMetrics & { feeAmount: string };
+  rows: (AffiliateReportMetrics & { merchantId: string; merchantCode: string; merchantName: string; feeAmount: string; exposure: AffiliateExposure })[];
+}
+
+export const affiliateAlertKinds = ["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage"] as const;
+export type AffiliateAlertKind = (typeof affiliateAlertKinds)[number];
+export const affiliateAlertQuerySchema = z.object({ kind: z.enum(affiliateAlertKinds).optional(), merchantId: z.string().uuid().optional() });
+// Cảnh báo tính trong 7 ngày gần nhất; chỉ cảnh báo, không tự chặn.
+export interface AffiliateAlert {
+  kind: AffiliateAlertKind;
+  merchantId: string;
+  merchantName: string;
+  day: string | null;
+  count: number | null;
+  total: number | null;
+  percent: string | null;
+  buyerPhone: string | null;
+  cashierName: string | null;
+  amount: string | null;
+  limit: string | null;
+}

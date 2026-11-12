@@ -6,7 +6,7 @@ import type { MerchantPortalMe } from "contracts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { loginPath, rememberMerchant, selectedMerchantId, usePortalApi } from "@/lib/portal-api";
@@ -44,6 +44,16 @@ function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) 
     setToasts((current) => [...current, { id, text, kind }]);
     setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), 4000);
   }, []);
+  const errors = useTranslations("errors");
+  // Kết quả liên kết Zalo (quay về từ nhà cung cấp kèm ?lienKet= hoặc ?loi=).
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    const linked = search.get("lienKet");
+    const failed = search.get("loi");
+    if (linked) notify(t("zaloLinked"));
+    if (failed) notify(errors.has(failed as "notFound") ? errors(failed as "notFound") : errors("oauthFailed"), "loi");
+    if (linked || failed) window.history.replaceState(null, "", window.location.pathname);
+  }, [notify, t, errors]);
   if (me.memberships.length === 0) return <MessageView text={t("noMembership")} />;
   const stored = selectedMerchantId();
   const membership = me.memberships.find((item) => item.merchantId === stored) ?? me.memberships[0]!;
@@ -87,6 +97,7 @@ function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) 
         <span style={{ fontSize: 13 }}>
           {me.fullName} ({t(`role_${membership.role}`)})
         </span>
+        <a href="/api/v1/auth/oauth/zalo/start?mode=link&app=merchant">{t("zaloLink")}</a>
         <button type="button" onClick={() => void logout()}>
           {t("logout")}
         </button>

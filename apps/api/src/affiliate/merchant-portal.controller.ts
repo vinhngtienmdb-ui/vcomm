@@ -10,6 +10,8 @@ import {
   affiliateTransactionCancelSchema,
   affiliateVoucherListQuerySchema,
   affiliateSettlementConfirmSchema,
+  affiliateReportQuerySchema,
+  type MerchantPortalReport,
   affiliateSettlementDisputeSchema,
   affiliateSettlementListQuerySchema,
   type AffiliateSettlementDetail,
@@ -36,6 +38,7 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
 import { AffiliateTransactionsService } from "./transactions.service";
+import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
@@ -51,6 +54,7 @@ export class MerchantPortalController {
     private readonly transactions: AffiliateTransactionsService,
     private readonly vouchers: AffiliateVouchersService,
     private readonly settlements: AffiliateSettlementsService,
+    private readonly reports: AffiliateReportsService,
   ) {}
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
@@ -159,6 +163,12 @@ export class MerchantPortalController {
   @Post("vouchers/:id/:action")
   async voucherAction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Param("action") action: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
     return voucherAction(this.vouchers, await this.voucherActor(request), id, action, body);
+  }
+
+  // API_213: báo cáo của cửa hàng (chủ cửa hàng).
+  @Get("report")
+  async report(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<MerchantPortalReport> {
+    return this.reports.merchantReport(await this.member(request), affiliateReportQuerySchema.parse(query));
   }
 
   // API_212: đối soát tuần của cửa hàng (chủ cửa hàng).

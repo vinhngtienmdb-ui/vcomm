@@ -11,6 +11,10 @@ import {
   affiliateOwnerInviteSchema,
   affiliateVoucherListQuerySchema,
   affiliateSettlementListQuerySchema,
+  affiliateAlertQuerySchema,
+  affiliateReportQuerySchema,
+  type AffiliateAlert,
+  type AffiliateCompanyReport,
   affiliateSettlementResolveSchema,
   type AffiliateSettlementDetail,
   type AffiliateSettlementItem,
@@ -30,6 +34,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
 import { AffiliateMerchantsService } from "./merchants.service";
+import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
@@ -40,6 +45,7 @@ export class AffiliateController {
     private readonly merchants: AffiliateMerchantsService,
     private readonly vouchers: AffiliateVouchersService,
     private readonly settlements: AffiliateSettlementsService,
+    private readonly reports: AffiliateReportsService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -145,6 +151,19 @@ export class AffiliateController {
     const actor = await this.voucherActor(request, "affiliate.manage");
     if (action !== "pause" && action !== "resume") await this.companyIssued(actor, id);
     return voucherAction(this.vouchers, actor, id, action, body);
+  }
+
+  // API_213: báo cáo theo cửa hàng, cảnh báo bất thường.
+  @Get("report")
+  async report(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<AffiliateCompanyReport> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.reports.companyReport(actor.operatorCompanyId, affiliateReportQuerySchema.parse(query));
+  }
+
+  @Get("alerts")
+  async alerts(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<AffiliateAlert[]> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.reports.alerts(actor.operatorCompanyId, affiliateAlertQuerySchema.parse(query));
   }
 
   // API_212: đối soát tuần mọi cửa hàng; trả lời khiếu nại và chốt lại.

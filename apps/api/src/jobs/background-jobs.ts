@@ -15,6 +15,7 @@ import { vietnamDate } from "../common/clock";
 import { OutboxService } from "../common/outbox.service";
 import { EinvoicesService } from "../einvoice/einvoices.service";
 import { LoyaltyJobsService } from "../loyalty/jobs.service";
+import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
@@ -59,6 +60,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const groupBuys = application.get(GroupBuysService);
   const affiliateVouchers = application.get(AffiliateVouchersService);
   const affiliateSettlements = application.get(AffiliateSettlementsService);
+  const affiliateReports = application.get(AffiliateReportsService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
   const attendanceDays = application.get(AttendanceDaysService);
@@ -91,6 +93,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("marketplace-payment-expiry", { every: 60_000 }, { name: "marketplace-payment-expiry" });
   // Hết hạn, nhắc hạn điểm thưởng, chuyển năm chi tiêu và xét hạng (CONG_VIEC_51; QUYTAC_NGHIEPVU_350, 351).
   await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
+  // Voucher hết hạn, nhắc hạn; báo dư nợ từ 80 % hạn mức cho chủ cửa hàng (CONG_VIEC_55; QUYTAC_NGHIEPVU_402, 405).
   await queue.upsertJobScheduler("affiliate-voucher-daily", { pattern: "20 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-voucher-daily" });
   // Đối soát cửa hàng liên kết (CONG_VIEC_55; QUYTAC_NGHIEPVU_403): lập bảng tuần trước 1 giờ sáng thứ Hai; tự xác nhận bảng quá hạn mỗi giờ.
   await queue.upsertJobScheduler("affiliate-settlement-weekly", { pattern: "0 1 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-settlement-weekly" });
@@ -131,7 +134,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "loyalty-daily") return loyalty.runDaily();
-      if (job.name === "affiliate-voucher-daily") return affiliateVouchers.expireAndRemind();
+      if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };
       if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
