@@ -197,6 +197,13 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_58
+
+- Phạm vi: kế hoạch mua theo ngân sách (MODULE_14 phần 3), nhánh `chuc-nang/CONG_VIEC_58-mua-theo-ngan-sach` (pull request #123, head `1851557`, đã hợp nhất main 0.5.0).
+- Kết quả: toàn bộ kiểm thử API 105 tệp, 561/561 đạt; `c58-budget-plans` 4/4, `c58-open-to-buy` 2/2, `c58-order-budget` 4/4, `c58-budget-adjustments` 2/2 (KICHBAN_KIEMTHU_585 đến 595 đạt; 596 giao diện xem trước từng lát L0 đến L3 đạt); hồi quy c7 7/7, c9 7/7, c43 6/6, c45 6/6; CI (kiểm tra kiểu, lint, kiểm thử, quét bảo mật) đạt.
+- Lỗi mới: không có. Tự rà soát mã và dọn dẹp: đạt.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_22
 
 - Phạm vi: thành phần Kinh doanh trên ứng dụng VComm (THAY_DOI_26, 28), lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (pull request #122, commit `f90d6c7`).
