@@ -163,6 +163,7 @@ import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
 import { BudgetPlansService } from "./purchasing/budgets.service";
+import { BudgetAdjustmentsService } from "./purchasing/budget-adjustments.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -301,6 +302,7 @@ import { UsersService } from "./users/users.service";
     RequisitionsService,
     PurchaseOrdersService,
     BudgetPlansService,
+    BudgetAdjustmentsService,
     StockLedgerService,
     ReservationsService,
     StockService,

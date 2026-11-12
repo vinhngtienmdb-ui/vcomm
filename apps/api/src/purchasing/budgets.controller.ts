@@ -2,11 +2,14 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req } from "@nestjs/common";
 import {
   budgetCheckSchema,
+  saveBudgetAdjustmentSchema,
   budgetListQuerySchema,
   cellOrdersQuerySchema,
   openToBuyQuerySchema,
   saveBudgetPlanSchema,
   versionSchema,
+  type BudgetAdjustmentListItem,
+  type BudgetAdjustmentResponse,
   type BudgetCheckResponse,
   type BudgetOptionsResponse,
   type BudgetPlanListItem,
@@ -20,6 +23,7 @@ import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { BudgetAdjustmentsService } from "./budget-adjustments.service";
 import { BudgetPlansService } from "./budgets.service";
 
 @Controller("purchasing")
@@ -27,6 +31,7 @@ export class PurchasingBudgetsController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly plans: BudgetPlansService,
+    private readonly adjustments: BudgetAdjustmentsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -87,5 +92,55 @@ export class PurchasingBudgetsController {
   @Post("orders/budget-check")
   async checkOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<BudgetCheckResponse> {
     return this.plans.checkOrder(await this.actor(request, companyId), budgetCheckSchema.parse(body));
+  }
+
+  @Get("budget-adjustments")
+  async adjustmentList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<BudgetAdjustmentListItem>> {
+    return this.adjustments.list(await this.actor(request, companyId), budgetListQuerySchema.parse(query));
+  }
+
+  @Post("budget-adjustments")
+  async adjustmentCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.create(await this.actor(request, companyId), saveBudgetAdjustmentSchema.parse(body));
+  }
+
+  @Get("budget-adjustments/:id")
+  async adjustmentDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.detail(await this.actor(request, companyId), id);
+  }
+
+  @Patch("budget-adjustments/:id")
+  async adjustmentUpdate(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.update(await this.actor(request, companyId), id, saveBudgetAdjustmentSchema.parse(body));
+  }
+
+  @Post("budget-adjustments/:id/submit")
+  async adjustmentSubmit(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.submit(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("budget-adjustments/:id/withdraw")
+  async adjustmentWithdraw(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Post("budget-adjustments/:id/cancel")
+  async adjustmentCancel(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<BudgetAdjustmentResponse> {
+    return this.adjustments.cancel(await this.actor(request, companyId), id, versionSchema.parse(body).version);
   }
 }

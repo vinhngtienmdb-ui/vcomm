@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_205: bảng ngân sách hàng = ngành hàng × kho, cột = tháng (QUYTAC_NGHIEPVU_442, 443); sửa khi nháp, bị từ chối, đã rút; gửi duyệt, rút, hủy.
-import type { BudgetOptionsResponse, BudgetPlanResponse, SaveBudgetPlanRequest } from "contracts";
+import type { BudgetAdjustmentListItem, BudgetOptionsResponse, BudgetPlanResponse, PageResponse, SaveBudgetPlanRequest } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,10 +10,11 @@ import { useAdmin } from "ui/components/AppShell";
 import { ConfirmDialog } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
-import { Loaded } from "ui/components/StatusViews";
+import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatMoney, vietnamToday } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { AdjustmentTable } from "./AdjustmentTable";
 import { BudgetStatus, monthLabel, monthRange, numericCell } from "./BudgetStatus";
 
 type Row = { categoryId: string; warehouseId: string };
@@ -34,6 +35,7 @@ export function BudgetEditor({ plan, onChanged }: { plan: BudgetPlanResponse | n
 
 function Editor({ plan, options, onChanged }: { plan: BudgetPlanResponse | null; options: BudgetOptionsResponse; onChanged: (() => Promise<void>) | undefined }) {
   const t = useTranslations("budgets");
+  const adjust = useTranslations("budgetAdjustments");
   const common = useTranslations("common");
   const router = useRouter();
   const { notify } = useAdmin();
@@ -143,6 +145,11 @@ function Editor({ plan, options, onChanged }: { plan: BudgetPlanResponse | null;
             <button type="button" className="nut phu" disabled={busy} onClick={() => void act("withdraw")}>
               {t("withdraw")}
             </button>
+          )}
+          {plan?.canAdjust && (
+            <Link className="nut phu" href={`/budget-adjustments/new?planId=${plan.id}`}>
+              {adjust("add")}
+            </Link>
           )}
           {plan?.canCancel && (
             <button type="button" className="nut nguy-hiem" disabled={busy} onClick={() => setConfirmCancel(true)}>
@@ -296,6 +303,7 @@ function Editor({ plan, options, onChanged }: { plan: BudgetPlanResponse | null;
         </table>
       </div>
       <span className="chu-thich">{t("unit", { currency })}</span>
+      {plan?.status === "approved" && <PlanAdjustments planId={plan.id} />}
       {confirmCancel && plan && (
         <ConfirmDialog
           title={t("cancelPlan")}
@@ -306,6 +314,21 @@ function Editor({ plan, options, onChanged }: { plan: BudgetPlanResponse | null;
           onClose={() => setConfirmCancel(false)}
         />
       )}
+    </>
+  );
+}
+
+// Phiếu điều chỉnh của kế hoạch đã duyệt (MAN_HINH_205).
+function PlanAdjustments({ planId }: { planId: string }) {
+  const t = useTranslations("budgetAdjustments");
+  const { state, reload } = useApi<PageResponse<BudgetAdjustmentListItem>>(`/purchasing/budget-adjustments?planId=${planId}&pageSize=100`);
+  const headings = [t("documentNo"), t("plan"), t("reason"), t("totalIncrease"), t("totalDecrease"), t("createdBy"), t("status")];
+  return (
+    <>
+      <h2 style={{ margin: 0 }}>{t("planAdjustments")}</h2>
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(result) => (result.data.length === 0 ? <MessageView text={t("none")} /> : <AdjustmentTable items={result.data} headings={headings} />)}
+      </Loaded>
     </>
   );
 }

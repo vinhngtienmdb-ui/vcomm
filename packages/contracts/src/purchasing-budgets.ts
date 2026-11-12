@@ -160,3 +160,63 @@ export interface BudgetCheckResponse {
   currency: string;
   cells: BudgetCheckCell[];
 }
+
+// API_237, API_238: phiếu điều chỉnh ngân sách (QUYTAC_NGHIEPVU_448, 449). delta dương là tăng, âm là giảm.
+const signedAmount = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^-?\d{1,16}(\.\d{1,4})?$/.test(text) || Number(text) === 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const saveBudgetAdjustmentSchema = z
+  .object({
+    planId: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    lines: z
+      .array(z.object({ categoryId: z.uuid(), warehouseId: z.uuid(), month, delta: signedAmount }).strict())
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveBudgetAdjustmentRequest = z.input<typeof saveBudgetAdjustmentSchema>;
+export interface BudgetAdjustmentListItem {
+  id: string;
+  documentNo: string | null;
+  planId: string;
+  planDocumentNo: string | null;
+  reason: string;
+  currency: string;
+  totalIncrease: string;
+  totalDecrease: string;
+  status: BudgetDocumentStatus;
+  createdByName: string;
+  createdAt: string;
+}
+export interface BudgetAdjustmentLineResponse {
+  id: string;
+  categoryId: string;
+  categoryCode: string;
+  categoryName: string;
+  warehouseId: string;
+  warehouseName: string;
+  month: string;
+  delta: string;
+  // Ngân sách hiện tại của ô (gốc + điều chỉnh đã duyệt), đã dùng, sau điều chỉnh.
+  currentBudget: string;
+  used: string;
+  after: string;
+}
+export interface BudgetAdjustmentResponse extends BudgetAdjustmentListItem {
+  planFromMonth: string;
+  planToMonth: string;
+  approvalRequestId: string | null;
+  lines: BudgetAdjustmentLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+}
