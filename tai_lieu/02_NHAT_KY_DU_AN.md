@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_61 (Open API cho đối tác, MODULE_16) lát L1, L2, pull request #134 (commit `9b19474`, đã hợp nhất main 0.6.0; kiểm thử 617/617): khóa API theo công ty và đối tác (có khóa nội bộ), phạm vi quyền, hạn và IP tùy chọn, 60 yêu cầu mỗi phút chỉnh theo khóa, nhật ký gọi không ghi nội dung giữ 90 ngày, API sản phẩm, giá, tồn; đơn bán Nháp qua API, bắt buộc mã đơn đối tác (gửi lại trả đơn cũ), tra, hủy đơn Nháp. Database migration 0128 đến 0130. Không thêm thư viện.
 - Người dùng nghiệm thu CONG_VIEC_55 (cửa hàng liên kết phần 1); phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên điện thoại thật) kiểm thử sau khi triển khai thử nghiệm. Người dùng duyệt đặc tả CONG_VIEC_59 (làm hết theo lát), lát L0 CONG_VIEC_60, lát L1 CONG_VIEC_61.
 - CONG_VIEC_55 (cửa hàng liên kết phần 1, MODULE_12) trình nghiệm thu lát L0 đến L4, pull request #120 (commit `459f69d`, đã hợp nhất main 0.6.0; kiểm thử 617/617): database migration 0102 đến 0105 (schema affiliate; 0103, 0104 định nghĩa lại ràng buộc source_type của loyalty.lots, entries, document_points, refund_links; 0105 định nghĩa lại finance.debt_items.source_type thêm affiliate_settlement và accounting.journals.source_type thêm affiliate_transaction, affiliate_transaction_cancel, affiliate_voucher, affiliate_voucher_expire, affiliate_settlement, gồm mọi giá trị trên main); ứng dụng mới apps/web-affiliate (/merchant, cổng 3013); luồng OAuth dùng chung nhận app=merchant (không đổi hành vi cũ).
 - CONG_VIEC_56, 52, 60 hợp nhất main 0.6.0 vào nhánh: kiểm thử API lần lượt 616/616, 641/641, các tệp liên quan 28/28 đạt.
@@ -36,6 +37,10 @@
 
 ### Quyết định
 
+- Phát hành 0.7.0 gồm CONG_VIEC_55 và 61 khi CONG_VIEC_61 được nghiệm thu; CONG_VIEC_52, 56 vào bản sau khi đối chiếu luật ngày 13/11.
+- CONG_VIEC_61: chốt phạm vi ở L1, L2; tách L3 (khách hàng do đối tác tạo, giao thẳng người nhận cuối) thành CONG_VIEC_66 (MODULE_16), L4 (điểm thưởng tại đối tác) thành CONG_VIEC_67 và gộp vào MODULE_12 (Cửa hàng liên kết phần 2). Đơn Open API theo cài đặt "Cho phép lập đơn bán tay có hàng hóa" (QUYTAC_NGHIEPVU_276, không đổi quy tắc); người lập đơn Open API là người cấp khóa.
+- Tạm dừng mở phiên cho CONG_VIEC_62 đến 67 đến khi các phiên đang chạy hoàn tất.
+- CONG_VIEC_59: người dùng đồng ý dùng node-forge 1.4.3 thay 1.4.2 (bản 1.4.2 có 3 lỗ hổng Trung bình, 1 Thấp, đã vá ở 1.4.3).
 - CONG_VIEC_55: khi xem trước, người dùng chọn thêm API GET /affiliate/transactions (thuộc API_213), thẻ Giao dịch MAN_HINH_180 và nguồn bút toán riêng affiliate_transaction_cancel, affiliate_voucher_expire (ghi THAY_DOI_29).
 - CONG_VIEC_60: một điểm chung do công ty vận hành sàn phát hành; chi phí khi tích ở công ty A dùng ở công ty B cài một trong ba kiểu cho cả tập đoàn (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu); đối soát nội bộ hằng tháng có hai bên xác nhận, bù trừ 1368/3368; chống gian lận 4 quy tắc (số tài khoản trên một thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, giao dịch bất thường theo nhân viên), mức xử lý cấu hình (cảnh báo, chặn giao dịch, chặn và khóa ví). Người dùng duyệt đặc tả, bản mẫu. Tách đối tác liên minh điểm ngoài tập đoàn thành CONG_VIEC_65.
 - CONG_VIEC_59: lớp kết nối ký số từ xa có bộ giả lập; ký công văn đi, hợp đồng trong kho, hợp đồng lao động, mọi tệp PDF; người ký cá nhân cộng chữ ký số công ty; đối tác ký từ xa qua đường dẫn; người dùng duyệt thư viện @signpdf/signpdf, @signpdf/placeholder-pdf-lib, @signpdf/utils 4.0.0, pdf-lib 1.17.1, node-forge 1.4.2, @types/node-forge 1.3.14.
