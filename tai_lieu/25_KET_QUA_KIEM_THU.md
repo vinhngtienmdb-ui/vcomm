@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_55
+
+- Phạm vi: cửa hàng liên kết phần 1 (MODULE_12) lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_55-cua-hang-lien-ket` (pull request #120, commit `459f69d`, đã hợp nhất main 0.6.0).
+- Kết quả: toàn bộ kiểm thử API 119 tệp, 617/617 đạt sau hợp nhất; c55-merchants 3, c55-transactions 6, c55-vouchers 2, c55-settlements 3, c55-reports 2 đạt (KICHBAN_KIEMTHU_533 đến 546 tự động). Kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform và khóa dịch đạt. Lượt chạy trước hợp nhất có 1 ca c55-reports lỗi do tệp kiểm thử bị sửa trong lúc chạy, chạy lại đạt.
+- Chưa kiểm thử: phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên Safari iPhone, Chrome Android) chưa thử trên điện thoại thật.
+- Ghi chú môi trường: `.env` phát triển có MFA_SECRET_KEY trống làm lưu cấu hình tích hợp lỗi; môi trường thật phải đặt khóa.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12; phần thủ công của KICHBAN_KIEMTHU_546 kiểm thử sau khi triển khai thử nghiệm.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L0 đến L5)
 
 - Phạm vi: Bán lẻ tại quầy phần 1, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #100, commit `f500d84`, đã hợp nhất main 0.4.0).
