@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_266 Trang chia sẻ sản phẩm – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<style>
+  /* Bố cục trình bày bản mẫu */
+  .trinh-bay { display: flex; flex-wrap: wrap; gap: var(--khoang-6); padding: var(--khoang-5); align-items: flex-start; }
+  .khung { display: grid; gap: var(--khoang-2); }
+  .khung > .chu-thich { font-weight: 700; color: var(--mau-chu-phu); }
+  .man-dt { width: 390px; max-width: 100%; min-height: 760px; background: var(--mau-nen); border: 1px solid var(--mau-vien); border-radius: 24px; overflow: hidden; }
+  .man-may-tinh { width: 860px; max-width: 100%; background: var(--mau-nen); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); overflow: hidden; }
+  /* Trang chia sẻ (sẽ dựng bằng HTML do API trả) */
+  .dau-trang { background: var(--mau-thanh-tren); color: #fff; padding: var(--khoang-3) var(--khoang-4); font-weight: 800; font-size: 18px; }
+  .than-trang { padding: var(--khoang-4); display: grid; gap: var(--khoang-4); max-width: 960px; margin: 0 auto; }
+  .the-sp { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); overflow: hidden; display: grid; }
+  .man-may-tinh .the-sp { grid-template-columns: 360px minmax(0, 1fr); }
+  .anh-sp { aspect-ratio: 1; background: linear-gradient(135deg, #D1FAE5, #A7F3D0); display: grid; place-items: center; color: var(--mau-chinh-dam); font-weight: 700; }
+  .noi-dung-sp { padding: var(--khoang-4); display: grid; gap: var(--khoang-3); align-content: start; }
+  .gia { color: var(--mau-chinh); font-size: 24px; line-height: 32px; font-weight: 800; }
+  .cua-hang { color: var(--mau-chu-phu); font-size: 13px; }
+  .cac-nut { display: grid; gap: var(--khoang-2); }
+  .cac-nut .nut { justify-content: center; padding: 11px 14px; }
+  .tai-ung-dung { display: flex; gap: var(--khoang-2); flex-wrap: wrap; }
+  .tai-ung-dung .nut { flex: 1 1 140px; }
+  .chan-trang { color: var(--mau-chu-phu); font-size: 12px; text-align: center; padding-bottom: var(--khoang-4); }
+  /* Mô phỏng thẻ xem trước trên Facebook (không thuộc sản phẩm) */
+  .bai-fb { width: 500px; max-width: 100%; background: #fff; border: 1px solid #DADDE1; border-radius: 8px; font-family: Helvetica, Arial, sans-serif; color: #050505; }
+  .bai-fb .dau-bai { padding: 12px 16px; font-size: 15px; }
+  .bai-fb .anh-the { aspect-ratio: 1.91; background: linear-gradient(135deg, #D1FAE5, #A7F3D0); display: grid; place-items: center; color: #065F46; font-weight: 700; }
+  .bai-fb .chan-the { background: #F0F2F5; padding: 10px 12px; border-top: 1px solid #DADDE1; }
+  .bai-fb .mien { font-size: 12px; color: #65676B; text-transform: uppercase; }
+  .bai-fb .tieu-de-the { font-size: 16px; font-weight: 700; line-height: 20px; }
+  .bai-fb .mo-ta-the { font-size: 14px; color: #65676B; }
+  .ung-dung-dt { width: 390px; background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-4); display: grid; gap: var(--khoang-3); }
+  .noi-dung-gui { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); border-radius: var(--bo-nho); padding: var(--khoang-3); word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="trinh-bay">
+  <div class="khung">
+    <span class="chu-thich">Điện thoại 390 điểm ảnh – sản phẩm đang bán (có mã giới thiệu)</span>
+    <div class="man-dt">
+      <div class="dau-trang">VComm</div>
+      <div class="than-trang">
+        <div class="the-sp">
+          <div class="anh-sp">Ảnh chính sản phẩm</div>
+          <div class="noi-dung-sp">
+            <h1 style="font-size:20px;line-height:28px">Sữa tắm Thảo Mộc 500 ml</h1>
+            <div class="gia">Từ 129.000 ₫</div>
+            <p style="margin:0">Chiết xuất trà xanh, sả chanh; dịu nhẹ cho da nhạy cảm, hương thơm tự nhiên, dùng hằng ngày cho cả gia đình…</p>
+            <div class="cua-hang">Cửa hàng: VComm Thương mại</div>
+          </div>
+        </div>
+        <div class="cac-nut">
+          <a class="nut chinh" href="#">Mở ứng dụng VComm</a>
+          <a class="nut phu" href="#">Xem trên web</a>
+          <div class="tai-ung-dung"><a class="nut phu" href="#">Tải trên App Store</a><a class="nut phu" href="#">Tải trên Google Play</a></div>
+        </div>
+        <p class="chu-thich" style="margin:0">Đăng ký từ đường dẫn này sẽ ghi người giới thiệu 0912345678.</p>
+        <div class="chan-trang">© VComm Thương mại</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="khung">
+    <span class="chu-thich">Điện thoại – hết hàng; chưa cấu hình cửa hàng ứng dụng (ẩn nút tải)</span>
+    <div class="man-dt">
+      <div class="dau-trang">VComm</div>
+      <div class="than-trang">
+        <div class="the-sp">
+          <div class="anh-sp">Ảnh chính sản phẩm</div>
+          <div class="noi-dung-sp">
+            <h1 style="font-size:20px;line-height:28px">Nồi chiên không dầu 5 lít &lt;Bản giới hạn&gt;</h1>
+            <div class="gia">1.490.000 ₫</div>
+            <span class="nhan canh-bao" style="justify-self:start">Hết hàng</span>
+            <div class="cua-hang">Cửa hàng: VComm Thương mại</div>
+          </div>
+        </div>
+        <div class="cac-nut">
+          <a class="nut chinh" href="#">Mở ứng dụng VComm</a>
+          <a class="nut phu" href="#">Xem trên web</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="khung">
+    <span class="chu-thich">Điện thoại – sản phẩm không còn bán (mã 404)</span>
+    <div class="man-dt">
+      <div class="dau-trang">VComm</div>
+      <div class="than-trang">
+        <div class="trang-thai-trong">
+          <div class="hinh"></div>
+          <h2>Sản phẩm không còn bán.</h2>
+          <a class="nut chinh" href="#">Xem cửa hàng VComm</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="khung">
+    <span class="chu-thich">Máy tính 1360 điểm ảnh (thu nhỏ)</span>
+    <div class="man-may-tinh">
+      <div class="dau-trang">VComm</div>
+      <div class="than-trang">
+        <div class="the-sp">
+          <div class="anh-sp">Ảnh chính sản phẩm</div>
+          <div class="noi-dung-sp">
+            <h1>Sữa tắm Thảo Mộc 500 ml</h1>
+            <div class="gia">Từ 129.000 ₫</div>
+            <p style="margin:0">Chiết xuất trà xanh, sả chanh; dịu nhẹ cho da nhạy cảm, hương thơm tự nhiên, dùng hằng ngày cho cả gia đình…</p>
+            <div class="cua-hang">Cửa hàng: VComm Thương mại</div>
+            <div class="cac-nut" style="max-width:360px">
+              <a class="nut chinh" href="#">Mở ứng dụng VComm</a>
+              <a class="nut phu" href="#">Xem trên web</a>
+              <div class="tai-ung-dung"><a class="nut phu" href="#">Tải trên App Store</a><a class="nut phu" href="#">Tải trên Google Play</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="khung">
+    <span class="chu-thich">Thẻ xem trước khi dán đường dẫn lên Facebook (mô phỏng, do Facebook vẽ)</span>
+    <div class="bai-fb">
+      <div class="dau-bai">Mời cả nhà xem sữa tắm này nhé 👇<br><span style="color:#216FDB">https://vcomm.vn/s/8f1c2a7e-…?ref=0912345678</span></div>
+      <div class="anh-the">og:image – ảnh chính sản phẩm</div>
+      <div class="chan-the">
+        <div class="mien">vcomm.vn</div>
+        <div class="tieu-de-the">Sữa tắm Thảo Mộc 500 ml</div>
+        <div class="mo-ta-the">Từ 129.000 ₫ · Chiết xuất trà xanh, sả chanh; dịu nhẹ cho da nhạy cảm…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="khung">
+    <span class="chu-thich">MAN_HINH_201 (sửa) – thẻ chia sẻ trong ứng dụng</span>
+    <div class="ung-dung-dt">
+      <h3>Chia sẻ sản phẩm</h3>
+      <span class="chu-thich">Nội dung gửi đi</span>
+      <div class="noi-dung-gui">Mời bạn xem Sữa tắm Thảo Mộc 500 ml trên VComm: https://vcomm.vn/s/8f1c2a7e-…?ref=0912345678&amp;ctv=K7MZ4QHP</div>
+      <span class="chu-thich">Dán lên Facebook, Zalo sẽ hiện ảnh, tên, giá sản phẩm. Người nhận chưa có tài khoản sẽ đăng ký với mã giới thiệu 0912345678 rồi mở sản phẩm này. Người đã có tài khoản mở thẳng sản phẩm, người giới thiệu của họ không đổi.</span>
+      <div class="nhom-nut"><button class="nut phu">Sao chép</button><button class="nut chinh">Chia sẻ</button></div>
+    </div>
+  </div>
+</div>
+<div class="the" style="margin:0 var(--khoang-5) var(--khoang-5)">
+  <h2>MAN_HINH_266 Trang chia sẻ sản phẩm</h2>
+  <p style="margin:0">Trang công khai do API trả (API_314, <code>/s/&lt;mã sản phẩm&gt;?ref=&amp;ctv=</code>), không có script. Thẻ Open Graph: tên, "Giá · mô tả ngắn", ảnh chính, tên cửa hàng (QUYTAC_NGHIEPVU_553). Nút "Mở ứng dụng VComm" dùng <code>vcomm://</code>, "Xem trên web" mở bản web cùng đường dẫn <code>/r/</code>, <code>/p/</code> hoặc <code>/san-pham/</code> (QUYTAC_NGHIEPVU_555). Câu "Đăng ký từ đường dẫn này sẽ ghi người giới thiệu…" chỉ hiện khi có mã giới thiệu. Tiếng Anh khi trình duyệt dùng tiếng Anh.</p>
+  <p style="margin:0"><a href="index.html">Mục lục bản mẫu</a> · <a href="SUA_CAI_DAT_BAN_HANG_TEP_DANH_MUC.html">Thẻ Tệp danh mục Facebook</a></p>
+</div>
+</body>
+</html>
