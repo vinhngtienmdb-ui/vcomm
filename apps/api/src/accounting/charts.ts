@@ -381,6 +381,11 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     financial_income: "515",
     financial_expense: "635",
     late_payment_expense: "811",
+    affiliate_receivable: "131",
+    affiliate_payable: "331",
+    affiliate_fee_revenue: "511",
+    affiliate_fee_tax: "33311",
+    affiliate_voucher_deferred: "3387",
   },
   TT133: {
     receivable: "131",
@@ -432,6 +437,11 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     financial_income: "515",
     financial_expense: "635",
     late_payment_expense: "811",
+    affiliate_receivable: "131",
+    affiliate_payable: "331",
+    affiliate_fee_revenue: "5113",
+    affiliate_fee_tax: "33311",
+    affiliate_voucher_deferred: "3387",
   },
 };
 
@@ -485,4 +495,9 @@ export const roleDescriptions: Record<PostingRole, string> = {
   financial_income: "Doanh thu hoạt động tài chính (lãi tỷ giá)",
   financial_expense: "Chi phí tài chính (lỗ tỷ giá)",
   late_payment_expense: "Tiền chậm nộp thuế",
+  affiliate_receivable: "Phải thu cửa hàng liên kết (tiền điểm tích)",
+  affiliate_payable: "Phải trả cửa hàng liên kết (tiền điểm, voucher khách dùng)",
+  affiliate_fee_revenue: "Doanh thu phí dịch vụ cửa hàng liên kết",
+  affiliate_fee_tax: "Thuế giá trị gia tăng đầu ra của phí dịch vụ cửa hàng liên kết",
+  affiliate_voucher_deferred: "Doanh thu chưa thực hiện của voucher đổi bằng điểm",
 };

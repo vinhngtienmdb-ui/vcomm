@@ -6,6 +6,8 @@ export const errorCodes = [
   "UNAUTHENTICATED",
   "MFA_REQUIRED",
   "FORBIDDEN",
+  "IP_NOT_ALLOWED",
+  "SCOPE_NOT_GRANTED",
   "NOT_FOUND",
   "CONFLICT_VERSION",
   "BUSINESS_RULE",
@@ -2783,6 +2785,8 @@ export const salesOrderListQuerySchema = z
   .object({
     status: z.enum(salesOrderStatuses).optional(),
     customerId: z.uuid().optional(),
+    // CONG_VIEC_61: lọc theo nguồn (nhập trên web, Open API).
+    source: z.enum(["web", "open_api"]).optional(),
     search: z.string().trim().max(100).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
@@ -2803,6 +2807,8 @@ export interface SalesOrderListItem {
   totalAmount: string;
   status: SalesOrderStatus;
   createdByName: string;
+  // CONG_VIEC_61: đơn tạo qua Open API.
+  openApi: { keyName: string; partnerOrderCode: string } | null;
 }
 export interface SalesOrderLineResponse {
   id: string;
@@ -7872,6 +7878,8 @@ export interface AnalyticsOverviewResponse {
 }
 export * from "./recruitment";
 export * from "./reviews";
+export * from "./affiliate";
+export * from "./open-api";
 
 // ---------------------------------------------------------------------------
 // CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.

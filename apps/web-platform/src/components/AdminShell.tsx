@@ -19,6 +19,9 @@ export const adminMenu = [
   { href: "/platform/exchange-rates", key: "exchangeRates", permission: "platform.access" },
   { href: "/platform/audit-log", key: "auditLog", permission: "platform.audit.view" },
   { href: "/platform/integrations", key: "integrations", permission: "platform.integration.manage" },
+  // CONG_VIEC_61: Open API cho đối tác (MAN_HINH_224 đến 226).
+  { href: "/platform/api-keys", key: "apiKeys", permission: "platform.api_key.manage" },
+  { href: "/platform/api-call-logs", key: "apiCallLogs", permission: "platform.api_log.view" },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

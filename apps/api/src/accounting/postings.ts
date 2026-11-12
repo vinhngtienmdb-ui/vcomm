@@ -54,7 +54,13 @@ export type PostingRole =
   | "exchange_difference"
   | "financial_income"
   | "financial_expense"
-  | "late_payment_expense";
+  | "late_payment_expense"
+  // CONG_VIEC_55: cửa hàng liên kết.
+  | "affiliate_receivable"
+  | "affiliate_payable"
+  | "affiliate_fee_revenue"
+  | "affiliate_fee_tax"
+  | "affiliate_voucher_deferred";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -105,6 +111,11 @@ export const postingRoles: PostingRole[] = [
   "financial_income",
   "financial_expense",
   "late_payment_expense",
+  "affiliate_receivable",
+  "affiliate_payable",
+  "affiliate_fee_revenue",
+  "affiliate_fee_tax",
+  "affiliate_voucher_deferred",
 ];
 
 export interface DraftLine {
@@ -133,7 +144,12 @@ export interface DraftJournal {
     | "import_declaration"
     | "landed_cost"
     | "fx_revaluation"
-    | "import_amendment";
+    | "import_amendment"
+    | "affiliate_transaction"
+    | "affiliate_transaction_cancel"
+    | "affiliate_voucher"
+    | "affiliate_voucher_expire"
+    | "affiliate_settlement";
   sourceId: string;
   journalNo: string;
   date: string;

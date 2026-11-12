@@ -67,9 +67,10 @@ SELECT l.fund_id, r.id, r.company_id, 'fx_revaluation', r.status, r.revaluation_
 FROM finance.fx_revaluation_lines l JOIN finance.fx_revaluations r ON r.id = l.revaluation_id
 WHERE l.kind = 'fund' AND r.status = 'posted';
 
--- Nguồn bút toán đánh giá lại; giữ mọi giá trị của 0101 (phát hành 0.5.0).
+-- Nguồn bút toán đánh giá lại; giữ mọi giá trị của 0105 (phát hành 0.7.0, gồm 0101).
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
 ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
     CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement', 'marketplace_payment', 'marketplace_refund',
         'marketplace_commission', 'marketplace_withdrawal', 'payroll', 'payroll_payment', 'marketplace_referral_bonus', 'import_declaration', 'landed_cost', 'loyalty_entry',
-        'loyalty_seller_entry', 'loyalty_order_redeem', 'fx_revaluation'));
+        'loyalty_seller_entry', 'loyalty_order_redeem', 'affiliate_transaction', 'affiliate_transaction_cancel', 'affiliate_voucher', 'affiliate_voucher_expire', 'affiliate_settlement',
+        'fx_revaluation'));

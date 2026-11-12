@@ -19,6 +19,13 @@ import { defaultRateLimit, RATE_LIMIT, RateLimiter } from "./common/rate-limiter
 import { CLOCK, systemClock } from "./common/clock";
 import { LogOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messages";
 import { DatabaseModule } from "./database/database.module";
+import { ApiCallLogsService } from "./open-api/api-call-logs.service";
+import { ApiKeyGuard } from "./open-api/api-key.guard";
+import { ApiKeysController } from "./open-api/api-keys.controller";
+import { ApiKeysService } from "./open-api/api-keys.service";
+import { OpenApiController } from "./open-api/open-api.controller";
+import { OpenCatalogService } from "./open-api/open-catalog.service";
+import { OpenSalesOrdersService } from "./open-api/open-sales-orders.service";
 import { HomeController } from "./home/home.controller";
 import { MeController } from "./me/me.controller";
 import { BranchesService } from "./organization/branches.service";
@@ -90,6 +97,15 @@ import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
 import { LoyaltyJobsService } from "./loyalty/jobs.service";
 import { LoyaltyAdminService } from "./loyalty/admin.service";
+import { AffiliateController } from "./affiliate/affiliate.controller";
+import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
+import { AffiliateMerchantsService } from "./affiliate/merchants.service";
+import { MerchantPortalService } from "./affiliate/portal.service";
+import { AffiliateTransactionsService } from "./affiliate/transactions.service";
+import { AffiliateVouchersService } from "./affiliate/vouchers.service";
+import { AffiliateSettlementsService } from "./affiliate/settlements.service";
+import { AffiliateReportsService } from "./affiliate/reports.service";
+import { BuyerAffiliateController } from "./affiliate/buyer-affiliate.controller";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { PurchasingImportsController } from "./purchasing/imports.controller";
 import { ImportAmendmentsService } from "./purchasing/import-amendments.service";
@@ -201,7 +217,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController],
   providers: [
     AuthService,
     ActivationService,
@@ -282,6 +298,12 @@ import { UsersService } from "./users/users.service";
     LoyaltyPostingsService,
     LoyaltyJobsService,
     LoyaltyAdminService,
+    AffiliateMerchantsService,
+    MerchantPortalService,
+    AffiliateTransactionsService,
+    AffiliateVouchersService,
+    AffiliateSettlementsService,
+    AffiliateReportsService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,
@@ -346,6 +368,11 @@ import { UsersService } from "./users/users.service";
     NumberSequencesService,
     ExchangeRatesService,
     AuditEventsService,
+    ApiKeysService,
+    ApiCallLogsService,
+    ApiKeyGuard,
+    OpenCatalogService,
+    OpenSalesOrdersService,
     { provide: CLOCK, useValue: systemClock },
     { provide: RATE_LIMIT, useValue: defaultRateLimit },
     RateLimiter,

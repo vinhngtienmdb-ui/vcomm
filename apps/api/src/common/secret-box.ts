@@ -25,3 +25,8 @@ export function decryptSecret(data: Buffer): string {
 export function blindIndex(plain: string): Buffer {
   return createHmac("sha256", encryptionKey()).update(plain.trim().toUpperCase(), "utf8").digest();
 }
+
+// Khóa con theo mục đích (HMAC của khóa chính): mã thành viên cửa hàng liên kết (CONG_VIEC_55, QUYTAC_NGHIEPVU_396).
+export function purposeKey(purpose: string): Buffer {
+  return createHmac("sha256", encryptionKey()).update(`vcomm:${purpose}`, "utf8").digest();
+}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_178 Cửa hàng liên kết – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="178" data-khu="crm">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <div class="tieu-de"><h1>Cửa hàng liên kết</h1><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=false">Thêm cửa hàng</button></div>
+    <div class="bo-loc"><label class="an-nhan" for="tim">Tìm</label><input id="tim" class="o-nhap" placeholder="Mã, tên, mã số thuế">
+      <select class="o-nhap" aria-label="Trạng thái"><option>Trạng thái: tất cả</option><option>Nháp</option><option>Đang hoạt động</option><option>Tạm ngưng</option><option>Đã chấm dứt</option></select>
+      <select class="o-nhap" aria-label="Dư nợ"><option>Dư nợ: tất cả</option><option>Từ 80 % hạn mức</option><option>Có bảng quá hạn</option></select></div>
+    <div class="khung-bang"><table><thead><tr><th>Mã</th><th>Cửa hàng</th><th class="so">Điểm bán</th><th class="so">Tỷ lệ tích</th><th class="so">Dư nợ / hạn mức</th><th>Trạng thái</th></tr></thead><tbody>
+      <tr><td data-nhan="Mã"><a href="#chi-tiet">CH-000007</a></td><td data-nhan="Cửa hàng">Cà phê Hạt Nâu</td><td data-nhan="Điểm bán" class="so">2</td><td data-nhan="Tỷ lệ tích" class="so">2 %</td><td data-nhan="Dư nợ / hạn mức" class="so">41,2 tr / 50 tr <span class="nhan canh-bao">82 %</span></td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang hoạt động</span></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">CH-000006</a></td><td data-nhan="Cửa hàng">Tiệm bánh Mây</td><td data-nhan="Điểm bán" class="so">1</td><td data-nhan="Tỷ lệ tích" class="so">3 %</td><td data-nhan="Dư nợ / hạn mức" class="so">5,1 tr / 20 tr <span class="nhan loi">Quá hạn</span></td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang hoạt động</span><div class="chu-thich">Đang chặn tích</div></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">CH-000005</a></td><td data-nhan="Cửa hàng">Nhà thuốc An Tâm</td><td data-nhan="Điểm bán" class="so">4</td><td data-nhan="Tỷ lệ tích" class="so">1 %</td><td data-nhan="Dư nợ / hạn mức" class="so">0 / 30 tr</td><td data-nhan="Trạng thái"><span class="nhan canh-bao">Tạm ngưng</span></td></tr>
+    </tbody></table></div>
+
+    <section class="the" id="chi-tiet"><div class="tieu-de"><h2>CH-000007 Cà phê Hạt Nâu</h2>
+      <button type="button" class="nut phu" data-thong-bao="Đã lưu hợp đồng.">Lưu</button><button type="button" class="nut nguy-hiem" data-thong-bao="Đã tạm ngưng CH-000007.">Tạm ngưng</button><button type="button" class="nut nguy-hiem">Chấm dứt</button></div>
+      <div class="hai-cot-deu">
+        <div class="truong"><label for="dt">Đối tác</label><input id="dt" class="o-nhap" value="DT000231 Công ty TNHH Cà phê Hạt Nâu" readonly><span class="chu-thich">Chỉ đối tác ngoài tập đoàn.</span></div>
+        <div class="truong"><label for="hd">Số hợp đồng</label><input id="hd" class="o-nhap" value="HDLK-2026/007"></div>
+        <div class="truong"><label for="tu">Hiệu lực từ</label><input id="tu" class="o-nhap" value="01/11/2026"></div>
+        <div class="truong"><label for="den">Đến (trống: không thời hạn)</label><input id="den" class="o-nhap" value="31/10/2027"></div>
+        <div class="truong"><label for="tl">Tỷ lệ tích (%)</label><input id="tl" class="o-nhap" value="2"></div>
+        <div class="truong"><label for="phi">Tỷ lệ phí dịch vụ (%)</label><input id="phi" class="o-nhap" value="8"></div>
+        <div class="truong"><label for="hm">Hạn mức nợ (đ)</label><input id="hm" class="o-nhap" value="50.000.000"></div>
+        <div class="truong"><label for="tran">Trần mỗi giao dịch (đ)</label><input id="tran" class="o-nhap" value="5.000.000"></div>
+        <div class="truong"><label for="htt">Hạn thanh toán (ngày)</label><input id="htt" class="o-nhap" value="7"></div>
+        <div class="truong"><label for="txn">Tự xác nhận sau (ngày)</label><input id="txn" class="o-nhap" value="3"></div>
+      </div>
+      <p class="chu-thich">Sửa tỷ lệ, hạn mức áp dụng cho giao dịch lập sau khi lưu.</p>
+      <div class="hai-cot-deu">
+        <div><div class="tieu-de"><h3>Điểm bán</h3><button type="button" class="nut phu">Thêm điểm bán</button></div>
+          <ul><li>Lê Lợi – 12 Lê Lợi <span class="nhan thanh-cong">Hoạt động</span></li><li>Nguyễn Huệ – 88 Nguyễn Huệ <span class="nhan thanh-cong">Hoạt động</span></li></ul></div>
+        <div><div class="tieu-de"><h3>Thành viên</h3><button type="button" class="nut phu" data-thong-bao="Đã gửi lời mời chủ cửa hàng.">Mời chủ cửa hàng</button></div>
+          <ul><li>Trần Minh Khoa – chủ cửa hàng <span class="nhan thanh-cong">Hoạt động</span> <button type="button" class="nut chu">Khóa</button></li><li>Lê Thu Hà – thu ngân, Lê Lợi</li><li>Phạm Văn Tú – thu ngân <span class="nhan canh-bao">Chờ kích hoạt</span></li></ul></div>
+      </div>
+    </section>
+
+    <aside class="man-che giua" id="tao" hidden><div class="hop-thoai" role="dialog" aria-labelledby="tieu-de-tao">
+      <h2 id="tieu-de-tao">Thêm cửa hàng liên kết</h2>
+      <div class="truong"><label for="t-dt">Đối tác</label><input id="t-dt" class="o-nhap" placeholder="Tìm đối tác theo tên, mã số thuế"><span class="chu-thich">Chưa có đối tác: tạo ở Đối tác trước.</span></div>
+      <p class="chu-thich">Cửa hàng tạo ở trạng thái Nháp; nhập hợp đồng, ít nhất một điểm bán rồi bấm Kích hoạt.</p>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('tao').hidden=true">Hủy</button><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=true" data-thong-bao="Đã tạo CH-000008 (nháp).">Tạo</button></div>
+    </div></aside>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>
