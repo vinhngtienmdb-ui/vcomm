@@ -119,6 +119,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
   { code: "purchasing.budget.view", appCode: "purchasing", nameVi: "Xem ngân sách mua", nameEn: "View purchase budgets", isSensitive: false },
   { code: "purchasing.budget.manage", appCode: "purchasing", nameVi: "Lập, điều chỉnh ngân sách mua", nameEn: "Manage purchase budgets", isSensitive: false },
+  { code: "purchasing.dropship.view", appCode: "purchasing", nameVi: "Xem dropship", nameEn: "View dropship", isSensitive: false },
+  { code: "purchasing.dropship.manage", appCode: "purchasing", nameVi: "Quản lý sản phẩm, đơn dropship", nameEn: "Manage dropship products and orders", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -249,6 +251,8 @@ const companyAdminPermissions = [
   "purchasing.import.manage",
   "purchasing.budget.view",
   "purchasing.budget.manage",
+  "purchasing.dropship.view",
+  "purchasing.dropship.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -289,7 +293,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), Bán lẻ (CONG_VIEC_53), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
       .filter(
-        (permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr", "analytics", "retail", "office"].includes(permission.appCode) || permission.code.endsWith(".access"),
+        (permission) =>
+          ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr", "analytics", "retail", "office"].includes(permission.appCode) || permission.code.endsWith(".access"),
       )
       .map((permission) => permission.code),
   },
@@ -341,6 +346,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.import.view",
       "purchasing.import.manage",
       "purchasing.budget.view",
+      "purchasing.dropship.view",
+      "purchasing.dropship.manage",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",

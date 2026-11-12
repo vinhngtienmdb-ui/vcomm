@@ -1391,6 +1391,8 @@ export const createWarehouseSchema = z
     address: z.string().trim().max(500).nullable().optional(),
     usesLocations: z.boolean(),
     ownerCompanyIds: z.array(z.uuid()).max(50).default([]),
+    // CONG_VIEC_62 (QUYTAC_NGHIEPVU_496): loại kho chọn khi tạo, không đổi sau.
+    kind: z.enum(["standard", "dropship"]).default("standard"),
   })
   .strict();
 export type CreateWarehouseRequest = z.input<typeof createWarehouseSchema>;
@@ -1414,6 +1416,7 @@ export interface WarehouseResponse {
   name: string;
   address: string | null;
   usesLocations: boolean;
+  kind: "standard" | "dropship";
   owners: { companyId: string; companyName: string }[];
   locationCount: number;
   status: "active" | "inactive";
@@ -8156,3 +8159,4 @@ export interface LoyaltyAlertResponse {
 }
 export * from "./purchasing-budgets";
 export * from "./office";
+export * from "./dropship";

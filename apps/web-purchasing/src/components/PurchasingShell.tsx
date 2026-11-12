@@ -16,6 +16,8 @@ export const purchasingMenu = [
   { href: "/budget-plans", key: "budgetPlans", permission: "purchasing.budget.view" },
   { href: "/open-to-buy", key: "openToBuy", permission: "purchasing.budget.view" },
   { href: "/budget-adjustments", key: "budgetAdjustments", permission: "purchasing.budget.view" },
+  // CONG_VIEC_62: Dropship (MAN_HINH_234).
+  { href: "/dropship-products", key: "dropshipProducts", permission: "purchasing.dropship.view" },
 ] as const;
 
 export function PurchasingShell({ children }: { children: ReactNode }) {

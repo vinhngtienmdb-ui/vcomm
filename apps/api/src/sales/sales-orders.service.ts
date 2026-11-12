@@ -505,6 +505,8 @@ export class SalesOrdersService implements OnModuleInit {
           userId: actor.userId,
         })
         .catch((error: unknown) => {
+          if (error instanceof ApiError && (error.messageKey === "dropshipProductMissing" || error.messageKey === "dropshipPriceMissing"))
+            throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.variantId`]: error.messageKey } });
           if (!(error instanceof ApiError) || error.messageKey !== "insufficientAvailableStock") throw error;
           throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.quantity`]: "insufficientAvailableStock" } });
         });
@@ -973,7 +975,7 @@ export class SalesOrdersService implements OnModuleInit {
     }
     const channel = await transaction.execute(sql`SELECT 1 FROM catalog.sales_channels WHERE id = ${input.channelId} AND company_id = ${companyId} AND status = 'active'`);
     if (channel.rows.length === 0) fields.channelId = "invalidValue";
-    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId))) fields.warehouseId = "invalidValue";
+    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId, true))) fields.warehouseId = "invalidValue";
     if (input.customerId && !fields.customerId && !fields.channelId) {
       Object.assign(
         fields,
