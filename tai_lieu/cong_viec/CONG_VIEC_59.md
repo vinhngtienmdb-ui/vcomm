@@ -1,9 +1,9 @@
 # CONG_VIEC_59: Văn phòng số phần 2 (MODULE_13) – chữ ký số, kho hợp đồng
 
 - Mô tả: Ký số tài liệu PDF trên hệ thống qua nhà cung cấp ký số từ xa (lớp kết nối chung, bộ giả lập để thử); trình ký tài liệu PDF bất kỳ cho nhiều người ký theo thứ tự (người trong công ty, chữ ký số của công ty, đối tác bên ngoài qua đường dẫn); kiểm tra chữ ký số trong tệp PDF; kho hợp đồng (mua, bán, dịch vụ, thuê, khác) có duyệt, ký số, phụ lục, nhắc hạn, phân quyền xem; gắn ký số vào công văn đi (CONG_VIEC_52) và hợp đồng lao động (CONG_VIEC_46).
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng 2026-11-12, qua phiên điều phối); làm hết theo lát, dừng ở điểm xem trước sau mỗi lát. Đang làm phần lõi không phụ thuộc CONG_VIEC_52.
+- Trạng thái: Đã lập trình xong L1, L2, L3 (người dùng duyệt từng điểm xem trước ngày 2026-11-12); chờ nghiệm thu. Còn tra nguyên văn căn cứ pháp lý (mục 3).
 - Mức: Lớn (nghiệp vụ mới, tích hợp dịch vụ ngoài, thêm thư viện, chạm ba module: Văn phòng số, Nhân sự, Quan hệ khách hàng).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13: chữ ký số, kho hợp đồng); CONG_VIEC_52 mục 2 (ngoài phạm vi phần 1); CONG_VIEC_46 (ký số hợp đồng lao động để công việc sau); quyết định của người dùng ngày 2026-11-12 (mục 17).
 
@@ -164,6 +164,8 @@ KICHBAN_KIEMTHU_597 đến KICHBAN_KIEMTHU_610 (chi tiết ở tài liệu `21` 
 | L2 | CHUC_NANG_212: kho hợp đồng, phụ lục, quyền xem, nhắc hạn (0122) | Lập, duyệt, ký hợp đồng mua với đối tác qua đường dẫn; kho, nhắc hạn |
 | L3 | CHUC_NANG_213: công văn đi, hợp đồng lao động ký số (0123) | Phát hành công văn ký số; ký hợp đồng lao động |
 
+Tiến độ: L1, L2, L3 đã lập trình, người dùng duyệt điểm xem trước của cả ba lát ngày 2026-11-12.
+
 Mọi lát cần mã của CONG_VIEC_52 (schema `office`, mini app `web-office`): lập trình sau khi CONG_VIEC_52 vào `main`; cần trước thì hợp nhất nhánh CONG_VIEC_52 vào nhánh này và báo phiên cha.
 
 ## 16. Quyết định AI tự đưa ra (chờ người dùng xác nhận khi duyệt đặc tả)
@@ -187,6 +189,14 @@ Mọi lát cần mã của CONG_VIEC_52 (schema `office`, mini app `web-office`)
 - Duyệt thư viện `@signpdf`, `pdf-lib`, `node-forge`.
 
 ## 18. Rủi ro và giới hạn
+
+Ghi nhận khi lập trình (2026-11-12):
+- LOI_10 (mức Cao, có từ bản 0.8.0, phiên điều phối cấp mã): dịch vụ in tem (CONG_VIEC_05) và in đề xuất (CONG_VIEC_03) đăng ký lại bảng phông pdfmake chỉ có Roboto; tùy thứ tự nạp module, xuất PDF công văn đi theo thể thức báo lỗi thiếu phông Liberation Serif. Đã sửa: hai dịch vụ dùng `renderPdf` chung; kiểm thử tái hiện `apps/api/test/c59-loi-10-phong-pdf.test.ts`.
+- LOI_11 (mức Cao, có từ bản 0.8.0): khóa lưu trữ tệp công văn chứa loại chủ sở hữu `outgoing_signed` có dấu gạch dưới, lưu trữ cục bộ từ chối nên phát hành công văn đi lỗi 500. Đã sửa: đổi "_" thành "-" trong khóa; kiểm thử tái hiện ở bước phát hành của `apps/api/test/c59-ky-so-gan.test.ts`.
+- Trang ký công khai của đối tác cá nhân (kể cả người lao động ký hợp đồng lao động qua đường dẫn) chỉ hiện 4 số cuối số định danh và mã định danh tại nhà cung cấp. Số định danh vẫn lưu dạng rõ trong `office.signing_signers` để đối chiếu chủ thể chứng thư, chưa mã hóa như hồ sơ nhân sự.
+- Ký hợp đồng lao động qua đường dẫn dùng số định danh cá nhân làm mã định danh tại nhà cung cấp; đúng với bộ giả lập, cần đối chiếu lại khi nối nhà cung cấp thật.
+- Chỗ mã khác phác thảo ở mục 8, 9 (ghi theo mã ở tài liệu 14, 16, 17): quyền, vai trò, loại chứng từ khai báo trong `apps/api/src/permissions/permission-catalog.ts`, không nằm trong database migration 0123; chỉ có sự kiện outbox `office.signing.completed` (Nhân sự nhận), kho hợp đồng và công văn đi nhận kết quả phiên ký trong cùng tiến trình; kho hợp đồng lọc "hợp đồng tôi liên quan" thay cho lọc theo người phụ trách; menu "Cài đặt ký số" hiện với `office.signing.manage`, người chỉ có `office.contract.manage` vào thẻ Loại hợp đồng qua nút trên MAN_HINH_215.
+- Công văn soạn bằng tệp: văn thư tải bản PDF đã ghi số, ký hiệu khi chọn Ký số (công văn soạn trên hệ thống thì hệ thống dựng bản PDF đã cấp số). Đang ký số thì chưa phát hành, chưa xác nhận ký thủ công hợp đồng lao động.
 
 - Căn cứ pháp lý chưa tra nguyên văn (mục 3): phải tra trước khi duyệt đặc tả.
 - Đối tác chỉ ký được khi có tài khoản ký số từ xa ở cùng nhà cung cấp mà công ty kết nối; đối tác dùng nhà cung cấp khác thì không ký qua đường dẫn được (cần phương án dự phòng, ví dụ đối tác tải lên bản đã ký số, nếu người dùng đồng ý).
