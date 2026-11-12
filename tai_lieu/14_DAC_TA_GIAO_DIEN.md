@@ -35,6 +35,7 @@
 - Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
 - Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 78, mục 79); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
 - Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 80, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
+- Cập nhật CONG_VIEC_60 (2026-11-12): thêm MAN_HINH_218 đến MAN_HINH_223 của MODULE_11 Điểm thưởng phần 2 (đối soát điểm nội bộ trong `web-finance`; quy tắc, vụ việc gian lận, báo cáo, thiết bị của ví điểm trong `web-crm`; bản mẫu MAN_HINH_218 đến 223); sửa MAN_HINH_146 (kiểu chia chi phí), MAN_HINH_147 (thẻ Thiết bị)
 
 ## MODULE_01 Nền tảng
 
@@ -2578,6 +2579,21 @@ Bản mẫu đã duyệt 2026-11-11: `ban_mau/MAN_HINH_146_CHUONG_TRINH_DIEM.htm
 | MAN_HINH_152 | Hạng thành viên (ứng dụng) | `/hang-thanh-vien` | Người mua |
 
 Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưởng của đơn), MAN_HINH_93 (khối Dùng điểm, mặc định tắt; dòng trừ điểm; điểm dự kiến), MAN_HINH_96 (dòng trừ điểm, thẻ Điểm thưởng). Menu web-crm thêm: Chương trình điểm, Ví điểm, Điều chỉnh điểm, Cảnh báo điểm, Nghĩa vụ điểm.
+
+## MODULE_11 Điểm thưởng phần 2: màn hình (CONG_VIEC_60)
+
+Bản mẫu đã duyệt 2026-11-12: `ban_mau/MAN_HINH_218_DOI_SOAT_DIEM_NOI_BO.html` đến `ban_mau/MAN_HINH_223_THIET_BI_VI_DIEM.html`.
+
+| Mã | Màn hình | Đường dẫn | Vai trò |
+|---|---|---|---|
+| MAN_HINH_218 | Đối soát điểm nội bộ: danh sách bảng (tháng, công ty con, phải thu, phải trả, bù trừ, còn lại, trạng thái; lọc tháng, trạng thái) | `/finance/loyalty-settlements` | `loyalty.settlement.view`; công ty con chỉ thấy bảng của mình |
+| MAN_HINH_219 | Chi tiết bảng đối soát điểm: số liệu, đối chiếu sổ hai bên, chi tiết bút toán điểm (khách che tên), xác nhận, khiếu nại, lịch sử, phiếu thu chi nội bộ, lập phiếu | `/finance/loyalty-settlements/<id>` | Xem: `loyalty.settlement.view`; xác nhận, khiếu nại, lập lại: `loyalty.settlement.manage`; lập phiếu: `finance.payment.manage` |
+| MAN_HINH_220 | Quy tắc chống gian lận: bốn quy tắc, ngưỡng, mức xử lý, lịch sử sửa | `/crm/loyalty/fraud-rules` | `loyalty.view`, sửa: `loyalty.fraud.manage` |
+| MAN_HINH_221 | Vụ việc gian lận: danh sách (lọc quy tắc, trạng thái, mức), chi tiết, nhận xem xét, kết luận | `/crm/loyalty/fraud-cases` | `loyalty.view`, xử lý: `loyalty.fraud.manage` |
+| MAN_HINH_222 | Báo cáo liên minh và gian lận: hai thẻ, theo tháng; xuất Excel | `/crm/loyalty/reports` | Liên minh: `loyalty.settlement.view`; gian lận: `loyalty.view` |
+| MAN_HINH_223 | Thiết bị của ví điểm (thẻ mới trong chi tiết ví MAN_HINH_147): thiết bị (8 ký tự đầu của băm, lần đầu, lần cuối, số lần), tài khoản khác cùng thiết bị, vụ việc của ví | `/crm/loyalty/accounts/<userId>` | `loyalty.view` |
+
+Sửa: MAN_HINH_146 (cột, trường "Kiểu chia chi phí"; giai đoạn đã bắt đầu không đổi được). Menu `web-finance` thêm "Đối soát điểm nội bộ" (sau "Đối soát thu hộ", theo `loyalty.settlement.view`); menu `web-crm` nhóm "Điểm thưởng" thêm "Quy tắc chống gian lận", "Vụ việc gian lận", "Báo cáo liên minh và gian lận" (hiện theo `loyalty.view`). Ứng dụng VComm: không có màn hình mới; gửi mã cài đặt, hiện thông báo khi giao dịch điểm bị chặn.
 
 ## MODULE_12 Cửa hàng liên kết: màn hình (CONG_VIEC_55)
 

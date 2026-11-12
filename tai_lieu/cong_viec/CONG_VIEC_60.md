@@ -59,7 +59,7 @@ Ngoài phạm vi:
 - QUYTAC_NGHIEPVU_469 Hạch toán theo kiểu (A: công ty nơi tích; B: công ty nơi dùng; O: công ty vận hành sàn; giá trị lô = điểm × giá trị một điểm lúc tích; tiền điểm = tiền khách được trừ):
   - Nơi tích chịu: như QUYTAC_NGHIEPVU_355.
   - Nơi dùng chịu: tích: O Nợ 641 / Có 3388 (chi phí tạm ở O), A không ghi. Dùng ở B: O Nợ 3388 / Có 641 theo giá trị lô (gỡ chi phí tạm); B Nợ 641 / Có 131 tiền điểm (B chịu, không có nợ nội bộ). Hết hạn: O Nợ 3388 / Có 641.
-  - Công ty vận hành sàn chịu: tích: O Nợ 641 / Có 3388, A không ghi. Dùng ở B: O Nợ 3388 giá trị lô, Nợ hoặc Có 641 chênh lệch / Có 3368 tiền điểm (đối tác nội bộ B); B Nợ 1368 / Có 131.
+  - Công ty vận hành sàn chịu: tích: O Nợ 641 / Có 3388, A không ghi. Dùng ở B: O Nợ 3388 giá trị lô, Nợ hoặc Có 641 chênh lệch / Có 1368 tiền điểm (đối tác nội bộ B); B Nợ 3368 / Có 131. Nợ nội bộ ghi thuần trên một tài khoản mỗi bên (O: 1368, công ty con: 3368) theo QUYTAC_NGHIEPVU_470 và quyết định 7 mục 17.
   - Hoàn điểm, trừ lại ghi ngược bút toán gốc theo kiểu của lô. Phần điểm thiếu quy tiền (QUYTAC_NGHIEPVU_349) theo kiểu của lô của chứng từ bán.
 - QUYTAC_NGHIEPVU_470 Bảng đối soát nội bộ (số `DN…`, loại chứng từ `loyalty.settlement`, dãy số của O): việc nền 2 giờ ngày 1 hằng tháng (giờ Việt Nam) lập bảng tháng trước cho mỗi công ty con có bút toán điểm vai trò `loyalty_intercompany_receivable` hoặc `loyalty_intercompany_payable` trong tháng, hoặc còn số thuần khác 0. Bút toán điểm (QUYTAC_NGHIEPVU_355, 469) ghi nợ nội bộ thuần trên một tài khoản mỗi bên (O: 1368, C: 3368), nên số liệu là số thuần theo sổ O với đối tác nội bộ của C (dương: C phải trả O; âm: O phải trả C): số đầu kỳ; phát sinh theo loại (tích, trừ lại gồm phần thiếu quy tiền, dùng, hoàn điểm đã dùng, thanh toán); phát sinh phải thu (tích, trừ lại), phát sinh phải trả (dùng, hoàn điểm); số bù trừ trong kỳ = nhỏ hơn giữa hai phát sinh (chỉ để xem); số còn phải thanh toán = số thuần cuối kỳ. Chi tiết theo từng bút toán điểm (ngày, số bút toán, loại, khách che tên, số điểm, tiền). Đối chiếu sổ C (cùng hai vai trò, đối tác nội bộ là O) theo từng bút toán điểm và số thuần cuối kỳ: lệch thì bảng ở trạng thái Không khớp kèm danh sách bút toán lệch, không xác nhận được. Người có `loyalty.settlement.manage` tại O lập lại được khi bảng chưa đủ hai bên xác nhận. Bảng kỳ trước đã xác nhận còn phải thanh toán khi lập bảng kỳ sau thì chuyển trạng thái Đã chuyển kỳ sau (số còn lại nằm trong số đầu kỳ của bảng mới).
 - QUYTAC_NGHIEPVU_471 Xác nhận: người có `loyalty.settlement.manage` tại O xác nhận phía O; người có quyền này tại C xác nhận phía C; thứ tự tùy ý. Lúc xác nhận hệ thống tính lại: sổ đã đổi từ lúc lập thì tự lập lại, bỏ xác nhận đã có, báo "Số liệu sổ đã thay đổi từ lúc lập bảng; hệ thống đã lập lại, vui lòng xem và xác nhận lại." Còn bảng kỳ trước của cùng công ty chưa đủ hai bên xác nhận thì không xác nhận được. Một bên khiếu nại (lý do 1 đến 1.000 ký tự) thì bảng sang Khiếu nại, xác nhận đã có bị bỏ; O xử lý (phiếu điều chỉnh điểm, bút toán thủ công có sẵn) rồi lập lại. Đủ hai bên xác nhận: bảng là biên bản đối chiếu công nợ nội bộ điểm, trạng thái Đã xác nhận (số còn lại bằng 0: Đã tất toán), không sinh bút toán; bảng kỳ sau còn mở được lập lại. Trạng thái: chờ xác nhận, O đã xác nhận, C đã xác nhận, khiếu nại, không khớp, đã xác nhận, đã thanh toán một phần, đã tất toán, đã chuyển kỳ sau. Bảng chờ quá 5 ngày: việc nền 8 giờ hằng ngày thông báo trong ứng dụng cho người có quyền của bên chưa xác nhận, một lần.
@@ -94,7 +94,7 @@ Luồng 57 (liên minh điểm trong tập đoàn, chống gian lận):
 
 ## 8. Màn hình
 
-Web (`apps/web-finance`, nhóm menu "Công nợ"):
+Web (`apps/web-finance`, menu sau "Đối soát thu hộ"):
 - MAN_HINH_218 Đối soát điểm nội bộ: danh sách bảng (tháng, công ty con, phải thu, phải trả, bù trừ, còn lại, trạng thái; lọc tháng, trạng thái).
 - MAN_HINH_219 Chi tiết bảng đối soát điểm: số liệu, đối chiếu sổ hai bên, chi tiết bút toán điểm, xác nhận, khiếu nại, lịch sử, phiếu thu chi nội bộ, lập phiếu.
 
@@ -117,9 +117,9 @@ Database migration 0125 (`0125_loyalty_alliance.sql`):
 - Quyền `loyalty.settlement.view`, `loyalty.settlement.manage`, `loyalty.fraud.manage`; loại chứng từ `loyalty.settlement` (đánh số, không duyệt).
 
 Database migration 0126 (`0126_loyalty_fraud.sql`):
-- `loyalty.devices` (`hash` khóa chính, `first_seen_at`, `last_seen_at`); `loyalty.device_links` (`device_hash`, `user_id`, `first_seen_at`, `last_seen_at`, `seen_count`; khóa chính hai cột).
+- `loyalty.device_links` (không có bảng thiết bị riêng; băm mã cài đặt là `device_hash`) (`device_hash`, `user_id`, `first_seen_at`, `last_seen_at`, `seen_count`; khóa chính hai cột).
 - `loyalty.fraud_rules` (`code` khóa chính: `shared_device`, `redeem_burst`, `earn_return`, `staff_anomaly`; `enabled`, `params` jsonb, `action`, người, thời điểm sửa, `version`); nạp mặc định. `loyalty.fraud_rule_history`.
-- `loyalty.fraud_cases` (số `GL…`, `rule_code`, `action`, `subject_kind` (`user`, `device`, `staff`), `subject_id`, `user_id`, `device_hash`, `staff_user_id`, `company_id`, `metrics` jsonb, `hit_count`, `case_day`, `status`, `reviewer_id`, `conclusion_note`, thời điểm); `loyalty.fraud_case_documents` (`case_id`, `source_type`, `source_id`, `effect`).
+- `loyalty.fraud_cases` (số `GL…`, `rule_code`, `action`, `subject_kind` (`user`, `device`, `staff`), `subject_key` (mã tài khoản, băm thiết bị hoặc mã thu ngân), `user_id`, `device_hash`, `staff_user_id`, `company_id`, `metrics` jsonb, `hit_count`, `case_day`, `status`, `reviewer_id`, `conclusion_note`, thời điểm); `loyalty.fraud_case_documents` (`case_id`, `source_type`, `source_id`, `effect`).
 - `loyalty.document_points.skip_reason` thêm `fraud_rule` (định nghĩa lại ràng buộc).
 
 Database migration 0127: dự phòng cho sửa ràng buộc dùng chung khi hợp nhất cùng CONG_VIEC_55 (nguồn chứng từ `loyalty`, `journals`, `debt_items`).
@@ -131,9 +131,9 @@ API (tiền tố `/api/v1`):
 - API_252 vụ việc: `GET /loyalty/fraud-cases`, `GET /loyalty/fraud-cases/{id}`, `POST /loyalty/fraud-cases/{id}/review`, `POST /loyalty/fraud-cases/{id}/conclude` (vi phạm hoặc không, ghi chú).
 - API_253 báo cáo: `GET /loyalty/reports/alliance?year=`, `GET /loyalty/reports/fraud?year=`; tham số `format=xlsx` xuất tệp.
 - API_254 thiết bị: `GET /loyalty/accounts/{userId}/devices`; tiêu đề `X-Device-Id` trên API người mua (không phải endpoint riêng).
-- Sửa API_176: giai đoạn có `costBearer`. Sửa API phiếu thu chi (CONG_VIEC_13): hai loại mới, trường `loyaltySettlementId`.
+- Sửa API_176: giai đoạn có `costBearer`. Sửa API phiếu thu chi (CONG_VIEC_13): hai loại mới (phiếu gắn bảng qua cột `finance.payments.loyalty_settlement_id`, lập bằng `POST /loyalty/settlements/{id}/payments`, không sửa ở API phiếu thu chi chung).
 
-Service: `LoyaltyFraudService.evaluate(executor, { trigger, userId, deviceHash, staffUserId, companyId, sourceType, sourceId, points })` → `{ action, caseId }`, gọi trong giao dịch của `redeemWithin`, `earnWithin`, `returnWithin`, `cancelWithin` (CONG_VIEC_51), không đổi chữ ký cũ (tham số thêm tùy chọn). `postings.service.ts` hạch toán theo `cost_bearer` của lô.
+Service: `evaluateRedeem`, `evaluateEarn`, `evaluateReversal` (`apps/api/src/loyalty/fraud.ts`) gọi trong giao dịch của `redeemWithin`, `earnWithin` và trừ lại điểm khi trả hàng, hủy (CONG_VIEC_51), không đổi chữ ký cũ (tham số `deviceHash` thêm tùy chọn); quản trị qua `LoyaltyFraudService`. `postings.service.ts` hạch toán theo `cost_bearer` của lô.
 
 Việc nền: lập bảng đối soát 2 giờ ngày 1; nhắc bảng chờ quá 5 ngày; xóa thiết bị quá 12 tháng (cùng lượt chạy 0 giờ 10 phút).
 
