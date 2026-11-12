@@ -1,5 +1,5 @@
 // MAN_HINH_264 Đối tác liên minh (CONG_VIEC_65; CHUC_NANG_237; API_306; QUYTAC_NGHIEPVU_541): danh sách đối tác đang hoạt động, liên kết số thành viên bằng mã OTP
-// do đối tác gửi, hủy liên kết. Đổi điểm với đối tác (MAN_HINH_265) thêm ở lát L2.
+// do đối tác gửi, hủy liên kết; lối vào đổi điểm (MAN_HINH_265).
 import type { BuyerPartnerItem, BuyerPartnerLinkRequest } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -49,6 +49,7 @@ function PartnerCard({ partner, onChanged }: { partner: BuyerPartnerItem; onChan
       {partner.link ? (
         <>
           <Muted>{t("linkedAs", { member: partner.link.memberNumberMasked, name: partner.link.memberNameMasked ?? "" })}</Muted>
+          {partner.outbound || partner.inbound ? <Button label={t("exchange")} onPress={() => router.push(`/doi-diem-doi-tac/${partner.id}`)} /> : null}
           <Button
             label={t("unlink")}
             kind="secondary"

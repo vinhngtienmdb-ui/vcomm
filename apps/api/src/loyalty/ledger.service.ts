@@ -11,7 +11,9 @@ import { lockAccount, recomputeTiers } from "./tiers";
 type Executor = Pick<Database, "execute">;
 // CONG_VIEC_55: giao dịch tại cửa hàng liên kết dùng chung sổ cái điểm.
 export type SaleSourceType = "marketplace_order" | "retail_sale" | "affiliate_transaction";
-export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment" | "affiliate_voucher";
+// CONG_VIEC_65: đổi điểm với đối tác liên minh, đối tác tặng điểm.
+export type PartnerSourceType = "partner_exchange" | "partner_gift";
+export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment" | "affiliate_voucher" | PartnerSourceType;
 export type EntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
 export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero";
 export type BlockedReason = "no_phase" | "locked" | "inactive" | "insufficient";
@@ -92,7 +94,7 @@ export async function creditLot(
   input: {
     userId: string;
     kind: "earn" | "adjust_add";
-    sourceType: SaleSourceType | "adjustment";
+    sourceType: SaleSourceType | "adjustment" | PartnerSourceType;
     sourceId: string;
     companyId: string;
     points: number;
@@ -133,8 +135,8 @@ export async function takeFromLots(executor: Executor, userId: string, points: n
 // lấy lô còn hạn, hạn sớm trước; không áp mức đổi tối thiểu, phần trăm đơn (giá điểm do voucher quy định). Trả giá trị một điểm lúc đổi.
 export async function spendPointsWithin(
   executor: Executor,
-  input: { userId: string; companyId: string; sourceType: "affiliate_voucher"; sourceId: string; day: string; points: number },
-): Promise<{ pointValue: number; amount: number }> {
+  input: { userId: string; companyId: string; sourceType: "affiliate_voucher" | "partner_exchange"; sourceId: string; day: string; points: number },
+): Promise<{ pointValue: number; amount: number; entryId: string }> {
   await lockAccount(executor, input.userId);
   const phase = await phaseOn(executor, input.day);
   if (!phase) throw new ApiError("BUSINESS_RULE", "loyaltyNoPhase");
@@ -142,8 +144,39 @@ export async function spendPointsWithin(
   if (account.locked || account.inactive) throw new ApiError("BUSINESS_RULE", "loyaltyLocked");
   const amount = Math.floor(input.points * phase.pointValue);
   const allocations = await takeFromLots(executor, input.userId, input.points, null, input.day);
-  await addEntry(executor, { userId: input.userId, kind: "redeem", points: -input.points, amount, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
-  return { pointValue: phase.pointValue, amount };
+  const entryId = await addEntry(executor, {
+    userId: input.userId,
+    kind: "redeem",
+    points: -input.points,
+    amount,
+    sourceType: input.sourceType,
+    sourceId: input.sourceId,
+    companyId: input.companyId,
+    allocations,
+  });
+  return { pointValue: phase.pointValue, amount, entryId };
+}
+
+// CONG_VIEC_65 (QUYTAC_NGHIEPVU_542, 543): hoàn toàn bộ điểm của một bút toán dùng điểm vào đúng các lô đã lấy (đổi ra bị đối tác từ chối, nhân viên chọn hoàn điểm);
+// lô đã hết hạn được hạn mới = hôm nay + 30 ngày (như QUYTAC_NGHIEPVU_349). Trả mã bút toán hoàn.
+export async function refundRedeemEntry(
+  executor: Executor,
+  input: { entryId: string; userId: string; sourceType: PartnerSourceType; sourceId: string; companyId: string; day: string },
+): Promise<string> {
+  await lockAccount(executor, input.userId);
+  const lots = await executor.execute<{ lot_id: string; points: number; point_value: string }>(sql`
+    SELECT lot_id, (-points)::int AS points, point_value::text FROM loyalty.entry_lots WHERE entry_id = ${input.entryId} AND points < 0 ORDER BY lot_id`);
+  const allocations: Allocation[] = [];
+  for (const lot of lots.rows) {
+    await executor.execute(sql`
+      UPDATE loyalty.lots SET remaining = remaining + ${lot.points},
+        expires_on = CASE WHEN expires_on < ${input.day}::date THEN ${input.day}::date + 30 ELSE expires_on END,
+        expiry_notified_at = CASE WHEN expires_on < ${input.day}::date THEN NULL ELSE expiry_notified_at END
+      WHERE id = ${lot.lot_id}`);
+    allocations.push({ lotId: lot.lot_id, points: lot.points, pointValue: Number(lot.point_value) });
+  }
+  const points = allocations.reduce((total, allocation) => total + allocation.points, 0);
+  return addEntry(executor, { userId: input.userId, kind: "redeem_refund", points, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
 }
 
 // Ghi sổ phiếu điều chỉnh đã duyệt (QUYTAC_NGHIEPVU_353): cộng tạo lô theo hạn, giá trị đã chốt khi gửi; trừ lấy lô hạn sớm trước, không vượt số dư.

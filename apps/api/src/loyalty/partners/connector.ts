@@ -18,7 +18,17 @@ export interface PartnerConnector {
   sendLinkOtp(contract: PartnerContractRef, input: { memberNumber: string; reference: string }): Promise<ConnectorResult<null>>;
   // Đối tác xác minh OTP; thành công trả tên đã che của thành viên.
   verifyLink(contract: PartnerContractRef, input: { memberNumber: string; reference: string; otp: string }): Promise<ConnectorResult<{ maskedName: string | null }>>;
+  // Đổi ra: cộng điểm đối tác cho thành viên; gửi lại cùng `reference` không cộng hai lần.
+  creditPoints(contract: PartnerContractRef, input: { memberNumber: string; units: number; reference: string }): Promise<ConnectorResult<{ partnerReference: string }>>;
+  // Đổi vào bước 1: đối tác giữ yêu cầu trừ điểm và gửi OTP cho khách.
+  requestDebit(contract: PartnerContractRef, input: { memberNumber: string; units: number; reference: string }): Promise<ConnectorResult<null>>;
+  // Đổi vào bước 2: khách nhập OTP, đối tác trừ điểm.
+  confirmDebit(contract: PartnerContractRef, input: { reference: string; otp: string }): Promise<ConnectorResult<{ partnerReference: string }>>;
+  // Hỏi trạng thái theo mã tham chiếu VComm.
+  status(contract: PartnerContractRef, input: { reference: string }): Promise<ConnectorResult<PartnerTransactionState>>;
 }
+
+export type PartnerTransactionState = { state: "completed" | "rejected" | "pending" | "not_found"; partnerReference: string | null };
 
 export const simulatorEnabled = () => process.env.LOYALTY_PARTNER_SIMULATOR === "on";
 

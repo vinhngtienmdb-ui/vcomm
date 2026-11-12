@@ -157,7 +157,8 @@ export class LoyaltyAdminService implements OnModuleInit {
     }>(sql`
       SELECT l.id, l.source_type, l.earned_on::text, l.expires_on::text, l.points, l.remaining, l.point_value::text,
         CASE l.source_type WHEN 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = l.source_id)
-          WHEN 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = l.source_id) END AS document_no
+          WHEN 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = l.source_id)
+          WHEN 'partner_exchange' THEN (SELECT x.document_no FROM loyalty.partner_exchanges x WHERE x.id = l.source_id) END AS document_no
       FROM loyalty.lots l WHERE l.user_id = ${userId} AND l.remaining > 0 ORDER BY l.expires_on, l.created_at`);
     const tiers = await this.database.execute<{ from_name: string | null; to_name: string; reason: "order_completed" | "year_start" | "tiers_changed"; created_at: Date }>(sql`
       SELECT f.name_vi AS from_name, t.name_vi AS to_name, h.reason, h.created_at FROM loyalty.tier_history h JOIN loyalty.tiers t ON t.id = h.to_tier_id

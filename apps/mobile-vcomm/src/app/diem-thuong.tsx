@@ -15,6 +15,10 @@ const points = (value: number) => value.toLocaleString("vi-VN");
 const date = (value: string) => value.split("-").reverse().join("/");
 
 export function entryLabel(item: LoyaltyEntryItem): string {
+  // CONG_VIEC_65: đổi điểm với đối tác liên minh, đối tác tặng điểm.
+  if (item.sourceType === "partner_exchange")
+    return partnerText(item.points > 0 && item.kind === "earn" ? "entryExchangeIn" : item.kind === "redeem_refund" ? "entryExchangeRefund" : "entryExchangeOut", { document: item.documentNo ?? "" });
+  if (item.sourceType === "partner_gift") return partnerText(item.kind === "earn" ? "entryGift" : "entryGiftCancel", { document: item.documentNo ?? "" });
   return t(`loyaltyEntry_${item.kind}`, { document: item.documentNo ?? "" });
 }
 

@@ -210,3 +210,92 @@ export interface BuyerPartnerLinkRequest {
   requestId: string;
   expiresAt: string;
 }
+
+// QUYTAC_NGHIEPVU_542 đến 544: giao dịch đổi điểm với đối tác (lát L2).
+export const partnerExchangeStatuses = ["sending", "otp_pending", "pending_partner", "needs_review", "completed", "failed", "refunded", "expired"] as const;
+export type PartnerExchangeStatus = (typeof partnerExchangeStatuses)[number];
+export type PartnerExchangeDirection = "outbound" | "inbound";
+
+export const buyerPartnerExchangeQuoteSchema = z
+  .object({ contractId: z.string().uuid(), direction: z.enum(["outbound", "inbound"]), partnerUnits: z.number().int().min(1).max(1_000_000_000) })
+  .strict();
+export const buyerPartnerExchangeCreateSchema = z
+  .object({
+    contractId: z.string().uuid(),
+    direction: z.enum(["outbound", "inbound"]),
+    partnerUnits: z.number().int().min(1).max(1_000_000_000),
+    smartOtp: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, "invalidValue")
+      .optional(),
+  })
+  .strict();
+export const buyerPartnerExchangeOtpSchema = z
+  .object({
+    otp: z
+      .string()
+      .trim()
+      .regex(/^\d{4,8}$/, "invalidValue"),
+  })
+  .strict();
+export const buyerPartnerExchangeListQuerySchema = z.object({ ...pageQuery });
+
+export interface BuyerPartnerExchangeQuote {
+  direction: PartnerExchangeDirection;
+  partnerUnits: number;
+  vcommPoints: number;
+  // Bội số đơn vị đối tác của tỷ lệ hiện hành.
+  unitStep: number;
+  availablePoints: number | null;
+  remainingToday: number | null;
+  remainingThisMonth: number | null;
+  minPoints: number | null;
+  maxPoints: number | null;
+  smartOtpRequired: boolean;
+}
+
+export interface BuyerPartnerExchange {
+  id: string;
+  documentNo: string;
+  contractId: string;
+  partnerName: string;
+  programName: string;
+  unitNameVi: string;
+  unitNameEn: string;
+  direction: PartnerExchangeDirection;
+  vcommPoints: number;
+  partnerUnits: number;
+  status: PartnerExchangeStatus;
+  otpExpiresAt: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export const partnerExchangeListQuerySchema = z.object({
+  contractId: z.string().uuid().optional(),
+  direction: z.enum(["outbound", "inbound"]).optional(),
+  status: z.enum(partnerExchangeStatuses).optional(),
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  ...pageQuery,
+});
+export const partnerExchangeResolveSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("complete"), partnerReference: z.string().trim().min(1).max(100) }).strict(),
+  z.object({ action: z.literal("refund"), reason: z.string().trim().min(1).max(500) }).strict(),
+]);
+
+export interface PartnerExchangeItem extends BuyerPartnerExchange {
+  contractCode: string;
+  customerMasked: string;
+  memberNumberMasked: string;
+  unitPrice: string;
+  amount: string;
+  taxAmount: string;
+  pointValueAmount: string | null;
+  reference: string;
+  partnerReference: string | null;
+  attempts: number;
+  lastErrorCode: string | null;
+  resolutionNote: string | null;
+}

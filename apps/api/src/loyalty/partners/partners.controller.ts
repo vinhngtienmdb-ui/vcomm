@@ -1,7 +1,16 @@
-// API_301 đến API_303 (CONG_VIEC_65): quản trị đối tác liên minh điểm trên web-crm; quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_551).
-// API_306: người mua liên kết số thành viên đối tác trên ứng dụng VComm.
+// API_301 đến API_304 (CONG_VIEC_65): quản trị đối tác liên minh điểm trên web-crm; quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_551).
+// API_306, API_307: người mua liên kết số thành viên đối tác, đổi điểm trên ứng dụng VComm.
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  buyerPartnerExchangeCreateSchema,
+  buyerPartnerExchangeListQuerySchema,
+  buyerPartnerExchangeOtpSchema,
+  buyerPartnerExchangeQuoteSchema,
+  partnerExchangeListQuerySchema,
+  partnerExchangeResolveSchema,
+  type BuyerPartnerExchange,
+  type BuyerPartnerExchangeQuote,
+  type PartnerExchangeItem,
   buyerPartnerLinkSchema,
   buyerPartnerLinkVerifySchema,
   partnerContractCreateSchema,
@@ -26,12 +35,14 @@ import { UuidPipe } from "../../common/uuid.pipe";
 import { BuyerAdminService } from "../../marketplace/buyer-admin.service";
 import { BuyerPartnersService } from "./buyer-partners.service";
 import { PartnerContractsService } from "./contracts.service";
+import { PartnerExchangesService } from "./exchanges.service";
 
 @Controller("loyalty")
 export class PartnerContractsController {
   constructor(
     private readonly admin: BuyerAdminService,
     private readonly contracts: PartnerContractsService,
+    private readonly exchanges: PartnerExchangesService,
   ) {}
 
   private manager(request: AuthenticatedRequest) {
@@ -96,6 +107,30 @@ export class PartnerContractsController {
     await this.contracts.deleteRate(await this.manager(request), rateId);
   }
 
+  // API_304: giao dịch đổi điểm đối tác, hỏi lại, chốt tay.
+  @Get("partner-exchanges")
+  async exchangeList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<PartnerExchangeItem>> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view");
+    return this.exchanges.list(actor, partnerExchangeListQuerySchema.parse(query));
+  }
+
+  @Get("partner-exchanges/:id")
+  async exchangeDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerExchangeItem> {
+    return this.exchanges.detail(await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view"), id);
+  }
+
+  @Post("partner-exchanges/:id/recheck")
+  @HttpCode(200)
+  async recheck(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerExchangeItem> {
+    return this.exchanges.recheck(await this.manager(request), id);
+  }
+
+  @Post("partner-exchanges/:id/resolve")
+  @HttpCode(200)
+  async resolve(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<PartnerExchangeItem> {
+    return this.exchanges.resolve(await this.manager(request), id, partnerExchangeResolveSchema.parse(body));
+  }
+
   // API_303 (phần bộ giả lập; khóa API ở lát L3).
   @Get("partners/:id/simulator")
   async simulator(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerSimulatorState> {
@@ -116,7 +151,39 @@ export class PartnerContractsController {
 
 @Controller("buyer/loyalty")
 export class BuyerPartnersController {
-  constructor(private readonly partners: BuyerPartnersService) {}
+  constructor(
+    private readonly partners: BuyerPartnersService,
+    private readonly exchanges: PartnerExchangesService,
+  ) {}
+
+  // API_307: báo giá, đổi ra, đổi vào, nhập OTP đối tác, lịch sử.
+  @Post("partner-exchanges/quote")
+  @HttpCode(200)
+  quote(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerPartnerExchangeQuote> {
+    return this.exchanges.quote(request.auth.userId, buyerPartnerExchangeQuoteSchema.parse(body));
+  }
+
+  @Post("partner-exchanges")
+  createExchange(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerPartnerExchange> {
+    return this.exchanges.create(request.auth.userId, buyerPartnerExchangeCreateSchema.parse(body));
+  }
+
+  @Post("partner-exchanges/:id/otp")
+  @HttpCode(200)
+  confirmExchange(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<BuyerPartnerExchange> {
+    return this.exchanges.confirmInbound(request.auth.userId, id, buyerPartnerExchangeOtpSchema.parse(body).otp);
+  }
+
+  @Get("partner-exchanges")
+  exchangeList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<BuyerPartnerExchange>> {
+    const input = buyerPartnerExchangeListQuerySchema.parse(query);
+    return this.exchanges.buyerList(request.auth.userId, input.page, input.pageSize);
+  }
+
+  @Get("partner-exchanges/:id")
+  exchangeDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerPartnerExchange> {
+    return this.exchanges.buyerDetail(request.auth.userId, id);
+  }
 
   @Get("partners")
   list(@Req() request: AuthenticatedRequest): Promise<BuyerPartnerItem[]> {

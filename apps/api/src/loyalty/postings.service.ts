@@ -99,6 +99,8 @@ export async function loyaltyEntryDrafts(executor: Executor, entryId: string): P
   if (entry.source_type === "marketplace_order" && (entry.kind === "redeem" || entry.kind === "redeem_refund")) return [];
   // CONG_VIEC_55: bút toán điểm của cửa hàng liên kết ghi theo giao dịch, voucher liên kết (đối tác là cửa hàng), không theo từng bút toán điểm.
   if (entry.source_type === "affiliate_transaction" || entry.source_type === "affiliate_voucher") return [];
+  // CONG_VIEC_65: đổi điểm đối tác, đối tác tặng điểm ghi bút toán theo giao dịch (QUYTAC_NGHIEPVU_547).
+  if (entry.source_type === "partner_exchange" || entry.source_type === "partner_gift") return [];
   const operator = await operatorCompanyId(executor);
   if (!operator) return [];
   const company = entry.company_id ?? operator;

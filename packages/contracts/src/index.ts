@@ -7978,7 +7978,8 @@ export interface LoyaltyProgramResponse {
 }
 
 export type LoyaltyEntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
-export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment";
+// CONG_VIEC_65: thêm đổi điểm đối tác liên minh, đối tác tặng điểm.
+export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment" | "partner_exchange" | "partner_gift";
 export interface LoyaltyEntryItem {
   id: string;
   kind: LoyaltyEntryKind;

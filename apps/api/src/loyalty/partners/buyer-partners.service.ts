@@ -155,9 +155,13 @@ export class BuyerPartnersService {
     return item;
   }
 
-  // Khách tự hủy liên kết. Giao dịch đang chờ với đối tác chặn hủy (lát L2 thêm kiểm tra).
+  // Khách tự hủy liên kết.
   async unlink(userId: string, contractId: string): Promise<void> {
     await assertBuyer(this.database, userId);
+    // Còn giao dịch đang chờ với đối tác thì chưa hủy liên kết được (QUYTAC_NGHIEPVU_541).
+    const pending = await this.database.execute(sql`
+      SELECT 1 FROM loyalty.partner_exchanges WHERE contract_id = ${contractId} AND user_id = ${userId} AND status IN ('sending', 'otp_pending', 'pending_partner', 'needs_review') LIMIT 1`);
+    if (pending.rows.length > 0) throw new ApiError("BUSINESS_RULE", "partnerExchangePending");
     const updated = await this.database.execute(sql`
       UPDATE loyalty.partner_memberships SET status = 'unlinked', unlinked_at = now() WHERE contract_id = ${contractId} AND user_id = ${userId} AND status = 'linked' RETURNING id`);
     if (updated.rows.length === 0) throw new ApiError("BUSINESS_RULE", "partnerNotLinked");
