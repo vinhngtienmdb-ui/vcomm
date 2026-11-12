@@ -101,7 +101,7 @@ export class OpenSalesOrdersService {
         {
           customerId,
           buyerName: input.buyerName ?? null,
-          channelId: caller.channelId,
+          channelId: caller.channelId!,
           warehouseId: warehouse!.id,
           orderDate: input.orderDate ?? vietnamDate(this.clock.now()),
           deliveryAddress: input.recipient?.address ?? input.deliveryAddress ?? null,

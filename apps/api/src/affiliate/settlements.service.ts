@@ -58,6 +58,8 @@ type SettlementRow = {
   shortfall_amount: string;
   fee_percent: string;
   fee_amount: string;
+  sms_count: number;
+  sms_fee_amount: string;
   fee_tax_rate: string;
   fee_tax_amount: string;
   adjustment_amount: string;
@@ -75,8 +77,8 @@ type SettlementRow = {
 
 const settlementSelect = sql`
   SELECT s.id, s.document_no, s.merchant_id, m.code AS merchant_code, p.name AS merchant_name, s.week_start::text, (s.week_start + 6)::text AS week_end, s.transaction_count,
-    s.earned_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.shortfall_amount::text, s.fee_percent::text, s.fee_amount::text, s.fee_tax_rate::text,
-    s.fee_tax_amount::text, s.adjustment_amount::text, s.net_amount::text, s.status, s.confirm_due_at, s.confirmed_at, s.confirmed_by, s.resolved_by, s.due_date::text,
+    s.earned_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.shortfall_amount::text, s.fee_percent::text, s.fee_amount::text, s.sms_count, s.sms_fee_amount::text,
+    s.fee_tax_rate::text, s.fee_tax_amount::text, s.adjustment_amount::text, s.net_amount::text, s.status, s.confirm_due_at, s.confirmed_at, s.confirmed_by, s.resolved_by, s.due_date::text,
     d.open_amount::text, (d.side = 'receivable' AND d.open_amount > 0 AND d.due_date < (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) AS overdue, s.version
   FROM affiliate.settlements s JOIN affiliate.merchants m ON m.id = s.merchant_id JOIN crm.partners p ON p.id = m.partner_id
   LEFT JOIN finance.debt_items d ON d.id = s.debt_item_id`;
@@ -97,6 +99,8 @@ function itemOf(row: SettlementRow): AffiliateSettlementItem {
     shortfallAmount: trimDecimal(row.shortfall_amount),
     feePercent: trimDecimal(row.fee_percent),
     feeAmount: trimDecimal(row.fee_amount),
+    smsCount: row.sms_count,
+    smsFeeAmount: trimDecimal(row.sms_fee_amount),
     feeTaxRate: trimDecimal(row.fee_tax_rate),
     feeTaxAmount: trimDecimal(row.fee_tax_amount),
     adjustmentAmount: trimDecimal(row.adjustment_amount),
@@ -272,9 +276,12 @@ export class AffiliateSettlementsService implements OnModuleInit {
   async generateWeekly(today?: string): Promise<string[]> {
     const day = today ?? (await vietnamToday(this.database));
     const weekStart = (await this.database.execute<{ value: string }>(sql`SELECT (date_trunc('week', ${day}::date) - interval '7 days')::date::text AS value`)).rows[0]!.value;
+    // Cửa hàng có giao dịch hoặc tin OTP SMS chưa chốt trong tuần (THAY_DOI_31: chỉ có tin nhắn vẫn lập bảng).
     const merchants = await this.database.execute<{ merchant_id: string }>(sql`
-      SELECT DISTINCT merchant_id FROM affiliate.transactions
-      WHERE settlement_id IS NULL AND status IN ('completed', 'cancelled') AND (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`);
+      SELECT merchant_id FROM affiliate.transactions
+      WHERE settlement_id IS NULL AND status IN ('completed', 'cancelled') AND (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6
+      UNION
+      SELECT merchant_id FROM affiliate.sms_charges WHERE settlement_id IS NULL AND (sent_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`);
     const created: string[] = [];
     for (const merchant of merchants.rows) {
       const id = await this.database.transaction((transaction) => this.generateFor(transaction, merchant.merchant_id, weekStart));
@@ -303,26 +310,36 @@ export class AffiliateSettlementsService implements OnModuleInit {
         WHERE t.merchant_id = ${merchantId} AND t.settlement_id IS NULL AND t.status IN ('completed', 'cancelled')
           AND (t.completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`)
     ).rows[0]!;
-    if (sums.total === 0) return null;
+    const sms = (
+      await executor.execute<{ total: number; amount: string }>(sql`
+        SELECT count(*)::int AS total, coalesce(sum(unit_price), 0)::text AS amount FROM affiliate.sms_charges
+        WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND (sent_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`)
+    ).rows[0]!;
+    if (sums.total === 0 && sms.total === 0) return null;
+    const smsFee = Number(sms.amount);
     const earned = Number(sums.earned);
     const shortfall = Number(sums.shortfall);
     const redeemed = Number(sums.redeemed);
     const companyVoucher = Number(sums.company_voucher);
     const fee = Math.round((redeemed * Number(merchant.fee_percent)) / 100);
-    const feeTax = Math.round((fee * feeTaxRate) / 100);
-    const net = earned + shortfall + fee + feeTax - redeemed - companyVoucher;
+    // Thuế giá trị gia tăng tính trên phí dịch vụ và phí tin nhắn (THAY_DOI_31).
+    const feeTax = Math.round(((fee + smsFee) * feeTaxRate) / 100);
+    const net = earned + shortfall + fee + smsFee + feeTax - redeemed - companyVoucher;
     const inserted = (
       await executor.execute<{ id: string; document_no: string }>(sql`
         INSERT INTO affiliate.settlements (company_id, merchant_id, week_start, transaction_count, earned_amount, redeemed_amount, company_voucher_amount, shortfall_amount,
-          fee_percent, fee_amount, fee_tax_rate, fee_tax_amount, net_amount, confirm_due_at)
+          fee_percent, fee_amount, sms_count, sms_fee_amount, fee_tax_rate, fee_tax_amount, net_amount, confirm_due_at)
         VALUES (${merchant.company_id}, ${merchantId}, ${weekStart}::date, ${sums.total}, ${earned}, ${redeemed}, ${companyVoucher}, ${shortfall}, ${merchant.fee_percent}, ${fee},
-          ${feeTaxRate}, ${feeTax}, ${net}, now() + make_interval(days => ${merchant.auto_confirm_days}))
+          ${sms.total}, ${smsFee}, ${feeTaxRate}, ${feeTax}, ${net}, now() + make_interval(days => ${merchant.auto_confirm_days}))
         RETURNING id, document_no`)
     ).rows[0]!;
     await executor.execute(sql`
       UPDATE affiliate.transactions SET settlement_id = ${inserted.id}
       WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND status IN ('completed', 'cancelled')
         AND (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`);
+    await executor.execute(sql`
+      UPDATE affiliate.sms_charges SET settlement_id = ${inserted.id}
+      WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND (sent_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${weekStart}::date + 6`);
     await notify(
       executor,
       merchant.owner_ids.map((userId) => ({
@@ -446,12 +463,14 @@ export class AffiliateSettlementsService implements OnModuleInit {
         redeemed_amount: string;
         company_voucher_amount: string;
         fee_amount: string;
+        sms_fee_amount: string;
         fee_tax_amount: string;
         adjustment_amount: string;
         net_amount: string;
       }>(sql`
         SELECT s.company_id, m.partner_id, s.document_no, m.payment_term_days, (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today, s.earned_amount::text,
-          s.shortfall_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.fee_amount::text, s.fee_tax_amount::text, s.adjustment_amount::text, s.net_amount::text
+          s.shortfall_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.fee_amount::text, s.sms_fee_amount::text, s.fee_tax_amount::text,
+          s.adjustment_amount::text, s.net_amount::text
         FROM affiliate.settlements s JOIN affiliate.merchants m ON m.id = s.merchant_id WHERE s.id = ${id}`)
     ).rows[0]!;
     await this.accounting.record(
@@ -466,7 +485,8 @@ export class AffiliateSettlementsService implements OnModuleInit {
         shortfall: Number(row.shortfall_amount),
         redeemed: Number(row.redeemed_amount),
         companyVoucher: Number(row.company_voucher_amount),
-        fee: Number(row.fee_amount),
+        // Phí tin nhắn hạch toán như phí dịch vụ: doanh thu affiliate_fee_revenue (THAY_DOI_31).
+        fee: Number(row.fee_amount) + Number(row.sms_fee_amount),
         feeTax: Number(row.fee_tax_amount),
         adjustment: Number(row.adjustment_amount),
       }),

@@ -647,6 +647,10 @@
     "apiKeyExpiryInvalid": "The expiry date must be tomorrow or later.",
     "apiKeyIpInvalid": "Invalid IP address or CIDR range.",
     "apiKeyRevoked": "The key has been revoked and cannot be changed.",
+    "apiKeyLoyaltyScopeAffiliate": "Loyalty-scope keys are issued on the Affiliate stores screen.",
+    "apiKeyManagedByAffiliate": "Affiliate store keys are edited on the Affiliate stores screen; here you can only rotate or revoke them.",
+    "affiliateApiKeyOutletInvalid": "The outlet does not belong to the store or is inactive.",
+    "affiliateApiKeyMerchantTerminated": "The store contract is terminated; keys cannot be issued.",
     "openApiOrderNotCancellable": "The order has been processed by staff (no longer a draft) and cannot be cancelled through the API.",
     "openApiWarehouseNotAllowed": "The warehouse is not in the API key's warehouse list.",
     "openApiSkuNotFound": "No active item with this SKU.",
@@ -720,7 +724,10 @@
     "hrDigitalSigningEmailMissing": "The employee has no email to receive the signing link; enter one.",
     "hrDigitalSigningIdentityMissing": "The employee profile has no personal identification number for link signing.",
     "signingPersonalCertificateRequired": "A personal signing account needs a personal certificate; an organization certificate is set up as the company seal.",
-    "signingResendLimit": "A partner's link can be resent at most 5 times in 24 hours."
+    "signingResendLimit": "A partner's link can be resent at most 5 times in 24 hours.",
+    "affiliateSmartOtpActive": "The customer has Smart OTP; use the code in the VComm app.",
+    "affiliateOtpInvalid": "The OTP is wrong or has expired.",
+    "affiliateSmsLimit": "The API key has used up its OTP SMS for today."
   },
   "login": {
     "title": "Sign in",
@@ -8028,7 +8035,33 @@
     "outlets": "Outlets",
     "edit": "Edit",
     "members": "Members",
-    "inviteSent": "Invitation sent."
+    "inviteSent": "Invitation sent.",
+    "connectionTitle": "Software connection",
+    "connectionHint": "The store's sales software calls the Open API to quote, earn and redeem points, use vouchers and cancel transactions. API transactions share the store's credit limit, weekly settlement and reports. Keys only have the Loyalty scope.",
+    "connectionEmpty": "The store has no API key. Issue one when the store wants to connect its sales software to VComm.",
+    "apiKeyIssue": "Issue key",
+    "apiKeyEdit": "Edit key",
+    "apiKeyOutlets": "Allowed outlets",
+    "apiKeySms": "Maximum OTP SMS per day (0 to 5,000; 0: no SMS)",
+    "apiKeySmsShort": "SMS/day",
+    "apiKeySmsToday": "today {count}",
+    "apiKeyScopeHint": "Scope: Loyalty (quote redeemable points, earn, redeem, vouchers, cancel transactions). The key cannot see the customer's balance, full name or phone number.",
+    "apiKeyRevokeText": "Revoking is permanent: the store software gets error 401. Existing transactions are kept.",
+    "apiKeySecretUsage": "The software sends the key in header {header} to {url}",
+    "apiKeyLogs": "Call log",
+    "portalConnectionHint": "The store's sales software earns and redeems VComm points through the Open API. To issue or revoke keys, contact VComm.",
+    "portalConnectionEmpty": "The store has not connected its sales software. Contact VComm to get an API key.",
+    "portalToday": "Today",
+    "portalWeek": "This week (from {date})",
+    "portalCalls": "API calls",
+    "portalTransactions": "Transactions via software",
+    "portalSms": "OTP SMS",
+    "portalKeys": "Store API keys",
+    "source_open_api": "Store software",
+    "partnerTransactionCode": "Software code: {code}",
+    "portalSmsFee": "{count} messages · {amount} VND",
+    "term_smsFee": "Fee per OTP SMS (VND)",
+    "smsFeeHint": "0 to 10,000; added to the weekly settlement when the store software sends an SMS code."
   },
   "merchantPortal": {
     "brand": "VComm Partners",
@@ -8153,7 +8186,10 @@
     "zaloLogin": "Sign in with Zalo",
     "zaloHint": "Available after choosing Link Zalo in the store portal's top bar.",
     "zaloLink": "Link Zalo",
-    "zaloLinked": "Zalo linked. You can sign in with Zalo next time."
+    "zaloLinked": "Zalo linked. You can sign in with Zalo next time.",
+    "menu_connection": "Software connection",
+    "smsFee": "Fee per OTP SMS",
+    "method_otp": "OTP"
   },
   "affiliateVoucher": {
     "merchantTitle": "Store vouchers",
@@ -8254,9 +8290,9 @@
     "lineB": "(B) Points redeemed value, incl. point vouchers",
     "lineC": "(C) Company-issued vouchers",
     "lineD": "(D) Service fee {percent}% × B",
-    "lineE": "(E) VAT {percent}% × D",
+    "lineE": "(E) VAT {percent}% × (D + F)",
     "lineAdjustment": "Adjustment on dispute resolution",
-    "lineNet": "Balance = A + D + E − B − C",
+    "lineNet": "Balance = A + D + F + E − B − C",
     "debt": "Outstanding {amount} VND, due {date}",
     "confirmedAt": "Confirmed at {date} ({name})",
     "autoConfirmedAt": "Auto-confirmed at {date}",
@@ -8296,7 +8332,8 @@
     "field_note": "Reply to the store",
     "resolve": "Answer and close",
     "paymentHint": "Record a receipt or payment with the store under Finance payments; once fully paid the settlement becomes paid.",
-    "lineNetAdjusted": "Balance = A + D + E − B − C + adjustment"
+    "lineNetAdjusted": "Balance = A + D + F + E − B − C + adjustment",
+    "lineF": "(F) OTP SMS fee ({count} messages)"
   },
   "affiliateReport": {
     "tab_report": "Report",

@@ -25,7 +25,8 @@ export interface OpenApiCaller {
   companyId: string;
   partnerId: string | null;
   customerGroupId: string | null;
-  channelId: string;
+  // Trống với khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67).
+  channelId: string | null;
   warehouseIds: string[];
   scopes: ApiKeyScope[];
 }
@@ -47,7 +48,7 @@ type KeyRow = {
   kind: ApiKeyKind;
   company_id: string;
   partner_id: string | null;
-  channel_id: string;
+  channel_id: string | null;
   scopes: ApiKeyScope[];
   rate_limit_per_minute: number;
   expires_on: string | null;
@@ -142,7 +143,8 @@ export class ApiKeyGuard implements CanActivate {
         k.allowed_ips::text[] AS allowed_ips, k.status,
         ARRAY(SELECT w.warehouse_id::text FROM core.api_key_warehouses w WHERE w.api_key_id = k.id) AS warehouse_ids,
         pp.customer_group_id,
-        coalesce(p.status = 'active' AND pp.status = 'active' AND pp.is_customer, false) AS partner_active
+        -- Khóa cửa hàng liên kết không xét hồ sơ khách hàng của đối tác (QUYTAC_NGHIEPVU_495).
+        coalesce(p.status = 'active' AND (k.channel_id IS NULL OR (pp.status = 'active' AND pp.is_customer)), false) AS partner_active
       FROM core.api_keys k
       LEFT JOIN crm.partners p ON p.id = k.partner_id
       LEFT JOIN crm.partner_profiles pp ON pp.company_id = k.company_id AND pp.partner_id = k.partner_id

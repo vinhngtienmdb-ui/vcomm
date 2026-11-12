@@ -660,3 +660,18 @@ TIEUCHI_NGHIEMTHU_159 (ghé thăm khách, CONG_VIEC_22 bản cũ) thay bằng TI
 | TIEUCHI_NGHIEMTHU_501 | CHUC_NANG_221 | Nhật ký thao tác tác nhân là khóa, không có số căn cước; nhật ký gọi không có dữ liệu cá nhân | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_502 | CHUC_NANG_221 | Danh sách đối tác nhãn "Do đối tác tạo", lọc nguồn; chi tiết có hộp thông tin Open API; sửa khách cá nhân không căn cước được | Giao diện, gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_503 | CHUC_NANG_221 | Chi tiết đơn bán, phiếu xuất hiện người nhận; đủ trạng thái; tiếng Việt, tiếng Anh | Giao diện | Bắt buộc |
+
+## MODULE_12 Cửa hàng liên kết (phần 2: Open API, CONG_VIEC_67)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_504 | CHUC_NANG_234 | Cấp khóa cho cửa hàng nhận `vck_…` một lần, phạm vi `loyalty.member`; điểm bán cửa hàng khác, cửa hàng chấm dứt bị từ chối; quyền xem; chủ cửa hàng chỉ xem | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_505 | CHUC_NANG_235 | Phạm vi sai hai chiều `403`; cửa hàng tạm ngưng `409` khi tạo, tra được; điểm bán ngoài khóa `400` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_506 | CHUC_NANG_235 | Tra điểm đúng, không trả số dư, số điện thoại, tên đầy đủ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_507 | CHUC_NANG_235 | Mã thành viên qua API bằng giao dịch trên cổng; dùng một lần; vượt hạn mức không tích | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_508 | CHUC_NANG_235 | Số điện thoại: chờ, xác nhận, từ chối; giới hạn từ chối theo khóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_509 | CHUC_NANG_235 | Gửi lại cùng mã chỉ một giao dịch; hủy qua API; tuần đã chốt không hủy | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_510 | CHUC_NANG_235 | Smart OTP, SMS, mã sai, khóa 15 phút, giới hạn tin mỗi số, mỗi khóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_511 | CHUC_NANG_235 | Phí tin theo đơn giá lúc gửi; bảng đối soát F, E, số còn lại; bút toán 511, 3331 | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_512 | CHUC_NANG_234, 235 | Giao dịch API vào danh sách, báo cáo, đối soát; nhật ký gọi không có dữ liệu cá nhân | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_513 | CHUC_NANG_234 | MAN_HINH_231, 232 và phần sửa màn hình đủ trạng thái, vi, en, ba kích thước | Ảnh chụp | Bắt buộc |

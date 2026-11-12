@@ -12,7 +12,7 @@ import { users } from "../database/schema";
 import { MessagingService } from "../integrations/messaging.service";
 import { AuthService, type ClientInfo, type IssuedSession, type SessionClientType } from "./auth.service";
 
-export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp";
+export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp" | "affiliate_redeem";
 
 const lifetimeMinutes = 5;
 const maximumWrongCodes = 5;
@@ -34,7 +34,8 @@ export class PhoneOtpService {
 
   // Mã đăng nhập: chỉ gửi cho số đã gắn tài khoản. Mã đặt lại mật khẩu: như mã đăng nhập.
   // Mã đăng ký: chỉ gửi cho số chưa có tài khoản; người gọi đã kiểm tra trước (CONG_VIEC_23).
-  async send(rawPhone: string, purpose: OtpPurpose = "login"): Promise<void> {
+  // Trả true khi đã giao tin cho dịch vụ nhắn tin (máy phát triển: đã in mã ra log); dùng để tính phí tin nhắn (CONG_VIEC_67).
+  async send(rawPhone: string, purpose: OtpPurpose = "login"): Promise<boolean> {
     const phone = normalizePhone(rawPhone);
     const now = this.clock.now();
     // Giới hạn tính trên mọi mục đích để không lách bằng cách đổi mục đích.
@@ -56,10 +57,14 @@ export class PhoneOtpService {
         INSERT INTO core.otp_codes (phone, purpose, code_hash, expires_at, created_at)
         VALUES (${phone}, ${purpose}, ${hashCode(code)}, ${new Date(now.getTime() + lifetimeMinutes * 60_000)}, ${now})`);
     });
-    if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return;
+    if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return false;
     const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null);
     // Máy phát triển chưa cài eSMS: in mã ra log để thử đăng nhập. Không bao giờ in trên môi trường thật.
-    if (!sent && process.env.NODE_ENV !== "production") this.logger.warn(`Mã OTP thử (${purpose}) cho ${phone}: ${code}`);
+    if (!sent && process.env.NODE_ENV !== "production") {
+      this.logger.warn(`Mã OTP thử (${purpose}) cho ${phone}: ${code}`);
+      return true;
+    }
+    return sent;
   }
 
   // Kiểm tra và dùng mã. Sai thì tăng số lần sai, sai 5 lần thì mã hết hiệu lực. Trả false khi mã không đúng.

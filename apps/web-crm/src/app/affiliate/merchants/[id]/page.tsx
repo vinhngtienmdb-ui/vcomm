@@ -1,6 +1,7 @@
 "use client";
 
-// MAN_HINH_178 Cửa hàng liên kết – chi tiết: hợp đồng, trạng thái, điểm bán, thành viên (CONG_VIEC_55; CHUC_NANG_193; API_206).
+// MAN_HINH_178 Cửa hàng liên kết – chi tiết: hợp đồng, trạng thái, điểm bán, thành viên (CONG_VIEC_55; CHUC_NANG_193; API_206);
+// khối Kết nối phần mềm MAN_HINH_231 (CONG_VIEC_67).
 import type { AffiliateMember, AffiliateMerchantDetail, AffiliateOutlet } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -13,6 +14,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { AffiliateApiKeys } from "@/components/AffiliateApiKeys";
 import { merchantStatusClass, TermsFields, termsBody, type TermsForm } from "@/components/AffiliateTerms";
 
 const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
@@ -25,6 +27,7 @@ const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
   transactionCap: merchant.transactionCap,
   paymentTermDays: String(merchant.paymentTermDays),
   autoConfirmDays: String(merchant.autoConfirmDays),
+  smsFee: merchant.smsFee,
 });
 
 function OutletDrawer({ merchantId, outlet, onClose, onSaved }: { merchantId: string; outlet: AffiliateOutlet | null; onClose: () => void; onSaved: () => void }) {
@@ -338,6 +341,7 @@ export default function AffiliateMerchantPage() {
               </table>
             </div>
           </section>
+          <AffiliateApiKeys merchantId={data.id} outlets={data.outlets} canManage={data.canManage} terminated={data.status === "terminated"} notify={notify} />
           {outlet && (
             <OutletDrawer
               merchantId={data.id}

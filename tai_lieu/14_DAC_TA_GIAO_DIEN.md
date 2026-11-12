@@ -2983,3 +2983,13 @@ Sửa màn hình đã có (CHUC_NANG_213):
 - Responsive: bảng chuyển thành thẻ trên điện thoại, nhãn cột hiện đủ; không cuộn ngang; trang ký của đối tác dùng được trên điện thoại.
 - Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.
 - Trạng thái phê duyệt: bản mẫu MAN_HINH_210 đến MAN_HINH_217 đã duyệt 2026-11-12 (dòng Trạng thái của đặc tả CONG_VIEC_59); lát L1, L2, L3 có ảnh chụp ở điểm xem trước; chờ người dùng nghiệm thu.
+
+## MODULE_12 Cửa hàng liên kết (phần 2: Open API, CONG_VIEC_67)
+
+| Mã | Tên | Mini app | Nội dung | Bản mẫu |
+|---|---|---|---|---|
+| MAN_HINH_231 | Kết nối phần mềm (khối trong chi tiết cửa hàng MAN_HINH_178) | `web-crm` | Danh sách khóa của cửa hàng; ngăn kéo cấp, sửa (điểm bán, giới hạn mỗi phút, số tin SMS mỗi ngày, hạn, IP); hộp hiện khóa một lần; cấp lại; thu hồi | `ban_mau/MAN_HINH_231_KET_NOI_PHAN_MEM.html` |
+| MAN_HINH_232 | Kết nối phần mềm (chủ cửa hàng) | `web-affiliate` (`/merchant/connection`) | Chỉ xem: khóa, số lần gọi, giao dịch qua phần mềm, tin SMS, phí tạm tính hôm nay và tuần này | `ban_mau/MAN_HINH_232_KET_NOI_PHAN_MEM_CUA_HANG.html` |
+| MAN_HINH_233 | Dự phòng | — | Chưa dùng | — |
+
+Sửa màn hình đã có: MAN_HINH_174, 176, 180 danh sách giao dịch hiện nhãn "Phần mềm cửa hàng", cách "mã OTP", mã phần mềm; MAN_HINH_176, 180 bảng đối soát thêm dòng F; MAN_HINH_177, 178 hợp đồng thêm Phí mỗi tin OTP SMS. Menu cổng cửa hàng thêm "Kết nối phần mềm" (chủ cửa hàng).

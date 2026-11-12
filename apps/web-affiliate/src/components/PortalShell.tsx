@@ -27,12 +27,13 @@ export function usePortal(): PortalContextValue {
   return value;
 }
 
-// Menu MAN_HINH_174 đến MAN_HINH_177; thu ngân chỉ thấy quầy. Mục thêm dần theo lát.
+// Menu MAN_HINH_174 đến MAN_HINH_177, MAN_HINH_232 (CONG_VIEC_67); thu ngân chỉ thấy quầy. Mục thêm dần theo lát.
 const portalMenu = [
   { href: "/counter", key: "counter", ownerOnly: false },
   { href: "/vouchers", key: "vouchers", ownerOnly: true },
   { href: "/reports", key: "reports", ownerOnly: true },
   { href: "/store", key: "store", ownerOnly: true },
+  { href: "/connection", key: "connection", ownerOnly: true },
 ] as const;
 
 function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) {

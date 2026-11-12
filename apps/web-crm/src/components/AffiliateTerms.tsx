@@ -18,6 +18,7 @@ export const defaultTerms = () => ({
   transactionCap: "",
   paymentTermDays: "7",
   autoConfirmDays: "3",
+  smsFee: "0",
 });
 export type TermsForm = ReturnType<typeof defaultTerms>;
 export const termsBody = (form: TermsForm) => ({
@@ -30,6 +31,7 @@ export const termsBody = (form: TermsForm) => ({
   transactionCap: form.transactionCap.replace(/[.\s]/g, ""),
   paymentTermDays: Number(form.paymentTermDays),
   autoConfirmDays: Number(form.autoConfirmDays),
+  smsFee: form.smsFee.replace(/[.\s]/g, "") || "0",
 });
 
 export function TermsFields({
@@ -62,6 +64,7 @@ export function TermsFields({
       {input("transactionCap")}
       {input("paymentTermDays", "number")}
       {input("autoConfirmDays", "number")}
+      {input("smsFee", "text", t("smsFeeHint"))}
     </div>
   );
 }

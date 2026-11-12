@@ -2,6 +2,7 @@
 // Cửa hàng đang chọn gửi qua header `x-merchant-id` khi người dùng là thành viên của nhiều cửa hàng.
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
+  type AffiliatePortalConnection,
   affiliateActivationOtpSchema,
   affiliateActivationSchema,
   affiliateCashierInviteSchema,
@@ -38,6 +39,7 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
 import { AffiliateTransactionsService } from "./transactions.service";
+import { AffiliateApiKeysService } from "./api-keys.service";
 import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
@@ -55,6 +57,7 @@ export class MerchantPortalController {
     private readonly vouchers: AffiliateVouchersService,
     private readonly settlements: AffiliateSettlementsService,
     private readonly reports: AffiliateReportsService,
+    private readonly apiKeys: AffiliateApiKeysService,
   ) {}
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
@@ -85,6 +88,12 @@ export class MerchantPortalController {
     const { response: result, session } = await this.portal.activate(input.phone, input.code, clientInfo(request));
     setSessionCookies(response, session);
     return result;
+  }
+
+  // API_295 phần cổng cửa hàng (MAN_HINH_232): chủ cửa hàng xem kết nối phần mềm (CONG_VIEC_67).
+  @Get("api-keys")
+  async connection(@Req() request: AuthenticatedRequest): Promise<AffiliatePortalConnection> {
+    return this.apiKeys.portalConnection(await this.member(request));
   }
 
   @Get("me")

@@ -3852,3 +3852,18 @@ ALTER TABLE office.signing_requests ADD CONSTRAINT signing_requests_source_type_
     CHECK (source_type IN ('document', 'contract', 'contract_appendix', 'outgoing', 'hr_contract', 'hr_contract_appendix'));
 CREATE INDEX signing_requests_source_idx ON office.signing_requests (source_type, source_id, created_at DESC) WHERE source_id IS NOT NULL;
 ```
+
+## 42. Database migration 0146 đến 0148 – CONG_VIEC_67 (cửa hàng liên kết qua Open API)
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0146 | `core.api_keys` | `channel_id` cho phép trống; ràng buộc `api_keys_channel_scope_check`: trống khi và chỉ khi `scopes = {loyalty.member}` |
+| 0146 | `affiliate.api_keys` | `api_key_id` (khóa chính, khóa ngoại `core.api_keys`), `merchant_id`, `sms_daily_limit` (0 đến 5.000, mặc định 200) |
+| 0146 | `affiliate.api_key_outlets` | (`api_key_id`, `outlet_id`) khóa chính |
+| 0147 | `affiliate.transactions` | `cashier_user_id` cho phép trống; `source` (`portal`, `open_api`), `api_key_id`, `partner_transaction_code`, `cancelled_api_key_id`; ràng buộc `transactions_open_api_fields_check`; `method` gồm `merchant_qr`, `buyer_qr`, `phone`, `otp`; chỉ mục duy nhất (`merchant_id`, `partner_transaction_code`) |
+| 0148 | `affiliate.merchants` | `sms_fee` numeric(18,4), 0 đến 10.000, mặc định 0 |
+| 0148 | `affiliate.sms_charges` | `id`, `merchant_id`, `api_key_id`, `buyer_user_id`, `unit_price`, `sent_at`, `settlement_id` |
+| 0148 | `affiliate.settlements` | `sms_count`, `sms_fee_amount`; ràng buộc `settlements_net_amount_check` thay ràng buộc số còn lại không tên của 0105 |
+| 0148 | `core.otp_codes` | Ràng buộc dùng chung `otp_codes_purpose_check` định nghĩa lại: `login`, `register`, `password_reset`, `smart_otp`, `affiliate_redeem` (gồm mọi giá trị trên `main` từ 0119) |
+
+Không đổi nguồn chứng từ của `loyalty`, `accounting.journals`, `finance.debt_items`.

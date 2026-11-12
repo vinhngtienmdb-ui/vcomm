@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_231 Kết nối phần mềm của cửa hàng – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="231" data-khu="crm">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <p class="chu-thich"><a href="MAN_HINH_178_CUA_HANG_LIEN_KET.html">‹ Cửa hàng liên kết</a></p>
+    <div class="tieu-de"><h1>CH-000007 · Cà phê Hạt Nâu</h1><span class="nhan thanh-cong">Đang hoạt động</span></div>
+    <div>
+      <div class="cac-the" role="tablist">
+        <button type="button" data-the="hop-dong">Hợp đồng</button>
+        <button type="button" data-the="diem-ban">Điểm bán</button>
+        <button type="button" data-the="thanh-vien">Thành viên</button>
+        <button type="button" data-the="ket-noi" class="chon">Kết nối phần mềm</button>
+      </div>
+
+      <section data-noi-dung-the="hop-dong" class="vung-the" hidden>
+        <div class="the"><h2>Hợp đồng (phần thêm của CONG_VIEC_67)</h2>
+          <div class="truong"><label for="phi-tin">Phí mỗi tin OTP SMS (đồng, 0 đến 10.000)</label><input id="phi-tin" class="o-nhap" inputmode="numeric" value="800"></div>
+          <p class="chu-thich">Tính cho mỗi tin SMS gửi thành công khi phần mềm cửa hàng yêu cầu mã OTP cho khách chưa kích hoạt Smart OTP; cộng vào bảng đối soát tuần như phí dịch vụ, chịu thuế giá trị gia tăng 10 %. Sửa áp cho tin gửi sau khi sửa.</p>
+          <div class="nhom-nut"><button type="button" class="nut chinh" data-thong-bao="Đã lưu hợp đồng.">Lưu</button></div>
+        </div>
+      </section>
+      <section data-noi-dung-the="diem-ban" class="vung-the" hidden><p class="chu-thich">Như CONG_VIEC_55.</p></section>
+      <section data-noi-dung-the="thanh-vien" class="vung-the" hidden><p class="chu-thich">Như CONG_VIEC_55.</p></section>
+
+      <section data-noi-dung-the="ket-noi" class="vung-the">
+        <div class="tieu-de"><h2>Khóa API của cửa hàng</h2><button type="button" class="nut chinh" onclick="document.getElementById('cap').hidden=false">Cấp khóa</button></div>
+        <p class="chu-thich">Phần mềm bán hàng của cửa hàng gọi Open API để tra điểm, tích, đổi điểm, dùng voucher, hủy giao dịch. Giao dịch qua API vào chung hạn mức, đối soát tuần, báo cáo của cửa hàng. Khóa chỉ có phạm vi Điểm thưởng.</p>
+        <div id="co-du-lieu">
+          <div class="khung-bang"><table><thead><tr><th>Tên khóa</th><th>Đầu khóa</th><th>Điểm bán</th><th class="so">Giới hạn/phút</th><th class="so">SMS/ngày</th><th>Hạn dùng</th><th>Lần gọi gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            <tr><td data-nhan="Tên khóa">Hạt Nâu · máy POS</td><td data-nhan="Đầu khóa"><code>vck_4Kd8Pq2s…</code></td><td data-nhan="Điểm bán">Lê Lợi, Nguyễn Huệ</td><td data-nhan="Giới hạn/phút" class="so">60</td><td data-nhan="SMS/ngày" class="so">200 <span class="chu-thich">(hôm nay 14)</span></td><td data-nhan="Hạn dùng">—</td><td data-nhan="Lần gọi gần nhất">12/11/2026 10:52</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang dùng</span></td>
+              <td data-nhan=""><button type="button" class="nut phu" onclick="document.getElementById('cap').hidden=false">Sửa</button> <button type="button" class="nut phu" data-thong-bao="Đã cấp lại khóa. Khóa cũ không còn dùng được.">Cấp lại</button> <button type="button" class="nut nguy-hiem" onclick="document.getElementById('thu-hoi').hidden=false">Thu hồi</button> <a href="MAN_HINH_226_NHAT_KY_GOI_API.html">Nhật ký gọi</a></td></tr>
+            <tr><td data-nhan="Tên khóa">Hạt Nâu · thử nghiệm</td><td data-nhan="Đầu khóa"><code>vck_Tn20Lw9x…</code></td><td data-nhan="Điểm bán">Lê Lợi</td><td data-nhan="Giới hạn/phút" class="so">10</td><td data-nhan="SMS/ngày" class="so">0</td><td data-nhan="Hạn dùng">01/11/2026</td><td data-nhan="Lần gọi gần nhất">30/10/2026 16:05</td><td data-nhan="Trạng thái"><span class="nhan canh-bao">Hết hạn</span></td><td data-nhan=""><button type="button" class="nut phu">Sửa</button></td></tr>
+            <tr><td data-nhan="Tên khóa">Hạt Nâu · phần mềm cũ</td><td data-nhan="Đầu khóa"><code>vck_Aa19Vb7c…</code></td><td data-nhan="Điểm bán">Lê Lợi</td><td data-nhan="Giới hạn/phút" class="so">60</td><td data-nhan="SMS/ngày" class="so">200</td><td data-nhan="Hạn dùng">—</td><td data-nhan="Lần gọi gần nhất">02/11/2026 09:40</td><td data-nhan="Trạng thái"><span class="nhan trung-tinh">Đã thu hồi</span><div class="chu-thich">Đổi phần mềm bán hàng</div></td><td data-nhan=""></td></tr>
+          </tbody></table></div>
+
+          <div class="the"><h2>Khóa vừa cấp · Hạt Nâu · máy POS</h2>
+            <div class="khoi-canh-bao canh-bao">Khóa chỉ hiện <b>một lần</b>. Sao chép và gửi cho cửa hàng qua kênh an toàn. Quên khóa thì cấp lại.</div>
+            <div class="truong"><label for="khoa-moi">Khóa API</label><input id="khoa-moi" class="o-nhap" readonly value="vck_4Kd8Pq2sZr7mW1yHe0uNb5cTf3Lg9Xa"></div>
+            <p class="chu-thich">Phần mềm gửi khóa trong header <code>Authorization: Bearer &lt;khóa&gt;</code> tới <code>https://api.vcomm.vn/api/v1/open/affiliate/…</code></p>
+            <div class="nhom-nut"><button type="button" class="nut chinh" data-thong-bao="Đã sao chép">Sao chép khóa</button><button type="button" class="nut phu">Tôi đã lưu khóa, đóng</button></div>
+          </div>
+        </div>
+        <div id="rong" hidden class="the"><p>Cửa hàng chưa có khóa API. Cấp khóa khi cửa hàng muốn nối phần mềm bán hàng của mình với VComm.</p></div>
+        <div id="dang-tai" hidden><div class="khung-tai" aria-hidden="true"></div><div class="khung-tai" aria-hidden="true"></div><span class="an-nhan">Đang tải…</span></div>
+        <div id="loi" hidden class="khoi-canh-bao loi">Không tải được dữ liệu. Kiểm tra kết nối mạng rồi thử lại. <button type="button" class="nut phu">Thử lại</button></div>
+        <div id="khong-quyen" hidden class="khoi-canh-bao thong-tin">Bạn chỉ có quyền xem (affiliate.view). Cấp, sửa, thu hồi khóa cần quyền quản lý cửa hàng liên kết.</div>
+      </section>
+    </div>
+
+    <aside class="man-che" id="cap" hidden><div class="ngan-keo" role="dialog" aria-labelledby="tieu-de-cap">
+      <h2 id="tieu-de-cap">Cấp khóa API</h2>
+      <div class="truong"><label for="k-ten">Tên khóa (1 đến 100 ký tự)</label><input id="k-ten" class="o-nhap" value="Hạt Nâu · máy POS"></div>
+      <fieldset class="truong" style="border:0;padding:0;margin:0"><legend style="font-weight:700;font-size:13px">Điểm bán được dùng</legend>
+        <label><input type="checkbox" checked> Lê Lợi</label><label><input type="checkbox" checked> Nguyễn Huệ</label></fieldset>
+      <div class="truong"><label for="k-phut">Giới hạn mỗi phút (1 đến 600)</label><input id="k-phut" class="o-nhap" inputmode="numeric" value="60"></div>
+      <div class="truong"><label for="k-sms">Số tin OTP SMS tối đa mỗi ngày (0 đến 5.000; 0: không gửi SMS)</label><input id="k-sms" class="o-nhap" inputmode="numeric" value="200"></div>
+      <div class="truong"><label for="k-han">Hạn dùng (để trống: không hết hạn)</label><input id="k-han" class="o-nhap" placeholder="dd/mm/yyyy"></div>
+      <div class="truong"><label for="k-ip">Địa chỉ IP được phép, mỗi dòng một địa chỉ hoặc dải CIDR (để trống: mọi IP)</label><textarea id="k-ip" class="o-nhap" rows="3"></textarea></div>
+      <div class="khoi-canh-bao thong-tin">Phạm vi: Điểm thưởng (tra điểm dùng được, tích, đổi điểm, voucher, hủy giao dịch). Khóa không xem được số dư, tên đầy đủ, số điện thoại của khách.</div>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('cap').hidden=true">Hủy</button><button type="button" class="nut chinh" onclick="document.getElementById('cap').hidden=true" data-thong-bao="Đã cấp khóa. Sao chép khóa ngay, khóa chỉ hiện một lần.">Cấp khóa</button></div>
+    </div></aside>
+    <aside class="man-che giua" id="thu-hoi" hidden><div class="hop-thoai" role="dialog" aria-labelledby="tieu-de-thu-hoi">
+      <h2 id="tieu-de-thu-hoi">Thu hồi khóa Hạt Nâu · máy POS</h2>
+      <div class="truong"><label for="ly-do">Lý do (1 đến 500 ký tự)</label><textarea id="ly-do" class="o-nhap" rows="3"></textarea></div>
+      <p class="chu-thich">Thu hồi là vĩnh viễn: phần mềm cửa hàng nhận lỗi 401. Giao dịch đã tạo giữ nguyên.</p>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('thu-hoi').hidden=true">Hủy</button><button type="button" class="nut nguy-hiem" onclick="document.getElementById('thu-hoi').hidden=true" data-thong-bao="Đã thu hồi khóa.">Thu hồi</button></div>
+    </div></aside>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>
