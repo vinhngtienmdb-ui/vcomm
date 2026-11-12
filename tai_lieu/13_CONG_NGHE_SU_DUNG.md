@@ -189,3 +189,9 @@ Quyết định: người dùng đồng ý thêm `jsqr` 1.4.0 ngày 2026-11-11. 
 | Không thêm thư viện | Chỉ giữ nút Chia sẻ (bảng chia sẻ của máy có mục sao chép) | Không áp dụng | Không áp dụng | React Native | Thấp |
 
 Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-12 (khi nghiệm thu CONG_VIEC_22); dùng chung qua `apps/mobile-vcomm/src/lib/clipboard.ts` cho mọi nút Sao chép của ứng dụng.
+## Phân tích giải pháp có sẵn – Xuất công văn PDF, Word cho MODULE_13 (CONG_VIEC_52) – 2026-11-11
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_366 (thể thức Nghị định 30/2020/NĐ-CP: khổ A4, lề, phông Times New Roman, cỡ, kiểu chữ từng thành phần), xuất PDF và Word.
+- PDF: dùng `pdfmake` 0.3.12 đang có; phông Liberation Serif (SIL OFL 1.1, kích thước chữ tương đương Times New Roman, có đủ chữ tiếng Việt) đóng gói trong `apps/api/assets/fonts` kèm tệp giấy phép. Times New Roman có bản quyền, không đóng gói được.
+- Word: thêm `docx` 9.15.3 (giấy phép MIT, cập nhật 2026-11-06; phụ thuộc `fflate`, `nanoid` giấy phép MIT), tạo tệp `.docx` ghi phông Times New Roman.
+- Quyết định của người dùng: xuất cả PDF và Word, thêm thư viện `docx` – 2026-11-11; duyệt thêm `docx` 9.15.3 và phông Liberation Serif đóng gói trong mã khi xem trước lát L2 – 2026-11-11.

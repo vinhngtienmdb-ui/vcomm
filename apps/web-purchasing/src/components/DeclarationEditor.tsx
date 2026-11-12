@@ -45,6 +45,8 @@ export function DeclarationEditor({
   const [postingDate, setPostingDate] = useState(declaration?.postingDate ?? vietnamToday());
   const [customsRate, setCustomsRate] = useState(declaration?.customsRate ?? "");
   const [note, setNote] = useState(declaration?.note ?? "");
+  const [customsOffice, setCustomsOffice] = useState(declaration?.customsOffice ?? "");
+  const [taxDueDate, setTaxDueDate] = useState(declaration?.taxDueDate ?? "");
   const [lines, setLines] = useState<Line[]>(
     order.lines.map((line) => {
       const current = saved.get(line.orderLineId);
@@ -84,6 +86,8 @@ export function DeclarationEditor({
         postingDate,
         customsRate: plain(customsRate),
         note,
+        customsOffice,
+        taxDueDate: taxDueDate || null,
         lines: included.map(({ line }) => ({
           orderLineId: line.orderLineId,
           quantity: plain(line.quantity),
@@ -122,6 +126,12 @@ export function DeclarationEditor({
           </Field>
           <Field id="ty-gia-tinh-thue" label={`${t("customsRate", { currency: order.currency })} *`} hint={t("customsRateHint")} error={fields.customsRate}>
             <input id="ty-gia-tinh-thue" inputMode="decimal" className={inputClass("customsRate")} value={customsRate} onChange={(event) => setCustomsRate(event.target.value)} />
+          </Field>
+          <Field id="chi-cuc-hai-quan" label={t("customsOffice")} error={fields.customsOffice}>
+            <input id="chi-cuc-hai-quan" className={inputClass("customsOffice")} value={customsOffice} onChange={(event) => setCustomsOffice(event.target.value)} />
+          </Field>
+          <Field id="han-nop-thue" label={t("taxDueDate")} hint={t("taxDueDateHint")} error={fields.taxDueDate}>
+            <input id="han-nop-thue" type="date" className={inputClass("taxDueDate")} value={taxDueDate} onChange={(event) => setTaxDueDate(event.target.value)} />
           </Field>
         </div>
         <Field id="ghi-chu-to-khai" label={t("note")} error={fields.note}>

@@ -325,14 +325,32 @@ export class JournalsService implements OnModuleInit {
       canClose: manage && nextMonth !== null && monthEnd(nextMonth) < today,
       canReopen: manage && settings.locked !== null,
       lastClosedMonth: settings.locked ? settings.locked.slice(0, 7) : null,
+      revaluationMissing: nextMonth !== null && (await this.revaluationMissing(actor.companyId, nextMonth)),
     };
   }
 
+  // CONG_VIEC_56 (QUYTAC_NGHIEPVU_413): tháng cuối năm tài chính còn quỹ ngoại tệ có số dư hoặc khoản nợ còn ngoại tệ mà chưa có chứng từ đánh giá lại
+  // đã ghi sổ tại ngày cuối tháng.
+  private async revaluationMissing(companyId: string, month: string): Promise<boolean> {
+    const row = (
+      await this.database.execute<{ missing: boolean }>(sql`
+      SELECT (
+        (SELECT CASE WHEN fiscal_year_start = 1 THEN 12 ELSE fiscal_year_start - 1 END FROM core.companies WHERE id = ${companyId}) = ${Number(month.slice(5, 7))}
+        AND NOT EXISTS (SELECT 1 FROM finance.fx_revaluations WHERE company_id = ${companyId} AND status = 'posted' AND revaluation_date = ${monthEnd(month)}::date)
+        AND (EXISTS (SELECT 1 FROM finance.debt_items WHERE company_id = ${companyId} AND open_foreign_amount > 0)
+          OR EXISTS (SELECT 1 FROM finance.funds f WHERE f.company_id = ${companyId} AND f.currency IS NOT NULL
+            AND f.opening_foreign_balance + coalesce((SELECT sum(m.foreign_amount) FROM finance.fund_movements m WHERE m.fund_id = f.id AND m.status = 'posted'), 0) <> 0))
+      ) AS missing`)
+    ).rows[0]!;
+    return row.missing;
+  }
+
   // Khóa sổ một tháng: kết chuyển số dư tài khoản loại 5 đến 8 sang xác định kết quả, kết quả sang lợi nhuận chưa phân phối năm nay; ghi ngày khóa (QUYTAC_NGHIEPVU_97).
-  async close(actor: Actor, month: string): Promise<LedgerPeriodsResponse> {
+  async close(actor: Actor, month: string, confirmRevaluation = false): Promise<LedgerPeriodsResponse> {
     await requireFinancePermission(this.permissionService, actor, ledgerPermissions.closePeriods);
     const status = await this.periods(actor);
     if (status.nextMonth !== month || !status.canClose) throw new ApiError("BUSINESS_RULE", "periodNotClosable");
+    if (status.revaluationMissing && !confirmRevaluation) throw new ApiError("BUSINESS_RULE", "revaluationMissing");
     const end = monthEnd(month);
     await this.database.transaction(async (transaction) => {
       const settings = (await transaction.execute<{ locked_through: string | null }>(sql`SELECT locked_through::text FROM accounting.settings WHERE company_id = ${actor.companyId} FOR UPDATE`))

@@ -347,6 +347,14 @@ Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/crm/c
 | API_167 | `GET /buyer/community`; `GET`, `POST /buyer/posts`; `GET`, `DELETE /buyer/posts/{id}`; `GET /buyer/reviewable-lines`; `POST /buyer/posts/{id}/comments`; `DELETE /buyer/comments/{id}`; `PUT`, `DELETE /buyer/posts/{id}/like`; `POST /buyer/reports` | CHUC_NANG_174 | Đăng nhập (API người mua); xóa bài, bình luận của mình (của người khác `404`) |
 | API_168 | `GET /marketplace/community/moderation`; `POST /marketplace/community/{posts\|comments}/{id}/hide`, `/show`; `GET`, `POST /marketplace/community/bans`; `POST /marketplace/community/bans/{id}/lift`; `GET`, `PUT /marketplace/community/settings`; `GET`, `POST /marketplace/community/official-posts`; `PUT /marketplace/community/official-posts/{id}/pin`; `GET /marketplace/community/images/{id}` | CHUC_NANG_174 | `marketplace.community.manage` tại công ty vận hành sàn |
 | API_169 | `POST /buyer/posts/images` (multipart `file`); `GET /buyer/posts/images/{id}` | CHUC_NANG_174 | Đăng nhập (API người mua); ảnh chưa gắn bài hoặc của bài không hiện chỉ người tải lên xem |
+| API_184 | `GET /office/people`; `GET`, `POST /office/tasks`; `GET`, `PATCH /office/tasks/{id}`; `POST /office/tasks/{id}/transition`, `/progress`; `GET /office/tasks/{id}/history` | CHUC_NANG_182 | `office.access`; thẻ `company` cần `office.task.view_all`; thao tác theo vai trò trên việc |
+| API_185 | `GET`, `POST /office/tasks/{id}/comments`; `PATCH`, `DELETE /office/tasks/{id}/comments/{commentId}`; `GET`, `POST` (multipart `file`) `/office/tasks/{id}/files`; `GET`, `DELETE /office/tasks/{id}/files/{fileId}` | CHUC_NANG_182 | `office.access`; người xem được việc (QUYTAC_NGHIEPVU_357), sửa, xóa của mình |
+| API_186 | `GET /office/workflow-design-options`; `GET`, `POST /office/workflow-templates`; `GET`, `PATCH /office/workflow-templates/{id}`; `POST /office/workflow-templates/{id}/activate`, `/deactivate` | CHUC_NANG_183 | `office.workflow.manage` |
+| API_187 | `GET /office/workflow-start-options`; `GET`, `POST /office/workflow-runs`; `GET /office/workflow-runs/{id}`; `POST /office/workflow-runs/{id}/assign`, `/cancel` | CHUC_NANG_183 | `office.access`; xem phiên: người khởi tạo, người làm bước, `office.task.view_all`, `office.workflow.manage`; chỉ định, hủy: người khởi tạo hoặc `office.workflow.manage` |
+| API_188 | `GET`, `POST /office/incoming`; `GET`, `PATCH /office/incoming/{id}`; `POST /office/incoming/{id}/files`, `/accept`, `/submit`, `/direct`, `/void`; `GET /office/incoming/{id}/files/{fileId}` | CHUC_NANG_184 | Vào sổ, sửa, hủy, nhận liên công ty: `office.document.clerk`; chỉ đạo: lãnh đạo được trình có `office.document.direct`; xem: văn thư, `office.document.view_all`, lãnh đạo, người được chuyển, người tham gia việc xử lý |
+| API_189 | `GET`, `POST /office/outgoing`; `GET`, `PATCH /office/outgoing/{id}`; `GET /office/outgoing/{id}/render?format=pdf\|docx`; `POST /office/outgoing/{id}/files`, `/submit`, `/withdraw`, `/decide`, `/cancel`, `/number`, `/issue`; `GET /office/outgoing/{id}/files/{fileId}` | CHUC_NANG_184 | Soạn, trình, rút: `office.document.draft`, người soạn; quyết định: người ký (khi không có chính sách duyệt); cấp số, phát hành: `office.document.clerk`; xem: người soạn, người ký, người duyệt, nơi nhận đã phát hành, văn thư |
+| API_190 | `GET /office/document-options`; `GET`, `PUT /office/document-settings`; `GET`, `POST /office/registers`; `PATCH /office/registers/{id}`; `GET /office/registers/{id}/export?year=`; `GET`, `POST /office/document-types`; `PATCH /office/document-types/{id}` | CHUC_NANG_184 | Tùy chọn, xem loại văn bản: `office.access`; còn lại `office.document.clerk` |
+| API_191 | `GET /office/post-options`; `GET`, `POST /office/posts`; `GET`, `PATCH /office/posts/{id}`; `POST /office/posts/{id}/revoke`, `/acknowledge`; `GET /office/posts/{id}/readers`; `POST`, `PATCH`, `DELETE /office/posts/{id}/comments[/{commentId}]`; `POST /office/posts/{id}/files`; `GET`, `DELETE /office/posts/{id}/files/{fileId}` | CHUC_NANG_185 | `office.access`; đăng: `office.bulletin.post` ở công ty (toàn tập đoàn: ở phạm vi tập đoàn); sửa, thu hồi, tệp: người đăng; danh sách đã đọc: người đăng, người có quyền đăng cùng phạm vi; xem, xác nhận, bình luận: người nhận |
 
 Sửa API_71, API_72, API_77 (CONG_VIEC_21, THAY_DOI_12), hợp đồng thêm trường, không bỏ trường:
 - API_71 danh sách: thêm lọc `owner` (`mine` hoặc UUID nhân viên; lọc hồ sơ của công ty đang làm việc có `owner_user_id` tương ứng); dòng danh sách, chi tiết thêm `ownerUserName` (nhân viên phụ trách tại công ty đang làm việc, `null` khi không có). Người không có `crm.customer.view_all`: danh sách, chi tiết, `identity` chỉ gồm đối tác có hồ sơ khách hàng do mình hoặc nhân viên phòng mình quản lý phụ trách; khác thì `404`. `lookup` vẫn tìm toàn danh mục, chỉ trả mã, tên; có đối tác thì trả thêm `canClaim` (người dùng không có `crm.customer.view_all`, có `crm.partner.manage`; đối tác đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty). `POST /crm/partners` của người không có `crm.customer.view_all`: tự lập hồ sơ khách hàng (`isCustomer` đúng, `paymentTermDays` 0, `creditLimit` 0, `ownerUserId` là người gọi), mở dòng lịch sử phụ trách.
@@ -1581,6 +1589,74 @@ Thông báo trong ứng dụng (`core.notifications`, loại): `collaborator.app
 | `periodLocked`, `stockLockedByStocktake`, `documentNotDraft`, `conflictVersion` | `409` | API_141, API_143 | Như hiện có |
 
 Sự kiện: không phát, không nghe sự kiện outbox mới.
+## 3zh. Hợp đồng chi tiết Văn phòng số (MODULE_13 phần 1, CONG_VIEC_52)
+
+Lược đồ, kiểu trong `packages/contracts/src/office.ts`. Mọi endpoint cần `office.access` ở công ty đang chọn; người tham gia việc ở công ty khác trong tập đoàn gọi với công ty của mình. Việc không xem được trả `404`.
+
+| Endpoint | Gửi lên | Trả về, quy tắc |
+|---|---|---|
+| `GET /office/people?search=` | `search` 1 đến 100 ký tự | Tối đa 20 `OfficePerson` (`id`, `fullName`, `companyId`, `companyName`, `departmentName`): người đang hoạt động, thành viên công ty trong tập đoàn; tìm theo họ tên, email nhưng không trả email |
+| `GET /office/tasks` | `view` (`mine`, `assigned`, `following`, `company`), `status` (trạng thái, `open`, `all`; mặc định `open`), `due` (`overdue`, `today`, `week`), `priority`, `search`, `page`, `pageSize` | Trang `OfficeTaskListItem`; `mine` gồm việc chủ trì, phối hợp ở mọi công ty; `company` cần `office.task.view_all` bao trùm công ty (không thì `403`) |
+| `POST /office/tasks` | `title`, `description`, `ownerUserId`, `collaboratorIds`, `followerIds` (tối đa 20), `startDate`, `dueAt` (ISO 8601 có múi giờ), `priority`, `parentId` | `201 OfficeTaskResponse` (thêm `allowedActions`). Lỗi: `400` tại trường khi người ngoài tập đoàn (`officeParticipantOutsideGroup`), hạn trước ngày bắt đầu (`officeDueBeforeStart`), việc con hạn sau việc cha (`officeSubtaskDueAfterParent`); `400 officeParticipantDuplicate`; `409 officeSubtaskDepth`, `officeTaskClosed` |
+| `PATCH /office/tasks/{id}` | Như lập, bỏ `parentId`, thêm `version` | Chỉ người giao (`403`); việc xong, hủy `409 officeTaskClosed`; sai phiên bản `409 CONFLICT_VERSION`; đổi hạn thì nhắc lại từ đầu |
+| `POST /office/tasks/{id}/transition` | `action` (`start`, `report_done`, `confirm`, `return`, `cancel`), `reason` (bắt buộc với `return`, `cancel`), `version` | QUYTAC_NGHIEPVU_356, 358; thao tác không hợp lệ với người giao, chủ trì `409 officeTaskActionInvalid`, người khác `403`; còn việc con chưa xong `409 officeSubtasksOpen` |
+| `POST /office/tasks/{id}/progress` | `progress` 0 đến 100, `version` | Chỉ chủ trì khi việc mới hoặc đang làm |
+| `GET /office/tasks/{id}/history` | | `OfficeTaskEvent[]` mới nhất trước |
+| `…/comments` | `body` 1 đến 5.000 ký tự | `OfficeTaskComment[]`; xóa trả bình luận `deleted`, `body` rỗng |
+| `…/files` | multipart `file` tối đa 20 MB; PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, TXT, ZIP (kiểm chữ ký đầu tệp) | `OfficeFileItem[]`; lỗi `400` tại `file` (`officeFileTooLarge`, `officeFileTypeInvalid`); tải xuống `content-disposition: attachment`, `x-content-type-options: nosniff` |
+
+| `POST /office/tasks/{id}/transition` (việc của bước quy trình) | `action` thêm `claim` (người giữ vai trò ứng viên nhận việc); `report_done` bắt buộc `outcome` là một kết quả của bước | Báo xong là hoàn thành ngay, xét quy tắc chuyển trong cùng giao dịch; việc của bước không sửa, không hủy riêng; thiếu hoặc sai kết quả `400` tại `outcome` |
+| `GET /office/workflow-design-options` | | `WorkflowDesignOptions`: vai trò dùng được ở công ty, phòng ban đang dùng |
+| `POST /office/workflow-templates`, `PATCH /office/workflow-templates/{id}` | `name`, `description`, `definition` (`WorkflowDefinition`: `fields`, `steps`, `firstStepKey`, `starterDepartmentIds`), `version` khi sửa | `WorkflowTemplateResponse` kèm `issues` (lỗi kiểm tra hợp lệ theo bước). Mẫu đang dùng chưa có nháp thì sửa tạo phiên bản nháp mới |
+| `POST /office/workflow-templates/{id}/activate` | | Bản nháp còn lỗi `409 workflowInvalid`; không có nháp và không ngừng dùng `409 workflowNothingToActivate`; bản đang dùng cũ chuyển `retired` |
+| `POST /office/workflow-templates/{id}/deactivate` | | Chỉ khi đang dùng (`409 workflowNotActive`); phiên đang chạy chạy tiếp |
+| `GET /office/workflow-start-options` | | Mẫu đang dùng mà người dùng được khởi tạo (không giới hạn phòng ban hoặc phòng ban của mình trong danh sách) |
+| `POST /office/workflow-runs` | `templateId`, `title`, `values` | `201 WorkflowRunResponse`; lỗi biểu mẫu `400` tại `values.<khóa>`; mẫu không được khởi tạo `404` |
+| `GET /office/workflow-runs` | `scope` (`mine`, `involved`, `company`), `status`, `page`, `pageSize` | `company` cần `office.task.view_all` hoặc `office.workflow.manage` (`403`) |
+| `POST /office/workflow-runs/{id}/assign` | `stepInstanceId`, `userId`, `version` | Lượt bị chặn do không có người thực hiện; chặn do quá 100 bước `409 workflowStepLimit` |
+| `POST /office/workflow-runs/{id}/cancel` | `reason`, `version` | Hủy các việc đang mở; phiên đã kết thúc `409 workflowRunClosed` |
+
+Thông báo trong ứng dụng (`core.notifications`, đường dẫn `/office/tasks/{id}`): `office_task_assigned`, `office_task_status`, `office_task_comment`, `office_task_due_soon`, `office_task_overdue`; quy trình (đường dẫn `/office/workflow-runs/{id}`): `office_workflow_blocked`, `office_workflow_completed`. Không phát, không nghe sự kiện outbox mới. Tác vụ nền `office-task-reminders` mỗi 15 phút.
+
+Công văn (lát L2, Nghị định 30/2020/NĐ-CP):
+
+| Endpoint | Gửi lên | Trả về, quy tắc |
+|---|---|---|
+| `GET /office/document-options` | | `DocumentOptions`: sổ, loại văn bản, phòng ban, công ty khác trong tập đoàn, lãnh đạo có `office.document.direct`, thể thức, `canClerk`; lần đầu tạo sổ mặc định, 29 loại văn bản, thể thức mặc định |
+| `PUT /office/document-settings` | `DocumentSettings` (tên cơ quan chủ quản, tên cơ quan ban hành, chữ viết tắt `^[A-ZĐ0-9]{1,20}$`, địa danh, cỡ chữ 13 hoặc 14, lề trang mm), `version` | Lỗi khoảng lề `400` tại ô |
+| `POST /office/registers`, `PATCH /office/registers/{id}` | `name`, `direction`; sửa: `name`, `status`, `version` | Trùng tên `409 officeRegisterDuplicate`; ngừng sổ mặc định `409 officeDefaultRegister` |
+| `GET /office/registers/{id}/export?year=` | | Tệp Excel sổ công văn của năm (cột theo Nghị định 30) |
+| `POST /office/document-types` | `name`, `abbreviation` | Trùng `409 officeDocumentTypeDuplicate` |
+| `POST /office/incoming` | multipart: `data` (JSON `registerIncomingSchema`: sổ, ngày đến, nơi gửi, số ký hiệu, ngày văn bản, loại, trích yếu, độ khẩn, hạn, hình thức nhận), `files` (bản quét PDF, JPG, PNG, bắt buộc, tối đa 5 tệp mỗi lần, mỗi tệp tối đa 20 MB; quá thì `400` tại `file`) | `201 IncomingResponse`, số đến tiếp theo của sổ trong năm; sai loại tệp `400 officeScanTypeInvalid`; trả kèm `duplicateOf` khi trùng nơi gửi, số ký hiệu, ngày văn bản |
+| `GET /office/incoming` | `registerId`, `year`, `status` (thêm `awaiting_registration` cho bản liên công ty), `urgency`, `search`, `page`, `pageSize` | Trang `IncomingListItem`; văn thư, `office.document.view_all` xem tất cả; người khác chỉ công văn mình là lãnh đạo, người được chuyển, người tham gia việc xử lý |
+| `PATCH /office/incoming/{id}` | Như vào sổ bỏ `registerId`, thêm `version` | Chỉ khi đã vào sổ, chưa trình (`409 officeIncomingLocked`) |
+| `POST /office/incoming/{id}/accept` | `registerId`, `receivedOn`, `version` | Vào sổ bản chờ (gửi từ công ty khác trong tập đoàn) |
+| `POST /office/incoming/{id}/submit` | `leaderUserId`, `note`, `version` | Lãnh đạo phải có `office.document.direct` (`400 officeNotLeader`); thông báo lãnh đạo |
+| `POST /office/incoming/{id}/direct` | `action` (`assign`: `ownerUserId`, `collaboratorIds`, `dueAt`; `forward`: `leaderUserId`; `archive`), `note`, `version` | Chỉ lãnh đạo đang được trình; `assign` tạo công việc gắn `incoming_document_id`, công việc hoàn thành thì công văn `processed`, công việc hủy thì quay lại `awaiting_direction` |
+| `POST /office/incoming/{id}/void` | `reason`, `version` | Số đến giữ nguyên, không dùng lại |
+| `POST /office/outgoing`, `PATCH /office/outgoing/{id}` | `saveOutgoingSchema`: sổ, loại văn bản, đơn vị soạn, trích yếu, độ khẩn, `composeMode` (`compose`, `upload`), `recipientLine` (công văn), `body` (đoạn, gạch đầu dòng), người ký, thẩm quyền ký (`TM.`, `KT.`, `TL.`, `TUQ.`, `Q.`), chức vụ, nơi nhận ngoài, nơi nhận trong tập đoàn, số bản, ký hiệu người soạn, `replyToIncomingId`, `version` khi sửa | Sửa khi nháp, bị từ chối, đã rút (`409 officeOutgoingLocked`); người ký không thuộc công ty `400 officeSignerInvalid` |
+| `POST /office/outgoing/{id}/submit` | `version` | Có chính sách duyệt loại `office.outgoing_document` thì trình qua luồng duyệt chung (`approvalMode` `policy`); không có thì người ký quyết định (`signer`); tải dự thảo thì cần tệp dự thảo |
+| `POST /office/outgoing/{id}/decide` | `decision`, `note` (bắt buộc khi từ chối), `version` | Chỉ người ký ở chế độ `signer` |
+| `POST /office/outgoing/{id}/number` | `version` | Văn thư cấp số sau duyệt: số tiếp theo của sổ trong năm, ký hiệu `<số>/<viết tắt loại>-<viết tắt cơ quan>` (công văn: `<số>/<viết tắt cơ quan>-<mã đơn vị soạn>`, không chọn đơn vị thì bỏ phần đơn vị), số dưới 10 thêm số 0, ngày ban hành là ngày cấp số |
+| `POST /office/outgoing/{id}/issue` | multipart `file` (bản đã ký, đóng dấu), `version` | Thông báo người, phòng ban nhận; công ty khác trong tập đoàn nhận bản công văn đến chờ vào sổ kèm tệp |
+| `GET /office/outgoing/{id}/render?format=pdf\|docx` | | Văn bản theo thể thức (quốc hiệu, tiêu ngữ, tên cơ quan, số ký hiệu, địa danh ngày tháng, V/v, Kính gửi, nội dung, thẩm quyền ký, nơi nhận); chưa cấp số ghi “DỰ THẢO”; PDF phông Liberation Serif, Word phông Times New Roman |
+
+Thông báo công văn dùng loại `office_document` (trình lãnh đạo, chuyển, trình người ký, quyết định, chờ cấp số, phát hành), đường dẫn `/office/incoming/{id}` hoặc `/office/outgoing/{id}`; giao xử lý dùng `office_task_assigned` của công việc.
+
+Bảng tin (lát L3, QUYTAC_NGHIEPVU_367):
+
+| Endpoint | Gửi lên | Trả về, quy tắc |
+|---|---|---|
+| `GET /office/post-options` | | `PostOptions`: chi nhánh, phòng ban đang dùng của công ty, `canPost`, `canPostGroup`, số tin đang ghim |
+| `GET /office/posts` | `view` (`feed`: tin mình nhận; `manage`: tin của công ty, kể cả hẹn giờ, hết hạn, thu hồi), `unread`, `search`, `page`, `pageSize` | Trang `PostListItem`; tin ghim còn hiệu lực lên đầu, rồi mới nhất trước; `isRead`, `acknowledgedAt` của người xem |
+| `POST /office/posts`, `PATCH /office/posts/{id}` | `savePostSchema`: `title`, `body` (đánh dấu `**đậm**`, `*nghiêng*`, `[chữ](https://…)`, dòng `- `; đường dẫn chỉ http, https), `audienceType` (`company`, `units` với `branchIds`, `departmentIds`, `group`), `pinned`, `publishAt` (không gửi là đăng ngay), `expiresAt`, `requiresAcknowledgement`, `allowComments`, `version` khi sửa | Không có quyền `403`; toàn tập đoàn khi không có quyền phạm vi tập đoàn `400` tại `audienceType`; đối tượng trống hoặc không thuộc công ty `400`; hết hạn không sau giờ đăng `400` tại `expiresAt`; quá 5 tin ghim `409 officePostPinLimit`; sửa: chỉ người đăng, tin đã đăng giữ giờ đăng và hiện “đã sửa” |
+| `GET /office/posts/{id}` | | `PostResponse`; người nhận mở lần đầu ghi đã đọc; không thuộc đối tượng, tin hẹn giờ, hết hạn, thu hồi với người nhận `404` |
+| `POST /office/posts/{id}/revoke` | `version` | Chỉ người đăng; tin ẩn với người nhận, bỏ ghim |
+| `POST /office/posts/{id}/acknowledge` | | Người nhận tin cần xác nhận; không cần xác nhận `409 officePostNotAcknowledgeable` |
+| `GET /office/posts/{id}/readers` | | `PostReader[]` người nhận hiện tại (trừ người đăng), chưa đọc trước; người nhận khác `403` |
+| `…/comments` | `body` 1 đến 5.000 ký tự | Tin không cho bình luận `409 officePostCommentsClosed`; người đăng xóa được bình luận bất kỳ; người đăng nhận thông báo `office_post_comment` |
+
+Việc nền `office-post-publish` mỗi phút: tin cần xác nhận đọc đến giờ đăng thì gửi thông báo `office_post` (đường dẫn `/office/bulletin/{id}`) cho người nhận, mỗi tin một lần; tin thường không gửi thông báo.
 
 ## Hợp đồng chi tiết cửa hàng liên kết (MODULE_12, CONG_VIEC_55)
 

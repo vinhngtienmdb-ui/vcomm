@@ -48,6 +48,13 @@ export type PostingRole =
   | "excise_tax"
   | "environmental_tax"
   | "import_vat"
+  // CONG_VIEC_56: ngoại tệ, thuế hải quan.
+  | "cash_foreign"
+  | "bank_foreign"
+  | "exchange_difference"
+  | "financial_income"
+  | "financial_expense"
+  | "late_payment_expense"
   // CONG_VIEC_55: cửa hàng liên kết.
   | "affiliate_receivable"
   | "affiliate_payable"
@@ -98,6 +105,12 @@ export const postingRoles: PostingRole[] = [
   "excise_tax",
   "environmental_tax",
   "import_vat",
+  "cash_foreign",
+  "bank_foreign",
+  "exchange_difference",
+  "financial_income",
+  "financial_expense",
+  "late_payment_expense",
   "affiliate_receivable",
   "affiliate_payable",
   "affiliate_fee_revenue",
@@ -130,6 +143,8 @@ export interface DraftJournal {
     | "payroll_payment"
     | "import_declaration"
     | "landed_cost"
+    | "fx_revaluation"
+    | "import_amendment"
     | "affiliate_transaction"
     | "affiliate_transaction_cancel"
     | "affiliate_voucher"
@@ -398,17 +413,35 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
       kind: string;
       partner_id: string | null;
       fund_kind: "cash" | "bank";
+      fund_currency: string | null;
+      counter_fund_kind: "cash" | "bank" | null;
       document_no: string;
       payment_date: string;
       amount: string;
+      exchange_difference: string | null;
       note: string | null;
     }>(sql`
-    SELECT p.company_id, p.kind, p.partner_id, f.kind AS fund_kind, p.document_no, p.payment_date::text, p.amount::text, p.note
-    FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${paymentId}`)
+    SELECT p.company_id, p.kind, p.partner_id, f.kind AS fund_kind, f.currency AS fund_currency, cf.kind AS counter_fund_kind, p.document_no, p.payment_date::text, p.amount::text,
+      p.exchange_difference::text, p.note
+    FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id LEFT JOIN finance.funds cf ON cf.id = p.counter_fund_id WHERE p.id = ${paymentId}`)
   ).rows[0];
   if (!payment) return null;
-  const amount = (await rounder(executor, payment.company_id))(Number(payment.amount));
-  const fund: PostingRole = payment.fund_kind === "cash" ? "cash" : "bank";
+  const round = await rounder(executor, payment.company_id);
+  const amount = round(Number(payment.amount));
+  // Quỹ ngoại tệ dùng vai trò tiền ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_406).
+  const fundRole = (kind: "cash" | "bank", foreign: boolean): PostingRole => (foreign ? (kind === "cash" ? "cash_foreign" : "bank_foreign") : kind);
+  const fund = fundRole(payment.fund_kind, payment.fund_currency !== null);
+  // Phiếu chi trả nợ ngoại tệ: Nợ phải trả theo tỷ giá đích danh, Có quỹ theo giá trị ra; chênh lệch vào 515 (lãi) hoặc 635 (lỗ) (QUYTAC_NGHIEPVU_411).
+  const difference = round(Number(payment.exchange_difference ?? 0));
+  const supplierPayment =
+    difference === 0
+      ? [debit("payable", amount, payment.partner_id), credit(fund, amount)]
+      : [
+          debit("payable", amount + difference, payment.partner_id),
+          ...(difference < 0 ? [debit("financial_expense", -difference)] : []),
+          credit(fund, amount),
+          ...(difference > 0 ? [credit("financial_income", difference)] : []),
+        ];
   const partner = payment.partner_id;
   // Đối tác là đơn vị thu hộ: tiền chuyển về trừ phải thu đơn vị thu hộ (1388), không phải 131 (CONG_VIEC_19; QUYTAC_NGHIEPVU_121).
   const isCollector = (await executor.execute(sql`SELECT 1 FROM finance.collectors WHERE company_id = ${payment.company_id} AND partner_id = ${partner}`)).rows.length > 0;
@@ -416,15 +449,34 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
   const lines: Record<string, DraftLine[]> = {
     customer_receipt: [debit(fund, amount), credit(receivable, amount, partner)],
     customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
-    supplier_payment: [debit("payable", amount, partner), credit(fund, amount)],
+    supplier_payment: supplierPayment,
     supplier_refund: [debit(fund, amount), credit("payable", amount, partner)],
     // THAY_DOI_24 (CONG_VIEC_53; QUYTAC_NGHIEPVU_375): chứng từ quỹ bán lẻ lập khi đóng ca; phải thu không đối tượng của phiếu xuất bán lẻ.
     retail_receipt: [debit(fund, amount), credit("receivable", amount)],
     retail_refund: [debit("receivable", amount), credit(fund, amount)],
     cash_shortage: [debit("staff_receivable", amount), credit(fund, amount)],
     cash_surplus: [debit(fund, amount), credit("surplus_pending", amount)],
+    // Phiếu mua ngoại tệ (QUYTAC_NGHIEPVU_408): Nợ quỹ ngoại tệ nhận / Có quỹ tiền tệ công ty chi.
+    currency_purchase: payment.counter_fund_kind ? [debit(fundRole(payment.counter_fund_kind, true), amount), credit(fund, amount)] : [],
   };
+  // Phiếu nộp thuế hải quan: Nợ các tài khoản thuế (dòng nộp), Nợ tiền chậm nộp / Có tài khoản thuế (bù trừ nộp thừa), Có quỹ; nhận hoàn: Nợ quỹ / Có thuế
+  // (CONG_VIEC_56; QUYTAC_NGHIEPVU_416, 417).
+  if (payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund") {
+    const taxLines = await executor.execute<{ line_kind: string; tax_type: PostingRole; amount: string }>(sql`
+      SELECT line_kind, tax_type, amount::text FROM finance.customs_tax_lines WHERE payment_id = ${paymentId} ORDER BY line_no`);
+    const draft: DraftLine[] = [];
+    for (const line of taxLines.rows) {
+      const value = round(Number(line.amount));
+      if (line.line_kind === "payment") draft.push(debit(line.tax_type, value));
+      else if (line.line_kind === "late_payment") draft.push(debit("late_payment_expense", value));
+      else draft.push(credit(line.tax_type, value));
+    }
+    lines.customs_tax_payment = [...draft.filter((line) => line.debit > 0), ...draft.filter((line) => line.credit > 0), credit(fund, amount)];
+    lines.customs_tax_refund = [debit(fund, amount), ...draft];
+  }
   const descriptions: Record<string, string> = {
+    customs_tax_payment: "Nộp thuế hải quan",
+    customs_tax_refund: "Nhận hoàn thuế hải quan",
     customer_receipt: "Thu tiền khách hàng",
     customer_refund: "Hoàn tiền cho khách hàng",
     supplier_payment: "Trả tiền nhà cung cấp",
@@ -433,6 +485,7 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     retail_refund: "Hoàn tiền trả hàng bán lẻ",
     cash_shortage: "Thiếu tiền mặt khi đóng ca thu ngân",
     cash_surplus: "Thừa tiền mặt khi đóng ca thu ngân",
+    currency_purchase: "Mua ngoại tệ",
   };
   return {
     companyId: payment.company_id,
@@ -578,5 +631,44 @@ export async function payrollPaymentDraft(executor: Executor, payrollId: string)
     date: row.payment_date,
     description: `Trả lương tháng ${row.month.slice(5, 7)}/${row.month.slice(0, 4)}`,
     lines: [debit("salary_payable", amount), credit(row.fund_kind === "cash" ? "cash" : "bank", amount)],
+  };
+}
+
+// Đánh giá lại ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_413): từng dòng qua 413 (quỹ tăng: Nợ quỹ / Có 413; nợ phải trả tăng: Nợ 413 / Có phải trả),
+// rồi kết chuyển số thuần của 413 sang 515 (lãi) hoặc 635 (lỗ) để 413 không còn số dư.
+export async function fxRevaluationDraft(executor: Executor, revaluationId: string): Promise<DraftJournal | null> {
+  const header = (
+    await executor.execute<{ company_id: string; document_no: string; revaluation_date: string }>(sql`
+    SELECT company_id, document_no, revaluation_date::text FROM finance.fx_revaluations WHERE id = ${revaluationId} AND status = 'posted'`)
+  ).rows[0];
+  if (!header) return null;
+  const round = await rounder(executor, header.company_id);
+  const rows = await executor.execute<{ kind: "fund" | "payable"; fund_kind: "cash" | "bank" | null; partner_id: string | null; difference: string }>(sql`
+    SELECT l.kind, f.kind AS fund_kind, l.partner_id, l.difference::text FROM finance.fx_revaluation_lines l LEFT JOIN finance.funds f ON f.id = l.fund_id
+    WHERE l.revaluation_id = ${revaluationId} AND l.difference <> 0 ORDER BY l.line_no`);
+  const lines: DraftLine[] = [];
+  let net = 0;
+  for (const row of rows.rows) {
+    const value = round(Number(row.difference));
+    if (row.kind === "fund") {
+      const fund: PostingRole = row.fund_kind === "cash" ? "cash_foreign" : "bank_foreign";
+      lines.push(...(value > 0 ? [debit(fund, value), credit("exchange_difference", value)] : [debit("exchange_difference", -value), credit(fund, -value)]));
+      net += value;
+    } else {
+      lines.push(...(value > 0 ? [debit("exchange_difference", value), credit("payable", value, row.partner_id)] : [debit("payable", -value, row.partner_id), credit("exchange_difference", -value)]));
+      net -= value;
+    }
+  }
+  net = round(net);
+  if (net > 0) lines.push(debit("exchange_difference", net), credit("financial_income", net));
+  if (net < 0) lines.push(debit("financial_expense", -net), credit("exchange_difference", -net));
+  return {
+    companyId: header.company_id,
+    sourceType: "fx_revaluation",
+    sourceId: revaluationId,
+    journalNo: header.document_no,
+    date: header.revaluation_date,
+    description: `Đánh giá lại số dư ngoại tệ ngày ${header.revaluation_date.split("-").reverse().join("/")}`,
+    lines,
   };
 }

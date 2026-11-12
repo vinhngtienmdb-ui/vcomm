@@ -7,6 +7,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { financeAudit, requireFinancePermission } from "../finance/finance-context";
+import { FxRevaluationsService } from "../finance/fx-revaluations.service";
 import { PaymentsService } from "../finance/payments.service";
 import { InternalReceiptsService } from "../inventory/internal-receipts.service";
 import { StockDocumentsService } from "../inventory/stock-documents.service";
@@ -17,6 +18,7 @@ import { assertOpenPeriod, ledgerSettings } from "./period-guard";
 import {
   inventoryDraft,
   paymentDraft,
+  fxRevaluationDraft,
   postingRoles,
   writeOffDraft,
   type DraftJournal,
@@ -60,12 +62,14 @@ export class LedgerService implements OnModuleInit {
     private readonly documents: StockDocumentsService,
     private readonly payments: PaymentsService,
     private readonly internalReceipts: InternalReceiptsService,
+    private readonly revaluations: FxRevaluationsService,
   ) {}
 
   // Ghi sổ chứng từ nghiệp vụ thì sinh bút toán trong cùng giao dịch (QUYTAC_NGHIEPVU_95).
   onModuleInit(): void {
     this.documents.postedHooks.push(async (transaction, documentId) => this.record(transaction, await inventoryDraft(transaction, documentId)));
     this.payments.postedHooks.push(async (transaction, paymentId) => this.record(transaction, await paymentDraft(transaction, paymentId)));
+    this.revaluations.postedHooks.push(async (transaction, revaluationId) => this.record(transaction, await fxRevaluationDraft(transaction, revaluationId)));
     this.internalReceipts.writtenOffHooks.push(async (transaction, discrepancyId) => this.record(transaction, await writeOffDraft(transaction, discrepancyId, this.permissionService.today())));
   }
 

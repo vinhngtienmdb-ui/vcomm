@@ -1,8 +1,11 @@
 "use client";
 
-// MAN_HINH_111 Chi tiết tờ khai (CHUC_NANG_160, 161; API_140, API_141): sửa nháp, xem trước phân bổ, ghi sổ, hủy; sau ghi sổ hiện phần vào tồn, vào giá vốn hàng bán.
+// MAN_HINH_111 Chi tiết tờ khai (CHUC_NANG_160, 161; API_140, API_141): sửa nháp, xem trước phân bổ, ghi sổ, hủy; sau ghi sổ hiện phần vào tồn, vào giá vốn hàng bán,
+// thuế hải quan và tờ khai bổ sung (CONG_VIEC_56).
 import type { ImportAllocationPreview, ImportDeclarationResponse, ImportOrderOption } from "contracts";
 import { useTranslations } from "next-intl";
+import { AmendmentsBlock } from "@/components/AmendmentsBlock";
+import { CustomsTaxBlock } from "@/components/CustomsTaxBlock";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -128,6 +131,12 @@ function Declaration({ declaration, reload }: { declaration: ImportDeclarationRe
           <dd>{formatDate(declaration.postingDate)}</dd>
           <dt>{t("customsRateLabel")}</dt>
           <dd>{t("customsRateValue", { currency: declaration.currency, rate: formatNumber(declaration.customsRate) })}</dd>
+          {declaration.customsOffice && (
+            <>
+              <dt>{t("customsOffice")}</dt>
+              <dd>{declaration.customsOffice}</dd>
+            </>
+          )}
           {declaration.note && (
             <>
               <dt>{t("note")}</dt>
@@ -136,6 +145,8 @@ function Declaration({ declaration, reload }: { declaration: ImportDeclarationRe
           )}
         </dl>
       </section>
+      {declaration.status === "posted" && <CustomsTaxBlock declarationId={declaration.id} />}
+      {declaration.status === "posted" && <AmendmentsBlock declarationId={declaration.id} currency={declaration.companyCurrency} />}
       <div className="khung-bang">
         <table>
           <thead>
