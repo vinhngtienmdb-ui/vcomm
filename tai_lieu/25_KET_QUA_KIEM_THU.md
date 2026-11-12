@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_56
+
+- Phạm vi: lát L0 đến L3, nhánh `chuc-nang/CONG_VIEC_56-ngoai-te-thue-hai-quan` (pull request #119, mã nguồn `1e9c4b7`, tài liệu `2522322`; đã hợp nhất main 0.7.0).
+- Kết quả: toàn bộ kiểm thử API 123 tệp, 648/648 đạt; CI pull request đạt. c56-foreign-currency 6 ca (KICHBAN_KIEMTHU_547 đến 552; TIEUCHI_NGHIEMTHU_380 đến 384), c56-customs-tax 4 ca (KICHBAN_KIEMTHU_553, 554, 556; ánh xạ tài khoản Thông tư 133, Thông tư 99; TIEUCHI_NGHIEMTHU_385, 386, 388, 389), c56-import-amendments 5 ca (KICHBAN_KIEMTHU_555, 556, 557; TIEUCHI_NGHIEMTHU_387, 388, 389). KICHBAN_KIEMTHU_558 (menu theo vai trò) kiểm bằng giao diện khi chụp màn hình, chưa có kiểm thử tự động. Giao diện MAN_HINH_182 đến 187 và các màn hình sửa chụp trên máy tính, điện thoại.
+- Lỗi mới: không có.
+- Rủi ro còn mở: xem nhật ký 02 ngày 2026-11-12 (chưa đối chiếu nguyên văn luật theo quyết định người dùng).
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.7.0
 
 - Phạm vi: nhánh `phat-hanh/v0.7.0` gộp CONG_VIEC_55 (`459f69d`), CONG_VIEC_61 lát L1, L2 (`fda4864`); THAY_DOI_27, 29 (pull request #137, commit hợp nhất `bab8d3b`).
