@@ -261,7 +261,7 @@ export class LoyaltySettlementsService {
       JOIN loyalty.entries e ON e.id = j.source_id JOIN core.users u ON u.id = e.user_id
       WHERE j.company_id = ${row.operator_company_id} AND l.partner_id = ${companyPartner} AND j.source_type IN ${sources} AND j.status = 'posted'
         AND j.journal_date BETWEEN ${row.period}::date AND ${lastDayOf(row.period)}::date
-      GROUP BY j.id, j.journal_date, e.kind, j.journal_no, u.full_name, e.points ORDER BY j.journal_date, j.journal_no LIMIT 500`);
+      GROUP BY j.id, j.journal_date, e.kind, j.journal_no, u.full_name, e.points, e.created_at, e.id ORDER BY j.journal_date, e.created_at, e.id LIMIT 500`);
     const events = await this.database.execute<{ kind: string; company_name: string | null; actor_name: string | null; note: string | null; created_at: Date | string }>(sql`
       SELECT ev.kind, c.short_name AS company_name, u.full_name AS actor_name, ev.note, ev.created_at FROM loyalty.settlement_events ev
       LEFT JOIN core.companies c ON c.id = ev.company_id LEFT JOIN core.users u ON u.id = ev.actor_id WHERE ev.settlement_id = ${id} ORDER BY ev.created_at, ev.id`);
