@@ -1124,7 +1124,7 @@ Ranh giới và kiểm soát riêng:
 - Kiểm tra chữ ký: chứng thư cấp trên phải là chứng thư của tổ chức chứng thực (basicConstraints cA, keyUsage keyCertSign, giới hạn độ dài chuỗi), chứng thư người dùng cuối không cấp được chứng thư khác; thuật toán băm SHA-1, 256, 384, 512 với khóa RSA, thuật toán hoặc khóa khác báo "chưa kiểm được"; tối đa 50 chữ ký mỗi tệp, API_245 tối đa 20 lần mỗi phút mỗi người dùng (sửa theo rà soát độc lập 2026-11-12).
 - Tài khoản ký số cá nhân không nhận chứng thư của tổ chức (chủ thể có mã số thuế); người ký ở công ty khác trong tập đoàn chỉ xem, ký phiên mà mình là người ký.
 - Thư mời đối tác gửi sau khi giao dịch ghi xong; gửi lại thư tối đa 5 lần trong 24 giờ mỗi đối tác; Nhắc không đổi mã đường dẫn.
-- Rủi ro người dùng chấp nhận (2026-11-12): (1) trình gửi thư hiện tại chỉ ghi nhật ký nên mã đường dẫn ký của đối tác nằm trong nhật ký máy chủ – điều kiện: thay trình gửi thư thật, không ghi nội dung thư vào nhật ký, trước khi triển khai chính thức; (2) bộ giả lập giữ lần ký trong bộ nhớ, chỉ đúng khi chạy một tiến trình API – chỉ ảnh hưởng môi trường thử, bộ giả lập bị chặn ở môi trường thật.
+- Rủi ro người dùng chấp nhận (2026-11-12): (1) trình gửi thư hiện tại chỉ ghi nhật ký nên mã đường dẫn ký của đối tác nằm trong nhật ký máy chủ – điều kiện: thay trình gửi thư thật, không ghi nội dung thư vào nhật ký, trước khi triển khai chính thức; (2) bộ giả lập giữ lần ký trong bộ nhớ của tiến trình nhận yêu cầu; tiến trình khác báo "đang chờ", tiến trình khởi động lại thì lần ký hết giờ sau 5 phút, người ký ký lại – chỉ ảnh hưởng môi trường thử, bộ giả lập bị chặn ở môi trường thật.
 
 ## 5. Quản lý khóa bí mật
 

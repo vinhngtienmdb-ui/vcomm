@@ -122,7 +122,9 @@ export class SimulatorSigningProvider implements SigningProvider {
   async getSignatureResult(config: SigningProviderConfig, transactionId: string): Promise<SignatureResult> {
     this.ensureAllowed(config);
     const transaction = this.transactions.get(transactionId);
-    if (!transaction) return { status: "failed", message: "Không tìm thấy giao dịch ký." };
+    // Giao dịch giữ trong bộ nhớ của tiến trình đã nhận yêu cầu: tiến trình khác (nhiều tiến trình API, các tệp kiểm thử chạy song song) chưa biết thì báo
+    // đang chờ để tiến trình giữ giao dịch trả kết quả; không tiến trình nào biết (khởi động lại) thì lần ký hết giờ sau 5 phút, người ký ký lại.
+    if (!transaction) return { status: "pending" };
     if (transaction.identityCode.endsWith("999") || Date.now() < transaction.readyAt) return { status: "pending" };
     this.transactions.delete(transactionId);
     if (transaction.identityCode.endsWith("000")) return { status: "rejected", message: "Người ký từ chối trên ứng dụng." };
