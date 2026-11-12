@@ -85,6 +85,7 @@
 
 ### Vấn đề tồn đọng
 
+- LOI_10, LOI_11 (mức Cao, có trong bản 0.8.0 chưa triển khai): xuất PDF công văn đi và phát hành công văn đi với lưu trữ cục bộ bị lỗi; đã sửa trên nhánh CONG_VIEC_59, sẽ vào bản phát hành có CONG_VIEC_59. Không triển khai 0.8.0 khi chưa có bản sửa.
 - Tài liệu 16 còn mô tả cột cũ `retail.sales.buyer_user_id` là dành cho CONG_VIEC_53 lát L6, trong khi L6 dùng `loyalty_user_id`; sửa ở lần cập nhật tài liệu sau.
 - CONG_VIEC_57 (không chặn): việc nền xử lý tối đa 500 đơn mỗi lần; phương thức Thanh toán khi nhận tại trạm cài sẵn ở trạng thái tắt; trạm nhận thông báo cả đơn trả trước còn chờ thanh toán. Khi gộp phát hành: 0110 định nghĩa lại ràng buộc thu hộ của đơn VComm, 0111 định nghĩa lại ràng buộc trạng thái (thêm `ready_for_pickup`).
 - CONG_VIEC_53 L6: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có (chưa có mẫu riêng); bản web của ứng dụng giữ khóa trong phiên trình duyệt.
