@@ -7889,6 +7889,7 @@ export * from "./recruitment";
 export * from "./reviews";
 export * from "./affiliate";
 export * from "./open-api";
+export * from "./loyalty-partners";
 
 // ---------------------------------------------------------------------------
 // CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.

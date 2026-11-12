@@ -3,7 +3,7 @@
 - Mô tả: Đối tác ngoài tập đoàn có chương trình điểm riêng (hãng bay, ngân hàng) ký hợp đồng liên minh điểm với công ty vận hành sàn. Khách liên kết số thành viên đối tác trong ứng dụng VComm, đổi điểm VComm ra điểm đối tác và đổi điểm đối tác vào điểm VComm; VComm gọi API đối tác qua lớp kết nối chung (bộ giả lập trong công việc này). Đối tác mua điểm VComm tặng khách qua Open API, trả trước hoặc trả sau theo hợp đồng. Hạch toán từng giao dịch; đối soát tháng đối chiếu tự động với số liệu đối tác, nhân viên xác nhận, bù trừ, công nợ.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 chờ xem trước.
 - Nhánh: `chuc-nang/CONG_VIEC_65-doi-tac-lien-minh-diem`.
 - Nguồn: tài liệu `01` (MODULE_11: đối soát liên minh; rủi ro ví điện tử), `05` mục 2.3; CONG_VIEC_51 (sổ cái điểm, QUYTAC_NGHIEPVU_344 đến 355); CONG_VIEC_55 (đối soát cửa hàng liên kết, công nợ, hạch toán theo giao dịch); CONG_VIEC_61 (khóa API, nhật ký gọi, tần suất); CONG_VIEC_53 (Smart OTP); CONG_VIEC_60 (tách công việc này, quyết định 4); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (tích hợp bên ngoài, nghiệp vụ tài chính mới, sửa ràng buộc dùng chung `loyalty`, `accounting`, `finance`, `core.api_keys`; nhiều module: MODULE_11, MODULE_06, MODULE_16).
@@ -131,8 +131,9 @@ Sửa màn hình đã có: MAN_HINH_151 (Điểm của tôi) thêm lối vào MA
 
 | Database migration | Bảng, cột | Nội dung |
 |---|---|---|
-| 0150 (L1) | `loyalty.partner_contracts` | `id`, `company_id`, `code` (`LM…`), `partner_id` (duy nhất), `program_name`, `unit_name_vi`, `unit_name_en`, `contract_no`, `effective_from`, `effective_to`, `outbound_enabled`, `inbound_enabled`, `gift_enabled` (ít nhất một), `payment_mode` (`prepaid`, `postpaid`), `credit_limit` (bắt buộc khi `postpaid`), `payment_term_days`, `tax_percent`, `connector` (`simulator`), `member_pattern`, giới hạn (`outbound_*`, `inbound_*`, `gift_*`: `min_points`, `max_points`, `customer_daily_points`, `customer_monthly_points`, `partner_monthly_points`; tặng: `gift_max_points`, `gift_customer_monthly_points`, `gift_partner_monthly_points`), `status`, `suspend_reason`, người, thời điểm, `version` |
-| 0150 (L1) | `loyalty.partner_rates` | `id`, `contract_id`, `direction` (`outbound`, `inbound`, `gift`), `starts_on`, `ends_on`, `vcomm_points`, `partner_units` (đổi), `unit_price`; ràng buộc loại trừ chồng lấn theo (`contract_id`, `direction`) |
+| 0150 (L1) | `loyalty.partner_contracts` | `id`, `company_id`, `code` (`LM…`), `partner_id` (duy nhất), `program_name`, `unit_name_vi`, `unit_name_en`, `contract_no`, `effective_from`, `effective_to`, `outbound_enabled`, `inbound_enabled`, `gift_enabled` (ít nhất một), `payment_mode` (`prepaid`, `postpaid`), `credit_limit` (bắt buộc khi `postpaid`), `payment_term_days`, `tax_percent`, `connector` (`simulator`), `member_pattern`, `status`, `status_reason`, người, thời điểm, `version` |
+| 0150 (L1) | `loyalty.partner_limits` | Giới hạn theo (`contract_id`, `direction`): `min_points`, `max_points` (tặng: mỗi lần), `customer_daily_points`, `customer_monthly_points`, `partner_monthly_points`; tặng không dùng tối thiểu, mỗi ngày |
+| 0150 (L1) | `loyalty.partner_rates` | `id`, `contract_id`, `direction` (`outbound`, `inbound`, `gift`), `starts_on`, `ends_on`, `vcomm_points`, `partner_units` (đổi), `unit_price`, `version`; không chồng lấn theo (`contract_id`, `direction`) kiểm trong giao dịch có khóa dòng hợp đồng |
 | 0150 (L1) | `loyalty.partner_memberships` | `id`, `contract_id`, `user_id`, `member_number`, `member_name_masked`, `status` (`linked`, `unlinked`), `linked_at`, `unlinked_at`; duy nhất (`contract_id`, `member_number`) và (`contract_id`, `user_id`) khi `linked`; `loyalty.partner_link_requests` (yêu cầu liên kết chờ OTP, hết hạn 5 phút) |
 | 0150 (L1) | `loyalty.partner_simulator_members`, `loyalty.partner_simulator_transactions`, `loyalty.partner_simulator_settings` | Dữ liệu bộ giả lập (chỉ dùng khi bật biến môi trường) |
 | 0150 (L1) | `core.permissions` | `loyalty.partner.view`, `loyalty.partner.manage` |
@@ -258,7 +259,7 @@ Kiểm thử tự động: `apps/api/test/c65-*.test.ts`.
 | Lỗi kết nối khi đổi ra | Chờ, hỏi lại mỗi 5 phút, quá 24 giờ chuyển nhân viên xử lý |
 | Tra cứu pháp lý | Không cần (người dùng quyết định) |
 
-## 18. Đề xuất của AI chờ người dùng duyệt cùng đặc tả
+## 18. Đề xuất của AI (người dùng duyệt ngày 2026-11-12)
 
 1. Đối tượng mới đặt trong schema `loyalty` (MODULE_11), màn hình quản trị trong mini app Khách hàng và Đối tác, nhóm menu "Điểm thưởng"; hai quyền mới `loyalty.partner.view`, `loyalty.partner.manage`.
 2. Trả trước, hạn mức áp cho đổi vào và tặng điểm (phát sinh phải thu); đổi ra không chặn theo số dư, hạn mức (phát sinh phải trả, làm giảm dư nợ).

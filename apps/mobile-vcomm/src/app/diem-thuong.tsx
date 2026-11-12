@@ -1,4 +1,4 @@
-// MAN_HINH_151 Điểm của tôi (CONG_VIEC_51; Smart OTP dùng điểm tại quầy: CONG_VIEC_53 lát L6; CHUC_NANG_179; API_177; QUYTAC_NGHIEPVU_344, 350, 352): số dư, giá trị quy đổi, điểm sắp hết hạn, lịch sử.
+// MAN_HINH_151 Điểm của tôi (CONG_VIEC_51; lối vào đối tác liên minh: CONG_VIEC_65; Smart OTP dùng điểm tại quầy: CONG_VIEC_53 lát L6; CHUC_NANG_179; API_177; QUYTAC_NGHIEPVU_344, 350, 352): số dư, giá trị quy đổi, điểm sắp hết hạn, lịch sử.
 import type { BuyerLoyaltyResponse, LoyaltyEntryItem, PageResponse } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -10,6 +10,7 @@ import { money, shortDate, translator } from "@/lib/i18n";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
+const partnerText = translator("loyaltyPartnerApp");
 const points = (value: number) => value.toLocaleString("vi-VN");
 const date = (value: string) => value.split("-").reverse().join("/");
 
@@ -79,6 +80,13 @@ export default function LoyaltyScreen() {
               <Notice tone="warning" text={t("loyaltyExpiring", { points: points(summary.expiringPoints), date: date(summary.expiringOn) })} />
             ) : null}
             <SmartOtpCard />
+            {/* CONG_VIEC_65: lối vào đối tác liên minh (MAN_HINH_264). */}
+            <Card>
+              <Text accessibilityRole="link" onPress={() => router.push("/doi-tac-lien-minh")} style={{ color: colors.primary, fontWeight: "700" }}>
+                {partnerText("entry")}
+              </Text>
+              <Muted>{partnerText("entryHint")}</Muted>
+            </Card>
             <Card>
               <Text style={{ fontWeight: "700", color: colors.text }}>{t("loyaltyHistory")}</Text>
               {entries.data.length === 0 ? <Muted>{t("loyaltyEmpty")}</Muted> : null}

@@ -105,6 +105,21 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
     isSensitive: true,
   },
+  // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (xét tại công ty vận hành sàn; QUYTAC_NGHIEPVU_551).
+  {
+    code: "loyalty.partner.view",
+    appCode: "crm",
+    nameVi: "Xem đối tác liên minh điểm, giao dịch đổi, tặng, đối soát",
+    nameEn: "View loyalty alliance partners, exchanges, gifts, settlements",
+    isSensitive: false,
+  },
+  {
+    code: "loyalty.partner.manage",
+    appCode: "crm",
+    nameVi: "Quản lý hợp đồng đối tác liên minh điểm, xử lý giao dịch, xác nhận đối soát",
+    nameEn: "Manage loyalty alliance partners, resolve exchanges, confirm settlements",
+    isSensitive: true,
+  },
   // CONG_VIEC_49: kiểm duyệt bảng tin cộng đồng, đăng bài VComm (QUYTAC_NGHIEPVU_335).
   { code: "marketplace.community.manage", appCode: "crm", nameVi: "Kiểm duyệt bảng tin cộng đồng, đăng bài VComm", nameEn: "Moderate the community feed, post as VComm", isSensitive: true },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
@@ -252,6 +267,8 @@ const companyAdminPermissions = [
   "loyalty.manage",
   "affiliate.view",
   "affiliate.manage",
+  "loyalty.partner.view",
+  "loyalty.partner.manage",
   "marketplace.community.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",
