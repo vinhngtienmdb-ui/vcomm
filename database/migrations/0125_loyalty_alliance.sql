@@ -63,5 +63,20 @@ ALTER TABLE finance.payments ADD COLUMN loyalty_settlement_id uuid REFERENCES lo
 ALTER TABLE finance.payments ADD CONSTRAINT payments_loyalty_settlement_check
     CHECK ((kind IN ('loyalty_intercompany_receipt', 'loyalty_intercompany_payment')) = (loyalty_settlement_id IS NOT NULL));
 CREATE INDEX payments_loyalty_settlement_idx ON finance.payments (loyalty_settlement_id) WHERE loyalty_settlement_id IS NOT NULL;
+-- Biến động quỹ (định nghĩa lại theo 0108, giữ nguyên phần còn lại): phiếu thu nợ nội bộ điểm là phiếu thu.
+CREATE OR REPLACE VIEW finance.fund_movements AS
+SELECT p.fund_id, p.id AS payment_id, p.company_id, p.kind, p.status, p.payment_date, p.posted_at, false AS is_counter,
+    CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus', 'customs_tax_refund', 'loyalty_intercompany_receipt') THEN p.amount ELSE -p.amount END AS amount,
+    CASE WHEN f.currency IS NULL THEN NULL
+        WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus', 'customs_tax_refund', 'loyalty_intercompany_receipt') THEN p.foreign_amount ELSE -p.foreign_amount END AS foreign_amount
+FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id
+UNION ALL
+SELECT p.counter_fund_id, p.id, p.company_id, p.kind, p.status, p.payment_date, p.posted_at, true, p.amount, p.foreign_amount
+FROM finance.payments p
+WHERE p.counter_fund_id IS NOT NULL
+UNION ALL
+SELECT l.fund_id, r.id, r.company_id, 'fx_revaluation', r.status, r.revaluation_date, r.posted_at, false, l.difference, 0
+FROM finance.fx_revaluation_lines l JOIN finance.fx_revaluations r ON r.id = l.revaluation_id
+WHERE l.kind = 'fund' AND r.status = 'posted';
 -- Số đã thanh toán theo sổ từng bên (bên trả: phiếu chi đã ghi sổ; bên nhận: phiếu thu đã ghi sổ).
 ALTER TABLE loyalty.settlements ADD COLUMN paid_amount numeric(18,4) NOT NULL DEFAULT 0, ADD COLUMN received_amount numeric(18,4) NOT NULL DEFAULT 0;
