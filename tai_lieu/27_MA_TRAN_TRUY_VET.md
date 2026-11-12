@@ -672,5 +672,5 @@
 - Chức năng chưa có tiêu chí nghiệm thu: Không có.
 - Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_196 đến MAN_HINH_201; sửa MAN_HINH_78, 84, 91).
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có.
-- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_580, 582 thủ công; 581 kiểm bằng Playwright trên bản xem trước với API giả lập, chưa lưu thành kiểm thử tự động của kho mã; 583 (Mong muốn) chưa chạy.
-- Kịch bản chưa chạy hoặc kết quả Không đạt: KICHBAN_KIEMTHU_583 chưa chạy.
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_580, 582 thủ công; 581 kiểm bằng Playwright trên bản xem trước với API giả lập, chưa lưu thành kiểm thử tự động của kho mã; 583 tự động (`c22-hieu-nang.test.ts`).
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Không có.

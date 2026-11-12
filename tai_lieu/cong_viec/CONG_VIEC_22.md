@@ -117,13 +117,13 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 
 ## 12. Kịch bản kiểm thử
 
-- KICHBAN_KIEMTHU_573 đến 579, 583: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts`.
+- KICHBAN_KIEMTHU_573 đến 579: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts`; KICHBAN_KIEMTHU_583: tự động, `apps/api/test/c22-hieu-nang.test.ts` (sinh 1.000 khách, 20.000 đơn bằng SQL).
 - KICHBAN_KIEMTHU_581: chia sẻ không đổi API (dùng lại đăng ký có mã giới thiệu, lượt bấm cộng tác viên đã có kiểm thử ở c23, c49); kiểm điều hướng bằng kịch bản Playwright trên bản xem trước web với API giả lập: đã đăng nhập mở thẳng sản phẩm; chưa đăng nhập vào đăng ký có mã, đăng nhập xong mở sản phẩm; sản phẩm ngừng bán báo đúng.
 - TIEUCHI_NGHIEMTHU_408: kiểm bằng KICHBAN_KIEMTHU_290, 291 đã sửa (`apps/api/test/c22-sales-app.test.ts`); KICHBAN_KIEMTHU_580 kiểm thủ công web-crm không còn menu, trang, thẻ ghé thăm.
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
 
-Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt; người dùng đồng ý 2026-11-12). L4 xong (migration 0114, API_231, MAN_HINH_199; KICHBAN_KIEMTHU_578, 579 đạt). KICHBAN_KIEMTHU_583 (hiệu năng, Mong muốn) chưa chạy.
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt; người dùng đồng ý 2026-11-12). L4 xong (migration 0114, API_231, MAN_HINH_199; KICHBAN_KIEMTHU_578, 579 đạt). KICHBAN_KIEMTHU_583 (hiệu năng) đạt.
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật
@@ -151,7 +151,7 @@ Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (com
 - [x] Đã xử lý lỗi: lỗi ô (`followUpOn`, `month`), `403`, `404`, `409` có thông báo trong tệp dịch.
 - [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trước bản sửa rà soát), chạy lại sau bản sửa; kết quả ghi tài liệu `25` qua phiên cha.
 - [x] Không phá vỡ chức năng cũ: hồi quy c22-sales-app (290, 291 sửa theo THAY_DOI_26), c23, c24, c26, c27, c49, c50 đạt.
-- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) chưa đo hiệu năng.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) đạt: 1.000 khách, 20.000 đơn, danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (KICHBAN_KIEMTHU_583, `apps/api/test/c22-hieu-nang.test.ts`).
 - [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); không thêm thư viện; quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
 - [x] Đã tự rà soát mã và dọn dẹp: tệp tạm, ảnh xem trước chỉ nằm trong thư mục nháp ngoài kho mã.
 - [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: `06`, `07`, `09` (THAY_DOI_28), `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
@@ -161,6 +161,5 @@ Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (com
 - Nhắc hẹn chỉ hiện khi mở ứng dụng; thông báo đẩy làm sau khi đóng gói ứng dụng.
 - Nút Sao chép đường dẫn chỉ có trên bản web; máy thật dùng bảng chia sẻ của máy (thêm `expo-clipboard` cần người dùng duyệt).
 - Người phụ trách của đơn cũ không có hoa hồng phần nhân viên là ước lượng theo người giới thiệu hiện là nhân viên kinh doanh (database migration 0114).
-- TIEUCHI_NGHIEMTHU_411 (hiệu năng, Mong muốn) chưa đo.
 - Sản phẩm chờ mở sau đăng ký chỉ giữ trong lần mở ứng dụng (như lượt bấm cộng tác viên); đóng ứng dụng giữa chừng thì về trang chủ.
 - Tài liệu `09`, `10`, `14` (MAN_HINH_91) đã sửa theo THAY_DOI_28.

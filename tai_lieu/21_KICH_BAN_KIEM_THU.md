@@ -4966,5 +4966,5 @@ Tệp kiểm thử tự động: `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (K
 - Loại: Hiệu năng
 - Các bước: 1.000 khách, 20.000 đơn: danh sách khách, chi tiết khách, doanh số nhánh.
 - Kết quả mong đợi: Dưới 1 giây mỗi yêu cầu.
-- Kiểm thử tự động: Chưa chạy (Mong muốn)
+- Kiểm thử tự động: Tự động API, `apps/api/test/c22-hieu-nang.test.ts` (dữ liệu sinh bằng SQL từ một đơn thật; thời gian lâu nhất của 3 lần gọi sau một lần làm nóng). Kết quả 2026-11-12: 7 ms, 6 ms, 19 ms
 - Lát: L4
