@@ -25,6 +25,7 @@ import { ApiKeysController } from "./open-api/api-keys.controller";
 import { ApiKeysService } from "./open-api/api-keys.service";
 import { OpenApiController } from "./open-api/open-api.controller";
 import { OpenCatalogService } from "./open-api/open-catalog.service";
+import { OpenSalesOrdersService } from "./open-api/open-sales-orders.service";
 import { HomeController } from "./home/home.controller";
 import { MeController } from "./me/me.controller";
 import { BranchesService } from "./organization/branches.service";
@@ -335,6 +336,7 @@ import { UsersService } from "./users/users.service";
     ApiCallLogsService,
     ApiKeyGuard,
     OpenCatalogService,
+    OpenSalesOrdersService,
     { provide: CLOCK, useValue: systemClock },
     { provide: RATE_LIMIT, useValue: defaultRateLimit },
     RateLimiter,

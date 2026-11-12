@@ -2692,6 +2692,8 @@ export const salesOrderListQuerySchema = z
   .object({
     status: z.enum(salesOrderStatuses).optional(),
     customerId: z.uuid().optional(),
+    // CONG_VIEC_61: lọc theo nguồn (nhập trên web, Open API).
+    source: z.enum(["web", "open_api"]).optional(),
     search: z.string().trim().max(100).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
@@ -2712,6 +2714,8 @@ export interface SalesOrderListItem {
   totalAmount: string;
   status: SalesOrderStatus;
   createdByName: string;
+  // CONG_VIEC_61: đơn tạo qua Open API.
+  openApi: { keyName: string; partnerOrderCode: string } | null;
 }
 export interface SalesOrderLineResponse {
   id: string;

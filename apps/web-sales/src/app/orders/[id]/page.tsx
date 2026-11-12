@@ -116,6 +116,11 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
           </button>
         )}
       </div>
+      {order.openApi && (
+        <div className="khoi-canh-bao thong-tin" role="status">
+          {t("openApiInfo", { key: order.openApi.keyName, code: order.openApi.partnerOrderCode })}
+        </div>
+      )}
       <CounterpartPanel order={order} reload={reload} />
       {order.giftShortages.length > 0 && (
         <div className="khoi-canh-bao canh-bao">{order.giftShortages.map((item) => t("giftShortage", { name: item.promotionName, sets: item.missingSets })).join(" ")}</div>

@@ -569,7 +569,11 @@
     "apiKeyWarehouseRequired": "Select at least one warehouse for the Products or Sales orders scope.",
     "apiKeyExpiryInvalid": "The expiry date must be tomorrow or later.",
     "apiKeyIpInvalid": "Invalid IP address or CIDR range.",
-    "apiKeyRevoked": "The key has been revoked and cannot be changed."
+    "apiKeyRevoked": "The key has been revoked and cannot be changed.",
+    "openApiOrderNotCancellable": "The order has been processed by staff (no longer a draft) and cannot be cancelled through the API.",
+    "openApiWarehouseNotAllowed": "The warehouse is not in the API key's warehouse list.",
+    "openApiSkuNotFound": "No active item with this SKU.",
+    "openApiUnitNotFound": "This unit cannot be used for the item."
   },
   "login": {
     "title": "Sign in",
@@ -2353,7 +2357,7 @@
     "add": "Create sales order",
     "edit": "Edit sales order",
     "none": "No sales orders yet.",
-    "searchHint": "Order number, customer, buyer",
+    "searchHint": "Order no., customer, buyer, partner order code",
     "documentNo": "Number",
     "draftNo": "(draft)",
     "customer": "Customer",
@@ -2440,7 +2444,11 @@
     "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock.",
     "allowManualGoodsOrders": "Allow manual sales orders with goods",
     "allowManualGoodsOrdersHint": "Off by default: manual sales orders contain services only; goods are sold through the VComm marketplace.",
-    "commissionUser": "Commission to"
+    "commissionUser": "Commission to",
+    "source": "Source",
+    "source_web": "Entered on web",
+    "source_open_api": "Open API",
+    "openApiInfo": "Order created through the Open API with key {key}. Partner order code: {code}. Review and submit it like any order; the partner can cancel it while it is a draft."
   },
   "salesMenu": {
     "title": "Sales",

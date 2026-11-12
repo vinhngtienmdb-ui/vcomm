@@ -22,6 +22,7 @@ export default function SalesOrdersPage() {
   const options = useApi<SalesOptionsResponse>("/sales/options");
   const [status, setStatus] = useState("");
   const [customerId, setCustomerId] = useState("");
+  const [source, setSource] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -38,6 +39,7 @@ export default function SalesOrdersPage() {
   const parameters = new URLSearchParams({ page: String(page), pageSize: "20" });
   if (status) parameters.set("status", status);
   if (customerId) parameters.set("customerId", customerId);
+  if (source) parameters.set("source", source);
   if (search) parameters.set("search", search);
   const { state, reload } = useApi<PageResponse<SalesOrderListItem>>(`/sales/orders?${parameters}`);
   const customers = options.state.kind === "ready" ? options.state.data.customers : [];
@@ -78,6 +80,17 @@ export default function SalesOrdersPage() {
             </option>
           ))}
         </select>
+        <label className="an-nhan" htmlFor="loc-nguon">
+          {t("source")}
+        </label>
+        <select id="loc-nguon" className="o-nhap" style={{ width: "auto" }} value={source} onChange={(event) => filter(setSource)(event.target.value)}>
+          <option value="">{`${t("source")}: ${common("all")}`}</option>
+          {(["web", "open_api"] as const).map((item) => (
+            <option key={item} value={item}>
+              {t(`source_${item}`)}
+            </option>
+          ))}
+        </select>
         <label className="an-nhan" htmlFor="loc-trang-thai">
           {t("status")}
         </label>
@@ -93,7 +106,7 @@ export default function SalesOrdersPage() {
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
-            <MessageView text={status || customerId || search ? common("noResult") : t("none")} />
+            <MessageView text={status || customerId || search || source ? common("noResult") : t("none")} />
           ) : (
             <div className="khung-bang">
               <table>
@@ -114,6 +127,12 @@ export default function SalesOrdersPage() {
                       </td>
                       <td data-nhan={headings[1]}>
                         <span>{order.customerName ?? order.buyerName ?? t("walkIn")}</span>
+                        {order.openApi && (
+                          <span>
+                            {" "}
+                            <span className="nhan thong-tin">{t("source_open_api")}</span> <span className="chu-thich">{order.openApi.partnerOrderCode}</span>
+                          </span>
+                        )}
                       </td>
                       <td data-nhan={headings[2]}>
                         <span>{order.channelName}</span>

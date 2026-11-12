@@ -569,7 +569,11 @@
     "apiKeyWarehouseRequired": "Chọn ít nhất một kho cho phạm vi Sản phẩm hoặc Đơn bán.",
     "apiKeyExpiryInvalid": "Hạn dùng phải từ ngày mai trở đi.",
     "apiKeyIpInvalid": "Địa chỉ IP hoặc dải CIDR không hợp lệ.",
-    "apiKeyRevoked": "Khóa đã bị thu hồi, không sửa được."
+    "apiKeyRevoked": "Khóa đã bị thu hồi, không sửa được.",
+    "openApiOrderNotCancellable": "Đơn đã được nhân viên xử lý (không còn Nháp), không hủy qua API được.",
+    "openApiWarehouseNotAllowed": "Kho không có trong danh sách kho của khóa API.",
+    "openApiSkuNotFound": "Không có mã hàng đang bán này.",
+    "openApiUnitNotFound": "Đơn vị không dùng được cho mặt hàng này."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2353,7 +2357,7 @@
     "add": "Lập đơn bán",
     "edit": "Sửa đơn bán",
     "none": "Chưa có đơn bán.",
-    "searchHint": "Số đơn, khách, người mua",
+    "searchHint": "Số đơn, khách, người mua, mã đơn đối tác",
     "documentNo": "Số",
     "draftNo": "(nháp)",
     "customer": "Khách hàng",
@@ -2440,7 +2444,11 @@
     "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng.",
     "allowManualGoodsOrders": "Cho phép lập đơn bán tay có hàng hóa",
     "allowManualGoodsOrdersHint": "Mặc định tắt: đơn bán lập tay chỉ gồm dịch vụ, hàng hóa bán qua sàn VComm.",
-    "commissionUser": "Hưởng hoa hồng"
+    "commissionUser": "Hưởng hoa hồng",
+    "source": "Nguồn",
+    "source_web": "Nhập trên web",
+    "source_open_api": "Open API",
+    "openApiInfo": "Đơn tạo qua Open API bằng khóa {key}. Mã đơn của đối tác: {code}. Kiểm tra rồi gửi duyệt như đơn thường; đối tác hủy được đơn khi đơn còn Nháp."
   },
   "salesMenu": {
     "title": "Bán hàng",

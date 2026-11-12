@@ -412,3 +412,149 @@ describe("TIEUCHI_NGHIEMTHU_452: nhật ký thao tác không chứa khóa", () =
     expect(history.map((entry: { action: string }) => entry.action)).toEqual(["api_key.revoke", "api_key.rotate", "api_key.update", "api_key.create"]);
   });
 });
+
+// ---------- Lát L2: đơn bán qua Open API (TIEUCHI_NGHIEMTHU_453 đến 456; KICHBAN_KIEMTHU_634 đến 637) ----------
+
+const send = (method: "post" | "get", path: string, key: string, body?: unknown) => {
+  const sent = request(application.getHttpServer())[method](`/api/v1/open${path}`).set("accept-language", "vi").set("x-forwarded-for", "203.113.10.24").set("authorization", `Bearer ${key}`);
+  return body === undefined ? sent : sent.send(body as object);
+};
+const orderBody = (code: string, extra: Record<string, unknown> = {}) => ({
+  partnerOrderCode: code,
+  warehouseCode: "OAPI1",
+  deliveryAddress: "Số 12 Trần Phú, Hà Đông, Hà Nội",
+  note: "Giao trước 17 giờ",
+  lines: [{ sku: skuOf(), unitCode: "CAI", quantity: "10" }],
+  ...extra,
+});
+let sku = "";
+const skuOf = () => sku;
+
+describe("TIEUCHI_NGHIEMTHU_453: đối tác tạo đơn bán Nháp", () => {
+  it("KICHBAN_KIEMTHU_634: đơn Nháp, khách là đối tác, giá như đơn nhập trên web; cài đặt hàng hóa tắt thì từ chối", async () => {
+    sku = (await pool.query<{ sku: string }>("SELECT sku FROM catalog.variants WHERE id = $1", [variantId])).rows[0]!.sku;
+    const key = await issue({ name: "Đơn bán Minh Long", scopes: ["catalog.read", "sales_order.write"] });
+    // QUYTAC_NGHIEPVU_276: công ty chưa bật cài đặt hàng hóa thì đơn qua API chỉ được dịch vụ.
+    const blocked = await send("post", "/sales-orders", key.secret, orderBody("ML-0001"));
+    expect(blocked.status).toBe(409);
+    expect(blocked.body.error.message).toContain("dịch vụ");
+    await pool.query("INSERT INTO sales.settings (company_id, allow_manual_goods_orders, version) VALUES ($1, true, 0) ON CONFLICT (company_id) DO UPDATE SET allow_manual_goods_orders = true", [
+      retail,
+    ]);
+    const created = await send("post", "/sales-orders", key.secret, orderBody("ML-0001"));
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body).toMatchObject({
+      partnerOrderCode: "ML-0001",
+      status: "draft",
+      documentNo: null,
+      warehouseCode: "OAPI1",
+      totalAmount: "99000",
+      deliveryAddress: "Số 12 Trần Phú, Hà Đông, Hà Nội",
+    });
+    expect(created.body.lines).toMatchObject([{ sku, unitCode: "CAI", quantity: "10", totalAmount: "99000", isGift: false }]);
+    // Nhân viên thấy nguồn Open API, mã đơn đối tác; người lập là người cấp khóa.
+    const listed = await call(admin, "get", "/sales/orders?source=open_api&search=ML-0001");
+    expect(listed.status, JSON.stringify(listed.body)).toBe(200);
+    expect(listed.body.data).toHaveLength(1);
+    const order = listed.body.data[0];
+    expect(order).toMatchObject({ customerId: dealerId, status: "draft", createdByName: "Trần Minh Quân", openApi: { keyName: "Đơn bán Minh Long", partnerOrderCode: "ML-0001" } });
+    expect((await call(admin, "get", "/sales/orders?source=web")).body.data.map((item: { id: string }) => item.id)).not.toContain(order.id);
+    // Cùng hàng, cùng khách nhập trên web ra cùng tổng tiền.
+    const web = await call(admin, "post", "/sales/orders", {
+      customerId: dealerId,
+      channelId,
+      warehouseId,
+      orderDate: today,
+      lines: [{ variantId, unitId: unit("CAI"), quantity: "10", discountPercent: "0" }],
+    });
+    expect(web.status, JSON.stringify(web.body)).toBe(201);
+    expect(web.body.totalAmount).toBe(order.totalAmount);
+    const audit = await pool.query("SELECT actor_user_id, after_data FROM core.audit_events WHERE action = 'sales_order.create' AND entity_id = $1", [order.id]);
+    expect(audit.rows[0].actor_user_id).toBeNull();
+    expect(audit.rows[0].after_data.openApi).toMatchObject({ keyName: "Đơn bán Minh Long", partnerOrderCode: "ML-0001" });
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_454: không tạo trùng theo mã đơn đối tác", () => {
+  it("KICHBAN_KIEMTHU_635: hai yêu cầu cùng lúc một đơn; gửi lại nhận 200 đơn cũ", async () => {
+    const key = await issue({ name: "Đơn song song", scopes: ["sales_order.write"] });
+    const [first, second] = await Promise.all([send("post", "/sales-orders", key.secret, orderBody("ML-SS-1")), send("post", "/sales-orders", key.secret, orderBody("ML-SS-1"))]);
+    expect([first.status, second.status].sort()).toEqual([200, 201]);
+    const again = await send("post", "/sales-orders", key.secret, orderBody("ML-SS-1", { lines: [{ sku, unitCode: "HOP", quantity: "1" }] }));
+    expect(again.status).toBe(200);
+    expect(again.body.lines[0].unitCode).toBe("CAI");
+    // Khóa khác của cùng đối tác dùng chung phạm vi mã đơn.
+    const sibling = await issue({ name: "Đơn song song 2", scopes: ["sales_order.write"] });
+    expect((await send("post", "/sales-orders", sibling.secret, orderBody("ML-SS-1"))).status).toBe(200);
+    const count = await pool.query("SELECT count(*)::int AS total FROM sales.orders WHERE partner_order_code = 'ML-SS-1'");
+    expect(count.rows[0].total).toBe(1);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_455: dữ liệu đơn sai bị từ chối đúng dòng", () => {
+  it("KICHBAN_KIEMTHU_636: kho ngoài khóa, mã hàng, đơn vị sai, khách hàng với khóa đối tác", async () => {
+    const key = await issue({ name: "Đơn sai", scopes: ["sales_order.write"] });
+    const cases: [Record<string, unknown>, string][] = [
+      [{ warehouseCode: "OAPI2" }, "warehouseCode"],
+      [{ lines: [{ sku: "KHONG-CO", unitCode: "CAI", quantity: "1" }] }, "lines.0.sku"],
+      [
+        {
+          lines: [
+            { sku, unitCode: "CAI", quantity: "1" },
+            { sku, unitCode: "CHIEC", quantity: "1" },
+          ],
+        },
+        "lines.1.unitCode",
+      ],
+      [{ customerCode: "DT999999" }, "customerCode"],
+      [{ lines: [{ sku, unitCode: "CAI", quantity: "0" }] }, "lines.0.quantity"],
+    ];
+    for (const [extra, field] of cases) {
+      const response = await send("post", "/sales-orders", key.secret, orderBody(`ML-SAI-${field}`, extra));
+      expect(response.status, JSON.stringify(response.body)).toBe(400);
+      expect(Object.keys(response.body.error.fields)).toContain(field);
+    }
+    expect((await send("post", "/sales-orders", key.secret, { ...orderBody("mã có dấu cách") })).status).toBe(400);
+    expect((await pool.query("SELECT count(*)::int AS total FROM sales.orders WHERE partner_order_code LIKE 'ML-SAI-%'")).rows[0].total).toBe(0);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_456: hủy, tra đơn trong phạm vi đối tác", () => {
+  it("KICHBAN_KIEMTHU_637: hủy Nháp được; đã gửi duyệt nhận 409; đối tác khác, khóa nội bộ không thấy", async () => {
+    const key = await issue({ name: "Đơn hủy", scopes: ["sales_order.write"] });
+    expect((await send("post", "/sales-orders", key.secret, orderBody("ML-HUY-1"))).status).toBe(201);
+    expect((await send("post", "/sales-orders", key.secret, orderBody("ML-HUY-2"))).status).toBe(201);
+    const cancelled = await send("post", "/sales-orders/ML-HUY-1/cancel", key.secret, { reason: "Khách đổi ý" });
+    expect(cancelled.status, JSON.stringify(cancelled.body)).toBe(200);
+    expect(cancelled.body.status).toBe("cancelled");
+    const audit = await pool.query("SELECT after_data FROM core.audit_events WHERE action = 'sales_order.cancel' AND after_data->>'reason' = 'Khách đổi ý'");
+    expect(audit.rows).toHaveLength(1);
+    // Nhân viên gửi duyệt đơn thứ hai: đối tác không hủy được nữa.
+    const staffOrder = (await call(admin, "get", "/sales/orders?search=ML-HUY-2")).body.data[0];
+    const submitted = await call(admin, "post", `/sales/orders/${staffOrder.id}/submit`);
+    expect(submitted.status, JSON.stringify(submitted.body)).toBe(201);
+    const late = await send("post", "/sales-orders/ML-HUY-2/cancel", key.secret, { reason: "Muộn" });
+    expect(late.status).toBe(409);
+    const viewed = await send("get", "/sales-orders/ML-HUY-2", key.secret);
+    expect(viewed.body.status).not.toBe("draft");
+    expect(viewed.body.documentNo).toBeTruthy();
+    const listed = await send("get", "/sales-orders?status=cancelled", key.secret);
+    expect(listed.body.data.map((item: { partnerOrderCode: string }) => item.partnerOrderCode)).toContain("ML-HUY-1");
+    // Đối tác khác và khóa nội bộ không tra được đơn của Minh Long.
+    const otherPartner = await call(admin, "post", "/crm/partners", { kind: "organization", name: "Đại lý khác", taxCode: "0320006103" });
+    await admin.call("put", `/crm/partners/${otherPartner.body.id}/profile`, {
+      companyId: retail,
+      body: { isCustomer: true, isSupplier: false, paymentTermDays: 0, creditLimit: null, customerGroupId: null, version: 0 },
+    });
+    const other = await issue({ name: "Đại lý khác", partnerId: otherPartner.body.id, scopes: ["sales_order.write"] });
+    expect((await send("get", "/sales-orders/ML-HUY-2", other.secret)).status).toBe(404);
+    expect((await send("get", "/sales-orders", other.secret)).body.total).toBe(0);
+    const internal = await issue({ name: "Nội bộ đơn", kind: "internal", partnerId: null, scopes: ["sales_order.write"] });
+    expect((await send("get", "/sales-orders/ML-HUY-2", internal.secret)).status).toBe(404);
+    // Khóa nội bộ đặt cho khách của công ty theo mã đối tác.
+    const dealerCode = (await pool.query<{ code: string }>("SELECT code FROM crm.partners WHERE id = $1", [dealerId])).rows[0]!.code;
+    const internalOrder = await send("post", "/sales-orders", internal.secret, orderBody("ML-HUY-2", { customerCode: dealerCode }));
+    expect(internalOrder.status, JSON.stringify(internalOrder.body)).toBe(201);
+    expect(internalOrder.body.customerCode).toBe(dealerCode);
+  });
+});

@@ -190,3 +190,77 @@ export interface OpenStockItem {
   available: string;
   unitCode: string;
 }
+
+// ---------- Đơn bán qua Open API (lát L2; API_262 đến API_264) ----------
+
+export const partnerOrderCodePattern = /^[A-Za-z0-9._-]{1,50}$/;
+
+export const openSalesOrderSchema = z
+  .object({
+    partnerOrderCode: z.string().regex(partnerOrderCodePattern),
+    warehouseCode: z.string().regex(/^[A-Z0-9_-]{1,20}$/),
+    orderDate: isoDate.optional(),
+    customerCode: z.string().trim().min(1).max(50).optional(),
+    buyerName: z.string().trim().min(1).max(200).optional(),
+    deliveryAddress: z.string().trim().min(1).max(500).optional(),
+    note: z.string().trim().min(1).max(1000).optional(),
+    lines: z
+      .array(
+        z
+          .object({
+            sku: z.string().trim().min(1).max(50),
+            unitCode: z.string().trim().min(1).max(10),
+            quantity: z.string().regex(/^\d{1,12}(\.\d{1,4})?$/),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+  })
+  .strict();
+export type OpenSalesOrderRequest = z.input<typeof openSalesOrderSchema>;
+
+export const openSalesOrderListQuerySchema = z
+  .object({
+    status: z.enum(["draft", "pending", "confirmed", "rejected", "withdrawn", "delivered", "cancelled", "closed"]).optional(),
+    updatedSince: z.iso.datetime({ offset: true }).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+
+export const openCancelSalesOrderSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+
+export interface OpenSalesOrderLine {
+  lineNo: number;
+  sku: string;
+  productName: string;
+  unitCode: string;
+  quantity: string;
+  unitPrice: string;
+  discountPercent: string;
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  isGift: boolean;
+  deliveredBaseQuantity: string;
+}
+
+export interface OpenSalesOrder {
+  partnerOrderCode: string;
+  documentNo: string | null;
+  status: string;
+  orderDate: string;
+  warehouseCode: string | null;
+  customerCode: string | null;
+  buyerName: string | null;
+  deliveryAddress: string | null;
+  note: string | null;
+  currency: string;
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  lines: OpenSalesOrderLine[];
+  createdAt: string;
+  updatedAt: string;
+}
