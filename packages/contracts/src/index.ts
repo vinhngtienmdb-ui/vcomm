@@ -4680,6 +4680,22 @@ export const updateCarrierSchema = z.object({ isEnabled: z.boolean() }).strict()
 export const updatePaymentMethodSchema = z.object({ isEnabled: z.boolean() }).strict();
 export const updateOrderingOpenSchema = z.object({ orderingOpen: z.boolean() }).strict();
 
+// API_317: tệp danh mục sản phẩm cho Facebook Commerce Manager (CONG_VIEC_68; QUYTAC_NGHIEPVU_557 đến 559).
+export interface ProductFeedStatus {
+  enabled: boolean;
+  // Chỉ người có quyền sửa cài đặt bán hàng thấy đường dẫn (có mã bí mật).
+  url: string | null;
+  tokenCreatedAt: string | null;
+  lastFetchedAt: string | null;
+  // Số sản phẩm trong tệp; số sản phẩm đang bán bị bỏ vì chưa có ảnh.
+  productCount: number;
+  skippedWithoutImage: number;
+  version: number;
+  canManage: boolean;
+}
+export const updateProductFeedSchema = z.object({ enabled: z.boolean(), version: z.number().int().min(0) }).strict();
+export const regenerateProductFeedSchema = z.object({ version: z.number().int().min(0) }).strict();
+
 // Lý do sản phẩm không hiện trên ứng dụng (QUYTAC_NGHIEPVU_155).
 export const listingBlockers = ["storeNotReady", "notApproved", "inactive", "lotOrSerial", "noPrice"] as const;
 export type ListingBlocker = (typeof listingBlockers)[number];
