@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.10.0 (pull request #159, commit hợp nhất `b3e0b3f`): CONG_VIEC_60 (liên minh điểm trong tập đoàn, chống gian lận), CONG_VIEC_67 (Cửa hàng liên kết phần 2); THAY_DOI_31. Kiểm thử API 141 tệp, 750/750. Không tạo database migration 0156 (mỗi ràng buộc dùng chung chỉ định nghĩa lại một lần, hai cách chạy cùng 1078 ràng buộc kiểm tra). Không thêm thư viện. Chưa triển khai.
+- CONG_VIEC_62 xong lát L3, CONG_VIEC_65 xong lát L3, CONG_VIEC_68 xong lát L2; chờ người dùng xem trước.
 - Người dùng nghiệm thu CONG_VIEC_67 (Cửa hàng liên kết phần 2), pull request #145 (kiểm thử 737/737). Người dùng duyệt lát L2 CONG_VIEC_65, lát L2 CONG_VIEC_62, lát L1 CONG_VIEC_68.
 
 ### Quyết định

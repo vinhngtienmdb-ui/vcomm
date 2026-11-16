@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-16 – Phát hành 0.10.0
+
+- Phạm vi: nhánh `phat-hanh/v0.10.0` gộp CONG_VIEC_60 (`60b2ba46`), CONG_VIEC_67 (`09c61605`) (pull request #159, commit hợp nhất `b3e0b3f`).
+- Gộp: xung đột duy nhất ở danh sách controllers của app.module.ts, giữ cả hai phía; database migration 0125, 0126, 0146 đến 0148 không đè nhau, mỗi ràng buộc dùng chung chỉ định nghĩa lại một lần nên không tạo 0156; hai cách chạy cùng 1078 ràng buộc kiểm tra, view finance.fund_movements giống nhau.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 9512 khóa; toàn bộ kiểm thử API 141 tệp, 750/750 đạt; CI pull request #159 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.10.0` đã gắn tự động.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_67
 
 - Phạm vi: Cửa hàng liên kết phần 2 (tích, đổi điểm qua Open API; OTP; phí tin nhắn theo THAY_DOI_31) lát L1, L2, nhánh `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2` (pull request #145, commit `14dad06`, đã hợp nhất main 0.9.0 và bản sửa LOI_13).
