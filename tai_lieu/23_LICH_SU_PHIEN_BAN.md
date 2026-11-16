@@ -26,7 +26,7 @@
 - Khả năng tương thích: tương thích ngược với 0.9.0; database migration thêm bảng, cột (cho phép rỗng hoặc có mặc định) và nới rộng ràng buộc kiểm tra; ràng buộc `net_amount` của `affiliate.settlements` thêm thành phần phí tin có mặc định 0 nên dòng cũ vẫn thỏa.
 - Công việc gộp trong phiên bản: CONG_VIEC_60 (pull request #133, đầu nhánh `60b2ba46`), CONG_VIEC_67 (#145, THAY_DOI_31, đầu nhánh `09c61605`). Thứ tự hợp nhất: 60, 67. Không gộp CONG_VIEC_62, 65, 68.
 - Đánh lại số mục tài liệu trùng khi gộp: không cần. Phần CONG_VIEC_60 là tiểu mục không đánh số (trừ Luồng 57 trong tài liệu `09`); phần CONG_VIEC_67 có số riêng (`08` số 57, `09` Luồng 63, `16` số 42, `17` số 2v, `27` số 40) không trùng; mã định danh của hai công việc không trùng.
-- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 9512 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`): đang chạy, ghi kết quả khi xong.
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 9512 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`) 141 tệp, 750 kiểm thử đạt.
 - Tag: `v0.10.0` trên commit hợp nhất nhánh `phat-hanh/v0.10.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.9.0`.
