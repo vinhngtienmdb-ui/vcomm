@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-16 – CONG_VIEC_68
+
+- Phạm vi: chia sẻ sản phẩm lên mạng xã hội lát L1, L2, nhánh `chuc-nang/CONG_VIEC_68-chia-se-mang-xa-hoi` (pull request #157, commit `130bf70`, đã hợp nhất main 0.10.0).
+- Kiểm thử tự động: c68-share 7/7 (KICHBAN_KIEMTHU_719 đến 724), c68-product-feed 4/4 (KICHBAN_KIEMTHU_725 đến 727) đạt. Toàn bộ API 143 tệp 760/761; c60-fraud (KICHBAN_KIEMTHU_619) lỗi môi trường: vai trò cơ sở dữ liệu cục bộ không được đặt session_replication_role; cấp quyền cục bộ chạy lại 4/4 đạt. Kiểm tra kiểu 19/19, lint đạt; khóa dịch khớp 9545 khóa.
+- Kiểm thử giao diện: KICHBAN_KIEMTHU_724 (bản web ứng dụng mở /s/?ref= chuyển đăng ký có mã; nút chia sẻ tạo /s/?ref=), KICHBAN_KIEMTHU_728 (thẻ Tệp danh mục Facebook tắt, bật, chỉ xem, hộp xác nhận, vi/en, 1360/390 điểm ảnh) đạt. Thẻ Open Graph đọc bằng trình duyệt giả lập facebookexternalhit đạt.
+- Bảo mật phần B, C: không lỗ hổng Nghiêm trọng, Cao; không thêm thư viện; CI quét thư viện phụ thuộc và khóa bí mật đạt.
+- Lỗi phát hiện và sửa trong công việc (chưa trình nên không cấp mã LOI): lỗi kiểu trong kiểm thử (commit `51adce6`); thẻ Tệp danh mục trả 409 sau khi lưu thẻ Bán hàng (sửa trước `000596f`); cổng đăng nhập ứng dụng chặn /s/ (sửa trong `f56f47c`).
+- Chưa kiểm được: thẻ trên Facebook, Zalo, Commerce Manager thật (cần tên miền HTTPS, tài khoản người dùng); liên kết tên miền mở thẳng ứng dụng (cần ứng dụng phát hành).
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-16.
+
+## Lần kiểm thử 2026-11-16 – Phát hành 0.10.0
+
+- Phạm vi: nhánh `phat-hanh/v0.10.0` gộp CONG_VIEC_60 (`60b2ba46`), CONG_VIEC_67 (`09c61605`) (pull request #159, commit hợp nhất `b3e0b3f`).
+- Gộp: xung đột duy nhất ở danh sách controllers của app.module.ts, giữ cả hai phía; database migration 0125, 0126, 0146 đến 0148 không đè nhau, mỗi ràng buộc dùng chung chỉ định nghĩa lại một lần nên không tạo 0156; hai cách chạy cùng 1078 ràng buộc kiểm tra, view finance.fund_movements giống nhau.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 9512 khóa; toàn bộ kiểm thử API 141 tệp, 750/750 đạt; CI pull request #159 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.10.0` đã gắn tự động.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_67
 
 - Phạm vi: Cửa hàng liên kết phần 2 (tích, đổi điểm qua Open API; OTP; phí tin nhắn theo THAY_DOI_31) lát L1, L2, nhánh `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2` (pull request #145, commit `14dad06`, đã hợp nhất main 0.9.0 và bản sửa LOI_13).
