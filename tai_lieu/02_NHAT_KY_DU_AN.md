@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_60 (liên minh điểm trong tập đoàn, chống gian lận) lát L0 đến L4, pull request #133 (kiểm thử 740/740 sau hợp nhất main 0.9.0), chấp nhận 16 quyết định AI ở đặc tả mục 19. Hợp nhất bản sửa LOI_13 (pull request #155, kiểm thử ký số tất định). Người dùng duyệt lát L2 CONG_VIEC_67, lát L1 CONG_VIEC_62, lát L1 CONG_VIEC_65.
 - Phát hành 0.9.0 (pull request #151, commit hợp nhất `e6d26a9`): CONG_VIEC_59 (chữ ký số, kho hợp đồng), CONG_VIEC_66 (Open API phần 2); THAY_DOI_32; sửa LOI_09, LOI_10, LOI_11, LOI_12. Kiểm thử API 727/727. Không tạo database migration 0149. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_59 (chữ ký số, kho hợp đồng; MODULE_13 phần 2), pull request #132 (commit `73465083`; kiểm thử 715/715): ký số qua lớp kết nối nhà cung cấp ký số từ xa và bộ giả lập; ký công văn đi, hợp đồng trong kho, hợp đồng lao động, mọi tệp PDF; kho hợp đồng; đối tác ký qua đường dẫn; nhắc hạn. Database migration 0121 đến 0123. Sửa LOI_10, LOI_11. Thư viện @signpdf 4.0.0, pdf-lib 1.17.1, node-forge 1.4.3.
 - Người dùng nghiệm thu CONG_VIEC_66 (Open API phần 2) lát L1, L2, pull request #144 (commit `102dfed`; kiểm thử 699/699): đối tác tạo khách hàng qua Open API, hóa đơn và công nợ theo khách do đối tác tạo, đơn giao thẳng người nhận cuối; database migration 0131; sửa màn hình đối tác, chi tiết đơn bán, phiếu xuất. Cấp THAY_DOI_32, LOI_09.
@@ -44,6 +45,7 @@
 
 ### Quyết định
 
+- Người dùng yêu cầu chức năng chia sẻ sản phẩm lên Facebook như Lazada, làm cả hai phần (trang chia sẻ có thẻ Open Graph; tệp danh mục cho Facebook Commerce Manager): cấp CONG_VIEC_68.
 - Người dùng quyết định không cần tra cứu pháp lý cho các công việc (bỏ điều kiện nghiệm thu của CONG_VIEC_59).
 - Người dùng mở phiên CONG_VIEC_62 (Dropship) và CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn; phát hành thật vẫn cần ý kiến luật sư); CONG_VIEC_63 tạm dừng.
 - Người dùng duyệt lát L4 CONG_VIEC_60, lát L1 CONG_VIEC_67; phát hành 0.9.0 gồm CONG_VIEC_59, 66 ngay (CONG_VIEC_60 vào bản sau); dành database migration 0149 cho việc gộp ràng buộc kiểm tra dùng chung của 0.9.0 nếu cần.
