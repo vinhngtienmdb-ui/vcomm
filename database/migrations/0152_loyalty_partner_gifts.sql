@@ -2,7 +2,7 @@
 
 CREATE SEQUENCE loyalty.partner_gift_no_seq;
 
--- Giao dịch tặng (số TL-<năm>-<số>); mã giao dịch đối tác duy nhất theo hợp đồng (chống tạo trùng).
+-- Giao dịch tặng (số DT-<năm>-<số>); mã giao dịch đối tác duy nhất theo hợp đồng (chống tạo trùng).
 -- `amount` = số điểm × giá bán (chưa thuế); `tax_amount` thuế phần chênh lệch dương; `point_value_amount` = điểm × giá trị một điểm lúc cộng.
 CREATE TABLE loyalty.partner_gifts (
     id                          uuid          PRIMARY KEY DEFAULT gen_random_uuid(),

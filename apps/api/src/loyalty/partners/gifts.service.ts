@@ -181,7 +181,7 @@ export class PartnerGiftsService {
   private async nextDocumentNo(executor: Executor): Promise<string> {
     return (
       await executor.execute<{ value: string }>(sql`
-        SELECT 'TL-' || to_char(now() AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY') || '-' || lpad(nextval('loyalty.partner_gift_no_seq')::text, 6, '0') AS value`)
+        SELECT 'DT-' || to_char(now() AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY') || '-' || lpad(nextval('loyalty.partner_gift_no_seq')::text, 6, '0') AS value`)
     ).rows[0]!.value;
   }
 

@@ -82,7 +82,7 @@ describe("KICHBAN_KIEMTHU_710: tặng điểm qua Open API", () => {
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     // 50.000 điểm × 1,05 = 52.500 chưa thuế; giá trị 50.000; chênh lệch 2.500, thuế 10 % = 250.
     expect(created.body).toMatchObject({ partnerTransactionCode: "AB-0001", status: "completed", points: 50000, amount: "52500", taxAmount: "250", customerMasked: "Ng**** Th* Thảo" });
-    expect(created.body.documentNo).toMatch(/^TL-\d{4}-\d{6}$/);
+    expect(created.body.documentNo).toMatch(/^DT-\d{4}-\d{6}$/);
     expect(created.body).not.toHaveProperty("phone");
     expect(await balance(thao.id)).toBe(50000);
     const giftId = (await pool.query<{ id: string }>("SELECT id FROM loyalty.partner_gifts WHERE partner_transaction_code = 'AB-0001'")).rows[0]!.id;
