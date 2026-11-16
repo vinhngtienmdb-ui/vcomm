@@ -492,3 +492,14 @@
 - Mức quy mô: Vừa; làm trong CONG_VIEC_66.
 - Rủi ro: trung bình (dữ liệu cá nhân, dò hồ sơ – đã giảm theo LOI_09).
 - Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.9.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_33: Đường dẫn chia sẻ sản phẩm có thẻ Open Graph – 2026-11-16
+- Lý do: CONG_VIEC_68 làm trang chia sẻ công khai có thẻ Open Graph (ảnh, tên, giá) để đăng lên Facebook, Zalo hiện thẻ sản phẩm; đường dẫn của nút "Chia sẻ sản phẩm" đã duyệt (QUYTAC_NGHIEPVU_434, CONG_VIEC_22, THAY_DOI_28) mở thẳng ứng dụng web nên mạng xã hội không đọc được thẻ.
+- Nội dung thay đổi (người dùng yêu cầu 2026-11-12 trong CONG_VIEC_68): QUYTAC_NGHIEPVU_552 thay đường dẫn trong nút "Chia sẻ sản phẩm" bằng `<địa chỉ chia sẻ>/s/<mã sản phẩm>` kèm `ref` (mã giới thiệu), `ctv` (mã cộng tác viên đã duyệt); trang /s/ giữ mã và chuyển sang /r/, /p/, /san-pham/ trong ứng dụng; đường dẫn cũ `/r/`, `/p/` vẫn chạy.
+- Thành phần bị ảnh hưởng: CONG_VIEC_22, 49 (nút chia sẻ, ghi nhận mã giới thiệu và mã cộng tác viên); MAN_HINH_91; ứng dụng mobile-vcomm.
+- Dữ liệu, API, giao diện, quyền: API_314 (trang chia sẻ HTML, tệp liên kết ứng dụng); không đổi cấu trúc dữ liệu ghi nhận giới thiệu; không thêm quyền.
+- Ảnh hưởng chức năng cũ: đường dẫn đã chia sẻ trước vẫn mở được và giữ mã như cũ.
+- Kiểm thử cần thực hiện: c68-share (KICHBAN_KIEMTHU_719 đến 724); kiểm thử ghi nhận mã giới thiệu, cộng tác viên của CONG_VIEC_22, 49; hồi quy toàn bộ.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_68 lát L1.
+- Rủi ro: thấp (đường dẫn cũ giữ nguyên; tham số sai dạng bị bỏ, trang vẫn hiện).
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_68 lát L1, nghiệm thu 2026-11-16, chờ phát hành.
