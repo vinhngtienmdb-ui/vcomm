@@ -1391,6 +1391,8 @@ export const createWarehouseSchema = z
     address: z.string().trim().max(500).nullable().optional(),
     usesLocations: z.boolean(),
     ownerCompanyIds: z.array(z.uuid()).max(50).default([]),
+    // CONG_VIEC_62 (QUYTAC_NGHIEPVU_496): loại kho chọn khi tạo, không đổi sau.
+    kind: z.enum(["standard", "dropship"]).default("standard"),
   })
   .strict();
 export type CreateWarehouseRequest = z.input<typeof createWarehouseSchema>;
@@ -1414,6 +1416,7 @@ export interface WarehouseResponse {
   name: string;
   address: string | null;
   usesLocations: boolean;
+  kind: "standard" | "dropship";
   owners: { companyId: string; companyName: string }[];
   locationCount: number;
   status: "active" | "inactive";
@@ -2055,6 +2058,7 @@ export interface PartnerProfileResponse {
   companyId: string;
   isCustomer: boolean;
   isSupplier: boolean;
+  isDropshipReseller: boolean;
   paymentTermDays: number;
   // null: không giới hạn, hoặc bị ẩn khi creditLimitHidden (người xem không có quyền quản lý hồ sơ đối tác).
   creditLimit: string | null;
@@ -2090,6 +2094,8 @@ export const savePartnerProfileSchema = z
   .object({
     isCustomer: z.boolean(),
     isSupplier: z.boolean(),
+    // Người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_506); chỉ bật được khi là khách hàng.
+    isDropshipReseller: z.boolean().default(false),
     paymentTermDays: z.number().int().min(0).max(365),
     creditLimit: optionalMoney,
     customerGroupId: z.uuid().nullable().optional(),
@@ -2099,7 +2105,8 @@ export const savePartnerProfileSchema = z
     version: z.number().int().min(0),
   })
   .strict()
-  .refine((value) => value.isCustomer || value.isSupplier, { path: ["isCustomer"], message: "invalidValue" });
+  .refine((value) => value.isCustomer || value.isSupplier, { path: ["isCustomer"], message: "invalidValue" })
+  .refine((value) => !value.isDropshipReseller || value.isCustomer, { path: ["isDropshipReseller"], message: "invalidValue" });
 export interface PartnerProfileOptionsResponse {
   customerGroups: { id: string; name: string }[];
   users: { id: string; fullName: string }[];
@@ -2861,6 +2868,10 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   deliveryAddress: string | null;
   recipient: { name: string; phone: string } | null;
   customerCreatedViaOpenApi: boolean;
+  // CONG_VIEC_62: đơn mua dropship theo nhà cung cấp khi kho xuất là kho Dropship (rỗng với kho thường).
+  dropship: import("./dropship").SalesOrderDropshipItem[];
+  // CONG_VIEC_62: đơn dropship của người bán (QUYTAC_NGHIEPVU_506, 507); null với đơn khác.
+  resellerShipment: import("./dropship").ResellerShipmentOrder | null;
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];
@@ -2895,11 +2906,16 @@ export interface SalesSettingsResponse {
   maxManualDiscountPercent: string;
   // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): cho phép lập đơn bán tay có hàng hóa (mặc định tắt).
   allowManualGoodsOrders: boolean;
+  // CONG_VIEC_62: sản phẩm dịch vụ phí giao dropship (đơn phí giao khi xác nhận bảng đối soát người bán).
+  dropshipFeeVariantId: string | null;
+  dropshipFeeVariantName: string | null;
+  // Sản phẩm loại dịch vụ đang bán của công ty để chọn làm phí giao dropship.
+  dropshipFeeOptions: { id: string; name: string; vatRate: string }[];
   version: number;
 }
-// Bỏ trống allowManualGoodsOrders thì giữ giá trị đang lưu.
+// Bỏ trống allowManualGoodsOrders, dropshipFeeVariantId thì giữ giá trị đang lưu.
 export const updateSalesSettingsSchema = z
-  .object({ maxManualDiscountPercent: percentText, allowManualGoodsOrders: z.boolean().optional(), version: z.number().int().min(0) })
+  .object({ maxManualDiscountPercent: percentText, allowManualGoodsOrders: z.boolean().optional(), dropshipFeeVariantId: z.uuid().nullable().optional(), version: z.number().int().min(0) })
   .strict();
 export const closeSalesOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
 
@@ -4687,6 +4703,22 @@ export const updateStoreSettingsSchema = z
 export const updateCarrierSchema = z.object({ isEnabled: z.boolean() }).strict();
 export const updatePaymentMethodSchema = z.object({ isEnabled: z.boolean() }).strict();
 export const updateOrderingOpenSchema = z.object({ orderingOpen: z.boolean() }).strict();
+
+// API_317: tệp danh mục sản phẩm cho Facebook Commerce Manager (CONG_VIEC_68; QUYTAC_NGHIEPVU_557 đến 559).
+export interface ProductFeedStatus {
+  enabled: boolean;
+  // Chỉ người có quyền sửa cài đặt bán hàng thấy đường dẫn (có mã bí mật).
+  url: string | null;
+  tokenCreatedAt: string | null;
+  lastFetchedAt: string | null;
+  // Số sản phẩm trong tệp; số sản phẩm đang bán bị bỏ vì chưa có ảnh.
+  productCount: number;
+  skippedWithoutImage: number;
+  version: number;
+  canManage: boolean;
+}
+export const updateProductFeedSchema = z.object({ enabled: z.boolean(), version: z.number().int().min(0) }).strict();
+export const regenerateProductFeedSchema = z.object({ version: z.number().int().min(0) }).strict();
 
 // Lý do sản phẩm không hiện trên ứng dụng (QUYTAC_NGHIEPVU_155).
 export const listingBlockers = ["storeNotReady", "notApproved", "inactive", "lotOrSerial", "noPrice"] as const;
@@ -7897,6 +7929,7 @@ export * from "./recruitment";
 export * from "./reviews";
 export * from "./affiliate";
 export * from "./open-api";
+export * from "./loyalty-partners";
 
 // ---------------------------------------------------------------------------
 // CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.
@@ -7991,7 +8024,8 @@ export interface LoyaltyProgramResponse {
 }
 
 export type LoyaltyEntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
-export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment";
+// CONG_VIEC_65: thêm đổi điểm đối tác liên minh, đối tác tặng điểm.
+export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment" | "partner_exchange" | "partner_gift";
 export interface LoyaltyEntryItem {
   id: string;
   kind: LoyaltyEntryKind;
@@ -8184,3 +8218,4 @@ export * from "./loyalty-alliance";
 export * from "./office";
 export * from "./office-signing";
 export * from "./office-contracts";
+export * from "./dropship";

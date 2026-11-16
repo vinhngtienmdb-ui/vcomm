@@ -31,12 +31,13 @@ type WarehouseRow = {
   name: string;
   address: string | null;
   uses_locations: boolean;
+  kind: "standard" | "dropship";
   owners: { companyId: string; companyName: string }[];
   location_count: number;
   status: "active" | "inactive";
   version: number;
 };
-export type Warehouse = { id: string; companyId: string; branchId: string; usesLocations: boolean; status: "active" | "inactive"; ownerIds: string[] };
+export type Warehouse = { id: string; companyId: string; branchId: string; usesLocations: boolean; kind: "standard" | "dropship"; status: "active" | "inactive"; ownerIds: string[] };
 
 @Injectable()
 export class WarehousesService {
@@ -113,34 +114,50 @@ export class WarehousesService {
 
   async find(id: string): Promise<Warehouse | null> {
     const row = (
-      await this.database.execute<{ id: string; company_id: string; branch_id: string; uses_locations: boolean; status: "active" | "inactive"; owner_ids: string[] }>(sql`
-      SELECT w.id, w.company_id, w.branch_id, w.uses_locations, w.status, array(SELECT o.company_id FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id) AS owner_ids
+      await this.database.execute<{
+        id: string;
+        company_id: string;
+        branch_id: string;
+        uses_locations: boolean;
+        kind: "standard" | "dropship";
+        status: "active" | "inactive";
+        owner_ids: string[];
+      }>(sql`
+      SELECT w.id, w.company_id, w.branch_id, w.uses_locations, w.kind, w.status, array(SELECT o.company_id FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id) AS owner_ids
       FROM inventory.warehouses w WHERE w.id = ${id}`)
     ).rows[0];
-    return row ? { id: row.id, companyId: row.company_id, branchId: row.branch_id, usesLocations: row.uses_locations, status: row.status, ownerIds: row.owner_ids } : null;
+    return row ? { id: row.id, companyId: row.company_id, branchId: row.branch_id, usesLocations: row.uses_locations, kind: row.kind, status: row.status, ownerIds: row.owner_ids } : null;
   }
 
   async create(actor: Actor, input: z.output<typeof createWarehouseSchema>): Promise<WarehouseResponse> {
     await requireCompanyPermission(this.permissionService, actor, inventoryPermissions.manageWarehouses);
-    const fields: Record<string, "invalidValue" | "warehouseCodeExists"> = {};
+    const fields: Record<string, "invalidValue" | "warehouseCodeExists" | "dropshipWarehouseExists"> = {};
     if ((await this.database.execute(sql`SELECT 1 FROM core.branches WHERE id = ${input.branchId} AND company_id = ${actor.companyId} AND status = 'active'`)).rows.length === 0)
       fields.branchId = "invalidValue";
     if ((await this.database.execute(sql`SELECT 1 FROM inventory.warehouses WHERE company_id = ${actor.companyId} AND code = ${input.code}`)).rows.length > 0) fields.code = "warehouseCodeExists";
     const owners = [...new Set([actor.companyId, ...input.ownerCompanyIds])];
     if (!(await this.validCompanies(owners))) fields.ownerCompanyIds = "invalidValue";
+    // Kho Dropship: không vị trí, chỉ hàng của công ty, mỗi công ty một kho đang hoạt động (QUYTAC_NGHIEPVU_496).
+    if (input.kind === "dropship") {
+      if (input.usesLocations) fields.usesLocations = "invalidValue";
+      if (owners.length > 1) fields.ownerCompanyIds = "invalidValue";
+      if (await this.hasActiveDropship(actor.companyId, null)) fields.kind = "dropshipWarehouseExists";
+    }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     const id = await this.database
       .transaction(async (transaction) => {
         const warehouseId = (
           await transaction.execute<{ id: string }>(sql`
-          INSERT INTO inventory.warehouses (company_id, branch_id, code, name, address, uses_locations, created_by, updated_by)
-          VALUES (${actor.companyId}, ${input.branchId}, ${input.code}, ${input.name}, ${input.address ?? null}, ${input.usesLocations}, ${actor.userId}, ${actor.userId}) RETURNING id`)
+          INSERT INTO inventory.warehouses (company_id, branch_id, code, name, address, uses_locations, kind, created_by, updated_by)
+          VALUES (${actor.companyId}, ${input.branchId}, ${input.code}, ${input.name}, ${input.address ?? null}, ${input.usesLocations}, ${input.kind}, ${actor.userId}, ${actor.userId}) RETURNING id`)
         ).rows[0]!.id;
         for (const companyId of owners) await transaction.execute(sql`INSERT INTO inventory.warehouse_owners (warehouse_id, company_id) VALUES (${warehouseId}, ${companyId})`);
         await this.auditService.record({ ...inventoryAudit(actor, "warehouse"), action: "warehouse.create", entityId: warehouseId, afterData: { ...input, ownerCompanyIds: owners } }, transaction);
         return warehouseId;
       })
       .catch((error: unknown) => {
+        if (isUniqueViolation(error) && String((error as { constraint?: string }).constraint ?? (error as { cause?: { constraint?: string } }).cause?.constraint).includes("dropship"))
+          throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "dropshipWarehouseExists" } });
         if (isUniqueViolation(error)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { code: "warehouseCodeExists" } });
         throw error;
       });
@@ -153,6 +170,8 @@ export class WarehousesService {
     const owners = [...new Set([before.companyId, ...input.ownerCompanyIds])];
     const fields: Record<string, "invalidValue" | "warehouseOwnerHasStock" | "warehouseLocationsHaveStock"> = {};
     if (!(await this.validCompanies(owners))) fields.ownerCompanyIds = "invalidValue";
+    if (before.kind === "dropship" && input.usesLocations) fields.usesLocations = "invalidValue";
+    if (before.kind === "dropship" && owners.length > 1) fields.ownerCompanyIds = "invalidValue";
     const removed = before.owners.map((owner) => owner.companyId).filter((companyId) => !owners.includes(companyId));
     for (const companyId of removed) {
       if ((await this.database.execute(sql`SELECT 1 FROM inventory.balances WHERE warehouse_id = ${id} AND company_id = ${companyId} AND quantity > 0 LIMIT 1`)).rows.length > 0)
@@ -183,6 +202,8 @@ export class WarehousesService {
     if (status === "inactive" && (await this.database.execute(sql`SELECT 1 FROM inventory.balances WHERE warehouse_id = ${id} AND quantity > 0 LIMIT 1`)).rows.length > 0) {
       throw new ApiError("BUSINESS_RULE", "warehouseHasStock");
     }
+    const current = await this.find(id);
+    if (status === "active" && current?.kind === "dropship" && (await this.hasActiveDropship(current.companyId, id))) throw new ApiError("BUSINESS_RULE", "dropshipWarehouseExists");
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`
         UPDATE inventory.warehouses SET status = ${status}, version = version + 1, updated_at = now(), updated_by = ${actor.userId} WHERE id = ${id} AND version = ${version} RETURNING id`);
@@ -278,6 +299,13 @@ export class WarehousesService {
     return warehouse;
   }
 
+  private async hasActiveDropship(companyId: string, exceptId: string | null): Promise<boolean> {
+    const rows = await this.database.execute(
+      sql`SELECT 1 FROM inventory.warehouses WHERE company_id = ${companyId} AND kind = 'dropship' AND status = 'active' AND id IS DISTINCT FROM ${exceptId}::uuid`,
+    );
+    return rows.rows.length > 0;
+  }
+
   private async validCompanies(ids: string[]): Promise<boolean> {
     const found = await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.companies WHERE status = 'active' AND id = ANY(${`{${ids.join(",")}}`}::uuid[])`);
     return found.rows[0]!.total === ids.length;
@@ -294,6 +322,7 @@ export class WarehousesService {
       name: row.name,
       address: row.address,
       usesLocations: row.uses_locations,
+      kind: row.kind,
       owners: row.owners,
       locationCount: row.location_count,
       status: row.status,
@@ -305,7 +334,7 @@ export class WarehousesService {
 
   private select() {
     return sql`
-      SELECT w.id, w.company_id, c.short_name AS company_name, w.branch_id, b.name AS branch_name, w.code, w.name, w.address, w.uses_locations, w.status, w.version,
+      SELECT w.id, w.company_id, c.short_name AS company_name, w.branch_id, b.name AS branch_name, w.code, w.name, w.address, w.uses_locations, w.kind, w.status, w.version,
         coalesce((SELECT json_agg(json_build_object('companyId', oc.id, 'companyName', oc.short_name) ORDER BY oc.short_name)
                   FROM inventory.warehouse_owners o JOIN core.companies oc ON oc.id = o.company_id WHERE o.warehouse_id = w.id), '[]') AS owners,
         (SELECT count(*)::int FROM inventory.locations l WHERE l.warehouse_id = w.id AND l.status = 'active') AS location_count

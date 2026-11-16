@@ -72,6 +72,7 @@ export default function WarehousesPage() {
                         <td data-nhan={headings[1]}>
                           <span>
                             {warehouse.name}
+                            {warehouse.kind === "dropship" && <span className="nhan thong-tin">{t("kindDropship")}</span>}
                             {!warehouse.canOperate && <span className="chu-thich"> · {warehouse.companyName}</span>}
                           </span>
                         </td>
@@ -278,6 +279,9 @@ function WarehouseDrawer({ warehouse, onClose, onSaved }: { warehouse: Warehouse
   const [name, setName] = useState(warehouse?.name ?? "");
   const [address, setAddress] = useState(warehouse?.address ?? "");
   const [usesLocations, setUsesLocations] = useState(warehouse?.usesLocations ?? false);
+  // CONG_VIEC_62 (QUYTAC_NGHIEPVU_496): loại kho chọn khi tạo, không đổi sau.
+  const [kind, setKind] = useState<"standard" | "dropship">(warehouse?.kind ?? "standard");
+  const dropship = kind === "dropship";
   const ownerCompanyId = warehouse?.companyId ?? me?.currentCompanyId ?? "";
   const [owners, setOwners] = useState<string[]>(warehouse?.owners.map((owner) => owner.companyId).filter((id) => id !== ownerCompanyId) ?? []);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
@@ -285,9 +289,9 @@ function WarehouseDrawer({ warehouse, onClose, onSaved }: { warehouse: Warehouse
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
-      const common = { name, address: address || null, usesLocations, ownerCompanyIds: owners };
+      const common = { name, address: address || null, usesLocations: dropship ? false : usesLocations, ownerCompanyIds: dropship ? [] : owners };
       if (warehouse) await apiFetch(`/inventory/warehouses/${warehouse.id}`, { method: "PATCH", body: JSON.stringify({ ...common, version: warehouse.version }) });
-      else await apiFetch("/inventory/warehouses", { method: "POST", body: JSON.stringify({ ...common, branchId, code }) });
+      else await apiFetch("/inventory/warehouses", { method: "POST", body: JSON.stringify({ ...common, branchId, code, kind }) });
       onSaved();
     });
   }
@@ -316,29 +320,39 @@ function WarehouseDrawer({ warehouse, onClose, onSaved }: { warehouse: Warehouse
         <Field id="dia-chi-kho" label={t("address")} error={fields.address}>
           <input id="dia-chi-kho" className={inputClass("address")} value={address} maxLength={500} onChange={(event) => setAddress(event.target.value)} />
         </Field>
-        <Field id="dung-vi-tri" label={t("locations")} hint={t("usesLocationsHint")} error={fields.usesLocations}>
-          <label style={{ display: "inline-flex", gap: "var(--khoang-2)", alignItems: "center" }}>
-            <input id="dung-vi-tri" type="checkbox" checked={usesLocations} onChange={(event) => setUsesLocations(event.target.checked)} /> {t("usesLocations")}
-          </label>
+        <Field id="loai-kho" label={t("kind")} hint={t("kindHint")} error={fields.kind}>
+          <select id="loai-kho" className={inputClass("kind")} value={kind} disabled={Boolean(warehouse)} onChange={(event) => setKind(event.target.value as "standard" | "dropship")}>
+            <option value="standard">{t("kindStandard")}</option>
+            <option value="dropship">{t("kindDropship")}</option>
+          </select>
         </Field>
-        <fieldset style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: "var(--khoang-2)" }}>
-          <legend>{t("otherOwners")}</legend>
-          <span className="chu-thich">{t("otherOwnersHint")}</span>
-          {options.state.kind === "ready" &&
-            options.state.data.companies
-              .filter((company) => company.id !== ownerCompanyId)
-              .map((company) => (
-                <label key={company.id} style={{ display: "inline-flex", gap: "var(--khoang-2)", alignItems: "center" }}>
-                  <input
-                    type="checkbox"
-                    checked={owners.includes(company.id)}
-                    onChange={(event) => setOwners(event.target.checked ? [...owners, company.id] : owners.filter((id) => id !== company.id))}
-                  />
-                  {company.shortName}
-                </label>
-              ))}
-          {fields.ownerCompanyIds && <span className="loi-o">{fields.ownerCompanyIds}</span>}
-        </fieldset>
+        {!dropship && (
+          <Field id="dung-vi-tri" label={t("locations")} hint={t("usesLocationsHint")} error={fields.usesLocations}>
+            <label style={{ display: "inline-flex", gap: "var(--khoang-2)", alignItems: "center" }}>
+              <input id="dung-vi-tri" type="checkbox" checked={usesLocations} onChange={(event) => setUsesLocations(event.target.checked)} /> {t("usesLocations")}
+            </label>
+          </Field>
+        )}
+        {!dropship && (
+          <fieldset style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: "var(--khoang-2)" }}>
+            <legend>{t("otherOwners")}</legend>
+            <span className="chu-thich">{t("otherOwnersHint")}</span>
+            {options.state.kind === "ready" &&
+              options.state.data.companies
+                .filter((company) => company.id !== ownerCompanyId)
+                .map((company) => (
+                  <label key={company.id} style={{ display: "inline-flex", gap: "var(--khoang-2)", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={owners.includes(company.id)}
+                      onChange={(event) => setOwners(event.target.checked ? [...owners, company.id] : owners.filter((id) => id !== company.id))}
+                    />
+                    {company.shortName}
+                  </label>
+                ))}
+            {fields.ownerCompanyIds && <span className="loi-o">{fields.ownerCompanyIds}</span>}
+          </fieldset>
+        )}
         <FormError text={formError} />
         <div className="nhom-nut">
           <button type="button" className="nut phu" onClick={onClose}>

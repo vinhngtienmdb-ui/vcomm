@@ -3,13 +3,16 @@
 // MAN_HINH_86 Cài đặt bán hàng VComm (CHUC_NANG_113, 117; API_123; QUYTAC_NGHIEPVU_154, 160): kênh bán, kho xuất, phí giao hàng, kích thước gói; bật tắt đơn vị vận chuyển.
 // Mở đặt hàng, phương thức thanh toán (CONG_VIEC_25; CHUC_NANG_120; API_130; QUYTAC_NGHIEPVU_163, 164).
 // Cài đặt hoa hồng chung: ngưỡng, tỷ lệ khấu trừ thuế, mức rút tối thiểu (CONG_VIEC_26; API_134; QUYTAC_NGHIEPVU_204, 205).
-import type { StoreSettingsResponse } from "contracts";
+// Thẻ Tệp danh mục Facebook: bật, tắt, sao chép đường dẫn, tạo lại mã (CONG_VIEC_68; API_317; QUYTAC_NGHIEPVU_558, 559).
+import type { ProductFeedStatus, StoreSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
+import { ConfirmDialog } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
+import { formatDateTime, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 
 type Form = {
@@ -404,6 +407,114 @@ function CommissionSettingsCard({ settings, onSaved }: { settings: StoreSettings
   );
 }
 
+// Tệp danh mục dùng chung phiên bản với cài đặt bán hàng: sau mỗi thao tác tải lại cài đặt để thẻ Bán hàng không lưu bằng phiên bản cũ;
+// thẻ đặt key theo phiên bản cài đặt nên lưu thẻ Bán hàng xong thì thẻ này tải lại trạng thái.
+function ProductFeedCard({ onChanged }: { onChanged: () => Promise<void> }) {
+  const t = useTranslations("storeSettings");
+  const { notify } = useAdmin();
+  const { state, reload } = useApi<ProductFeedStatus>("/marketplace/product-feed");
+  const [current, setCurrent] = useState<ProductFeedStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  async function act(path: string, method: "PUT" | "POST", body: object, message: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      setCurrent(await apiFetch<ProductFeedStatus>(path, { method, body: JSON.stringify(body) }));
+      setConfirming(false);
+      notify(message);
+      await onChanged();
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(loaded) => {
+          const feed = current ?? loaded;
+          return (
+            <>
+              <div className="tieu-de">
+                <h2 style={{ flex: 1 }}>{t("feedTitle")}</h2>
+                <span className={`nhan ${feed.enabled ? "thanh-cong" : "trung-tinh"}`}>{t(feed.enabled ? "enabled" : "disabled")}</span>
+              </div>
+              <p style={{ margin: 0 }}>{t("feedIntro")}</p>
+              <FormError text={error} />
+              {feed.url && (
+                <div className="truong">
+                  <label htmlFor="tep-danh-muc">{t("feedUrl")}</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)" }}>
+                    <input id="tep-danh-muc" className="o-nhap" style={{ flex: "1 1 320px" }} readOnly value={feed.url} onFocus={(event) => event.target.select()} />
+                    <button type="button" className="nut phu" onClick={() => void navigator.clipboard?.writeText(feed.url!).then(() => notify(t("feedCopied")))}>
+                      {t("feedCopy")}
+                    </button>
+                  </div>
+                  <span className="chu-thich">{t("feedUrlHint")}</span>
+                </div>
+              )}
+              {(feed.enabled || !feed.canManage) && (
+                <dl className="thong-tin-dong" style={{ margin: 0 }}>
+                  <dt>{t("feedProductCount")}</dt>
+                  <dd>
+                    {feed.skippedWithoutImage > 0 ? t("feedSkipped", { count: formatNumber(feed.productCount), skipped: formatNumber(feed.skippedWithoutImage) }) : formatNumber(feed.productCount)}
+                  </dd>
+                  <dt>{t("feedLastFetched")}</dt>
+                  <dd>{feed.lastFetchedAt ? formatDateTime(feed.lastFetchedAt) : t("feedNeverFetched")}</dd>
+                  {feed.canManage && feed.tokenCreatedAt && (
+                    <>
+                      <dt>{t("feedTokenCreated")}</dt>
+                      <dd>{formatDateTime(feed.tokenCreatedAt)}</dd>
+                    </>
+                  )}
+                </dl>
+              )}
+              {feed.url && (
+                <ol style={{ margin: 0, paddingLeft: "var(--khoang-5)", color: "var(--mau-chu-phu)" }}>
+                  <li>{t("feedGuideStep1")}</li>
+                  <li>{t("feedGuideStep2")}</li>
+                </ol>
+              )}
+              {!feed.canManage && <span className="chu-thich">{t("feedViewOnly")}</span>}
+              {feed.canManage && (
+                <div className="nhom-nut">
+                  <button
+                    type="button"
+                    className={`nut ${feed.enabled ? "phu" : "chinh"}`}
+                    disabled={busy}
+                    onClick={() => void act("/marketplace/product-feed", "PUT", { enabled: !feed.enabled, version: feed.version }, t(feed.enabled ? "feedDisabledSaved" : "feedEnabledSaved"))}
+                  >
+                    {t(feed.enabled ? "feedDisable" : "feedEnable")}
+                  </button>
+                  {feed.enabled && (
+                    <button type="button" className="nut nguy-hiem" disabled={busy} onClick={() => setConfirming(true)}>
+                      {t("feedRegenerate")}
+                    </button>
+                  )}
+                </div>
+              )}
+              {confirming && (
+                <ConfirmDialog
+                  title={t("feedRegenerateTitle")}
+                  text={t("feedRegenerateText")}
+                  confirmLabel={t("feedRegenerate")}
+                  busy={busy}
+                  error={error}
+                  onConfirm={() => void act("/marketplace/product-feed/regenerate", "POST", { version: feed.version }, t("feedRegenerated"))}
+                  onClose={() => setConfirming(false)}
+                />
+              )}
+            </>
+          );
+        }}
+      </Loaded>
+    </div>
+  );
+}
+
 export default function StoreSettingsPage() {
   const t = useTranslations("storeSettings");
   const { state, reload } = useApi<StoreSettingsResponse>("/marketplace/store-settings");
@@ -422,6 +533,7 @@ export default function StoreSettingsPage() {
               <Payments settings={settings} onSaved={setSaved} />
               <CommissionSettingsCard key={settings.commissionSettings.version} settings={settings} onSaved={setSaved} />
               <Carriers settings={settings} onSaved={setSaved} />
+              <ProductFeedCard key={settings.version} onChanged={async () => setSaved(await apiFetch<StoreSettingsResponse>("/marketplace/store-settings"))} />
             </div>
           );
         }}

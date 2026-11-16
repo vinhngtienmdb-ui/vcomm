@@ -67,6 +67,10 @@ import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
 import { SalesProposalsService } from "./marketplace/sales-proposals.service";
 import { StoreService } from "./marketplace/store.service";
+import { ProductFeedController } from "./marketplace/product-feed.controller";
+import { ProductFeedService } from "./marketplace/product-feed.service";
+import { ShareController } from "./marketplace/share.controller";
+import { ShareService } from "./marketplace/share.service";
 import { ShopController } from "./marketplace/shop.controller";
 import { ShopService } from "./marketplace/shop.service";
 import { MarketplaceOrdersService } from "./marketplace/marketplace-orders.service";
@@ -104,6 +108,16 @@ import { LoyaltyReportsController } from "./loyalty/reports.controller";
 import { LoyaltyReportsService } from "./loyalty/reports.service";
 import { LoyaltySettlementsService } from "./loyalty/settlements.service";
 import { LoyaltyAdminService } from "./loyalty/admin.service";
+import { BuyerPartnersController, PartnerContractsController } from "./loyalty/partners/partners.controller";
+import { PartnerContractsService } from "./loyalty/partners/contracts.service";
+import { BuyerPartnersService } from "./loyalty/partners/buyer-partners.service";
+import { PartnerConnectors } from "./loyalty/partners/connector";
+import { PartnerSimulator } from "./loyalty/partners/simulator";
+import { PartnerExchangesService } from "./loyalty/partners/exchanges.service";
+import { PartnerApiKeysService } from "./loyalty/partners/api-keys.service";
+import { PartnerSettlementsService } from "./loyalty/partners/settlements.service";
+import { PartnerGiftsService } from "./loyalty/partners/gifts.service";
+import { OpenPartnerGiftsController } from "./loyalty/partners/open-gifts.controller";
 import { AffiliateController } from "./affiliate/affiliate.controller";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
@@ -123,6 +137,15 @@ import { ImportDeclarationsService } from "./purchasing/import-declarations.serv
 import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
 import { PurchasingBudgetsController } from "./purchasing/budgets.controller";
+import { DropshipController } from "./purchasing/dropship.controller";
+import { DropshipProductsService } from "./purchasing/dropship-products.service";
+import { DropshipOrdersService } from "./purchasing/dropship-orders.service";
+import { OpenDropshipService } from "./purchasing/open-dropship.service";
+import { DropshipReturnsService } from "./purchasing/dropship-returns.service";
+import { ResellerShipmentsController } from "./sales/reseller-shipments.controller";
+import { ResellerShipmentsService } from "./sales/reseller-shipments.service";
+import { ResellerSettlementsController } from "./finance/reseller-settlements.controller";
+import { ResellerSettlementsService } from "./finance/reseller-settlements.service";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
@@ -238,7 +261,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController],
   providers: [
     AuthService,
     ActivationService,
@@ -301,6 +324,8 @@ import { UsersService } from "./users/users.service";
     SalesProposalsService,
     StoreService,
     ShopService,
+    ShareService,
+    ProductFeedService,
     MarketplaceOrdersService,
     ShipmentsService,
     MarketplacePaymentsService,
@@ -322,6 +347,14 @@ import { UsersService } from "./users/users.service";
     LoyaltyFraudService,
     LoyaltyReportsService,
     LoyaltyAdminService,
+    PartnerContractsService,
+    BuyerPartnersService,
+    PartnerConnectors,
+    PartnerSimulator,
+    PartnerExchangesService,
+    PartnerGiftsService,
+    PartnerApiKeysService,
+    PartnerSettlementsService,
     AffiliateMerchantsService,
     MerchantPortalService,
     AffiliateTransactionsService,
@@ -366,6 +399,12 @@ import { UsersService } from "./users/users.service";
     RequisitionsService,
     PurchaseOrdersService,
     BudgetPlansService,
+    DropshipProductsService,
+    DropshipOrdersService,
+    OpenDropshipService,
+    DropshipReturnsService,
+    ResellerShipmentsService,
+    ResellerSettlementsService,
     BudgetAdjustmentsService,
     StockLedgerService,
     ReservationsService,

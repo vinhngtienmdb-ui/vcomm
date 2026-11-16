@@ -103,6 +103,7 @@ export async function seedTestData(pool: Pool): Promise<void> {
       INSERT INTO core.role_permissions (role_id, permission_code) VALUES
         (${id.purchasingManagerRole}, 'purchasing.access'), (${id.purchasingManagerRole}, 'catalog.access'), (${id.purchasingManagerRole}, 'inventory.access'),
         (${id.purchasingManagerRole}, 'purchasing.budget.view'), (${id.purchasingManagerRole}, 'purchasing.budget.manage'),
+        (${id.purchasingManagerRole}, 'purchasing.dropship.view'), (${id.purchasingManagerRole}, 'purchasing.dropship.manage'),
         (${id.warehouseKeeperRole}, 'inventory.access')
       ON CONFLICT DO NOTHING`);
 

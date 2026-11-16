@@ -107,6 +107,21 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
     isSensitive: true,
   },
+  // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (xét tại công ty vận hành sàn; QUYTAC_NGHIEPVU_551).
+  {
+    code: "loyalty.partner.view",
+    appCode: "crm",
+    nameVi: "Xem đối tác liên minh điểm, giao dịch đổi, tặng, đối soát",
+    nameEn: "View loyalty alliance partners, exchanges, gifts, settlements",
+    isSensitive: false,
+  },
+  {
+    code: "loyalty.partner.manage",
+    appCode: "crm",
+    nameVi: "Quản lý hợp đồng đối tác liên minh điểm, xử lý giao dịch, xác nhận đối soát",
+    nameEn: "Manage loyalty alliance partners, resolve exchanges, confirm settlements",
+    isSensitive: true,
+  },
   // CONG_VIEC_49: kiểm duyệt bảng tin cộng đồng, đăng bài VComm (QUYTAC_NGHIEPVU_335).
   { code: "marketplace.community.manage", appCode: "crm", nameVi: "Kiểm duyệt bảng tin cộng đồng, đăng bài VComm", nameEn: "Moderate the community feed, post as VComm", isSensitive: true },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
@@ -121,6 +136,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
   { code: "purchasing.budget.view", appCode: "purchasing", nameVi: "Xem ngân sách mua", nameEn: "View purchase budgets", isSensitive: false },
   { code: "purchasing.budget.manage", appCode: "purchasing", nameVi: "Lập, điều chỉnh ngân sách mua", nameEn: "Manage purchase budgets", isSensitive: false },
+  { code: "purchasing.dropship.view", appCode: "purchasing", nameVi: "Xem dropship", nameEn: "View dropship", isSensitive: false },
+  { code: "purchasing.dropship.manage", appCode: "purchasing", nameVi: "Quản lý sản phẩm, đơn dropship", nameEn: "Manage dropship products and orders", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -258,6 +275,8 @@ const companyAdminPermissions = [
   "loyalty.fraud.manage",
   "affiliate.view",
   "affiliate.manage",
+  "loyalty.partner.view",
+  "loyalty.partner.manage",
   "marketplace.community.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",
@@ -268,6 +287,8 @@ const companyAdminPermissions = [
   "purchasing.import.manage",
   "purchasing.budget.view",
   "purchasing.budget.manage",
+  "purchasing.dropship.view",
+  "purchasing.dropship.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -378,6 +399,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.import.view",
       "purchasing.import.manage",
       "purchasing.budget.view",
+      "purchasing.dropship.view",
+      "purchasing.dropship.manage",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",
@@ -558,6 +581,8 @@ export const documentTypeCatalog = [
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
   // CONG_VIEC_60: bảng đối soát điểm nội bộ chỉ đánh số, không duyệt (QUYTAC_NGHIEPVU_470).
   { code: "loyalty.settlement", appCode: "finance", nameVi: "Bảng đối soát điểm nội bộ", nameEn: "Intercompany loyalty settlement", requiresApproval: false },
+  // CONG_VIEC_65: bảng đối soát tháng với đối tác liên minh điểm (số DM…).
+  { code: "loyalty.partner_settlement", appCode: "crm", nameVi: "Bảng đối soát đối tác liên minh điểm", nameEn: "Loyalty partner settlement", requiresApproval: false },
   // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
   { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },

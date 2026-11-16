@@ -150,6 +150,7 @@ export class StocktakesService {
 
   async create(actor: Actor, input: z.output<typeof createStocktakeSchema>): Promise<StocktakeResponse> {
     const warehouse = await this.warehouses.operable(actor.userId, input.warehouseId, inventoryPermissions.manageStocktakes);
+    if (warehouse.kind === "dropship") throw new ApiError("BUSINESS_RULE", "dropshipWarehouseManual");
     const fields: Record<string, keyof Messages["errors"]> = {};
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";
     if (input.scopeType === "full" ? input.scopeIds.length > 0 : input.scopeIds.length === 0) fields.scopeIds = input.scopeType === "full" ? "invalidValue" : "required";

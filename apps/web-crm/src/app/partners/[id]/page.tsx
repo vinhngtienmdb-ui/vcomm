@@ -217,6 +217,7 @@ function Profile({ partner, reload }: { partner: PartnerResponse; reload: () => 
             <span className="nhom-nut">
               {profile.isCustomer && <span className="nhan thanh-cong">{t("role_customer")}</span>}
               {profile.isSupplier && <span className="nhan canh-bao">{t("role_supplier")}</span>}
+              {profile.isDropshipReseller && <span className="nhan thong-tin">{t("role_dropshipReseller")}</span>}
             </span>
           </Row>
           <Row label={t("paymentTermDays")}>{t("days", { count: profile.paymentTermDays })}</Row>
@@ -251,6 +252,7 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
   const profile = partner.profile;
   const [isCustomer, setIsCustomer] = useState(profile?.isCustomer ?? true);
   const [isSupplier, setIsSupplier] = useState(profile?.isSupplier ?? false);
+  const [isDropshipReseller, setIsDropshipReseller] = useState(profile?.isDropshipReseller ?? false);
   const [paymentTermDays, setPaymentTermDays] = useState(String(profile?.paymentTermDays ?? 0));
   const [creditLimit, setCreditLimit] = useState(profile?.creditLimit ?? "");
   const [customerGroupId, setCustomerGroupId] = useState(profile?.customerGroupId ?? "");
@@ -266,6 +268,7 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
       const body = {
         isCustomer,
         isSupplier,
+        isDropshipReseller: isCustomer && isDropshipReseller,
         paymentTermDays: Number(paymentTermDays),
         creditLimit: creditLimit.trim() === "" ? null : creditLimit.replace(/\./g, ""),
         customerGroupId: customerGroupId || null,
@@ -295,6 +298,11 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
             <input type="checkbox" checked={isSupplier} onChange={(event) => setIsSupplier(event.target.checked)} /> {t("isSupplier")}
           </label>
           {fields.isCustomer && <span className="loi-o">{fields.isCustomer}</span>}
+          {/* Người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_506): đơn Open API có người nhận của đối tác là đơn người bán. */}
+          <label>
+            <input type="checkbox" checked={isCustomer && isDropshipReseller} disabled={!isCustomer} onChange={(event) => setIsDropshipReseller(event.target.checked)} /> {t("isDropshipReseller")}
+          </label>
+          <span className="chu-thich">{t("isDropshipResellerHint")}</span>
         </fieldset>
         <Field id="so-ngay-no" label={`${t("paymentTermDays")} *`} error={fields.paymentTermDays}>
           <input id="so-ngay-no" className={inputClass("paymentTermDays")} type="number" min={0} max={365} value={paymentTermDays} onChange={(event) => setPaymentTermDays(event.target.value)} />

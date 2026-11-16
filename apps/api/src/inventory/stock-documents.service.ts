@@ -693,11 +693,14 @@ export class StockDocumentsService implements OnModuleInit {
     if (!warehouse) throw new ApiError("NOT_FOUND", "notFound");
     const fields: FieldErrors = {};
     if (warehouse.status !== "active") fields.warehouseId = "invalidValue";
+    // Kho Dropship chỉ nhận chứng từ hệ thống lập (QUYTAC_NGHIEPVU_496).
+    else if (actor && warehouse.kind === "dropship") fields.warehouseId = "dropshipWarehouseManual";
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";
     if (!(stockReasonCodes[input.type] as readonly string[]).includes(input.reasonCode)) fields.reasonCode = "invalidValue";
     if (input.type === "transfer") {
       const destination = input.destinationWarehouseId ? await this.warehouses.find(input.destinationWarehouseId) : null;
       if (!destination || destination.id === warehouse.id || destination.status !== "active") fields.destinationWarehouseId = "invalidValue";
+      else if (destination.kind === "dropship") fields.destinationWarehouseId = "dropshipWarehouseManual";
       else if (!destination.ownerIds.includes(input.companyId)) fields.destinationWarehouseId = "warehouseOwnerNotAllowed";
     } else if (input.destinationWarehouseId) {
       fields.destinationWarehouseId = "invalidValue";
@@ -815,7 +818,11 @@ export class StockDocumentsService implements OnModuleInit {
       ).rows[0]!;
       if (Number(balance.quantity) < needed.quantity) fields[`lines.${needed.index}.quantity`] = "insufficientStock";
     }
+    // Kho Dropship (CONG_VIEC_62): chỉ có phiếu hệ thống ghi cặp nhập, xuất theo đơn đã giữ chỗ không thời hạn; khả dụng theo tồn khai báo chỉ dùng khi giữ chỗ,
+    // không chặn ghi sổ (nhà cung cấp hạ tồn khai báo, ngừng sản phẩm sau khi đã có đơn mua vẫn ghi được đã giao, trả hàng). Tồn thực đã kiểm ở trên.
+    const dropshipWarehouse = (await executor.execute<{ kind: string }>(sql`SELECT kind FROM inventory.warehouses WHERE id = ${row.warehouse_id}`)).rows[0]?.kind === "dropship";
     for (const [variantId, needed] of neededByVariant) {
+      if (dropshipWarehouse) break;
       if (fields[`lines.${needed.index}.quantity`]) continue;
       const available = await this.reservations.available(executor, row.warehouse_id, row.company_id, variantId);
       if (Number(available) < needed.quantity) fields[`lines.${needed.index}.quantity`] = "insufficientAvailableStock";

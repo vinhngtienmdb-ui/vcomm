@@ -1,7 +1,12 @@
 // API cho đối tác, gốc /api/v1/open (API_260 đến API_264; API_289 đến API_292). Xác thực bằng khóa API (ApiKeyGuard), không dùng cookie, CSRF, X-Company-Id.
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UseGuards } from "@nestjs/common";
 import {
   openCancelSalesOrderSchema,
+  openDropshipEventSchema,
+  openDropshipOrderListQuerySchema,
+  openDropshipStockSchema,
+  type OpenDropshipOrder,
+  type OpenDropshipStockResponse,
   openCustomerListQuerySchema,
   openCustomerSchema,
   openCustomerUpdateSchema,
@@ -24,10 +29,16 @@ import { OpenCatalogService } from "./open-catalog.service";
 import { OpenSalesOrdersService } from "./open-sales-orders.service";
 import { OpenCustomersService } from "./open-customers.service";
 import { normalizeIp } from "./ip-allow-list";
+import { OpenDropshipService } from "../purchasing/open-dropship.service";
 
 const contextOf = (request: OpenApiRequest): CallerContext => ({ ip: request.ip ? normalizeIp(request.ip) : null, requestId: request.header("x-request-id") ?? null });
 const orderCode = (value: string): string => {
   if (!partnerOrderCodePattern.test(value)) throw new ApiError("NOT_FOUND", "notFound");
+  return value;
+};
+
+const dropshipCode = (value: string): string => {
+  if (!/^[A-Za-z0-9-]{1,50}$/.test(value)) throw new ApiError("NOT_FOUND", "notFound");
   return value;
 };
 
@@ -45,7 +56,34 @@ export class OpenApiController {
     private readonly catalog: OpenCatalogService,
     private readonly salesOrders: OpenSalesOrdersService,
     private readonly customers: OpenCustomersService,
+    private readonly dropship: OpenDropshipService,
   ) {}
+
+  // CONG_VIEC_62 (API_271, API_272, API_309): nhà cung cấp dropship.
+  @Get("dropship/orders")
+  @RequireScope("dropship.supplier")
+  async dropshipOrders(@Req() request: OpenApiRequest, @Query() query: unknown): Promise<PageResponse<OpenDropshipOrder>> {
+    return this.dropship.list(request.openApi, openDropshipOrderListQuerySchema.parse(query));
+  }
+
+  @Get("dropship/orders/:code")
+  @RequireScope("dropship.supplier")
+  async dropshipOrder(@Req() request: OpenApiRequest, @Param("code") code: string): Promise<OpenDropshipOrder> {
+    return this.dropship.detail(request.openApi, dropshipCode(code));
+  }
+
+  @Post("dropship/orders/:code/events")
+  @HttpCode(200)
+  @RequireScope("dropship.supplier")
+  async dropshipEvent(@Req() request: OpenApiRequest, @Param("code") code: string, @Body() body: unknown): Promise<OpenDropshipOrder> {
+    return this.dropship.event(request.openApi, dropshipCode(code), openDropshipEventSchema.parse(body));
+  }
+
+  @Put("dropship/stock")
+  @RequireScope("dropship.supplier")
+  async dropshipStock(@Req() request: OpenApiRequest, @Body() body: unknown): Promise<OpenDropshipStockResponse> {
+    return this.dropship.stock(request.openApi, openDropshipStockSchema.parse(body));
+  }
 
   @Get("products")
   @RequireScope("catalog.read")

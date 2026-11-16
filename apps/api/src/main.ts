@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { RequestMethod } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import cookieParser from "cookie-parser";
@@ -10,7 +11,14 @@ import { syncPermissionCatalog } from "./permissions/permission-catalog";
 import { AuditEventsService } from "./settings/audit-events.service";
 
 export function configureApplication(application: NestExpressApplication): NestExpressApplication {
-  application.setGlobalPrefix("api/v1");
+  // Trang chia sẻ sản phẩm, tệp liên kết ứng dụng ở đường dẫn cố định ngoài /api/v1 (CONG_VIEC_68; API_314, API_315).
+  application.setGlobalPrefix("api/v1", {
+    exclude: [
+      { path: "s/:productId", method: RequestMethod.GET },
+      { path: ".well-known/apple-app-site-association", method: RequestMethod.GET },
+      { path: ".well-known/assetlinks.json", method: RequestMethod.GET },
+    ],
+  });
   application.use(cookieParser());
   application.disable("x-powered-by");
   application.set("trust proxy", 1);

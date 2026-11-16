@@ -25,7 +25,7 @@ export interface OpenApiCaller {
   companyId: string;
   partnerId: string | null;
   customerGroupId: string | null;
-  // Trống với khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67).
+  // Trống với khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67) và khóa tặng điểm của đối tác liên minh (chỉ `loyalty.partner`, CONG_VIEC_65).
   channelId: string | null;
   warehouseIds: string[];
   scopes: ApiKeyScope[];
@@ -143,8 +143,11 @@ export class ApiKeyGuard implements CanActivate {
         k.allowed_ips::text[] AS allowed_ips, k.status,
         ARRAY(SELECT w.warehouse_id::text FROM core.api_key_warehouses w WHERE w.api_key_id = k.id) AS warehouse_ids,
         pp.customer_group_id,
-        -- Khóa cửa hàng liên kết không xét hồ sơ khách hàng của đối tác (QUYTAC_NGHIEPVU_495).
-        coalesce(p.status = 'active' AND (k.channel_id IS NULL OR (pp.status = 'active' AND pp.is_customer)), false) AS partner_active
+        -- Khóa cửa hàng liên kết không xét hồ sơ khách hàng của đối tác (QUYTAC_NGHIEPVU_495). Phạm vi nhà cung cấp dropship cần hồ sơ nhà cung cấp
+        -- (QUYTAC_NGHIEPVU_505); phạm vi khác cần hồ sơ khách hàng như trước.
+        coalesce(p.status = 'active' AND (k.channel_id IS NULL OR (pp.status = 'active'
+          AND (NOT ('dropship.supplier' = ANY(k.scopes)) OR pp.is_supplier)
+          AND (k.scopes <@ ARRAY['dropship.supplier']::text[] OR pp.is_customer))), false) AS partner_active
       FROM core.api_keys k
       LEFT JOIN crm.partners p ON p.id = k.partner_id
       LEFT JOIN crm.partner_profiles pp ON pp.company_id = k.company_id AND pp.partner_id = k.partner_id

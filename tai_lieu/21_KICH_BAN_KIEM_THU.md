@@ -4,7 +4,7 @@
 - Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách; CONG_VIEC_22 (2026-11-12), THAY_DOI_26: thêm KICHBAN_KIEMTHU_573 đến KICHBAN_KIEMTHU_583; sửa KICHBAN_KIEMTHU_290, 291; CONG_VIEC_55 (2026-11-11): thêm KICHBAN_KIEMTHU_533 đến KICHBAN_KIEMTHU_546 của MODULE_12 Cửa hàng liên kết phần 1; CONG_VIEC_59 (2026-11-12): thêm KICHBAN_KIEMTHU_597 đến KICHBAN_KIEMTHU_610 của MODULE_13 phần 2 (chữ ký số, kho hợp đồng; 597 đến 609 tự động, trong đó 597, 599, 600, 601, 602, 604, 605, 606 tự động một phần; 610 giao diện thủ công); CONG_VIEC_60 (2026-11-12): thêm KICHBAN_KIEMTHU_611 đến KICHBAN_KIEMTHU_622 của MODULE_11 Điểm thưởng phần 2 (KICHBAN_KIEMTHU_611 đến 621 tự động trong `apps/api/test/c60-*.test.ts`, 622 giao diện thủ công kèm kiểm thử quyền tự động)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách; CONG_VIEC_22 (2026-11-12), THAY_DOI_26: thêm KICHBAN_KIEMTHU_573 đến KICHBAN_KIEMTHU_583; sửa KICHBAN_KIEMTHU_290, 291; CONG_VIEC_55 (2026-11-11): thêm KICHBAN_KIEMTHU_533 đến KICHBAN_KIEMTHU_546 của MODULE_12 Cửa hàng liên kết phần 1; CONG_VIEC_59 (2026-11-12): thêm KICHBAN_KIEMTHU_597 đến KICHBAN_KIEMTHU_610 của MODULE_13 phần 2 (chữ ký số, kho hợp đồng; 597 đến 609 tự động, trong đó 597, 599, 600, 601, 602, 604, 605, 606 tự động một phần; 610 giao diện thủ công); CONG_VIEC_60 (2026-11-12): thêm KICHBAN_KIEMTHU_611 đến KICHBAN_KIEMTHU_622 của MODULE_11 Điểm thưởng phần 2 (KICHBAN_KIEMTHU_611 đến 621 tự động trong `apps/api/test/c60-*.test.ts`, 622 giao diện thủ công kèm kiểm thử quyền tự động); CONG_VIEC_65 (2026-11-16): thêm KICHBAN_KIEMTHU_705 đến KICHBAN_KIEMTHU_718 của MODULE_11 Điểm thưởng phần 3 (đối tác liên minh điểm ngoài tập đoàn)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -5668,6 +5668,139 @@ Dữ liệu chung: `apps/api/test/c66-open-api-customers.test.ts` – công ty V
 - Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
 
 
+## CHUC_NANG_222 đến CHUC_NANG_225: Dropship (MODULE_16 phần 2, CONG_VIEC_62)
+
+Dữ liệu chung: `apps/api/test/c62-dropship.test.ts` (lát L1 đến L3) – công ty VCR có kho Dropship và kho thường, hai nhà cung cấp có hồ sơ nhà cung cấp và bảng giá mua, sản phẩm hàng hóa và dịch vụ, nhân viên mua hàng, thủ kho, kế toán, khóa API nhà cung cấp. `apps/api/test/c62-dropship-resellers.test.ts` (lát L4, L5) – đối tác có cờ người bán dropship và đối tác không cờ, khóa `sales_order.write`, máy chủ GHN giả lập.
+
+### KICHBAN_KIEMTHU_639
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_458
+- Chức năng: CHUC_NANG_222
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Tạo kho Dropship; tạo kho Dropship thứ hai đang hoạt động bị từ chối; kho Dropship bật vị trí bị từ chối; lập tay phiếu nhập, xuất, chuyển kho, kiểm kê, giữ hàng tay, đơn mua tay vào kho Dropship bị từ chối.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_640
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_459
+- Chức năng: CHUC_NANG_222
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Bốn trường hợp thêm sai (dịch vụ, có lô hoặc serial, nhà cung cấp không có hồ sơ, trùng biến thể) báo lỗi đúng trường; thêm đúng; sửa tồn hai lần, lịch sử hai dòng có người đổi; nhập tệp Excel cập nhật tồn, dòng sai báo lỗi theo dòng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_641
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_460
+- Chức năng: CHUC_NANG_222, CHUC_NANG_223
+- Loại: Đúng, sai, giá trị biên
+- Các bước và kết quả mong đợi: Khai báo 10; đơn A 6 gửi duyệt giữ chỗ, khả dụng còn 4; đơn B 5 bị từ chối đúng dòng; đơn B 4 được; dòng không phải sản phẩm dropship, dòng không có giá mua hiệu lực bị từ chối đúng dòng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1, L2
+
+### KICHBAN_KIEMTHU_642
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_461
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Đơn bán hai nhà cung cấp xác nhận (không ngoại lệ và qua duyệt ngoại lệ): đúng hai đơn mua Đã duyệt, giá theo bảng giá mua, kho nhận là kho Dropship, không có yêu cầu duyệt mua.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_643
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_462
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, đồng thời
+- Các bước và kết quả mong đợi: Báo Đã giao: phiếu nhập mua, phiếu xuất bán ghi sổ ngày giao; công nợ phải trả, phải thu; bút toán 156, 632, 331, 131; giá vốn bằng giá mua; tồn kho Dropship về 0; báo lại không đổi; hai yêu cầu báo song song chỉ một bộ chứng từ. Bổ sung khi rà soát: nhà cung cấp hạ tồn khai báo về 0, sản phẩm dropship ngừng sau khi có đơn mua vẫn báo Đã giao được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_644
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_463
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, ngoại lệ
+- Các bước và kết quả mong đợi: Giao thất bại một nhà cung cấp khi chưa nhà cung cấp nào giao: đơn bán Đã hủy, giữ chỗ được nhả; khi nhà cung cấp kia đã giao: đơn bán Đóng phần còn lại.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_645
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_464
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Trả về nhà cung cấp (chờ, hủy, xác nhận): khi xác nhận có phiếu trả hàng bán và trả hàng mua cùng số lượng, công nợ hai bên giảm; trả về kho công ty: tồn kho thường tăng; trả quá số đã xuất trừ đã trả bị từ chối.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_646
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_465
+- Chức năng: CHUC_NANG_224
+- Loại: Phân quyền, bảo mật, sai
+- Các bước và kết quả mong đợi: Khóa nhà cung cấp A tra đơn của B nhận `404`; trường trả về không có giá bán, khách; chuyển trạng thái sai thứ tự `409`; cập nhật tồn biến thể của B bị từ chối dòng; khóa thiếu phạm vi `dropship.supplier` nhận `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_647
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_466
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Kỳ có hai đơn giao, một lần trả, một đơn chưa có số hóa đơn: số đơn đã giao, giá trị nhận, trả lại, số đơn chưa có số hóa đơn, phải trả cuối kỳ khớp sổ; tệp Excel đúng số.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_648
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_467
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Người bán có cờ gửi đơn có người nhận (`street`, `wardCode`): khách là người bán, giá nhóm người bán; gửi `customerCode` bị lỗi trường; thiếu phường, xã bị lỗi trường; đối tác không cờ giữ cách CONG_VIEC_66; tắt cờ sau khi tạo đơn thì đơn đã tạo không đổi.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_649
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_468
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, bảo mật
+- Các bước và kết quả mong đợi: Sinh phiếu giao PDF, kiểm văn bản có tên, điện thoại người bán, tiền thu hộ, người nhận, dòng hàng, mã đơn đối tác; không có tên công ty, số đơn VComm, giá bán; nhập vận đơn tay rồi tra API_263 có `shipment`; công nợ theo người bán.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_650
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_469
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, phân quyền
+- Các bước và kết quả mong đợi: Tuần có giao, hoàn, thu hộ: lập bảng đúng A đến E, số còn lại; lập lại không trùng; xác nhận có đơn bán dịch vụ phí giao, bút toán, phiếu chi hoàn tiền Nháp khi số âm; chứng từ trễ vào bảng tuần sau. Phần "người bán công ty B không vào bảng của A" chưa có bước kiểm riêng trong tệp kiểm thử (truy vấn lọc `company_id`, xem tài liệu `22`).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L5
+
+### KICHBAN_KIEMTHU_651
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_458 đến TIEUCHI_NGHIEMTHU_466
+- Chức năng: CHUC_NANG_222, CHUC_NANG_223, CHUC_NANG_224
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Trên ứng dụng chạy thật, MAN_HINH_234 đến MAN_HINH_237, biểu mẫu kho, khối Dropship ở chi tiết đơn bán, phạm vi khóa nhà cung cấp; đủ trạng thái rỗng, đang tải, lỗi, không quyền, có dữ liệu; đổi tiếng Việt, tiếng Anh; màn hình hẹp.
+- Kiểm thử tự động: Chưa tự động – không có tệp Playwright trong dự án; kiểm bằng ảnh chụp màn hình khi xem trước lát L1 đến L3 (thư mục `tam_thoi/c62`, chụp bằng Playwright ngoài dự án)
+- Lát: L1, L2, L3
+
+### KICHBAN_KIEMTHU_652
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_467 đến TIEUCHI_NGHIEMTHU_469
+- Chức năng: CHUC_NANG_225
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Trên ứng dụng chạy thật, MAN_HINH_238, MAN_HINH_240, MAN_HINH_241, phiếu giao MAN_HINH_239, ô người bán dropship ở chi tiết đối tác, cài đặt sản phẩm phí giao; đủ trạng thái rỗng, đang tải, lỗi, không quyền, có dữ liệu; đổi tiếng Việt, tiếng Anh; màn hình hẹp.
+- Kiểm thử tự động: Chưa tự động – không có tệp Playwright trong dự án; kiểm bằng ảnh chụp màn hình khi xem trước lát L4, L5 (thư mục `tam_thoi/c62`, chụp bằng Playwright ngoài dự án)
+- Lát: L4, L5
+
+### KICHBAN_KIEMTHU_729
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_534
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, đồng thời
+- Các bước và kết quả mong đợi: Tạo vận đơn bằng máy chủ GHN giả lập: có phiếu xuất nháp, giá hàng gửi bằng 0, có tiền thu hộ; webhook lấy hàng ghi sổ phiếu xuất; webhook đã giao ghi ngày thu hộ (nhận hai lần không đổi); mã vận đơn lạ bị bỏ qua.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_730
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_534
+- Chức năng: CHUC_NANG_225
+- Loại: Ngoại lệ
+- Các bước và kết quả mong đợi: Hoàn hàng: phiếu nhận trả, công nợ người bán giảm; hủy vận đơn trước khi lấy hàng rồi tạo lại; mất phản hồi khi tạo vận đơn, tra lại ghi nhận vận đơn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin ở phạm vi công ty và tập đoàn, người không có quyền.
@@ -5978,3 +6111,39 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 | KICHBAN_KIEMTHU_702 | 512 | Danh sách công ty, cổng có nguồn API; nhật ký gọi không có số điện thoại, mã thành viên | Tích hợp | `apps/api/test/c67-open-affiliate.test.ts` |
 | KICHBAN_KIEMTHU_703 | 513 | MAN_HINH_231: cấp, sao chép, cấp lại, thu hồi; trạng thái; ngôn ngữ | Giao diện (ảnh chụp) | Ảnh xem trước lát L1 |
 | KICHBAN_KIEMTHU_704 | 513 | MAN_HINH_232, bảng đối soát có F, danh sách giao dịch nguồn API; máy tính, điện thoại | Giao diện (ảnh chụp) | Ảnh xem trước lát L1, L2 |
+
+## CHUC_NANG_236 đến CHUC_NANG_239: Điểm thưởng phần 3 – đối tác liên minh điểm ngoài tập đoàn (CONG_VIEC_65)
+
+Dữ liệu chung: `apps/api/test/c65-fixture.ts` trên dữ liệu mẫu CONG_VIEC_24; bộ giả lập bật (`LOYALTY_PARTNER_SIMULATOR=on`), thành viên giả; một hợp đồng trả trước, một hợp đồng trả sau; khóa API phạm vi `loyalty.partner`.
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_705 | 514 | Tạo hợp đồng đúng, đối tác nội bộ, trùng đối tác, trả sau thiếu hạn mức; tỷ lệ chồng lấn, sửa giai đoạn đã bắt đầu; trạng thái; `loyalty.partner.view` gọi sửa | Tích hợp | `apps/api/test/c65-partners.test.ts` |
+| KICHBAN_KIEMTHU_706 | 515 | Liên kết OTP đúng, sai, hết hạn; sai mẫu; số đã liên kết tài khoản khác; lần gửi mã thứ 6 trong giờ; bộ giả lập từ chối, không trả lời; hủy liên kết | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_707 | 516 | Đổi ra thành công; bội số sai; vượt từng tầng giới hạn (biên); Smart OTP sai; đối tác từ chối hoàn điểm đúng lô; quy tắc chống gian lận 2 cảnh báo, chặn trước khi trừ điểm (THAY_DOI_34) | Tích hợp | `apps/api/test/c65-exchanges.test.ts` |
+| KICHBAN_KIEMTHU_708 | 517 | Bộ giả lập không trả lời: Chờ đối tác; hỏi lại thấy hoàn tất; đối tác không có giao dịch thì gửi lại cùng mã; quá 24 giờ; chốt hoàn tất, hoàn điểm; người không quyền chốt | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_709 | 518 | Đổi vào OTP đúng, sai, hết hạn; hạn dùng, giá trị lô; trần tháng của chương trình không bị ảnh hưởng; chi tiêu không đổi | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_710 | 519 | Tặng đúng; khóa khác phạm vi; số chưa có tài khoản; hai yêu cầu song song cùng mã; vượt giới hạn | Tích hợp | `apps/api/test/c65-gifts.test.ts` |
+| KICHBAN_KIEMTHU_711 | 519 | Hủy tặng trong 24 giờ; quá 24 giờ; khách đã dùng một phần; tháng đã chốt | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_712 | 520 | Trả trước: nộp tiền, tặng tới đủ số dư, vượt bị chặn; trả sau: vượt hạn mức, bảng quá hạn; cảnh báo một lần mỗi ngày; đổi cách thanh toán khi còn giao dịch chưa chốt | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_713 | 521 | Bút toán từng loại (chênh lệch dương, âm); hủy tặng ghi ngược; nghĩa vụ điểm (3388) khớp sổ cái | Tích hợp | `apps/api/test/c65-exchanges.test.ts` (đổi), `c65-gifts.test.ts` (tặng, hủy) |
+| KICHBAN_KIEMTHU_714 | 522 | Lập bảng tháng; bộ giả lập sai lệch: thiếu, thừa, khác số; không lấy được số liệu; lập lại sau xử lý; giao dịch của tháng đổi sau khi lập | Tích hợp | `apps/api/test/c65-settlements.test.ts` |
+| KICHBAN_KIEMTHU_715 | 523 | Xác nhận bảng khớp, không khớp; bù trừ; công nợ phải thu, phải trả; trả trước khớp tiền đã nộp; tệp biên bản PDF, ảnh, 10 MB; phiếu thu, chi tới Đã thanh toán | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_716 | 524 | Tắt biến môi trường thì kết nối báo lỗi; tìm OTP, số thành viên, số điện thoại trong nhật ký gọi, nhật ký thao tác | Tích hợp | `apps/api/test/c65-partners.test.ts` (phần L1); phần còn lại rà soát bảo mật (tài liệu `22`) |
+| KICHBAN_KIEMTHU_717 | 525 | MAN_HINH_258 đến 263: năm trạng thái, đổi ngôn ngữ, ba kích thước | Giao diện (ảnh chụp) | Ảnh xem trước lát L1 đến L4 |
+| KICHBAN_KIEMTHU_718 | 525 | MAN_HINH_264, 265 trên ứng dụng (khổ điện thoại): liên kết, đổi ra, đổi vào, chờ, lịch sử | Giao diện (ảnh chụp) | Ảnh xem trước lát L1, L2 |
+
+## CHUC_NANG_240, CHUC_NANG_241: Chia sẻ sản phẩm lên mạng xã hội (CONG_VIEC_68)
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_719 | 526 | Tên có `<b>&"`, mô tả nhiều dòng: đủ thẻ, ảnh tuyệt đối, giá, tên đã thoát, chính sách nội dung; tiếng Anh; hai phân loại khác giá ghi "Từ" | Tích hợp, đơn vị | `apps/api/test/c68-share.test.ts` |
+| KICHBAN_KIEMTHU_720 | 526 | Không ảnh: không có `og:image`; mô tả cắt 160 ký tự; đọc thẻ với máy đọc `facebookexternalhit` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_721 | 527 | `ref` và `ctv`, chỉ `ctv`, không mã, mã sai dạng: đường dẫn nút đúng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_722 | 527 | Có, không có cấu hình cửa hàng ứng dụng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_723 | 528 | Mã sai, không có, sản phẩm công ty khác, ngừng đăng bán, chờ duyệt: `404`; hết hàng `200` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_724 | 529, 530 | Tệp liên kết có, không có cấu hình; tiền tố `/api/v1` không đổi; ứng dụng bản web mở `/s/` chuyển đăng ký có mã; nút chia sẻ tạo `/s/?ref=` | Tích hợp, giao diện | như trên; ảnh xem trước lát L1 |
+| KICHBAN_KIEMTHU_725 | 531 | Ô CSV; ba dòng (một sản phẩm hai phân loại), cột, giá, còn hàng, ảnh phụ, thuộc tính phân loại; không có sản phẩm chưa ảnh; ngừng bán, hết hàng thấy sau 5 phút giữ tạm | Đơn vị, tích hợp | `apps/api/test/c68-product-feed.test.ts` |
+| KICHBAN_KIEMTHU_726 | 532 | Tắt mặc định; sai phiên bản `409`; bật tạo mã; tắt `404`; bật lại giữ mã; tạo lại mã thì mã cũ `404`; mã sai dạng, sai đuôi `404`; nhật ký không có mã | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_727 | 532 | Nhân viên không quyền `403`; người chỉ xem không có `url`, bật, tạo lại `403`; người mua `403` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_728 | 533 | Thẻ tắt, bật, chỉ xem, hộp xác nhận; vi, en; 1360, 390 điểm ảnh; lưu thẻ Bán hàng rồi tắt tệp không lỗi phiên bản | Giao diện (ảnh chụp, trình duyệt) | Ảnh xem trước lát L2 |
