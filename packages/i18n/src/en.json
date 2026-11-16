@@ -746,7 +746,12 @@
     "partnerRejected": "The partner rejected the transaction.",
     "partnerExchangePending": "A transaction with the partner is still pending; the link cannot be removed yet.",
     "partnerExchangeNotPending": "The transaction is not waiting for the partner or for review.",
-    "partnerExchangeNotReview": "Only transactions needing review can be resolved manually."
+    "partnerExchangeNotReview": "Only transactions needing review can be resolved manually.",
+    "partnerPrepaidInsufficient": "The partner's prepaid balance is insufficient.",
+    "partnerCreditExceeded": "The partner is over its credit limit or has an overdue settlement.",
+    "partnerPaymentModeLocked": "The payment method can change only when no transaction is unsettled and no debt is open.",
+    "partnerGiftNoAccount": "This phone number has no VComm account.",
+    "partnerGiftNotCancellable": "The gift cannot be cancelled (over 24 hours, points already used or the month is settled)."
   },
   "login": {
     "title": "Sign in",
@@ -2294,7 +2299,8 @@
     "affiliateVouchers": "Affiliate vouchers",
     "affiliateSettlements": "Affiliate settlements",
     "loyaltyPartners": "Alliance partners",
-    "loyaltyPartnerExchanges": "Partner point conversions"
+    "loyaltyPartnerExchanges": "Partner point conversions",
+    "loyaltyPartnerGifts": "Partner gifted points"
   },
   "partners": {
     "title": "Partners",
@@ -9701,7 +9707,26 @@
     "resolveRefund": "Refund points",
     "resolveFail": "Mark failed",
     "resolvedRefund": "Points refunded to the customer.",
-    "resolvedFail": "Marked failed."
+    "resolvedFail": "Marked failed.",
+    "column_exposure": "Prepaid balance or debt / limit (₫)",
+    "exposurePrepaid": "Prepaid: {available} ₫ left",
+    "exposurePostpaid": "Postpaid: debt {outstanding} / {limit} ₫",
+    "exposurePrepaidDetail": "Unapplied payments {deposits} ₫ − settlement debt {openReceivable} ₫ − unsettled {unsettled} ₫. Top up with a receipt in the Finance app.",
+    "exposurePostpaidDetail": "Settlement debt {openReceivable} ₫ + unsettled {unsettled} ₫ (convert in, gifts minus convert out).",
+    "exposureOverdue": "A settlement is overdue: converting in and gifting are blocked.",
+    "giftsTitle": "Partner gifted points",
+    "noGifts": "No partner gifts in this period.",
+    "giftStatus_completed": "Completed",
+    "giftStatus_cancelled": "Cancelled",
+    "giftColumn_documentNo": "Number",
+    "giftColumn_createdAt": "Time",
+    "giftColumn_partner": "Partner",
+    "giftColumn_partnerCode": "Partner transaction code",
+    "giftColumn_customer": "Customer",
+    "giftColumn_points": "Points",
+    "giftColumn_amount": "Amount incl. tax (₫)",
+    "giftColumn_message": "Message",
+    "giftColumn_status": "Status"
   },
   "loyaltyPartnerApp": {
     "entry": "Alliance partners ›",

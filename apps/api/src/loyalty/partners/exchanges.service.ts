@@ -31,6 +31,7 @@ import { lockAccount } from "../tiers";
 import { assertBuyer, maskMemberNumber, openContract } from "./buyer-partners.service";
 import { PartnerConnectors, type PartnerContractRef } from "./connector";
 import { rateOn } from "./contracts.service";
+import { alertExposure, assertCapacity, lockCapacity, type ExposureContract } from "./exposure";
 import { exchangeDraft, marginTax } from "./postings";
 
 type Executor = Pick<Database, "execute">;
@@ -330,6 +331,7 @@ export class PartnerExchangesService {
           tax_amount = ${tax}, resolved_by = ${resolvedBy}, resolution_note = ${note}, next_check_at = NULL, updated_at = now()
         WHERE id = ${id}`);
       await this.ledger.record(transaction, await exchangeDraft(transaction, id));
+      if (row.direction === "inbound") await alertExposure(transaction, await this.exposureContract(transaction, row.contract_id), await vietnamToday(transaction));
       await notify(transaction, [
         {
           userId: row.user_id,
@@ -391,6 +393,10 @@ export class PartnerExchangesService {
     const id = await this.database.transaction(async (transaction) => {
       await this.lockLimits(transaction, input.contractId, "inbound");
       this.assertWithinLimits(prepared.points, await this.remaining(transaction, userId, input.contractId, "inbound"));
+      // Trả trước, hạn mức (QUYTAC_NGHIEPVU_546): giữ chỗ tiền đối tác phải trả gồm thuế dự tính theo giá trị điểm lúc tạo.
+      await lockCapacity(transaction, input.contractId);
+      const contract = await this.exposureContract(transaction, input.contractId);
+      await assertCapacity(transaction, contract, prepared.today, Math.round(Number(amount)) + marginTax(Number(amount), prepared.points * phase.pointValue, Number(prepared.terms.tax_percent)));
       return (
         await transaction.execute<{ id: string }>(sql`
           INSERT INTO loyalty.partner_exchanges (document_no, contract_id, membership_id, user_id, direction, rate_id, vcomm_points, partner_units, unit_price, amount,
@@ -408,6 +414,13 @@ export class PartnerExchangesService {
       throw new ApiError("BUSINESS_RULE", result.outcome === "rejected" ? "partnerRejected" : "partnerConnectionFailed");
     }
     return buyerItemOf((await this.row(this.database, id))!);
+  }
+
+  private async exposureContract(executor: Executor, contractId: string): Promise<ExposureContract> {
+    return (
+      await executor.execute<ExposureContract>(sql`
+        SELECT id, code, company_id, partner_id, payment_mode, credit_limit::text FROM loyalty.partner_contracts WHERE id = ${contractId}`)
+    ).rows[0]!;
   }
 
   // Đổi vào bước 2: khách nhập OTP; đối tác trừ điểm thì cộng điểm VComm. Mã sai giữ chờ OTP để nhập lại.

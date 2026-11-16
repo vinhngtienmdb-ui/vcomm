@@ -14,6 +14,20 @@ export function marginTax(amount: number, pointValueAmount: number, taxPercent: 
   return margin > 0 ? Math.round((margin * taxPercent) / 100) : 0;
 }
 
+// Phát sinh phải thu đối tác (đổi vào, tặng điểm): Nợ 131 tiền gồm thuế / Có 3388 giá trị điểm; chênh lệch dương Có 511, 3331; âm Nợ 641. sign = -1: ghi ngược (hủy tặng).
+function receivableLines(amount: number, value: number, tax: number, partnerId: string, sign: 1 | -1) {
+  return affiliateLines([
+    { role: "loyalty_partner_receivable", amount: sign * (amount + tax), partnerId },
+    { role: "loyalty_liability", amount: -sign * value },
+    ...(amount > value
+      ? [
+          { role: "loyalty_partner_revenue" as const, amount: -sign * (amount - value) },
+          { role: "loyalty_partner_tax" as const, amount: -sign * tax },
+        ]
+      : [{ role: "loyalty_expense" as const, amount: sign * (value - amount) }]),
+  ]);
+}
+
 export async function exchangeDraft(executor: Executor, exchangeId: string): Promise<DraftJournal | null> {
   const row = (
     await executor.execute<{
@@ -43,16 +57,7 @@ export async function exchangeDraft(executor: Executor, exchangeId: string): Pro
           { role: "loyalty_expense", amount: amount - value },
           { role: "loyalty_partner_payable", amount: -amount, partnerId },
         ])
-      : affiliateLines([
-          { role: "loyalty_partner_receivable", amount: amount + tax, partnerId },
-          { role: "loyalty_liability", amount: -value },
-          ...(amount > value
-            ? [
-                { role: "loyalty_partner_revenue" as const, amount: -(amount - value) },
-                { role: "loyalty_partner_tax" as const, amount: -tax },
-              ]
-            : [{ role: "loyalty_expense" as const, amount: value - amount }]),
-        ]);
+      : receivableLines(amount, value, tax, partnerId, 1);
   return {
     companyId: row.company_id,
     sourceType: "loyalty_partner_exchange",
@@ -61,5 +66,25 @@ export async function exchangeDraft(executor: Executor, exchangeId: string): Pro
     date: row.completed_on,
     description: row.direction === "outbound" ? `Đổi điểm VComm ra điểm đối tác ${row.document_no}` : `Đổi điểm đối tác vào điểm VComm ${row.document_no}`,
     lines,
+  };
+}
+
+// Đối tác tặng điểm (ngày tặng) và hủy tặng (ngày hủy, ghi ngược).
+export async function giftDraft(executor: Executor, giftId: string, cancel: boolean): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; partner_id: string; document_no: string; amount: string; tax_amount: string; point_value_amount: string; day: string | null }>(sql`
+      SELECT c.company_id, c.partner_id, g.document_no, g.amount::text, g.tax_amount::text, g.point_value_amount::text,
+        (${cancel ? sql`g.cancelled_at` : sql`g.created_at`} AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day
+      FROM loyalty.partner_gifts g JOIN loyalty.partner_contracts c ON c.id = g.contract_id WHERE g.id = ${giftId}`)
+  ).rows[0];
+  if (!row?.day) return null;
+  return {
+    companyId: row.company_id,
+    sourceType: cancel ? "loyalty_partner_gift_cancel" : "loyalty_partner_gift",
+    sourceId: giftId,
+    journalNo: cancel ? `${row.document_no}-H` : row.document_no,
+    date: row.day,
+    description: cancel ? `Hủy đối tác tặng điểm ${row.document_no}` : `Đối tác tặng điểm ${row.document_no}`,
+    lines: receivableLines(Math.round(Number(row.amount)), Math.round(Number(row.point_value_amount)), Math.round(Number(row.tax_amount)), row.partner_id, cancel ? -1 : 1),
   };
 }

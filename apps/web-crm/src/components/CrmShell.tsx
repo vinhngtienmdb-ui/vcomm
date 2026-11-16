@@ -24,6 +24,7 @@ export const crmMenu = [
   // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (MAN_HINH_258 đến 263).
   { href: "/loyalty/partners", key: "loyaltyPartners", permission: "loyalty.partner.view" },
   { href: "/loyalty/partner-exchanges", key: "loyaltyPartnerExchanges", permission: "loyalty.partner.view" },
+  { href: "/loyalty/partner-gifts", key: "loyaltyPartnerGifts", permission: "loyalty.partner.view" },
   { href: "/collaborators", key: "collaborators", permission: "marketplace.buyer.view" },
   { href: "/group-buys", key: "groupBuys", permission: "marketplace.order.view" },
   { href: "/community", key: "community", permission: "marketplace.community.manage" },

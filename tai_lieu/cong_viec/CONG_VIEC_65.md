@@ -3,7 +3,7 @@
 - Mô tả: Đối tác ngoài tập đoàn có chương trình điểm riêng (hãng bay, ngân hàng) ký hợp đồng liên minh điểm với công ty vận hành sàn. Khách liên kết số thành viên đối tác trong ứng dụng VComm, đổi điểm VComm ra điểm đối tác và đổi điểm đối tác vào điểm VComm; VComm gọi API đối tác qua lớp kết nối chung (bộ giả lập trong công việc này). Đối tác mua điểm VComm tặng khách qua Open API, trả trước hoặc trả sau theo hợp đồng. Hạch toán từng giao dịch; đối soát tháng đối chiếu tự động với số liệu đối tác, nhân viên xác nhận, bù trừ, công nợ.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 chờ xem trước.
+- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 đạt xem trước; lát L3 chờ xem trước (phần cấp, xoay, thu hồi khóa API `loyalty.partner` của API_303 và khối khóa API MAN_HINH_259 làm sau khi CONG_VIEC_67 vào `main`, vì cùng sửa `core.api_keys` và dịch vụ khóa API).
 - Nhánh: `chuc-nang/CONG_VIEC_65-doi-tac-lien-minh-diem`.
 - Nguồn: tài liệu `01` (MODULE_11: đối soát liên minh; rủi ro ví điện tử), `05` mục 2.3; CONG_VIEC_51 (sổ cái điểm, QUYTAC_NGHIEPVU_344 đến 355); CONG_VIEC_55 (đối soát cửa hàng liên kết, công nợ, hạch toán theo giao dịch); CONG_VIEC_61 (khóa API, nhật ký gọi, tần suất); CONG_VIEC_53 (Smart OTP); CONG_VIEC_60 (tách công việc này, quyết định 4); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (tích hợp bên ngoài, nghiệp vụ tài chính mới, sửa ràng buộc dùng chung `loyalty`, `accounting`, `finance`, `core.api_keys`; nhiều module: MODULE_11, MODULE_06, MODULE_16).
@@ -142,9 +142,10 @@ Sửa màn hình đã có: MAN_HINH_151 (Điểm của tôi) thêm lối vào MA
 | 0151 (L2) | `loyalty.partner_exchanges` (bổ sung) | `point_value`, `validity_months` (đổi vào: giá trị một điểm, hạn dùng của giai đoạn lúc tạo), `otp_expires_at`, `redeem_entry_id`; `loyalty.partner_simulator_transactions` (giao dịch giả của bộ giả lập) |
 | 0151 (L2) | Ràng buộc dùng chung | `accounting.journals.source_type` thêm `loyalty_partner_exchange` (chuyển từ 0153 vì L2 đã hạch toán); vai trò định khoản `loyalty_partner_receivable` (131), `loyalty_partner_payable` (331), `loyalty_partner_revenue` (511 theo Thông tư 99, 5113 theo Thông tư 133), `loyalty_partner_tax` (33311) |
 | 0152 (L3) | `loyalty.partner_gifts` | `id`, `document_no` (`TL…`), `contract_id`, `api_key_id`, `partner_transaction_code` (duy nhất theo hợp đồng), `user_id`, `points`, `unit_price`, `amount`, `tax_amount`, `point_value_amount`, `message`, `lot_id`, `status` (`completed`, `cancelled`), `cancel_reason`, `cancelled_at`, `settlement_id`, `created_at` |
+| 0152 (L3) | Ràng buộc dùng chung | `accounting.journals.source_type` thêm `loyalty_partner_gift`, `loyalty_partner_gift_cancel` (chuyển từ 0153 vì L3 đã hạch toán); `loyalty.partner_contracts.exposure_alerted_on` (cảnh báo số dư, dư nợ một lần mỗi ngày) |
 | 0152 (L3) | `core.api_keys` | `scopes` thêm `loyalty.partner`; `channel_id` cho phép trống khi và chỉ khi phạm vi chỉ gồm giá trị không cần kênh (`loyalty.partner`; khi hợp nhất cùng CONG_VIEC_67 gồm cả `loyalty.member`) |
 | 0153 (L4) | `loyalty.partner_settlements` | `id`, `document_no` (`DM…`), `contract_id`, `period`, A, B, C, số điểm, số đơn vị, `offset_amount`, `net_amount`, `status`, `mismatches` jsonb, `reconcile_error`, `confirm_note`, `confirm_file_id`, `confirmed_by`, `confirmed_at`, `due_date`, `debt_item_id`, `paid_at`, `version`; duy nhất (`contract_id`, `period`) |
-| 0153 (L4) | Ràng buộc dùng chung | `accounting.journals.source_type` thêm `loyalty_partner_gift`, `loyalty_partner_gift_cancel`, `loyalty_partner_settlement`; `finance.debt_items.source_type` thêm `loyalty_partner_settlement`; định nghĩa lại gồm mọi giá trị trên `main` mới nhất. Loại chứng từ `loyalty.partner_settlement` (đánh số, không duyệt) |
+| 0153 (L4) | Ràng buộc dùng chung | `accounting.journals.source_type` thêm `loyalty_partner_settlement`; `finance.debt_items.source_type` thêm `loyalty_partner_settlement`; định nghĩa lại gồm mọi giá trị trên `main` mới nhất. Loại chứng từ `loyalty.partner_settlement` (đánh số, không duyệt) |
 
 ## 10. API
 
@@ -283,7 +284,7 @@ Kiểm thử tự động: `apps/api/test/c65-*.test.ts`.
 |---|---|---|
 | L1 | Database migration 0150; lớp kết nối, bộ giả lập; API_301 đến 303 (trừ khóa API), API_306; MAN_HINH_258, 259, 264 | Ảnh MAN_HINH_258, 259, 264; liên kết thành viên bằng OTP bộ giả lập |
 | L2 | Database migration 0151; đổi ra, đổi vào, chờ đối tác, việc nền hỏi lại, xử lý tay; hạch toán đổi; API_304 (đổi), API_307; MAN_HINH_260, 265; sửa MAN_HINH_151, 147 | Đổi ra thành công, từ chối, không trả lời; đổi vào; ảnh MAN_HINH_260, 265; bút toán |
-| L3 | Database migration 0152; khóa API `loyalty.partner`, API_308, trả trước, trả sau, cảnh báo; hạch toán tặng; MAN_HINH_261, khối khóa API của MAN_HINH_259 | `curl` tặng, gửi lại cùng mã, hủy; chặn khi hết số dư trả trước |
+| L3 | Database migration 0152; phạm vi khóa API `loyalty.partner`, API_308, trả trước, trả sau, cảnh báo; hạch toán tặng, hủy tặng; MAN_HINH_261; khối số dư, dư nợ MAN_HINH_258, 259 (khối khóa API của MAN_HINH_259 và phần khóa của API_303 sau khi CONG_VIEC_67 vào `main`) | `curl` tặng, gửi lại cùng mã, hủy; chặn khi hết số dư trả trước |
 | L4 | Database migration 0153; bảng đối soát tháng, đối chiếu, xác nhận, công nợ; API_305; MAN_HINH_262, 263 | Chạy việc nền lập bảng; bộ giả lập sai lệch; xác nhận; phiếu thu |
 
 ## 21. Điểm chưa xác định

@@ -29,6 +29,7 @@ import { DATABASE, type Database } from "../../database/database.module";
 import type { BuyerAdminActor } from "../../marketplace/buyer-admin.service";
 import { vietnamToday } from "../../marketplace/shop.service";
 import { simulatorEnabled } from "./connector";
+import { exposureOf } from "./exposure";
 
 type Executor = Pick<Database, "execute">;
 type ContractUpdate = z.infer<typeof partnerContractUpdateSchema>;
@@ -37,6 +38,7 @@ const directions: PartnerDirection[] = ["outbound", "inbound", "gift"];
 type ContractRow = {
   id: string;
   code: string;
+  company_id: string;
   partner_id: string;
   partner_code: string;
   partner_name: string;
@@ -72,13 +74,13 @@ type RateRow = {
   version: number;
 };
 
-const contractColumns = sql`c.id, c.code, c.partner_id, p.code AS partner_code, p.name AS partner_name, p.tax_code, c.program_name, c.unit_name_vi, c.unit_name_en,
+const contractColumns = sql`c.id, c.code, c.company_id, c.partner_id, p.code AS partner_code, p.name AS partner_name, p.tax_code, c.program_name, c.unit_name_vi, c.unit_name_en,
   c.contract_no, c.effective_from::text, c.effective_to::text, c.outbound_enabled, c.inbound_enabled, c.gift_enabled, c.payment_mode, c.credit_limit::text,
   c.payment_term_days, c.tax_percent::text, c.connector, c.member_pattern, c.status, c.status_reason, c.version`;
 
 export const directionsOf = (row: Pick<ContractRow, "outbound_enabled" | "inbound_enabled" | "gift_enabled">): PartnerDirection[] => directions.filter((direction) => row[`${direction}_enabled`]);
 
-const listItemOf = (row: ContractRow): PartnerContractListItem => ({
+const listItemOf = async (executor: Executor, row: ContractRow, today: string): Promise<PartnerContractListItem> => ({
   id: row.id,
   code: row.code,
   partnerId: row.partner_id,
@@ -90,7 +92,14 @@ const listItemOf = (row: ContractRow): PartnerContractListItem => ({
   paymentMode: row.payment_mode,
   creditLimit: row.credit_limit === null ? null : trimDecimal(row.credit_limit),
   status: row.status,
+  exposure: await exposureView(executor, row, today),
 });
+
+// Số dư trả trước hoặc dư nợ của hợp đồng (QUYTAC_NGHIEPVU_546).
+async function exposureView(executor: Executor, row: ContractRow, today: string) {
+  const { numbers: _numbers, ...exposure } = await exposureOf(executor, { ...row, company_id: row.company_id }, today);
+  return exposure;
+}
 
 const rateStatus = (row: { starts_on: string; ends_on: string | null }, today: string) => (row.starts_on > today ? "upcoming" : row.ends_on !== null && row.ends_on < today ? "ended" : "active");
 
@@ -206,7 +215,10 @@ export class PartnerContractsService {
     const rows = await this.database.execute<ContractRow>(sql`
       SELECT ${contractColumns} FROM loyalty.partner_contracts c JOIN crm.partners p ON p.id = c.partner_id
       WHERE ${where} ORDER BY c.code DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
-    return { data: rows.rows.map(listItemOf), page: query.page, pageSize: query.pageSize, total };
+    const today = await vietnamToday(this.database);
+    const data: PartnerContractListItem[] = [];
+    for (const row of rows.rows) data.push(await listItemOf(this.database, row, today));
+    return { data, page: query.page, pageSize: query.pageSize, total };
   }
 
   async detail(actor: BuyerAdminActor, contractId: string, canManage: boolean): Promise<PartnerContractDetail> {
@@ -218,7 +230,7 @@ export class PartnerContractsService {
     const linked = await this.database.execute<{ total: number }>(sql`
       SELECT count(*)::int AS total FROM loyalty.partner_memberships WHERE contract_id = ${contractId} AND status = 'linked'`);
     return {
-      ...listItemOf(row),
+      ...(await listItemOf(this.database, row, today)),
       partnerCode: row.partner_code,
       taxCode: row.tax_code,
       contractNo: row.contract_no,
@@ -274,6 +286,13 @@ export class PartnerContractsService {
       const row = await contractRow(transaction, contractId, actor.operatorCompanyId, true);
       if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.status === "terminated") throw new ApiError("BUSINESS_RULE", "partnerContractTerminated");
+      // Đổi cách thanh toán chỉ khi không còn giao dịch chưa chốt và không còn công nợ mở với đối tác (QUYTAC_NGHIEPVU_538).
+      if (row.payment_mode !== input.paymentMode) {
+        const exposure = await exposureOf(transaction, row, await vietnamToday(transaction));
+        const openDebt = await transaction.execute(sql`
+          SELECT 1 FROM finance.debt_items WHERE company_id = ${row.company_id} AND partner_id = ${row.partner_id} AND open_amount > 0 LIMIT 1`);
+        if (Number(exposure.unsettled) !== 0 || openDebt.rows.length > 0) throw new ApiError("BUSINESS_RULE", "partnerPaymentModeLocked");
+      }
       await transaction.execute(sql`
         UPDATE loyalty.partner_contracts SET program_name = ${input.programName}, unit_name_vi = ${input.unitNameVi}, unit_name_en = ${input.unitNameEn},
           contract_no = ${input.contractNo}, effective_from = ${input.effectiveFrom}::date, effective_to = ${input.effectiveTo}::date, outbound_enabled = ${input.outboundEnabled},
@@ -299,6 +318,12 @@ export class PartnerContractsService {
         UPDATE loyalty.partner_contracts SET status = ${target}, status_reason = ${target === "active" ? null : reason}, updated_by = ${actor.userId}, updated_at = now(),
           version = version + 1
         WHERE id = ${contractId}`);
+      // Đối tác là khách hàng và nhà cung cấp của công ty vận hành sàn để lập phiếu thu (nộp tiền trả trước, thu nợ), phiếu chi (CONG_VIEC_13).
+      if (target === "active") {
+        await transaction.execute(sql`
+          INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier) VALUES (${row.company_id}, ${row.partner_id}, true, true)
+          ON CONFLICT (company_id, partner_id) DO UPDATE SET is_customer = true, is_supplier = true`);
+      }
       if (target === "terminated") {
         await transaction.execute(sql`UPDATE loyalty.partner_memberships SET status = 'unlinked', unlinked_at = now() WHERE contract_id = ${contractId} AND status = 'linked'`);
       }

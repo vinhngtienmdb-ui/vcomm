@@ -179,6 +179,24 @@ export async function refundRedeemEntry(
   return addEntry(executor, { userId: input.userId, kind: "redeem_refund", points, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
 }
 
+// CONG_VIEC_65 (QUYTAC_NGHIEPVU_545): hủy tặng điểm – trừ lại toàn bộ phần còn lại của lô tặng (bên gọi đã kiểm lô còn đủ). Trả số điểm đã trừ.
+export async function reverseLot(executor: Executor, input: { lotId: string; userId: string; sourceType: PartnerSourceType; sourceId: string; companyId: string }): Promise<number> {
+  await lockAccount(executor, input.userId);
+  const lot = (await executor.execute<{ remaining: number; point_value: string }>(sql`SELECT remaining, point_value::text FROM loyalty.lots WHERE id = ${input.lotId} FOR UPDATE`)).rows[0]!;
+  if (lot.remaining === 0) return 0;
+  await executor.execute(sql`UPDATE loyalty.lots SET remaining = 0 WHERE id = ${input.lotId}`);
+  await addEntry(executor, {
+    userId: input.userId,
+    kind: "earn_reversal",
+    points: -lot.remaining,
+    sourceType: input.sourceType,
+    sourceId: input.sourceId,
+    companyId: input.companyId,
+    allocations: [{ lotId: input.lotId, points: -lot.remaining, pointValue: Number(lot.point_value) }],
+  });
+  return lot.remaining;
+}
+
 // Ghi sổ phiếu điều chỉnh đã duyệt (QUYTAC_NGHIEPVU_353): cộng tạo lô theo hạn, giá trị đã chốt khi gửi; trừ lấy lô hạn sớm trước, không vượt số dư.
 export async function adjustPoints(
   executor: Executor,

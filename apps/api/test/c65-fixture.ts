@@ -1,5 +1,5 @@
 // Dữ liệu dùng chung cho kiểm thử giao dịch với đối tác liên minh (CONG_VIEC_65 lát L2 trở đi): công ty vận hành sàn đã khởi tạo kế toán,
-// giai đoạn điểm (1 điểm = 1 đồng, hạn 12 tháng), hợp đồng đang hoạt động với tỷ lệ đổi ra 10 điểm = 1 đơn vị (8 đồng/đơn vị), đổi vào 1 đơn vị = 12 điểm (11 đồng/đơn vị),
+// giai đoạn điểm (1 điểm = 1 đồng, hạn 12 tháng), hợp đồng trả sau hạn mức 1 tỷ đồng đang hoạt động với tỷ lệ đổi ra 10 điểm = 1 đơn vị (8 đồng/đơn vị), đổi vào 1 đơn vị = 12 điểm (11 đồng/đơn vị),
 // bộ giả lập có hai thành viên giả, người mua đã liên kết thành viên.
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { createHash, randomUUID } from "node:crypto";
@@ -92,8 +92,8 @@ export async function preparePartners(application: NestExpressApplication, pool:
       outboundEnabled: true,
       inboundEnabled: true,
       giftEnabled: true,
-      paymentMode: "prepaid",
-      creditLimit: null,
+      paymentMode: "postpaid",
+      creditLimit: "1000000000",
       paymentTermDays: 15,
       taxPercent: "10",
       connector: "simulator",

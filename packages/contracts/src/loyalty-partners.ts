@@ -1,6 +1,7 @@
 // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (MODULE_11). Tệp riêng để không sửa cùng chỗ với công việc khác.
 // Tiền, phần trăm là chuỗi số thập phân; điểm, số đơn vị điểm đối tác là số nguyên.
 import { z } from "zod";
+import { vietnamPhone } from "./affiliate";
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const decimal = (maximumIntegerDigits: number) =>
@@ -113,6 +114,23 @@ export interface PartnerRate {
   version: number;
 }
 
+// QUYTAC_NGHIEPVU_546: trả trước (số dư dùng được) hoặc trả sau (dư nợ so với hạn mức).
+export interface PartnerExposure {
+  paymentMode: PartnerPaymentMode;
+  // Tiền đối tác đã nộp còn chưa cấn trừ.
+  deposits: string;
+  // Phải thu còn mở của bảng đối soát đã xác nhận.
+  openReceivable: string;
+  // Phải thu trừ phải trả của giao dịch hoàn tất chưa vào bảng đối soát đã xác nhận.
+  unsettled: string;
+  // Trả trước: số dư dùng được; trả sau: hạn mức còn lại.
+  available: string | null;
+  // Trả sau: dư nợ.
+  outstanding: string | null;
+  creditLimit: string | null;
+  overdue: boolean;
+}
+
 export interface PartnerContractListItem {
   id: string;
   code: string;
@@ -125,6 +143,7 @@ export interface PartnerContractListItem {
   paymentMode: PartnerPaymentMode;
   creditLimit: string | null;
   status: PartnerContractStatus;
+  exposure: PartnerExposure;
 }
 
 export interface PartnerSimulatorMember {
@@ -298,4 +317,49 @@ export interface PartnerExchangeItem extends BuyerPartnerExchange {
   attempts: number;
   lastErrorCode: string | null;
   resolutionNote: string | null;
+}
+
+// QUYTAC_NGHIEPVU_545: đối tác tặng điểm qua Open API (lát L3).
+export const partnerTransactionCodePattern = /^[A-Za-z0-9._-]{1,50}$/;
+export const openPartnerGiftSchema = z
+  .object({
+    partnerTransactionCode: z.string().trim().regex(partnerTransactionCodePattern, "invalidValue"),
+    phone: vietnamPhone,
+    points: z.number().int().min(1).max(1_000_000_000),
+    message: z.string().trim().min(1).max(200).optional(),
+  })
+  .strict();
+export const openPartnerGiftCancelSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const partnerGiftStatuses = ["completed", "cancelled"] as const;
+export type PartnerGiftStatus = (typeof partnerGiftStatuses)[number];
+export const openPartnerGiftListQuerySchema = z.object({
+  status: z.enum(partnerGiftStatuses).optional(),
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  ...pageQuery,
+});
+export const partnerGiftListQuerySchema = openPartnerGiftListQuerySchema.extend({ contractId: z.string().uuid().optional() });
+
+export interface OpenPartnerGift {
+  partnerTransactionCode: string;
+  documentNo: string;
+  status: PartnerGiftStatus;
+  points: number;
+  // Tiền đối tác phải trả (chưa thuế) và thuế phần chênh lệch.
+  amount: string;
+  taxAmount: string;
+  customerMasked: string;
+  message: string | null;
+  createdAt: string;
+  cancelledAt: string | null;
+}
+
+export interface PartnerGiftItem extends OpenPartnerGift {
+  id: string;
+  contractId: string;
+  contractCode: string;
+  partnerName: string;
+  unitPrice: string;
+  pointValueAmount: string;
+  cancelReason: string | null;
 }

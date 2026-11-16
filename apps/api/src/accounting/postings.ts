@@ -159,7 +159,9 @@ export interface DraftJournal {
     | "affiliate_voucher"
     | "affiliate_voucher_expire"
     | "affiliate_settlement"
-    | "loyalty_partner_exchange";
+    | "loyalty_partner_exchange"
+    | "loyalty_partner_gift"
+    | "loyalty_partner_gift_cancel";
   sourceId: string;
   journalNo: string;
   date: string;

@@ -1,13 +1,20 @@
 "use client";
 
 // Điều khoản hợp đồng đối tác liên minh điểm dùng chung cho MAN_HINH_258 thêm mới và MAN_HINH_259 chi tiết (CONG_VIEC_65; QUYTAC_NGHIEPVU_538, 540).
-import type { PartnerContractDetail, PartnerContractStatus, PartnerDirection, PartnerLimit } from "contracts";
+import type { PartnerContractDetail, PartnerContractStatus, PartnerDirection, PartnerExposure, PartnerLimit } from "contracts";
 import { useTranslations } from "next-intl";
 import { Field } from "ui/components/Form";
-import { vietnamToday } from "ui/lib/format";
+import { formatNumber, vietnamToday } from "ui/lib/format";
 
 export const partnerStatusClass: Record<PartnerContractStatus, string> = { draft: "trung-tinh", active: "thanh-cong", suspended: "canh-bao", terminated: "loi" };
 export const partnerDirections: PartnerDirection[] = ["outbound", "inbound", "gift"];
+
+// Số dư trả trước hoặc dư nợ / hạn mức (QUYTAC_NGHIEPVU_546).
+export function exposureSummary(t: (key: string, values?: Record<string, string>) => string, exposure: PartnerExposure): string {
+  return exposure.paymentMode === "prepaid"
+    ? t("exposurePrepaid", { available: formatNumber(exposure.available ?? "0", 0) })
+    : t("exposurePostpaid", { outstanding: formatNumber(exposure.outstanding ?? "0", 0), limit: formatNumber(exposure.creditLimit ?? "0", 0) });
+}
 const limitKeys = ["minPoints", "maxPoints", "customerDailyPoints", "customerMonthlyPoints", "partnerMonthlyPoints"] as const;
 type LimitForm = Record<(typeof limitKeys)[number], string>;
 

@@ -746,7 +746,12 @@
     "partnerRejected": "Đối tác từ chối giao dịch.",
     "partnerExchangePending": "Còn giao dịch đang chờ với đối tác, chưa hủy liên kết được.",
     "partnerExchangeNotPending": "Giao dịch không ở trạng thái chờ đối tác hoặc cần xử lý.",
-    "partnerExchangeNotReview": "Chỉ chốt tay được giao dịch cần xử lý."
+    "partnerExchangeNotReview": "Chỉ chốt tay được giao dịch cần xử lý.",
+    "partnerPrepaidInsufficient": "Số dư trả trước của đối tác không đủ.",
+    "partnerCreditExceeded": "Đối tác vượt hạn mức hoặc quá hạn thanh toán.",
+    "partnerPaymentModeLocked": "Chỉ đổi được cách thanh toán khi không còn giao dịch chưa chốt và không còn công nợ mở.",
+    "partnerGiftNoAccount": "Số điện thoại chưa có tài khoản VComm.",
+    "partnerGiftNotCancellable": "Giao dịch tặng không hủy được (quá 24 giờ, khách đã dùng điểm hoặc tháng đã chốt)."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2294,7 +2299,8 @@
     "affiliateVouchers": "Voucher liên kết",
     "affiliateSettlements": "Đối soát liên kết",
     "loyaltyPartners": "Đối tác liên minh",
-    "loyaltyPartnerExchanges": "Giao dịch đổi điểm đối tác"
+    "loyaltyPartnerExchanges": "Giao dịch đổi điểm đối tác",
+    "loyaltyPartnerGifts": "Điểm đối tác tặng"
   },
   "partners": {
     "title": "Đối tác",
@@ -9701,7 +9707,26 @@
     "resolveRefund": "Hoàn điểm",
     "resolveFail": "Chốt thất bại",
     "resolvedRefund": "Đã hoàn điểm cho khách.",
-    "resolvedFail": "Đã chốt thất bại."
+    "resolvedFail": "Đã chốt thất bại.",
+    "column_exposure": "Số dư trả trước hoặc dư nợ / hạn mức (₫)",
+    "exposurePrepaid": "Trả trước: còn {available} ₫",
+    "exposurePostpaid": "Trả sau: dư nợ {outstanding} / {limit} ₫",
+    "exposurePrepaidDetail": "Đã nộp chưa cấn trừ {deposits} ₫ − công nợ bảng đối soát {openReceivable} ₫ − phát sinh chưa chốt {unsettled} ₫. Nộp thêm bằng phiếu thu ở mini app Tài chính.",
+    "exposurePostpaidDetail": "Công nợ bảng đối soát {openReceivable} ₫ + phát sinh chưa chốt {unsettled} ₫ (đổi vào, tặng trừ đổi ra).",
+    "exposureOverdue": "Có bảng đối soát quá hạn thanh toán: chặn đổi vào, tặng điểm.",
+    "giftsTitle": "Điểm đối tác tặng",
+    "noGifts": "Chưa có điểm đối tác tặng trong khoảng thời gian này.",
+    "giftStatus_completed": "Hoàn tất",
+    "giftStatus_cancelled": "Đã hủy",
+    "giftColumn_documentNo": "Số",
+    "giftColumn_createdAt": "Thời điểm",
+    "giftColumn_partner": "Đối tác",
+    "giftColumn_partnerCode": "Mã giao dịch đối tác",
+    "giftColumn_customer": "Khách",
+    "giftColumn_points": "Điểm",
+    "giftColumn_amount": "Tiền gồm thuế (₫)",
+    "giftColumn_message": "Nội dung",
+    "giftColumn_status": "Trạng thái"
   },
   "loyaltyPartnerApp": {
     "entry": "Đối tác liên minh ›",

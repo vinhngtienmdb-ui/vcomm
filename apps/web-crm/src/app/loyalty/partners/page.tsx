@@ -11,9 +11,8 @@ import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { formatNumber } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
-import { defaultPartnerForm, partnerBody, partnerStatusClass, PartnerTermsFields, type PartnerForm } from "@/components/LoyaltyPartnerForm";
+import { defaultPartnerForm, exposureSummary, partnerBody, partnerStatusClass, PartnerTermsFields, type PartnerForm } from "@/components/LoyaltyPartnerForm";
 
 function CreateDrawer({ onClose }: { onClose: () => void }) {
   const t = useTranslations("loyaltyPartner");
@@ -139,7 +138,7 @@ export default function LoyaltyPartnersPage() {
                 <table>
                   <thead>
                     <tr>
-                      {["code", "partner", "program", "directions", "paymentMode", "creditLimit", "status"].map((key) => (
+                      {["code", "partner", "program", "directions", "paymentMode", "exposure", "status"].map((key) => (
                         <th key={key}>{t(`column_${key}`)}</th>
                       ))}
                     </tr>
@@ -156,7 +155,10 @@ export default function LoyaltyPartnersPage() {
                         </td>
                         <td data-nhan={t("column_directions")}>{item.directions.map((direction) => t(`direction_${direction}`)).join(", ")}</td>
                         <td data-nhan={t("column_paymentMode")}>{t(`paymentMode_${item.paymentMode}`)}</td>
-                        <td data-nhan={t("column_creditLimit")}>{item.creditLimit ? formatNumber(item.creditLimit, 0) : "—"}</td>
+                        <td data-nhan={t("column_exposure")}>
+                          {exposureSummary(t, item.exposure)}
+                          {item.exposure.overdue && <div className="chu-thich">{t("exposureOverdue")}</div>}
+                        </td>
                         <td data-nhan={t("column_status")}>
                           <span className={`nhan ${partnerStatusClass[item.status]}`}>{t(`status_${item.status}`)}</span>
                         </td>

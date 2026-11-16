@@ -2,6 +2,8 @@
 // API_306, API_307: người mua liên kết số thành viên đối tác, đổi điểm trên ứng dụng VComm.
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  partnerGiftListQuerySchema,
+  type PartnerGiftItem,
   buyerPartnerExchangeCreateSchema,
   buyerPartnerExchangeListQuerySchema,
   buyerPartnerExchangeOtpSchema,
@@ -36,6 +38,7 @@ import { BuyerAdminService } from "../../marketplace/buyer-admin.service";
 import { BuyerPartnersService } from "./buyer-partners.service";
 import { PartnerContractsService } from "./contracts.service";
 import { PartnerExchangesService } from "./exchanges.service";
+import { PartnerGiftsService } from "./gifts.service";
 
 @Controller("loyalty")
 export class PartnerContractsController {
@@ -43,6 +46,7 @@ export class PartnerContractsController {
     private readonly admin: BuyerAdminService,
     private readonly contracts: PartnerContractsService,
     private readonly exchanges: PartnerExchangesService,
+    private readonly gifts: PartnerGiftsService,
   ) {}
 
   private manager(request: AuthenticatedRequest) {
@@ -129,6 +133,13 @@ export class PartnerContractsController {
   @HttpCode(200)
   async resolve(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<PartnerExchangeItem> {
     return this.exchanges.resolve(await this.manager(request), id, partnerExchangeResolveSchema.parse(body));
+  }
+
+  // API_304 (phần tặng): điểm đối tác tặng.
+  @Get("partner-gifts")
+  async giftList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<PartnerGiftItem>> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view");
+    return this.gifts.list(actor, partnerGiftListQuerySchema.parse(query));
   }
 
   // API_303 (phần bộ giả lập; khóa API ở lát L3).

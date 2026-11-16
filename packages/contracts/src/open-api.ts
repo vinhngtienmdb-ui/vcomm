@@ -2,7 +2,8 @@
 import { z } from "zod";
 import { vietnamPhone } from "./affiliate";
 
-export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member"] as const;
+// CONG_VIEC_65: `loyalty.partner` cho đối tác liên minh điểm tặng điểm (cấp ở màn hình đối tác liên minh).
+export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member", "loyalty.partner"] as const;
 export type ApiKeyScope = (typeof apiKeyScopes)[number];
 export const apiKeyKinds = ["partner", "internal"] as const;
 export type ApiKeyKind = (typeof apiKeyKinds)[number];

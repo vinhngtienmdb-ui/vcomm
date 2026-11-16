@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_259 Chi tiết đối tác liên minh: hợp đồng, giới hạn, trạng thái, tỷ lệ theo chiều và giai đoạn, bộ giả lập
-// (CONG_VIEC_65; CHUC_NANG_236; API_301 đến 303). Khối khóa API, số dư trả trước hoặc dư nợ thêm ở lát L3.
+// (CONG_VIEC_65; CHUC_NANG_236; API_301 đến 303); số dư trả trước hoặc dư nợ (QUYTAC_NGHIEPVU_546).
 import type { PartnerContractDetail, PartnerDirection, PartnerRate, PartnerSimulatorMode, PartnerSimulatorState } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,7 +14,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDate, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
-import { partnerBody, partnerDirections, partnerFormOf, partnerStatusClass, PartnerTermsFields, type PartnerForm } from "@/components/LoyaltyPartnerForm";
+import { exposureSummary, partnerBody, partnerDirections, partnerFormOf, partnerStatusClass, PartnerTermsFields, type PartnerForm } from "@/components/LoyaltyPartnerForm";
 
 const rateStatusClass = { upcoming: "thong-tin", active: "thanh-cong", ended: "trung-tinh" } as const;
 
@@ -377,6 +377,19 @@ export default function LoyaltyPartnerPage() {
             )}
           </div>
           {data.statusReason && <div className="khoi-canh-bao canh-bao">{t("statusReason", { reason: data.statusReason })}</div>}
+          <div className={`khoi-canh-bao ${data.exposure.overdue ? "loi" : "thong-tin"}`}>
+            <strong>{exposureSummary(t, data.exposure)}</strong>
+            <div>
+              {data.paymentMode === "prepaid"
+                ? t("exposurePrepaidDetail", {
+                    deposits: formatNumber(data.exposure.deposits, 0),
+                    openReceivable: formatNumber(data.exposure.openReceivable, 0),
+                    unsettled: formatNumber(data.exposure.unsettled, 0),
+                  })
+                : t("exposurePostpaidDetail", { openReceivable: formatNumber(data.exposure.openReceivable, 0), unsettled: formatNumber(data.exposure.unsettled, 0) })}
+            </div>
+            {data.exposure.overdue && <div>{t("exposureOverdue")}</div>}
+          </div>
           <section className="the">
             <h2>{t("contract")}</h2>
             <p className="chu-thich">
