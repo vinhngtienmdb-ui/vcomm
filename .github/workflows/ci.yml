@@ -22,7 +22,7 @@ jobs:
   kiem-tra:
     name: Kiểm tra kiểu, lint, kiểm thử
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     # Dịch vụ cho kiểm thử tích hợp.
     services:
       postgres:
