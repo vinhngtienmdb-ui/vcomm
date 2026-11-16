@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_67
+
+- Phạm vi: Cửa hàng liên kết phần 2 (tích, đổi điểm qua Open API; OTP; phí tin nhắn theo THAY_DOI_31) lát L1, L2, nhánh `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2` (pull request #145, commit `14dad06`, đã hợp nhất main 0.9.0 và bản sửa LOI_13).
+- Kết quả: toàn bộ kiểm thử API 136 tệp, 737/737 đạt; c67-open-affiliate 8/8, c67-otp-sms 2/2 (KICHBAN_KIEMTHU_693 đến 702); KICHBAN_KIEMTHU_703, 704 đạt qua ảnh ứng dụng chạy thật ở điểm xem trước L1, L2 (máy tính 1360, điện thoại 390 điểm ảnh); kiểm tra kiểu api, web-crm, web-affiliate, web-platform đạt; CI đạt.
+- Bảo mật phần B, C: không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thư viện mới.
+- Còn mở (không chặn): phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức; liên kết Nhật ký gọi chưa lọc sẵn theo khóa; phát hành thật cần cấu hình mẫu OTP eSMS.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-16.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.9.0
 
 - Phạm vi: nhánh `phat-hanh/v0.9.0` gộp CONG_VIEC_59 (`73465083`, `da9255b6`), CONG_VIEC_66 (`c8dfd6a0`) (pull request #151, commit hợp nhất `e6d26a9`).
