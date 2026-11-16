@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-16 – CONG_VIEC_62
+
+- Phạm vi: Dropship (MODULE_16 phần 2) lát L1 đến L5, nhánh `chuc-nang/CONG_VIEC_62-dropship` (pull request #153, commit `7a3e5af`, đã hợp nhất main mới nhất); THAY_DOI_35.
+- Kết quả: toàn bộ kiểm thử API 143 tệp, 765/765 đạt (commit `36a3640`); c62-dropship 10/10 (KICHBAN_KIEMTHU_639 đến 647), c62-dropship-resellers 5/5 (KICHBAN_KIEMTHU_648, 649, 650, 729, 730); KICHBAN_KIEMTHU_651, 652 kiểm bằng ảnh chạy thật mỗi lát (1360, 390 điểm ảnh), chưa tự động; kiểm tra kiểu 7 ứng dụng đạt; khóa dịch khớp 9789 khóa; CI đạt.
+- Lỗi phát hiện khi tự rà soát, đã sửa trước nghiệm thu (commit `36a3640`, chưa phát hành nên không cấp mã LOI): ghi sổ phiếu kho Dropship bị chặn khi nhà cung cấp hạ tồn hoặc ngừng sản phẩm sau khi có đơn mua (Cao); khóa Open API đối tác vừa là khách vừa là nhà cung cấp, tắt vai trò khách vẫn đặt đơn được (Trung bình, bảo mật); đơn sàn, bán lẻ có thể xuất từ kho Dropship; đối soát nhà cung cấp bỏ sót trả hàng kỳ này của đơn kỳ trước; làm tròn bảng đối soát người bán có thể vi phạm ràng buộc; hủy vận đơn gọi đơn vị vận chuyển trong giao dịch; tiêu đề Excel cứng tiếng Việt.
+- Bảo mật phần B, C: rà soát độc lập không còn lỗ hổng Nghiêm trọng, Cao, Trung bình; không thư viện mới; không khóa bí mật trong commit.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-16.
+
+## Lần kiểm thử 2026-11-16 – CONG_VIEC_65
+
+- Phạm vi: Điểm thưởng phần 3 – đối tác liên minh điểm ngoài tập đoàn (liên kết, đổi ra, đổi vào, tặng điểm qua Open API, trả trước, trả sau, đối soát tháng; THAY_DOI_34) lát L1 đến L4, nhánh `chuc-nang/CONG_VIEC_65-doi-tac-lien-minh-diem` (pull request #152, commit `b823305`, đã hợp nhất main 0.10.0).
+- Kết quả: toàn bộ kiểm thử API 145 tệp, 788/788 đạt; c65-partners 9/9, c65-exchanges 12/12, c65-gifts 11/11, c65-settlements 6/6 (KICHBAN_KIEMTHU_705 đến 716); KICHBAN_KIEMTHU_717, 718 đạt qua ảnh chạy thật ở điểm xem trước L1 đến L4; kiểm tra kiểu api, web-crm, mobile-vcomm đạt; CI đạt.
+- Bảo mật phần B, C: không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thư viện mới; OTP đối tác, số thành viên đầy đủ, số điện thoại không ghi log.
+- Còn mở (không chặn): bộ chuyển đổi thật cho từng đối tác; liên kết Nhật ký gọi chưa lọc theo khóa.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-16.
+
 ## Lần kiểm thử 2026-11-16 – CONG_VIEC_68
 
 - Phạm vi: chia sẻ sản phẩm lên mạng xã hội lát L1, L2, nhánh `chuc-nang/CONG_VIEC_68-chia-se-mang-xa-hoi` (pull request #157, commit `130bf70`, đã hợp nhất main 0.10.0).

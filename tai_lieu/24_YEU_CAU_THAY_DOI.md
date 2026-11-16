@@ -513,4 +513,17 @@
 - Kiểm thử cần thực hiện: kịch bản mới trong c65-exchanges (mức cảnh báo ghi vụ việc kèm số DL; mức chặn không trừ điểm, không gọi đối tác, không tạo giao dịch); chạy lại c60-fraud và toàn bộ kiểm thử.
 - Mức quy mô: Nhỏ (mở rộng thời điểm xét của quy tắc đã có, không đổi dữ liệu, kiến trúc); làm trong CONG_VIEC_65 lát L4.
 - Rủi ro: thấp (mặc định chỉ cảnh báo; chặn nhầm chỉ khi quản lý đặt ngưỡng chặn).
-- Trạng thái: Đã phê duyệt 2026-11-16. Đang làm trong CONG_VIEC_65.
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_65 lát L4 (c65-exchanges 12/12, c60 13/13, toàn bộ 788/788), nghiệm thu 2026-11-16, chờ phát hành.
+
+### THAY_DOI_35: Dropship người bán – phí giao qua đơn bán dịch vụ, dùng quyền có sẵn – 2026-11-16
+- Lý do: khi làm CONG_VIEC_62 lát L4, L5, hai điểm khác đặc tả đã duyệt 2026-11-12: cách ghi phí giao của bảng đối soát tuần người bán và quyền riêng cho vận đơn, đối soát người bán.
+- Nội dung thay đổi:
+  - Phí giao D và thuế E của bảng đối soát tuần lập thành đơn bán dịch vụ "Phí giao hàng dropship" cho người bán, dùng luồng công nợ, bút toán, hóa đơn điện tử có sẵn, thay nguồn công nợ riêng `dropship_settlement`; số còn lại âm lập phiếu chi hoàn tiền ở trạng thái Nháp (người dùng chọn 2026-11-16).
+  - Không thêm quyền `sales.reseller_shipment.manage`, `finance.reseller_settlement.manage`: vận đơn dùng quyền xuất kho bán hàng có sẵn `inventory.sales.issue`; đối soát người bán dùng `finance.debt.view`, `finance.debt.manage`; vai trò Kế toán mặc định không có `purchasing.dropship.view`, gán thêm khi cần (người dùng chọn 2026-11-16).
+- Thành phần bị ảnh hưởng: CONG_VIEC_62 (đặc tả mục 16, 17, 20); CONG_VIEC_08, 13, 16 (đơn bán, công nợ, hóa đơn điện tử được dùng lại, không sửa hành vi).
+- Dữ liệu, API, giao diện, quyền: database migration 0135 không định nghĩa lại `finance.debt_items.source_type`, `accounting.journals.source_type`, không sửa bảng hóa đơn; thêm `sales.settings.dropship_fee_variant_id`. API_312, 313; MAN_HINH_240, 241. Không thêm hai quyền nêu trên.
+- Ảnh hưởng chức năng cũ: không; sau triển khai phải chọn sản phẩm dịch vụ "Phí giao hàng dropship" ở Cài đặt bán hàng trước khi xác nhận bảng có phí giao.
+- Kiểm thử cần thực hiện: c62-dropship-resellers (KICHBAN_KIEMTHU_650), hồi quy đơn bán, công nợ, hóa đơn điện tử, toàn bộ kiểm thử.
+- Mức quy mô: Nhỏ trong CONG_VIEC_62 (chưa phát hành; giảm thay đổi cấu trúc dữ liệu dùng chung).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_62 lát L4, L5, nghiệm thu 2026-11-16, chờ phát hành.

@@ -14,15 +14,21 @@
 - Người dùng duyệt lát L3 CONG_VIEC_62, lát L3 CONG_VIEC_65, lát L2 CONG_VIEC_68. Ba nhánh đã hợp nhất main 0.10.0. Cấp TIEUCHI_NGHIEMTHU_534, KICHBAN_KIEMTHU_729, 730 cho CONG_VIEC_62 lát L4.
 - CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội, MODULE_09) lát L1, L2: người dùng nghiệm thu; pull request #157 (commit `130bf70`; kiểm thử 760/761, lỗi còn lại c60-fraud do quyền cơ sở dữ liệu cục bộ, chạy lại đạt): trang chia sẻ /s/ có thẻ Open Graph giữ mã giới thiệu, cộng tác viên; tệp danh mục Facebook Commerce Manager có mã bí mật; database migration 0154; API_314 đến 317. Không dùng MAN_HINH_267, 268, database migration 0155. Cấp THAY_DOI_33 (đường dẫn chia sẻ /s/ thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434), người dùng duyệt 2026-11-16.
 - Người dùng nghiệm thu CONG_VIEC_67 (Cửa hàng liên kết phần 2), pull request #145 (kiểm thử 737/737). Người dùng duyệt lát L2 CONG_VIEC_65, lát L2 CONG_VIEC_62, lát L1 CONG_VIEC_68.
+- Người dùng duyệt lát L4 CONG_VIEC_65, lát L4, L5 CONG_VIEC_62.
+- Người dùng nghiệm thu CONG_VIEC_62 (Dropship, MODULE_16 phần 2) lát L1 đến L5, pull request #153 (commit `7a3e5af`; kiểm thử 765/765): đơn Dropship giao thẳng từ nhà cung cấp, trả hàng, đối soát nhà cung cấp, Open API nhà cung cấp (phạm vi dropship.supplier), người bán Dropship có vận đơn và đối soát tuần; database migration 0132 đến 0135. Tự rà soát sửa 7 lỗi trước nghiệm thu. Cấp THAY_DOI_35.
+- Người dùng nghiệm thu CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn, MODULE_11 phần 3) lát L1 đến L4, pull request #152 (commit `b823305`; kiểm thử 788/788): liên kết, đổi điểm hai chiều, tặng điểm qua Open API (phạm vi loyalty.partner), trả trước, trả sau, đối soát tháng; database migration 0150 đến 0153; THAY_DOI_34 đã làm.
+- Nâng giới hạn thời gian bước kiểm thử của CI từ 20 lên 40 phút (pull request #164) vì CI bị hủy khi nhiều nhánh chạy cùng lúc.
 
 ### Quyết định
 
 - Phát hành 0.10.0 gồm CONG_VIEC_60, 67 ngay; dành database migration 0156 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần. Chưa triển khai.
 - Quy tắc chống gian lận 2 (QUYTAC_NGHIEPVU_476) áp dụng đủ cho chiều đổi điểm ra của CONG_VIEC_65 (làm trong lát L4; phiếu tài liệu 24 lập sau).
 - CONG_VIEC_68: trang chia sẻ do API trả HTML; tên miền qua biến SHARE_PUBLIC_URL; tệp danh mục gồm mọi sản phẩm đang bán, sản phẩm chưa có ảnh không đưa vào; mã bí mật quản lý trên web; không thêm thư viện (người dùng chọn 2026-11-12).
+- Người dùng chọn 2026-11-16: CONG_VIEC_62 phí giao người bán qua đơn bán dịch vụ, dùng quyền có sẵn (THAY_DOI_35); CONG_VIEC_65 số giao dịch tặng điểm đổi tiền tố TL thành DT; nâng giới hạn CI lên 40 phút.
 
 ### Vấn đề tồn đọng
 
+- CONG_VIEC_65: chạy thật với đối tác cụ thể cần bộ chuyển đổi theo tài liệu API của đối tác; liên kết Nhật ký gọi chưa lọc theo khóa. CONG_VIEC_62: sau triển khai chọn sản phẩm dịch vụ "Phí giao hàng dropship" ở Cài đặt bán hàng.
 - CONG_VIEC_68: thử thẻ trên Facebook, Zalo và Commerce Manager thật khi có tên miền HTTPS; khai liên kết tên miền trong bản dựng ứng dụng khi phát hành ứng dụng.
 
 ## 2026-11-12
