@@ -61,6 +61,7 @@ let bank: { contractId: string; partnerId: string };
 let airline: { contractId: string; partnerId: string };
 let wallet: { contractId: string; partnerId: string };
 let bankSettlement: string;
+let bankKey: string;
 
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
@@ -72,7 +73,7 @@ beforeAll(async () => {
 
   // Ngân hàng (trả sau): đổi ra 500 đơn vị, đổi vào 1.000 đơn vị, tặng 20.000 điểm.
   bank = await fixture.createContract("Ngân hàng Đông Á", "0300000301", { creditLimit: "1000000000", limits: giftLimits });
-  const bankKey = await giftSetup(bank.contractId);
+  bankKey = await giftSetup(bank.contractId);
   const thao = await fixture.register("0912300001", "Nguyễn Thị Thảo");
   await fixture.link(thao, bank.contractId, "9704123456");
   await fixture.grantPoints(thao.id, 100000);
@@ -189,10 +190,25 @@ describe("KICHBAN_KIEMTHU_715: xác nhận, bù trừ, công nợ, thanh toán",
     expect((await fixture.call("get", `/loyalty/partners/${bank.contractId}`)).body.exposure).toMatchObject({ unsettled: "0", openReceivable: "28100", outstanding: "28100" });
     const again = await fixture.call("post", `/loyalty/partner-settlements/${bankSettlement}/rebuild`, { version: shown.body.version });
     expect(again.body.error.message).toBe("Bảng đối soát đã xác nhận, không lập lại được.");
-    // Đã xác nhận thì đối tác không hủy tặng được nữa.
-    const cancelled = await pool.query("SELECT settlement_id FROM loyalty.partner_gifts WHERE contract_id = $1", [bank.contractId]);
-    expect(cancelled.rows[0].settlement_id).toBe(bankSettlement);
+    // Tháng đã chốt (KICHBAN_KIEMTHU_711): giao dịch tặng đã vào bảng xác nhận thì không hủy được, kể cả còn trong 24 giờ.
+    const settledGift = await pool.query("SELECT settlement_id FROM loyalty.partner_gifts WHERE contract_id = $1", [bank.contractId]);
+    expect(settledGift.rows[0].settlement_id).toBe(bankSettlement);
+    await pool.query("UPDATE loyalty.partner_gifts SET created_at = now() - interval '1 hour' WHERE partner_transaction_code = 'DA-0001'");
+    const cancel = await request(application.getHttpServer())
+      .post("/api/v1/open/loyalty-partner/gifts/DA-0001/cancel")
+      .set("authorization", `Bearer ${bankKey}`)
+      .set("accept-language", "vi")
+      .send({ reason: "Tặng nhầm" });
+    expect(cancel.status).toBe(409);
+    expect(cancel.body.error.message).toBe("Giao dịch tặng không hủy được (quá 24 giờ, khách đã dùng điểm hoặc tháng đã chốt).");
+    // Bảng quá hạn thanh toán (KICHBAN_KIEMTHU_712): trả sau bị chặn tặng điểm, đổi vào cho đến khi thu đủ.
+    await pool.query("UPDATE finance.debt_items SET due_date = current_date - 1 WHERE source_type = 'loyalty_partner_settlement' AND source_id = $1", [bankSettlement]);
+    expect((await fixture.call("get", `/loyalty/partner-settlements/${bankSettlement}`)).body.overdue).toBe(true);
+    const overdueGift = await gift(bankKey, { partnerTransactionCode: "DA-0002", phone: "0912300001", points: 1000 });
+    expect(overdueGift.status).toBe(409);
+    expect(overdueGift.body.error.message).toBe("Đối tác vượt hạn mức hoặc quá hạn thanh toán.");
     await post("customer_receipt", bank.partnerId, "28100");
+    expect((await gift(bankKey, { partnerTransactionCode: "DA-0002", phone: "0912300001", points: 1000 })).status).toBe(201);
     expect((await detail(bankSettlement)).body).toMatchObject({ status: "paid", debt: { openAmount: "0" }, paidAt: expect.any(String) });
   });
 

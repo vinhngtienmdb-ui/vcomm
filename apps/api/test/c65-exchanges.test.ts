@@ -266,7 +266,7 @@ describe("KICHBAN_KIEMTHU_709: đổi vào bằng OTP đối tác", () => {
 
 describe("Quy tắc chống gian lận 2 cho đổi ra (CONG_VIEC_60 QUYTAC_NGHIEPVU_476, quyết định người dùng 2026-11-16)", () => {
   it("đổi ra tính như một lần dùng điểm: cảnh báo ghi vụ việc kèm số giao dịch đổi; mức chặn từ chối trước khi trừ điểm, không gọi đối tác", async () => {
-    const { contractId } = await fixture.createContract("Hãng bay Phú Quốc", "0300000104");
+    const { contractId } = await fixture.createContract("Hãng bay Phú Quốc", "0300000191");
     const an = await fixture.register("0912100009", "Trần Văn An");
     await fixture.link(an, contractId, "9704123456");
     await fixture.grantPoints(an.id, 50000);
