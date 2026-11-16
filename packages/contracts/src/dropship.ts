@@ -1,5 +1,6 @@
 // CONG_VIEC_62: Dropship – sản phẩm dropship, tồn nhà cung cấp khai báo (API_265, API_266).
 import { z } from "zod";
+import type { CarrierCode } from "./index";
 
 // Tồn khai báo: số nguyên không âm theo đơn vị cơ bản (QUYTAC_NGHIEPVU_498); nhận số hoặc chuỗi.
 export const dropshipQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -329,4 +330,83 @@ export interface DropshipReconciliationResponse {
   totals: { deliveredCount: number; receivedAmount: string; returnedAmount: string; missingInvoiceCount: number; payableBalance: string };
   // Chi tiết từng đơn khi lọc một nhà cung cấp.
   orders: DropshipReconciliationOrder[];
+}
+
+// Người bán dropship: vận đơn đơn người bán (CONG_VIEC_62 CHUC_NANG_225; QUYTAC_NGHIEPVU_507; API_310, API_311; MAN_HINH_238).
+export const resellerShippingStatuses = ["requesting", "awaiting_pickup", "shipping", "delivered", "returned", "cancelled"] as const;
+export type ResellerShippingStatus = (typeof resellerShippingStatuses)[number];
+// Trạng thái nhập tay (đơn vị vận chuyển chưa bật).
+export const resellerManualStatuses = ["awaiting_pickup", "shipping", "delivered", "returned", "cancelled"] as const;
+
+export const resellerShipmentListQuerySchema = z
+  .object({
+    // none: chưa có vận đơn.
+    status: z.enum([...resellerShippingStatuses, "none"]).optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export const resellerShipmentManualSchema = z
+  .object({
+    carrierName: z.string().trim().min(1, "required").max(100),
+    trackingCode: z.string().trim().min(1, "required").max(100),
+    fee: z
+      .string()
+      .trim()
+      .regex(/^\d{1,7}$/, "invalidValue")
+      .refine((value) => Number(value) <= 5_000_000, "invalidValue"),
+    status: z.enum(resellerManualStatuses),
+    // Phiên bản vận đơn đang có; 0 khi chưa có.
+    version: z.number().int().min(0),
+  })
+  .strict();
+
+// Cùng danh sách carrierCodes của index.ts (không nhập giá trị từ index.ts để tránh vòng nạp mô-đun).
+const resellerCarrierCodes = ["ghn", "vnpost", "viettel_post", "jt", "ghtk"] as const satisfies readonly CarrierCode[];
+export const resellerShipmentCarrierSchema = z.object({ carrierCode: z.enum(resellerCarrierCodes), version: z.number().int().min(0) }).strict();
+export const resellerShipmentVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
+
+export interface ResellerShipmentResponse {
+  id: string;
+  // null: nhập tay.
+  carrierCode: CarrierCode | null;
+  carrierName: string;
+  trackingCode: string | null;
+  carrierStatus: string | null;
+  status: ResellerShippingStatus;
+  fee: string | null;
+  codAmount: string;
+  codCollectedAt: string | null;
+  createdAt: string;
+  syncedAt: string;
+  version: number;
+}
+
+export interface ResellerShipmentOrder {
+  orderId: string;
+  documentNo: string | null;
+  partnerOrderCode: string | null;
+  orderDate: string;
+  orderStatus: string;
+  resellerName: string;
+  resellerPhone: string | null;
+  recipientName: string;
+  recipientPhone: string;
+  deliveryAddress: string;
+  warehouseName: string | null;
+  codAmount: string;
+  currency: string;
+  lineCount: number;
+  shipment: ResellerShipmentResponse | null;
+}
+
+export interface ResellerShipmentListResponse {
+  data: ResellerShipmentOrder[];
+  page: number;
+  pageSize: number;
+  total: number;
+  // Đơn vị vận chuyển đang bật và đã cấu hình kết nối; rỗng thì chỉ nhập tay.
+  carriers: CarrierCode[];
 }

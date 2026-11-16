@@ -53,8 +53,8 @@ export class OpenSalesOrdersService {
 
     const fields: Record<string, ErrorMessageKey> = {};
     const warehouse = (
-      await this.database.execute<{ id: string }>(sql`
-      SELECT w.id FROM inventory.warehouses w JOIN core.api_key_warehouses kw ON kw.warehouse_id = w.id AND kw.api_key_id = ${caller.keyId}
+      await this.database.execute<{ id: string; kind: string }>(sql`
+      SELECT w.id, w.kind FROM inventory.warehouses w JOIN core.api_key_warehouses kw ON kw.warehouse_id = w.id AND kw.api_key_id = ${caller.keyId}
       WHERE w.company_id = ${caller.companyId} AND w.code = ${input.warehouseCode} AND w.status = 'active'`)
     ).rows[0];
     if (!warehouse) fields.warehouseCode = "openApiWarehouseNotAllowed";
@@ -74,6 +74,32 @@ export class OpenSalesOrdersService {
       if (!customer) fields.customerCode = "customerNotActive";
       customerId = customer?.id ?? null;
     }
+
+    // Người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_506, 508): đơn có người nhận của đối tác có cờ là đơn của người bán; khách là chính người bán,
+    // địa chỉ tách theo danh mục phường/xã, chỉ xuất từ kho thường, được gửi tiền thu hộ.
+    const reseller =
+      caller.kind === "partner" &&
+      Boolean(input.recipient) &&
+      (
+        await this.database.execute(sql`
+        SELECT 1 FROM crm.partner_profiles WHERE company_id = ${caller.companyId} AND partner_id = ${caller.partnerId} AND is_dropship_reseller AND status = 'active'`)
+      ).rows.length > 0;
+    let deliveryAddress = input.recipient?.address ?? input.deliveryAddress ?? null;
+    if (input.recipient?.wardCode) {
+      const ward = (
+        await this.database.execute<{ ward_name: string; province_name: string }>(sql`
+        SELECT w.full_name AS ward_name, p.full_name AS province_name FROM marketplace.wards w JOIN marketplace.provinces p ON p.code = w.province_code WHERE w.code = ${input.recipient.wardCode}`)
+      ).rows[0];
+      if (!ward) fields["recipient.wardCode"] = "invalidValue";
+      else deliveryAddress = `${input.recipient.street}, ${ward.ward_name}, ${ward.province_name}`;
+    }
+    if (reseller) {
+      customerId = caller.partnerId;
+      if (input.customerCode) fields.customerCode = "invalidValue";
+      if (!input.recipient?.wardCode) fields["recipient.wardCode"] = "required";
+      if (warehouse && warehouse.kind !== "standard") fields.warehouseCode = "invalidValue";
+    } else if (input.codAmount && Number(input.codAmount) > 0) fields.codAmount = "invalidValue";
+    if (input.codAmount && Number(input.codAmount) > 50_000_000) fields.codAmount = "invalidValue";
 
     // Dòng hàng: mã biến thể, mã đơn vị (đơn vị cơ sở hoặc đơn vị quy đổi của sản phẩm).
     const lines: { variantId: string; unitId: string; quantity: string; discountPercent: string }[] = [];
@@ -104,7 +130,7 @@ export class OpenSalesOrdersService {
           channelId: caller.channelId!,
           warehouseId: warehouse!.id,
           orderDate: input.orderDate ?? vietnamDate(this.clock.now()),
-          deliveryAddress: input.recipient?.address ?? input.deliveryAddress ?? null,
+          deliveryAddress,
           note: input.note ?? null,
           lines,
         },
@@ -114,7 +140,8 @@ export class OpenSalesOrdersService {
           partnerOrderCode: input.partnerOrderCode,
           keyName: caller.keyName,
           keyPrefix: caller.keyPrefix,
-          recipient: input.recipient ? { name: input.recipient.name, phone: input.recipient.phone } : null,
+          recipient: input.recipient ? { name: input.recipient.name, phone: input.recipient.phone, street: input.recipient.street ?? null, wardCode: input.recipient.wardCode ?? null } : null,
+          reseller: reseller ? { codAmount: input.codAmount ?? "0" } : null,
           ...context,
         },
       );
@@ -190,6 +217,12 @@ export class OpenSalesOrdersService {
         l.total_amount::text, l.is_gift, ${deliveredOnOrderLine(sql`l.id`)}::text AS delivered
       FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = l.unit_id
       WHERE l.order_id = ${id} ORDER BY l.line_no`);
+    // Vận đơn của đơn người bán dropship (CONG_VIEC_62 QUYTAC_NGHIEPVU_507).
+    const shipment = (
+      await this.database.execute<{ carrier_name: string | null; tracking_code: string | null; shipping_status: string; fee: string | null; cod_amount: string }>(sql`
+      SELECT coalesce(s.carrier_name, upper(s.carrier_code)) AS carrier_name, s.tracking_code, s.shipping_status, s.fee::text, s.cod_amount::text
+      FROM sales.order_shipments s WHERE s.order_id = ${id} AND s.is_active`)
+    ).rows[0];
     return {
       partnerOrderCode: row.partner_order_code,
       documentNo: row.document_no,
@@ -200,6 +233,15 @@ export class OpenSalesOrdersService {
       buyerName: row.buyer_name,
       deliveryAddress: row.delivery_address,
       recipient: row.recipient_name ? { name: row.recipient_name, phone: row.recipient_phone!, address: row.delivery_address! } : null,
+      shipment: shipment
+        ? {
+            carrierName: shipment.carrier_name,
+            trackingCode: shipment.tracking_code,
+            status: shipment.shipping_status,
+            shippingFee: shipment.fee === null ? null : trimDecimal(shipment.fee),
+            codAmount: trimDecimal(shipment.cod_amount),
+          }
+        : null,
       note: row.note,
       currency: row.currency,
       netAmount: trimDecimal(row.net_amount),

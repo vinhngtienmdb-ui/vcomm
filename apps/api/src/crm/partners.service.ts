@@ -505,10 +505,10 @@ export class PartnersService implements OnApplicationBootstrap {
     if ((before?.version ?? 0) !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     await this.database.transaction(async (transaction) => {
       const saved = await transaction.execute(sql`
-        INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, customer_group_id, owner_user_id, note, status, updated_by)
-        VALUES (${actor.companyId}, ${id}, ${input.isCustomer}, ${input.isSupplier}, ${input.paymentTermDays}, ${input.creditLimit}::numeric, ${input.customerGroupId ?? null},
+        INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, is_dropship_reseller, payment_term_days, credit_limit, customer_group_id, owner_user_id, note, status, updated_by)
+        VALUES (${actor.companyId}, ${id}, ${input.isCustomer}, ${input.isSupplier}, ${input.isDropshipReseller}, ${input.paymentTermDays}, ${input.creditLimit}::numeric, ${input.customerGroupId ?? null},
           ${input.ownerUserId ?? null}, ${input.note}, ${input.status}, ${actor.userId})
-        ON CONFLICT (company_id, partner_id) DO UPDATE SET is_customer = EXCLUDED.is_customer, is_supplier = EXCLUDED.is_supplier, payment_term_days = EXCLUDED.payment_term_days,
+        ON CONFLICT (company_id, partner_id) DO UPDATE SET is_customer = EXCLUDED.is_customer, is_supplier = EXCLUDED.is_supplier, is_dropship_reseller = EXCLUDED.is_dropship_reseller, payment_term_days = EXCLUDED.payment_term_days,
           credit_limit = EXCLUDED.credit_limit, customer_group_id = EXCLUDED.customer_group_id, owner_user_id = EXCLUDED.owner_user_id, note = EXCLUDED.note, status = EXCLUDED.status,
           updated_by = EXCLUDED.updated_by, updated_at = now(), version = crm.partner_profiles.version + 1
         WHERE crm.partner_profiles.version = ${input.version} RETURNING company_id`);
@@ -549,6 +549,7 @@ export class PartnersService implements OnApplicationBootstrap {
       await this.database.execute<{
         is_customer: boolean;
         is_supplier: boolean;
+        is_dropship_reseller: boolean;
         payment_term_days: number;
         credit_limit: string | null;
         customer_group_id: string | null;
@@ -560,7 +561,7 @@ export class PartnersService implements OnApplicationBootstrap {
         version: number;
         currency: string;
       }>(sql`
-      SELECT pr.is_customer, pr.is_supplier, pr.payment_term_days, pr.credit_limit::text, pr.customer_group_id, g.name AS customer_group_name, pr.owner_user_id,
+      SELECT pr.is_customer, pr.is_supplier, pr.is_dropship_reseller, pr.payment_term_days, pr.credit_limit::text, pr.customer_group_id, g.name AS customer_group_name, pr.owner_user_id,
         u.full_name AS owner_user_name, pr.note, pr.status, pr.version, c.base_currency AS currency
       FROM crm.partner_profiles pr JOIN core.companies c ON c.id = pr.company_id LEFT JOIN catalog.customer_groups g ON g.id = pr.customer_group_id
         LEFT JOIN core.users u ON u.id = pr.owner_user_id
@@ -571,6 +572,7 @@ export class PartnersService implements OnApplicationBootstrap {
       companyId,
       isCustomer: row.is_customer,
       isSupplier: row.is_supplier,
+      isDropshipReseller: row.is_dropship_reseller,
       paymentTermDays: row.payment_term_days,
       creditLimit: !showCreditLimit || row.credit_limit === null ? null : trimDecimal(row.credit_limit),
       creditLimitHidden: !showCreditLimit,

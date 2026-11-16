@@ -3,6 +3,7 @@
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type {
   SalesOrderDropshipItem,
+  ResellerShipmentOrder,
   PageResponse,
   saveSalesOrderSchema,
   SalesExceptionKind,
@@ -137,6 +138,8 @@ export class SalesOrdersService implements OnModuleInit {
   readonly confirmedHooks: ((transaction: Executor, orderId: string) => Promise<void>)[] = [];
   // CONG_VIEC_62: khối Dropship của chi tiết đơn bán; DropshipOrdersService đăng ký khi khởi động.
   dropshipOrders: ((executor: Executor, orderId: string) => Promise<SalesOrderDropshipItem[]>) | null = null;
+  // CONG_VIEC_62: vận đơn của đơn người bán dropship; ResellerShipmentsService đăng ký khi khởi động.
+  resellerShipment: ((orderId: string) => Promise<ResellerShipmentOrder | null>) | null = null;
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -328,6 +331,7 @@ export class SalesOrdersService implements OnModuleInit {
       })),
       documents: documents.rows.map((document) => ({ id: document.id, documentNo: document.document_no, type: document.type, status: document.status, documentDate: day(document.document_date) })),
       dropship: this.dropshipOrders ? await this.dropshipOrders(this.database, id) : [],
+      resellerShipment: this.resellerShipment ? await this.resellerShipment(id) : null,
       version: row.version,
       // Đơn đối ứng nội bộ không sửa dòng được (QUYTAC_NGHIEPVU_78).
       canEdit: manage && !row.is_counterpart && ["draft", "rejected", "withdrawn"].includes(row.status),
@@ -367,7 +371,9 @@ export class SalesOrdersService implements OnModuleInit {
       partnerOrderCode: string;
       keyName: string;
       keyPrefix: string;
-      recipient: { name: string; phone: string } | null;
+      recipient: { name: string; phone: string; street?: string | null; wardCode?: string | null } | null;
+      // CONG_VIEC_62: đơn dropship của người bán (QUYTAC_NGHIEPVU_506, 508).
+      reseller?: { codAmount: string } | null;
       ip: string | null;
       requestId: string | null;
     },
@@ -377,10 +383,11 @@ export class SalesOrdersService implements OnModuleInit {
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by,
-          open_api_key_id, open_api_scope_id, partner_order_code, recipient_name, recipient_phone)
+          open_api_key_id, open_api_scope_id, partner_order_code, recipient_name, recipient_phone, recipient_street, recipient_ward_code, is_reseller_dropship, cod_amount)
         VALUES (${companyId}, ${input.customerId ?? null}, ${input.buyerName}, ${input.channelId}, ${groupId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress},
           ${input.note}, ${await companyCurrency(transaction, companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${createdBy},
-          ${source.apiKeyId}, ${source.scopeId}, ${source.partnerOrderCode}, ${source.recipient?.name ?? null}, ${source.recipient?.phone ?? null}) RETURNING id`)
+          ${source.apiKeyId}, ${source.scopeId}, ${source.partnerOrderCode}, ${source.recipient?.name ?? null}, ${source.recipient?.phone ?? null},
+          ${source.recipient?.street ?? null}, ${source.recipient?.wardCode ?? null}, ${Boolean(source.reseller)}, ${source.reseller?.codAmount ?? "0"}::numeric) RETURNING id`)
       ).rows[0]!.id;
       await this.writeLines(transaction, orderId, lines);
       await this.auditService.record(

@@ -172,7 +172,7 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
             <dt>{t("recipientAddress")}</dt>
             <dd>{order.deliveryAddress}</dd>
           </dl>
-          <div className="chu-thich">{t("recipientHint")}</div>
+          {!order.resellerShipment && <div className="chu-thich">{t("recipientHint")}</div>}
         </section>
       )}
       {order.dropship.length > 0 && (
@@ -213,6 +213,23 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
             </table>
           </div>
           <div className="chu-thich">{t("dropshipHint")}</div>
+        </section>
+      )}
+      {order.resellerShipment && (
+        // CONG_VIEC_62: đơn dropship của người bán: giao danh nghĩa người bán, tiền thu hộ, vận đơn (QUYTAC_NGHIEPVU_506, 507).
+        <section className="the">
+          <h2 style={{ margin: 0 }}>{t("resellerShipment")}</h2>
+          <dl className="thong-tin-dong">
+            <dt>{t("resellerName")}</dt>
+            <dd>{order.resellerShipment.resellerName}</dd>
+            <dt>{t("resellerCod")}</dt>
+            <dd>{formatMoney(order.resellerShipment.codAmount, order.resellerShipment.currency)}</dd>
+            <dt>{t("resellerTracking")}</dt>
+            <dd>{order.resellerShipment.shipment ? [order.resellerShipment.shipment.carrierName, order.resellerShipment.shipment.trackingCode].filter(Boolean).join(" · ") : "—"}</dd>
+            <dt>{t("resellerShippingStatus")}</dt>
+            <dd>{order.resellerShipment.shipment ? t(`resellerStatus_${order.resellerShipment.shipment.status}`) : t("resellerStatus_none")}</dd>
+          </dl>
+          <div className="chu-thich">{t("resellerHint")}</div>
         </section>
       )}
       <div className="khung-bang">

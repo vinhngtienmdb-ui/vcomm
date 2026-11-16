@@ -266,6 +266,14 @@ export class SalesDeliveriesService {
 
   // Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_501): lập và ghi sổ phiếu xuất các dòng đơn bán của nhà cung cấp đã giao, không xét quyền kho.
   async issueAsSystem(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; lines: { orderLineId: string; quantity: string }[] }): Promise<string> {
+    const documentId = await this.draftIssueAsSystem(transaction, actor, input);
+    await this.postDraftAsSystem(transaction, documentId, actor);
+    return documentId;
+  }
+
+  // Phiếu xuất nháp không xét quyền kho: dùng cho issueAsSystem và vận đơn đơn người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_507),
+  // ghi sổ khi đơn vị vận chuyển lấy hàng như đơn VComm.
+  async draftIssueAsSystem(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; lines: { orderLineId: string; quantity: string }[] }): Promise<string> {
     const order = await this.order(transaction, input.orderId, true);
     const issueInput = { orderId: input.orderId, documentDate: input.documentDate, note: null, lines: input.lines.map((line) => ({ ...line, serials: [] })) } as unknown as IssueInput;
     const { documentInput, sourceLines } = await this.issueInput(order, issueInput);
@@ -277,7 +285,6 @@ export class SalesDeliveriesService {
         ${order.customer_id}, ${actor.userId}) RETURNING id`)
     ).rows[0]!.id;
     await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
-    await this.postDraftAsSystem(transaction, documentId, actor);
     return documentId;
   }
 

@@ -2058,6 +2058,7 @@ export interface PartnerProfileResponse {
   companyId: string;
   isCustomer: boolean;
   isSupplier: boolean;
+  isDropshipReseller: boolean;
   paymentTermDays: number;
   // null: không giới hạn, hoặc bị ẩn khi creditLimitHidden (người xem không có quyền quản lý hồ sơ đối tác).
   creditLimit: string | null;
@@ -2093,6 +2094,8 @@ export const savePartnerProfileSchema = z
   .object({
     isCustomer: z.boolean(),
     isSupplier: z.boolean(),
+    // Người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_506); chỉ bật được khi là khách hàng.
+    isDropshipReseller: z.boolean().default(false),
     paymentTermDays: z.number().int().min(0).max(365),
     creditLimit: optionalMoney,
     customerGroupId: z.uuid().nullable().optional(),
@@ -2102,7 +2105,8 @@ export const savePartnerProfileSchema = z
     version: z.number().int().min(0),
   })
   .strict()
-  .refine((value) => value.isCustomer || value.isSupplier, { path: ["isCustomer"], message: "invalidValue" });
+  .refine((value) => value.isCustomer || value.isSupplier, { path: ["isCustomer"], message: "invalidValue" })
+  .refine((value) => !value.isDropshipReseller || value.isCustomer, { path: ["isDropshipReseller"], message: "invalidValue" });
 export interface PartnerProfileOptionsResponse {
   customerGroups: { id: string; name: string }[];
   users: { id: string; fullName: string }[];
@@ -2866,6 +2870,8 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   customerCreatedViaOpenApi: boolean;
   // CONG_VIEC_62: đơn mua dropship theo nhà cung cấp khi kho xuất là kho Dropship (rỗng với kho thường).
   dropship: import("./dropship").SalesOrderDropshipItem[];
+  // CONG_VIEC_62: đơn dropship của người bán (QUYTAC_NGHIEPVU_506, 507); null với đơn khác.
+  resellerShipment: import("./dropship").ResellerShipmentOrder | null;
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];

@@ -744,7 +744,11 @@
     "signingResendLimit": "Mỗi đối tác chỉ gửi lại thư tối đa 5 lần trong 24 giờ.",
     "affiliateSmartOtpActive": "Khách đã có Smart OTP, dùng mã trên ứng dụng VComm.",
     "affiliateOtpInvalid": "Mã OTP không đúng hoặc đã hết hạn.",
-    "affiliateSmsLimit": "Đã hết số tin nhắn OTP trong ngày của khóa API."
+    "affiliateSmsLimit": "Đã hết số tin nhắn OTP trong ngày của khóa API.",
+    "resellerShipmentCarrierManaged": "Vận đơn tạo qua đơn vị vận chuyển: trạng thái lấy từ đơn vị vận chuyển, không nhập tay",
+    "resellerOrderNotShippable": "Đơn chưa ở trạng thái đã xác nhận nên chưa tạo vận đơn được",
+    "resellerShipmentStatusInvalid": "Trạng thái giao không chuyển được như vậy (chỉ tiến lên; hoàn hàng sau Đang giao; hủy khi Chờ lấy hàng)",
+    "resellerShipmentNotCarrier": "Đơn chưa có vận đơn tạo qua đơn vị vận chuyển"
   },
   "login": {
     "title": "Đăng nhập",
@@ -1926,7 +1930,8 @@
     "documents": "Phiếu kho",
     "stocktakes": "Kiểm kê",
     "reservations": "Giữ hàng, tồn an toàn",
-    "internalDiscrepancies": "Chênh lệch giao nội bộ"
+    "internalDiscrepancies": "Chênh lệch giao nội bộ",
+    "resellerShipments": "Giao hàng đơn người bán"
   },
   "warehouses": {
     "title": "Kho và vị trí",
@@ -2388,7 +2393,10 @@
     "noOwnerHistory": "Chưa có nhân viên phụ trách.",
     "ownerNow": "nay",
     "claim": "Nhận làm khách của tôi",
-    "claimed": "Đã nhận đối tác làm khách của bạn."
+    "claimed": "Đã nhận đối tác làm khách của bạn.",
+    "role_dropshipReseller": "Người bán dropship",
+    "isDropshipReseller": "Là người bán dropship",
+    "isDropshipResellerHint": "Đơn Open API có người nhận của đối tác này là đơn dropship người bán: khách trên đơn là đối tác, giao danh nghĩa đối tác, nhận tiền thu hộ."
   },
   "purchasingMenu": {
     "title": "Mua hàng",
@@ -2815,7 +2823,20 @@
     "source": "Nguồn",
     "source_web": "Nhập trên web",
     "source_open_api": "Open API",
-    "openApiInfo": "Đơn tạo qua Open API bằng khóa {key}. Mã đơn của đối tác: {code}. Kiểm tra rồi gửi duyệt như đơn thường; đối tác hủy được đơn khi đơn còn Nháp."
+    "openApiInfo": "Đơn tạo qua Open API bằng khóa {key}. Mã đơn của đối tác: {code}. Kiểm tra rồi gửi duyệt như đơn thường; đối tác hủy được đơn khi đơn còn Nháp.",
+    "resellerShipment": "Đơn dropship người bán",
+    "resellerName": "Người bán",
+    "resellerCod": "Tiền thu hộ",
+    "resellerTracking": "Vận đơn",
+    "resellerShippingStatus": "Trạng thái giao",
+    "resellerHint": "Giao danh nghĩa người bán; thủ kho tạo vận đơn, in phiếu giao ở mini app Kho, mục Giao hàng đơn người bán.",
+    "resellerStatus_none": "Chưa có vận đơn",
+    "resellerStatus_requesting": "Đang tạo vận đơn",
+    "resellerStatus_awaiting_pickup": "Chờ lấy hàng",
+    "resellerStatus_shipping": "Đang giao",
+    "resellerStatus_delivered": "Đã giao",
+    "resellerStatus_returned": "Hoàn hàng",
+    "resellerStatus_cancelled": "Đã hủy"
   },
   "salesMenu": {
     "title": "Bán hàng",
@@ -9976,5 +9997,45 @@
     "editType": "Sửa loại hợp đồng",
     "typeSaved": "Đã lưu loại hợp đồng.",
     "partnerEmailRequired": "Cần thư điện tử để gửi đường dẫn ký cho đối tác."
+  },
+  "resellerShipments": {
+    "title": "Giao hàng đơn người bán",
+    "hint": "Đơn dropship của người bán: hàng xuất từ kho công ty, giao dưới tên người bán. Phiếu xuất lập nháp khi tạo vận đơn, ghi sổ khi đơn vị vận chuyển lấy hàng; hoàn hàng thì nhận trả vào kho. Người bán thấy trạng thái giao qua Open API.",
+    "searchPlaceholder": "Số đơn, mã đơn người bán, người nhận, mã vận đơn",
+    "allStatuses": "Trạng thái giao: tất cả",
+    "empty": "Không có đơn người bán cần giao",
+    "noCarrier": "Chưa có đơn vị vận chuyển nào đang bật: nhập tay đơn vị vận chuyển, mã vận đơn, phí giao.",
+    "order": "Đơn",
+    "reseller": "Người bán",
+    "recipient": "Người nhận",
+    "codAmount": "Thu hộ",
+    "tracking": "Mã vận đơn",
+    "carrier": "Đơn vị vận chuyển",
+    "fee": "Phí giao",
+    "feeVnd": "Phí giao thực tế (đồng, 0 đến 5.000.000)",
+    "status": "Trạng thái giao",
+    "printNote": "In phiếu giao",
+    "createShipment": "Tạo vận đơn",
+    "manualShipment": "Nhập vận đơn",
+    "updateShipment": "Cập nhật giao",
+    "refresh": "Tra lại vận đơn",
+    "cancelShipment": "Hủy vận đơn",
+    "saved": "Đã lưu vận đơn",
+    "refreshed": "Đã tra lại vận đơn",
+    "cancelled": "Đã hủy vận đơn",
+    "carrierHint": "Gửi đơn vị vận chuyển người nhận, địa chỉ, tiền thu hộ {amount}; không gửi giá bán. Mã vận đơn, phí giao, trạng thái lấy từ đơn vị vận chuyển.",
+    "manualHint": "Chỉ chuyển tiến lên: Chờ lấy hàng → Đang giao → Đã giao. Hoàn hàng (sau Đang giao) lập phiếu nhận hàng trả lại; Hủy khi Chờ lấy hàng xóa phiếu xuất nháp.",
+    "status_none": "Chưa có vận đơn",
+    "status_requesting": "Đang tạo vận đơn",
+    "status_awaiting_pickup": "Chờ lấy hàng",
+    "status_shipping": "Đang giao",
+    "status_delivered": "Đã giao",
+    "status_returned": "Hoàn hàng",
+    "status_cancelled": "Đã hủy",
+    "carrier_ghn": "Giao Hàng Nhanh",
+    "carrier_ghtk": "Giao Hàng Tiết Kiệm",
+    "carrier_jt": "J&T Express",
+    "carrier_viettel_post": "Viettel Post",
+    "carrier_vnpost": "VNPost"
   }
 }

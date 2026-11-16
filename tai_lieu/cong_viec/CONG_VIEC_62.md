@@ -3,7 +3,7 @@
 - Mô tả: Hai chiều dropship. Chiều bán: công ty bán cho khách của mình, nhà cung cấp giao thẳng tới khách. Chiều cung cấp: công ty cung cấp hàng cho người bán dropship, giao thẳng người nhận cuối dưới danh nghĩa người bán, thu hộ và đối soát với người bán.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); đang làm L1
+- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); L1 đến L3 đã duyệt; L4 chờ duyệt
 - Mức: Lớn (chức năng mới nhiều module: Kho, Mua hàng, Bán hàng, Tài chính, Open API; sửa cấu trúc dữ liệu kho, đơn mua, đơn bán, khóa API; định nghĩa lại ràng buộc kiểm tra dùng chung).
 - Nhánh: `chuc-nang/CONG_VIEC_62-dropship`.
 - Nguồn: THAY_DOI_04 (MODULE_16, nguồn tham khảo MOD-07 Dropship của V-com-ERP); `CONG_VIEC_61.md` mục 2; `CONG_VIEC_66.md` (khách do đối tác tạo, người nhận giao thẳng); quyết định của người dùng ngày 2026-11-12 (mục 17).
@@ -164,28 +164,28 @@ Không xóa dữ liệu. Chứng từ kho của kho Dropship dùng loại, mã l
 
 Nhân viên (gốc `/api/v1`):
 
-| Mã      | Phương thức, đường dẫn                                                                                                                          | Mô tả                                                                |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| API_265 | `GET, POST /purchasing/dropship-products`; `PATCH /purchasing/dropship-products/{id}`                                                           | Danh sách (kèm khả dụng), thêm, sửa nhà cung cấp, đơn vị, ngừng dùng |
-| API_266 | `PATCH /purchasing/dropship-products/{id}/stock`; `POST /purchasing/dropship-products/stock-import`                                             | Sửa tồn khai báo một dòng; nhập tệp Excel (mã biến thể, số lượng)    |
-| API_267 | `GET /purchasing/dropship-orders`; `GET /purchasing/dropship-orders/{id}`                                                                       | Danh sách, chi tiết đơn mua dropship                                 |
-| API_268 | `POST /purchasing/dropship-orders/{id}/shipping`, `/delivered`, `/failed`, `/cancel`; `PATCH /purchasing/dropship-orders/{id}/supplier-invoice` | Báo trạng thái thay nhà cung cấp; số hóa đơn nhà cung cấp            |
-| API_269 | `POST /purchasing/dropship-returns`; `POST /purchasing/dropship-returns/{id}/received`, `/cancel`                                               | Trả hàng dropship (nơi nhận về nhà cung cấp hoặc kho công ty)        |
-| API_270 | `GET /purchasing/dropship-reconciliation` (`from`, `to`, `supplierId`, `format=xlsx`)                                                           | Đối soát nhà cung cấp                                                |
-| API_310 | `PATCH /sales/orders/{id}/reseller-shipment`; `GET /sales/orders/{id}/reseller-delivery-note`                                                   | Vận đơn, phí, trạng thái giao; phiếu giao PDF                        |
-| API_312 | `GET /finance/reseller-settlements`, `GET /finance/reseller-settlements/{id}`                                                                   | Danh sách, chi tiết bảng đối soát người bán                          |
-| API_313 | `POST /finance/reseller-settlements/{id}/confirm`                                                                                               | Xác nhận, hạch toán, lập phiếu chi khi âm                            |
+| Mã      | Phương thức, đường dẫn                                                                                                                                     | Mô tả                                                                                                                     |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| API_265 | `GET, POST /purchasing/dropship-products`; `PATCH /purchasing/dropship-products/{id}`                                                                      | Danh sách (kèm khả dụng), thêm, sửa nhà cung cấp, đơn vị, ngừng dùng                                                      |
+| API_266 | `PATCH /purchasing/dropship-products/{id}/stock`; `POST /purchasing/dropship-products/stock-import`                                                        | Sửa tồn khai báo một dòng; nhập tệp Excel (mã biến thể, số lượng)                                                         |
+| API_267 | `GET /purchasing/dropship-orders`; `GET /purchasing/dropship-orders/{id}`                                                                                  | Danh sách, chi tiết đơn mua dropship                                                                                      |
+| API_268 | `POST /purchasing/dropship-orders/{id}/shipping`, `/delivered`, `/failed`, `/cancel`; `PATCH /purchasing/dropship-orders/{id}/supplier-invoice`            | Báo trạng thái thay nhà cung cấp; số hóa đơn nhà cung cấp                                                                 |
+| API_269 | `POST /purchasing/dropship-returns`; `POST /purchasing/dropship-returns/{id}/received`, `/cancel`                                                          | Trả hàng dropship (nơi nhận về nhà cung cấp hoặc kho công ty)                                                             |
+| API_270 | `GET /purchasing/dropship-reconciliation` (`from`, `to`, `supplierId`, `format=xlsx`)                                                                      | Đối soát nhà cung cấp                                                                                                     |
+| API_310 | `GET /sales/reseller-shipments` (`status`, `search`); `GET`, `PATCH /sales/orders/{id}/reseller-shipment`; `GET /sales/orders/{id}/reseller-delivery-note` | Danh sách đơn người bán cần giao (kèm đơn vị vận chuyển đang bật); vận đơn nhập tay, phí, trạng thái giao; phiếu giao PDF |
+| API_312 | `GET /finance/reseller-settlements`, `GET /finance/reseller-settlements/{id}`                                                                              | Danh sách, chi tiết bảng đối soát người bán                                                                               |
+| API_313 | `POST /finance/reseller-settlements/{id}/confirm`                                                                                                          | Xác nhận, hạch toán, lập phiếu chi khi âm                                                                                 |
 
 Đối tác (gốc `/api/v1/open`, khóa API):
 
-| Mã      | Phương thức, đường dẫn                                          | Phạm vi             | Mô tả                                                                                              |
-| ------- | --------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
-| API_271 | `GET /open/dropship/orders`, `GET /open/dropship/orders/{code}` | `dropship.supplier` | Đơn mua dropship của nhà cung cấp; lọc `status`, `updatedSince`                                    |
-| API_272 | `POST /open/dropship/orders/{code}/events`                      | `dropship.supplier` | `type` (`shipping`, `delivered`, `failed`), `carrierName`, `trackingCode`, `deliveredOn`, `reason` |
-| API_309 | `PUT /open/dropship/stock`                                      | `dropship.supplier` | Danh sách `variantCode` hoặc `supplierSku`, `quantity`                                             |
-| API_311 | `POST /sales/orders/{id}/reseller-shipment/carrier`             | —                   | Thủ kho tạo vận đơn với đơn vị vận chuyển đang bật                                                 |
+| Mã      | Phương thức, đường dẫn                                                                     | Phạm vi             | Mô tả                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------ | ------------------- | -------------------------------------------------------------------------------------------------- |
+| API_271 | `GET /open/dropship/orders`, `GET /open/dropship/orders/{code}`                            | `dropship.supplier` | Đơn mua dropship của nhà cung cấp; lọc `status`, `updatedSince`                                    |
+| API_272 | `POST /open/dropship/orders/{code}/events`                                                 | `dropship.supplier` | `type` (`shipping`, `delivered`, `failed`), `carrierName`, `trackingCode`, `deliveredOn`, `reason` |
+| API_309 | `PUT /open/dropship/stock`                                                                 | `dropship.supplier` | Danh sách `variantCode` hoặc `supplierSku`, `quantity`                                             |
+| API_311 | `POST /sales/orders/{id}/reseller-shipment/carrier`, `/carrier/refresh`, `/carrier/cancel` | —                   | Thủ kho tạo vận đơn với đơn vị vận chuyển đang bật, tra lại, hủy trước khi lấy hàng                |
 
-Sửa API hiện có (tương thích ngược, chỉ thêm trường): API_262 nhận `codAmount`; API_263 trả `shipment` (`carrierName`, `trackingCode`, `status`, `shippingFee`, `codAmount`) hoặc `null`; API kho (danh sách, tạo, sửa) thêm `kind`; API tồn Open API (API_261) với kho Dropship trả số khả dụng theo QUYTAC_NGHIEPVU_498; chi tiết đơn bán thêm `dropship` (đơn mua theo nhà cung cấp) và `resellerShipment`; chi tiết đối tác thêm `isDropshipReseller`; khóa API nhận phạm vi `dropship.supplier`.
+Sửa API hiện có (tương thích ngược, chỉ thêm trường): API_128 (webhook đơn vị vận chuyển) nhận cả mã vận đơn của đơn người bán, trạng thái luôn tra lại như đơn sàn; API_262 nhận `codAmount`, người nhận của đơn người bán gửi `street` và `wardCode` (danh mục phường, xã của sàn) thay cho `address`; API_263 trả `shipment` (`carrierName`, `trackingCode`, `status`, `shippingFee`, `codAmount`) hoặc `null`; API kho (danh sách, tạo, sửa) thêm `kind`; API tồn Open API (API_261) với kho Dropship trả số khả dụng theo QUYTAC_NGHIEPVU_498; chi tiết đơn bán thêm `dropship` (đơn mua theo nhà cung cấp) và `resellerShipment`; chi tiết đối tác thêm `isDropshipReseller`; khóa API nhận phạm vi `dropship.supplier`.
 
 Mã lỗi dùng mã có sẵn (`VALIDATION_FAILED`, `NOT_FOUND`, `BUSINESS_RULE`, `CONFLICT_VERSION`, `SCOPE_NOT_GRANTED`).
 
@@ -229,20 +229,21 @@ Mã lỗi dùng mã có sẵn (`VALIDATION_FAILED`, `NOT_FOUND`, `BUSINESS_RULE`
 
 ## 13. Tiêu chí nghiệm thu
 
-| Mã                    | Tiêu chí                                                                                                                                                                                                          | Mức      | Lát    |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ |
-| TIEUCHI_NGHIEMTHU_458 | Tạo kho Dropship thứ hai đang hoạt động trong công ty bị từ chối; lập tay phiếu nhập, xuất, chuyển, kiểm kê vào kho Dropship bị từ chối                                                                           | Bắt buộc | L1     |
-| TIEUCHI_NGHIEMTHU_459 | Thêm sản phẩm dropship sai (dịch vụ, có lô hoặc serial, nhà cung cấp không có hồ sơ, trùng biến thể) báo lỗi đúng trường; sửa tồn ghi lịch sử người đổi                                                           | Bắt buộc | L1     |
-| TIEUCHI_NGHIEMTHU_460 | Đơn bán kho Dropship vượt khả dụng hoặc có dòng không phải sản phẩm dropship, hoặc không có giá mua hiệu lực, bị từ chối đúng dòng; trong khả dụng thì giữ chỗ và khả dụng giảm                                   | Bắt buộc | L1, L2 |
-| TIEUCHI_NGHIEMTHU_461 | Đơn bán dropship hai nhà cung cấp được xác nhận thì có đúng hai đơn mua Đã duyệt, giá theo bảng giá mua, không tạo yêu cầu duyệt mua                                                                              | Bắt buộc | L2     |
-| TIEUCHI_NGHIEMTHU_462 | Báo Đã giao: có phiếu nhập mua và phiếu xuất bán đã ghi sổ cùng ngày giao; phải trả nhà cung cấp, phải thu khách, bút toán đúng; giá vốn bằng giá mua; tồn kho Dropship về 0; báo lần hai không tạo thêm chứng từ | Bắt buộc | L2     |
-| TIEUCHI_NGHIEMTHU_463 | Giao thất bại khi chưa nhà cung cấp nào giao: đơn bán Đã hủy, giữ chỗ được nhả; khi đã có nhà cung cấp giao: đơn bán Đóng phần còn lại                                                                            | Bắt buộc | L2     |
-| TIEUCHI_NGHIEMTHU_464 | Trả về nhà cung cấp: khi nhà cung cấp xác nhận có phiếu trả hàng bán và trả hàng mua cùng số lượng, công nợ hai bên giảm đúng; trả về kho công ty: tồn kho thường tăng                                            | Bắt buộc | L3     |
-| TIEUCHI_NGHIEMTHU_465 | Khóa nhà cung cấp chỉ thấy đơn của mình, không thấy giá bán, khách; báo trạng thái sai thứ tự nhận `409`; cập nhật tồn biến thể của nhà cung cấp khác bị từ chối dòng; khóa không có phạm vi nhận `403`           | Bắt buộc | L3     |
-| TIEUCHI_NGHIEMTHU_466 | Báo cáo đối soát nhà cung cấp khớp tổng phiếu nhập, trả hàng mua và công nợ phải trả của kỳ; xuất Excel đúng số                                                                                                   | Bắt buộc | L3     |
-| TIEUCHI_NGHIEMTHU_467 | Đơn Open API của người bán có cờ, có người nhận: khách là người bán, giá nhóm người bán, hóa đơn và công nợ theo người bán; gửi `customerCode` bị lỗi trường; đối tác không cờ giữ cách CONG_VIEC_66              | Bắt buộc | L4     |
-| TIEUCHI_NGHIEMTHU_468 | Phiếu giao PDF không có tên công ty, giá bán; có tên, điện thoại người bán, tiền thu hộ; API_263 trả vận đơn, trạng thái giao sau khi thủ kho nhập                                                                | Bắt buộc | L4     |
-| TIEUCHI_NGHIEMTHU_469 | Bảng đối soát tuần lập đúng A, B, C, D, E, số còn lại; xác nhận hạch toán phí giao, thuế; số âm có phiếu chi hoàn tiền đúng số; người bán công ty khác không lẫn                                                  | Bắt buộc | L5     |
+| Mã                    | Tiêu chí                                                                                                                                                                                                                       | Mức      | Lát    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------ |
+| TIEUCHI_NGHIEMTHU_458 | Tạo kho Dropship thứ hai đang hoạt động trong công ty bị từ chối; lập tay phiếu nhập, xuất, chuyển, kiểm kê vào kho Dropship bị từ chối                                                                                        | Bắt buộc | L1     |
+| TIEUCHI_NGHIEMTHU_459 | Thêm sản phẩm dropship sai (dịch vụ, có lô hoặc serial, nhà cung cấp không có hồ sơ, trùng biến thể) báo lỗi đúng trường; sửa tồn ghi lịch sử người đổi                                                                        | Bắt buộc | L1     |
+| TIEUCHI_NGHIEMTHU_460 | Đơn bán kho Dropship vượt khả dụng hoặc có dòng không phải sản phẩm dropship, hoặc không có giá mua hiệu lực, bị từ chối đúng dòng; trong khả dụng thì giữ chỗ và khả dụng giảm                                                | Bắt buộc | L1, L2 |
+| TIEUCHI_NGHIEMTHU_461 | Đơn bán dropship hai nhà cung cấp được xác nhận thì có đúng hai đơn mua Đã duyệt, giá theo bảng giá mua, không tạo yêu cầu duyệt mua                                                                                           | Bắt buộc | L2     |
+| TIEUCHI_NGHIEMTHU_462 | Báo Đã giao: có phiếu nhập mua và phiếu xuất bán đã ghi sổ cùng ngày giao; phải trả nhà cung cấp, phải thu khách, bút toán đúng; giá vốn bằng giá mua; tồn kho Dropship về 0; báo lần hai không tạo thêm chứng từ              | Bắt buộc | L2     |
+| TIEUCHI_NGHIEMTHU_463 | Giao thất bại khi chưa nhà cung cấp nào giao: đơn bán Đã hủy, giữ chỗ được nhả; khi đã có nhà cung cấp giao: đơn bán Đóng phần còn lại                                                                                         | Bắt buộc | L2     |
+| TIEUCHI_NGHIEMTHU_464 | Trả về nhà cung cấp: khi nhà cung cấp xác nhận có phiếu trả hàng bán và trả hàng mua cùng số lượng, công nợ hai bên giảm đúng; trả về kho công ty: tồn kho thường tăng                                                         | Bắt buộc | L3     |
+| TIEUCHI_NGHIEMTHU_465 | Khóa nhà cung cấp chỉ thấy đơn của mình, không thấy giá bán, khách; báo trạng thái sai thứ tự nhận `409`; cập nhật tồn biến thể của nhà cung cấp khác bị từ chối dòng; khóa không có phạm vi nhận `403`                        | Bắt buộc | L3     |
+| TIEUCHI_NGHIEMTHU_466 | Báo cáo đối soát nhà cung cấp khớp tổng phiếu nhập, trả hàng mua và công nợ phải trả của kỳ; xuất Excel đúng số                                                                                                                | Bắt buộc | L3     |
+| TIEUCHI_NGHIEMTHU_467 | Đơn Open API của người bán có cờ, có người nhận: khách là người bán, giá nhóm người bán, hóa đơn và công nợ theo người bán; gửi `customerCode` bị lỗi trường; đối tác không cờ giữ cách CONG_VIEC_66                           | Bắt buộc | L4     |
+| TIEUCHI_NGHIEMTHU_468 | Phiếu giao PDF không có tên công ty, giá bán; có tên, điện thoại người bán, tiền thu hộ; API_263 trả vận đơn, trạng thái giao sau khi thủ kho nhập                                                                             | Bắt buộc | L4     |
+| TIEUCHI_NGHIEMTHU_534 | Vận đơn tự tạo: tạo vận đơn có phiếu xuất nháp; đơn vị vận chuyển lấy hàng thì phiếu xuất ghi sổ; đã giao ghi ngày thu hộ; hoàn hàng có phiếu nhận trả giảm công nợ người bán; thu hộ gửi đơn vị vận chuyển, không gửi giá bán | Bắt buộc | L4     |
+| TIEUCHI_NGHIEMTHU_469 | Bảng đối soát tuần lập đúng A, B, C, D, E, số còn lại; xác nhận hạch toán phí giao, thuế; số âm có phiếu chi hoàn tiền đúng số; người bán công ty khác không lẫn                                                               | Bắt buộc | L5     |
 
 Tiêu chí chung (mọi màn hình mới đủ trạng thái rỗng, đang tải, lỗi, không quyền, tiếng Việt và tiếng Anh) kiểm trong kịch bản giao diện của từng lát.
 
@@ -261,6 +262,8 @@ Tiêu chí chung (mọi màn hình mới đủ trạng thái rỗng, đang tải
 | KICHBAN_KIEMTHU_647 | 466         | Kỳ có hai đơn giao, một trả, một chưa có số hóa đơn: số liệu và tệp Excel                                                                          | Tích hợp  |
 | KICHBAN_KIEMTHU_648 | 467         | Người bán có cờ: đơn có người nhận; gửi `customerCode`; người bán không cờ; tắt cờ sau khi tạo đơn                                                 | Tích hợp  |
 | KICHBAN_KIEMTHU_649 | 468         | Sinh PDF, kiểm văn bản có, không có; nhập vận đơn rồi tra API_263                                                                                  | Tích hợp  |
+| KICHBAN_KIEMTHU_729 | 534         | Tạo vận đơn bằng máy chủ GHN giả lập; webhook lấy hàng ghi sổ phiếu xuất; webhook đã giao (nhận hai lần không đổi); mã vận đơn lạ bị bỏ qua        | Tích hợp  |
+| KICHBAN_KIEMTHU_730 | 534         | Hoàn hàng nhận trả, công nợ người bán; hủy vận đơn trước khi lấy rồi tạo lại; mất phản hồi khi tạo, tra lại ghi nhận vận đơn                       | Tích hợp  |
 | KICHBAN_KIEMTHU_650 | 469         | Tuần có giao, hoàn, thu hộ: lập bảng, xác nhận, bút toán, phiếu chi; người bán công ty B không vào bảng của A                                      | Tích hợp  |
 | KICHBAN_KIEMTHU_651 | 458 đến 466 | Playwright: MAN_HINH_234 đến 237, năm trạng thái, đổi ngôn ngữ                                                                                     | Giao diện |
 | KICHBAN_KIEMTHU_652 | 467 đến 469 | Playwright: MAN_HINH_238, 240, 241, năm trạng thái, đổi ngôn ngữ                                                                                   | Giao diện |
@@ -276,7 +279,7 @@ Tiêu chí chung (mọi màn hình mới đủ trạng thái rỗng, đang tải
 
 ## 16. Điều kiện đặc biệt, điểm chưa xác minh
 
-1. Vận đơn đơn người bán: người dùng chọn tự tạo vận đơn, dùng lại kết nối đơn vị vận chuyển của sàn (`marketplace/carriers`: GHN, Viettel Post, J&T, GHTK, VNPost). Tạo vận đơn, phí, trạng thái, thu hộ lấy từ đơn vị vận chuyển; nhập tay chỉ khi đơn vị vận chuyển chưa bật. Chi tiết thiết kế (bảng vận đơn dùng chung cho đơn bán hay mở rộng `marketplace.shipments`) chốt trước khi làm L4; có thể cần thêm mã API, kịch bản kiểm thử.
+1. Vận đơn đơn người bán (chốt khi làm L4): bảng riêng `sales.order_shipments` (không mở rộng `marketplace.shipments`), dùng lại lớp kết nối `marketplace/carriers` (GHN, Viettel Post, J&T, GHTK, VNPost) và webhook API_128. Cách làm như đơn sàn: giữ chỗ vận đơn "Đang tạo vận đơn", phiếu xuất nháp toàn đơn, gọi đơn vị vận chuyển; bị từ chối thì bỏ chỗ giữ; mất phản hồi thì tra lại theo số đơn. Lấy hàng: ghi sổ phiếu xuất (lỗi ghi sổ thì giữ "Chờ lấy hàng" để tra lại); đã giao: ghi ngày thu hộ; hoàn hàng: nhận trả toàn bộ phần đã xuất; hủy trước khi lấy: xóa phiếu nháp, đơn bán giữ "Đã xác nhận" để tạo vận đơn khác. Nhập tay khi chưa bật đơn vị vận chuyển, chỉ chuyển tiến lên. Gửi đơn vị vận chuyển giá hàng bằng 0 (không lộ giá bán của công ty); người gửi trên vận đơn vẫn là điểm lấy hàng đã cấu hình của công ty, phiếu giao in danh nghĩa người bán. Quyền: quyền xuất giao hàng tại kho của đơn (`inventory.sales.issue`, thủ kho), không thêm quyền mới. Kho có vị trí không dùng được (như đơn sàn). Phiên điều phối cấp thêm TIEUCHI_NGHIEMTHU_534, KICHBAN_KIEMTHU_729, 730; dùng lại API_310, 311, 128.
 2. Hóa đơn điện tử cho phí giao: người dùng chọn lập một hóa đơn dịch vụ giao hàng cho người bán khi xác nhận bảng đối soát tuần (D, thuế E), qua nhà cung cấp hóa đơn đang cài; mở rộng luồng hóa đơn cho nguồn `dropship_settlement`.
 3. Mã API thêm: phiên điều phối cấp API_309 đến API_313 (2026-11-12). Các mã khác trong dải dành riêng.
 4. Chiều cung cấp (L4, L5) dựa trên mã CONG_VIEC_66 chưa có trên `main`; làm L4 sau khi bản 0.9.0 hợp nhất vào `main` rồi hợp nhất `main` vào nhánh.
@@ -303,6 +306,10 @@ Tiêu chí chung (mọi màn hình mới đủ trạng thái rỗng, đang tải
 | Vận đơn đơn người bán                   | Tự tạo vận đơn qua kết nối đơn vị vận chuyển hiện có                                             |
 | Hóa đơn phí giao                        | Lập hóa đơn điện tử dịch vụ giao hàng khi xác nhận bảng đối soát tuần                            |
 | Nguồn V-com-ERP                         | Không đối chiếu                                                                                  |
+| Địa chỉ người nhận đơn người bán (L4)   | Người bán gửi tách số nhà, đường và mã phường, xã theo danh mục                                  |
+| Trạng thái vận đơn (L4)                 | Webhook hiện có của đơn vị vận chuyển, luôn tra lại                                              |
+| Phiếu xuất (L4)                         | Như đơn sàn: lập nháp khi tạo vận đơn, ghi sổ khi lấy hàng                                       |
+| Kho xuất đơn người bán (L4)             | Chỉ kho thường                                                                                   |
 
 ## 18. Thành phần không được thay đổi
 

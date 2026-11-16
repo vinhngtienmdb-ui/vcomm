@@ -744,7 +744,11 @@
     "signingResendLimit": "A partner's link can be resent at most 5 times in 24 hours.",
     "affiliateSmartOtpActive": "The customer has Smart OTP; use the code in the VComm app.",
     "affiliateOtpInvalid": "The OTP is wrong or has expired.",
-    "affiliateSmsLimit": "The API key has used up its OTP SMS for today."
+    "affiliateSmsLimit": "The API key has used up its OTP SMS for today.",
+    "resellerShipmentCarrierManaged": "This shipment was created with the carrier; its status comes from the carrier and cannot be entered manually",
+    "resellerOrderNotShippable": "The order is not confirmed, so a shipment cannot be created",
+    "resellerShipmentStatusInvalid": "This delivery status change is not allowed (forward only; returned after Shipping; cancel while Awaiting pickup)",
+    "resellerShipmentNotCarrier": "The order has no shipment created with a carrier"
   },
   "login": {
     "title": "Sign in",
@@ -1926,7 +1930,8 @@
     "documents": "Stock documents",
     "stocktakes": "Stocktakes",
     "reservations": "Reservations, safety stock",
-    "internalDiscrepancies": "Internal shortages"
+    "internalDiscrepancies": "Internal shortages",
+    "resellerShipments": "Reseller deliveries"
   },
   "warehouses": {
     "title": "Warehouses and locations",
@@ -2388,7 +2393,10 @@
     "noOwnerHistory": "No sales owner yet.",
     "ownerNow": "now",
     "claim": "Claim as my customer",
-    "claimed": "Partner claimed as your customer."
+    "claimed": "Partner claimed as your customer.",
+    "role_dropshipReseller": "Dropship reseller",
+    "isDropshipReseller": "Is a dropship reseller",
+    "isDropshipResellerHint": "Open API orders with a recipient from this partner are reseller dropship orders: the partner is the customer, delivery is made in the partner's name, cash on delivery is accepted."
   },
   "purchasingMenu": {
     "title": "Purchasing",
@@ -2815,7 +2823,20 @@
     "source": "Source",
     "source_web": "Entered on web",
     "source_open_api": "Open API",
-    "openApiInfo": "Order created through the Open API with key {key}. Partner order code: {code}. Review and submit it like any order; the partner can cancel it while it is a draft."
+    "openApiInfo": "Order created through the Open API with key {key}. Partner order code: {code}. Review and submit it like any order; the partner can cancel it while it is a draft.",
+    "resellerShipment": "Reseller dropship order",
+    "resellerName": "Reseller",
+    "resellerCod": "Cash on delivery",
+    "resellerTracking": "Shipment",
+    "resellerShippingStatus": "Delivery status",
+    "resellerHint": "Delivered in the reseller's name; the warehouse keeper creates the shipment and prints the delivery note in the Inventory app, Reseller deliveries.",
+    "resellerStatus_none": "No shipment",
+    "resellerStatus_requesting": "Creating shipment",
+    "resellerStatus_awaiting_pickup": "Awaiting pickup",
+    "resellerStatus_shipping": "Shipping",
+    "resellerStatus_delivered": "Delivered",
+    "resellerStatus_returned": "Returned",
+    "resellerStatus_cancelled": "Cancelled"
   },
   "salesMenu": {
     "title": "Sales",
@@ -9976,5 +9997,45 @@
     "editType": "Edit contract type",
     "typeSaved": "Contract type saved.",
     "partnerEmailRequired": "An email is needed to send the signing link to the partner."
+  },
+  "resellerShipments": {
+    "title": "Reseller deliveries",
+    "hint": "Reseller dropship orders: goods leave the company warehouse and are delivered in the reseller's name. A draft goods issue is created with the shipment and posted when the carrier picks up; returned parcels are received back into the warehouse. The reseller sees the delivery status through the Open API.",
+    "searchPlaceholder": "Order number, reseller order code, recipient, tracking code",
+    "allStatuses": "Delivery status: all",
+    "empty": "No reseller orders to deliver",
+    "noCarrier": "No carrier is enabled: enter the carrier, tracking code and fee manually.",
+    "order": "Order",
+    "reseller": "Reseller",
+    "recipient": "Recipient",
+    "codAmount": "Cash on delivery",
+    "tracking": "Tracking code",
+    "carrier": "Carrier",
+    "fee": "Shipping fee",
+    "feeVnd": "Actual shipping fee (VND, 0 to 5,000,000)",
+    "status": "Delivery status",
+    "printNote": "Print delivery note",
+    "createShipment": "Create shipment",
+    "manualShipment": "Enter shipment",
+    "updateShipment": "Update delivery",
+    "refresh": "Recheck shipment",
+    "cancelShipment": "Cancel shipment",
+    "saved": "Shipment saved",
+    "refreshed": "Shipment rechecked",
+    "cancelled": "Shipment cancelled",
+    "carrierHint": "The carrier receives the recipient, address and cash on delivery {amount}; selling prices are not sent. Tracking code, fee and status come from the carrier.",
+    "manualHint": "Forward only: Awaiting pickup → Shipping → Delivered. Returned (after Shipping) receives the goods back; Cancelled while Awaiting pickup removes the draft goods issue.",
+    "status_none": "No shipment",
+    "status_requesting": "Creating shipment",
+    "status_awaiting_pickup": "Awaiting pickup",
+    "status_shipping": "Shipping",
+    "status_delivered": "Delivered",
+    "status_returned": "Returned",
+    "status_cancelled": "Cancelled",
+    "carrier_ghn": "Giao Hang Nhanh",
+    "carrier_ghtk": "Giao Hang Tiet Kiem",
+    "carrier_jt": "J&T Express",
+    "carrier_viettel_post": "Viettel Post",
+    "carrier_vnpost": "VNPost"
   }
 }
