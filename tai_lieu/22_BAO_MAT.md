@@ -1331,7 +1331,7 @@ Ranh giới và kiểm soát riêng:
 - Ghi sổ cặp phiếu trong một giao dịch, khóa dòng đơn mua chống báo trùng song song; giữ chỗ khóa dòng sản phẩm dropship.
 - Webhook đơn vị vận chuyển (API_128) xử lý vận đơn đơn người bán như đơn sàn: tra lại vận đơn từ đơn vị vận chuyển (đơn vị vận chuyển không có API tra thì xác thực khóa trong nội dung, QUYTAC_NGHIEPVU_185); mã vận đơn lạ trả `ignored`.
 
-Kết quả rà soát bảo mật CONG_VIEC_62: chưa ghi kết quả rà soát chính thức của công việc (chờ bước rà soát trước nghiệm thu).
+Kết quả rà soát bảo mật CONG_VIEC_62 (2026-11-16, rà soát độc lập toàn nhánh): không phát hiện lỗi mức Nghiêm trọng, Cao, Trung bình. Đã kiểm: khóa nhà cung cấp chỉ thấy, sửa đơn mua và tồn của mình (lọc công ty, nhà cung cấp trong câu truy vấn), không thấy giá bán, khách; khóa đối tác cần hồ sơ nhà cung cấp với phạm vi `dropship.supplier`, hồ sơ khách hàng với phạm vi khác (sửa khi tự rà soát mã); đơn người bán ép khách là người bán, chỉ kho thường của khóa; API nhân viên kiểm quyền, lọc công ty, `version`; webhook đơn vị vận chuyển chỉ tác động vận đơn người bán sau khi đúng khóa, trạng thái tra lại; tệp Excel giới hạn cỡ, dòng; tên tệp tải về lọc ký tự; mọi câu SQL truyền tham số. Không thêm thư viện; không có khóa bí mật trong commit.
 
 ### Cửa hàng liên kết qua Open API (MODULE_12 phần 2, CONG_VIEC_67)
 
