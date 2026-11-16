@@ -2407,6 +2407,19 @@ CHUC_NANG_103 (ghé thăm khách): ghi mới đã tắt theo QUYTAC_NGHIEPVU_441
 
 Yêu cầu phi chức năng: khóa lưu băm; nhật ký gọi ghi sau khi trả kết quả, lỗi ghi không làm hỏng lần gọi; cập nhật lần dùng gần nhất tối đa một lần mỗi phút; giới hạn tần suất dùng chung Redis giữa các tiến trình.
 
+## MODULE_16 Mở rộng kinh doanh (phần 2: Dropship, CONG_VIEC_62)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_62.md` mục 4.
+
+| Mã | Chức năng | Yêu cầu | Màn hình | API |
+|---|---|---|---|---|
+| CHUC_NANG_222 | Kho loại Dropship; sản phẩm dropship (biến thể – nhà cung cấp – giá mua); tồn nhà cung cấp khai báo (từng dòng, tệp Excel), lịch sử đổi tồn; giữ chỗ theo khả dụng khi gửi duyệt đơn bán | YCAU_NGHIEPVU_170, 171 | MAN_HINH_234; sửa danh sách, biểu mẫu kho (MAN_HINH_28) | API_265, API_266; sửa API_63 (kho), API_261 (tồn Open API) |
+| CHUC_NANG_223 | Đơn bán dropship: đơn mua tự lập theo nhà cung cấp; báo Đang giao, Đã giao (ghi sổ phiếu nhập mua và phiếu xuất bán), Giao thất bại, Hủy; trả hàng về nhà cung cấp hoặc về kho công ty; số hóa đơn nhà cung cấp; đối soát nhà cung cấp | YCAU_NGHIEPVU_170, 172, 173 | MAN_HINH_235 đến MAN_HINH_237; sửa chi tiết đơn bán (MAN_HINH_43, khối Dropship) | API_267 đến API_270; sửa API_77 chi tiết đơn bán (`dropship`) |
+| CHUC_NANG_224 | Open API cho nhà cung cấp dropship (phạm vi `dropship.supplier`): nhận đơn, báo giao, cập nhật tồn | YCAU_NGHIEPVU_171, 172 | Sửa MAN_HINH_224, MAN_HINH_225 (phạm vi mới) | API_271, API_272, API_309; sửa API_256, API_257 (phạm vi) |
+| CHUC_NANG_225 | Người bán dropship: đơn Open API khách là người bán, hóa đơn, công nợ theo người bán; vận đơn (tạo qua đơn vị vận chuyển đang bật hoặc nhập tay), phí giao, trạng thái giao qua Open API; phiếu giao danh nghĩa người bán; thu hộ; đối soát tuần, phí giao, phiếu chi hoàn tiền | YCAU_NGHIEPVU_174, 175, 176 | MAN_HINH_238 đến MAN_HINH_241; sửa chi tiết đối tác (MAN_HINH_37), chi tiết đơn bán (khối Người bán dropship), cài đặt bán hàng (sản phẩm phí giao) | API_310 đến API_313; sửa API_262, API_263, API_128, API_78, API_72 (`isDropshipReseller`), API_77 chi tiết đơn bán (`resellerShipment`) |
+
+Yêu cầu phi chức năng: ghi sổ cặp phiếu trong một giao dịch, khóa dòng đơn mua chống báo trùng song song; giữ chỗ kho Dropship khóa dòng sản phẩm dropship; Open API lọc theo nhà cung cấp của khóa trong câu truy vấn; dữ liệu cá nhân người nhận trả cho nhà cung cấp chỉ tên, điện thoại, địa chỉ; nhật ký gọi không ghi nội dung.
+
 ## MODULE_12 Cửa hàng liên kết (phần 2: Open API, CONG_VIEC_67)
 
 | Mã | Chức năng | Yêu cầu | Màn hình | API |

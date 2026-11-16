@@ -678,6 +678,26 @@ TIEUCHI_NGHIEMTHU_159 (ghé thăm khách, CONG_VIEC_22 bản cũ) thay bằng TI
 | TIEUCHI_NGHIEMTHU_502 | CHUC_NANG_221 | Danh sách đối tác nhãn "Do đối tác tạo", lọc nguồn; chi tiết có hộp thông tin Open API; sửa khách cá nhân không căn cước được | Giao diện, gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_503 | CHUC_NANG_221 | Chi tiết đơn bán, phiếu xuất hiện người nhận; đủ trạng thái; tiếng Việt, tiếng Anh | Giao diện | Bắt buộc |
 
+## MODULE_16 Mở rộng kinh doanh (phần 2: Dropship, CONG_VIEC_62)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_458 | CHUC_NANG_222 | Tạo kho Dropship thứ hai đang hoạt động trong công ty bị từ chối; lập tay phiếu nhập, xuất, chuyển, kiểm kê vào kho Dropship bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_459 | CHUC_NANG_222 | Thêm sản phẩm dropship sai (dịch vụ, có lô hoặc serial, nhà cung cấp không có hồ sơ, trùng biến thể) báo lỗi đúng trường; sửa tồn ghi lịch sử người đổi | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_460 | CHUC_NANG_222, 223 | Đơn bán kho Dropship vượt khả dụng, có dòng không phải sản phẩm dropship hoặc không có giá mua hiệu lực bị từ chối đúng dòng; trong khả dụng thì giữ chỗ và khả dụng giảm | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_461 | CHUC_NANG_223 | Đơn bán dropship hai nhà cung cấp được xác nhận thì có đúng hai đơn mua Đã duyệt, giá theo bảng giá mua, không tạo yêu cầu duyệt mua | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_462 | CHUC_NANG_223 | Báo Đã giao: phiếu nhập mua và phiếu xuất bán đã ghi sổ cùng ngày giao; phải trả nhà cung cấp, phải thu khách, bút toán đúng; giá vốn bằng giá mua; tồn kho Dropship về 0; báo lần hai không tạo thêm chứng từ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_463 | CHUC_NANG_223 | Giao thất bại khi chưa nhà cung cấp nào giao: đơn bán Đã hủy, giữ chỗ được nhả; khi đã có nhà cung cấp giao: đơn bán Đóng phần còn lại | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_464 | CHUC_NANG_223 | Trả về nhà cung cấp: khi nhà cung cấp xác nhận có phiếu trả hàng bán và trả hàng mua cùng số lượng, công nợ hai bên giảm đúng; trả về kho công ty: tồn kho thường tăng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_465 | CHUC_NANG_224 | Khóa nhà cung cấp chỉ thấy đơn của mình, không thấy giá bán, khách; báo trạng thái sai thứ tự nhận `409`; cập nhật tồn biến thể của nhà cung cấp khác bị từ chối dòng; khóa không có phạm vi nhận `403` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_466 | CHUC_NANG_223 | Báo cáo đối soát nhà cung cấp khớp tổng phiếu nhập, trả hàng mua và công nợ phải trả của kỳ; xuất Excel đúng số | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_467 | CHUC_NANG_225 | Đơn Open API của người bán có cờ, có người nhận: khách là người bán, giá nhóm người bán, hóa đơn và công nợ theo người bán; gửi `customerCode` bị lỗi trường; đối tác không cờ giữ cách CONG_VIEC_66 | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_468 | CHUC_NANG_225 | Phiếu giao PDF không có tên công ty, giá bán; có tên, điện thoại người bán, tiền thu hộ; API_263 trả vận đơn, trạng thái giao sau khi thủ kho nhập | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_469 | CHUC_NANG_225 | Bảng đối soát tuần lập đúng A, B, C, D, E, số còn lại; xác nhận hạch toán phí giao, thuế; số âm có phiếu chi hoàn tiền đúng số; người bán công ty khác không lẫn | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_534 | CHUC_NANG_225 | Vận đơn tự tạo: tạo vận đơn có phiếu xuất nháp; đơn vị vận chuyển lấy hàng thì phiếu xuất ghi sổ; đã giao ghi ngày thu hộ; hoàn hàng có phiếu nhận trả giảm công nợ người bán; thu hộ gửi đơn vị vận chuyển, không gửi giá bán | Gọi API | Bắt buộc |
+
+Tiêu chí chung (mọi màn hình mới MAN_HINH_234 đến 241 đủ trạng thái rỗng, đang tải, lỗi, không quyền; tiếng Việt và tiếng Anh) kiểm trong kịch bản giao diện KICHBAN_KIEMTHU_651, 652. TIEUCHI_NGHIEMTHU_534 do phiên điều phối cấp thêm khi chốt thiết kế vận đơn lát L4.
+
 ## MODULE_12 Cửa hàng liên kết (phần 2: Open API, CONG_VIEC_67)
 
 | Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |

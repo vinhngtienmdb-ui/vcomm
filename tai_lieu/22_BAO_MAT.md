@@ -1298,6 +1298,41 @@ Ranh giới và kiểm soát riêng:
 
 Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; LOI_09 ở trên đã sửa. Ngoại lệ QUYTAC_NGHIEPVU_56 và mở phạm vi `customer.write` theo THAY_DOI_32.
 
+### Dropship MODULE_16 phần 2 (CONG_VIEC_62)
+
+| Quyền | Thao tác | Gán mặc định |
+|---|---|---|
+| `purchasing.dropship.view` | Xem sản phẩm dropship, đơn dropship, báo cáo đối soát nhà cung cấp (MAN_HINH_234 đến 237; API_265, API_267, API_270) | Quản trị công ty, Nhân viên mua hàng |
+| `purchasing.dropship.manage` | Thêm, sửa sản phẩm dropship, tồn khai báo, nhập tệp; báo giao thay nhà cung cấp, hủy; trả hàng; số hóa đơn nhà cung cấp (API_265 đến API_269) | Quản trị công ty, Nhân viên mua hàng |
+| `inventory.sales.issue` (có sẵn) tại kho của đơn, kèm `inventory.access` | Giao hàng đơn người bán: vận đơn, phí, trạng thái giao, phiếu giao (MAN_HINH_238, 239; API_310, API_311); không thêm quyền mới | Như hiện có (Thủ kho) |
+| `finance.debt.view`, `finance.debt.manage` (có sẵn) | Xem (`view` hoặc `manage`), xác nhận bảng đối soát người bán, lập phiếu chi hoàn tiền (chỉ `manage`) (MAN_HINH_240, 241; API_312, API_313) | Như hiện có (Kế toán) |
+
+Loại kho theo quyền quản lý kho hiện có; cờ "Người bán dropship" theo quyền sửa hồ sơ đối tác hiện có; phạm vi khóa `dropship.supplier` theo `platform.api_key.manage`.
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Người nhận của đơn dropship (tên, điện thoại, địa chỉ; số nhà, đường, mã phường, xã với đơn người bán) | Dữ liệu cá nhân | `sales.orders`; trả cho nhà cung cấp qua API_271 chỉ tên, điện thoại, địa chỉ giao (cần để giao hàng); gửi đơn vị vận chuyển khi tạo vận đơn như đơn sàn; nhật ký gọi không ghi nội dung | Nhà cung cấp: đơn mua dropship của chính mình; người bán: đơn trong phạm vi khóa; nhân viên: quyền đơn bán, mua hàng, kho hiện có |
+| Giá bán, khách hàng, đơn bán của đơn dropship | Bí mật kinh doanh | Không trả qua API_271, API_272 (chỉ số đơn mua, dòng hàng, giá mua của đơn mua); vận đơn đơn người bán gửi đơn vị vận chuyển giá hàng bằng 0; phiếu giao danh nghĩa người bán không in tên công ty, giá bán, số đơn VComm | Nhân viên theo quyền hiện có |
+| Tồn khai báo, lịch sử đổi tồn | Nội bộ | `purchasing.dropship_products`, `purchasing.dropship_stock_changes` ghi người hoặc khóa đổi | `purchasing.dropship.view`; nhà cung cấp chỉ cập nhật biến thể của mình |
+| Bảng đối soát người bán, thu hộ | Tài chính | `finance.reseller_settlements`, `finance.reseller_settlement_lines`; bảng đã xác nhận không sửa | `finance.debt.view`, `finance.debt.manage` của công ty |
+
+| Điểm tiếp nhận | Loại | Kiểm tra đầu vào | Cần xác thực |
+|---|---|---|---|
+| API_265 đến API_270 (`/api/v1/purchasing/dropship-*`) | API nhân viên | Lược đồ zod `createDropshipProductSchema`, `updateDropshipProductSchema`, `updateDropshipStockSchema`, `dropshipShippingSchema`, `dropshipDeliveredSchema`, `dropshipReasonSchema`, `dropshipSupplierInvoiceSchema`, `createDropshipReturnSchema`, `dropshipReconciliationQuerySchema` (trường thừa bị từ chối); tệp Excel giới hạn kích thước, một tệp | Đăng nhập, `purchasing.dropship.view` / `purchasing.dropship.manage` |
+| API_310, API_311 (`/api/v1/sales/reseller-shipments`, `/sales/orders/{id}/reseller-*`) | API nhân viên | `resellerShipmentListQuerySchema`, `resellerShipmentManualSchema`, `resellerShipmentCarrierSchema`, `resellerShipmentVersionSchema` | Đăng nhập, `inventory.access` và `inventory.sales.issue` tại kho của đơn |
+| API_312, API_313 (`/api/v1/finance/reseller-settlements`) | API nhân viên | `resellerSettlementListQuerySchema`, `confirmResellerSettlementSchema` (quỹ phải thuộc công ty, đang hoạt động) | Đăng nhập, `finance.debt.view` / `finance.debt.manage` |
+| API_271, API_272, API_309 (`/api/v1/open/dropship/*`) | API công khai cho nhà cung cấp | Mã đơn trên đường dẫn chỉ nhận chữ, số, dấu gạch ngang (1 đến 50 ký tự); `openDropshipOrderListQuerySchema`, `openDropshipEventSchema`, `openDropshipStockSchema` (tối đa 500 dòng) | Khóa API phạm vi `dropship.supplier`, đối tác của khóa có hồ sơ nhà cung cấp ở công ty |
+| API_262, API_263 (sửa) | API công khai cho đối tác | `codAmount` chuỗi số 0 đến 50.000.000; `recipient.street`, `recipient.wardCode` theo danh mục | Khóa API phạm vi `sales_order.write` |
+
+Ranh giới và kiểm soát riêng:
+- Khóa `dropship.supplier` chỉ thấy đơn mua dropship của chính nhà cung cấp (mọi khóa cùng nhà cung cấp): mọi truy vấn lọc `company_id` và `supplier_id` của khóa ngay trong câu truy vấn; đơn của nhà cung cấp khác trả `404`; cập nhật tồn biến thể không thuộc nhà cung cấp bị từ chối dòng. Khóa phạm vi khác không gọi được (`403 SCOPE_NOT_GRANTED`).
+- Guard khóa API kiểm đối tác có hồ sơ nhà cung cấp khi khóa có `dropship.supplier`, hồ sơ khách hàng khi có phạm vi khác.
+- Đơn người bán: khách trên đơn luôn là đối tác của khóa (không nhận `customerCode`), nên đối tác không ghi được đơn cho khách khác.
+- Ghi sổ cặp phiếu trong một giao dịch, khóa dòng đơn mua chống báo trùng song song; giữ chỗ khóa dòng sản phẩm dropship.
+- Webhook đơn vị vận chuyển (API_128) xử lý vận đơn đơn người bán như đơn sàn: tra lại vận đơn từ đơn vị vận chuyển (đơn vị vận chuyển không có API tra thì xác thực khóa trong nội dung, QUYTAC_NGHIEPVU_185); mã vận đơn lạ trả `ignored`.
+
+Kết quả rà soát bảo mật CONG_VIEC_62: chưa ghi kết quả rà soát chính thức của công việc (chờ bước rà soát trước nghiệm thu).
+
 ### Cửa hàng liên kết qua Open API (MODULE_12 phần 2, CONG_VIEC_67)
 
 | Điểm tiếp nhận | Xác thực | Kiểm soát |

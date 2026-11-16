@@ -621,3 +621,28 @@ YCAU_NGHIEPVU_47 (ứng dụng nhân viên kinh doanh riêng, CONG_VIEC_22 bản
 | Đơn bán (bổ sung) | Khóa API đã tạo, phạm vi mã đơn đối tác, mã đơn đối tác | CONG_VIEC_61 |
 | Khách do đối tác tạo | Hồ sơ đối tác dùng chung đánh dấu khóa đã tạo; phạm vi (đối tác hoặc khóa nội bộ), khóa tạo hoặc gắn, do phạm vi tạo hay gắn do trùng, thời điểm xác nhận đồng ý xử lý dữ liệu cá nhân | CONG_VIEC_66 |
 | Đơn bán (bổ sung) | Tên, điện thoại người nhận giao thẳng (địa chỉ là địa chỉ giao) | CONG_VIEC_66 |
+
+## MODULE_16 Mở rộng kinh doanh (phần 2: Dropship, CONG_VIEC_62)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_62.md`.
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_170 | Bán hàng không có trong kho: nhà cung cấp giao thẳng cho khách, công ty ghi nhận mua – bán, công nợ, hóa đơn đúng | Nhân viên bán hàng, Nhân viên mua hàng, Kế toán | THAY_DOI_04 (MODULE_16); người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_171 | Biết còn bán được bao nhiêu hàng dropship theo số nhà cung cấp khai báo, không bán quá | Nhân viên bán hàng, Đối tác | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_172 | Nhà cung cấp nhận đơn, báo đang giao, đã giao, giao thất bại; nhân viên làm thay khi nhà cung cấp không có phần mềm | Nhà cung cấp, Nhân viên mua hàng | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_173 | Xử lý hàng dropship bị trả: trả về nhà cung cấp hoặc về kho công ty; đối chiếu số đã giao, đã trả, còn phải trả với từng nhà cung cấp theo kỳ | Nhân viên mua hàng, Kế toán | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_174 | Người bán dropship gửi đơn, công ty xuất hóa đơn và ghi công nợ cho người bán, giao thẳng người nhận dưới tên người bán | Người bán dropship, Nhân viên bán hàng, Kế toán | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_175 | Người bán tra vận đơn, trạng thái giao của đơn qua Open API | Người bán dropship | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_176 | Thu hộ tiền người nhận cho người bán, tính phí giao, đối soát và trả tiền người bán hằng tuần | Kế toán, Người bán dropship | Người dùng 2026-11-12, 2026-11-16 |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Kho (bổ sung) | Loại kho (Thường, Dropship); mỗi công ty tối đa một kho Dropship đang hoạt động, không dùng vị trí | CONG_VIEC_62 |
+| Sản phẩm dropship | Công ty, biến thể, nhà cung cấp, đơn vị mua, tồn khai báo (đơn vị cơ bản), thời điểm, người hoặc khóa khai báo, trạng thái (đang dùng, ngừng dùng); lịch sử đổi tồn | CONG_VIEC_62 |
+| Đơn mua dropship | Đơn mua (bổ sung): đơn bán gốc, trạng thái giao (Chờ giao, Đang giao, Đã giao, Giao thất bại, Đã hủy), đơn vị vận chuyển, mã vận đơn, ngày giao, lý do, số và ngày hóa đơn nhà cung cấp; lịch sử trạng thái giao | CONG_VIEC_62 |
+| Trả hàng dropship | Đơn mua, phiếu xuất gốc, dòng, số lượng, lý do, nơi nhận (về nhà cung cấp, về kho công ty), kho nhận, trạng thái (chờ nhà cung cấp, đã nhận, đã hủy), phiếu trả hàng bán, phiếu trả hàng mua | CONG_VIEC_62 |
+| Người bán dropship | Cờ trên hồ sơ khách hàng của đối tác ở công ty | CONG_VIEC_62 |
+| Đơn bán (bổ sung) | Cờ đơn dropship của người bán, tiền thu hộ, số nhà và đường, mã phường, xã của người nhận | CONG_VIEC_62 |
+| Vận đơn đơn người bán | Đơn bán, đơn vị vận chuyển (kết nối hoặc nhập tay), mã vận đơn, trạng thái giao, phí giao, tiền thu hộ, thời điểm thu hộ, thời điểm kết thúc | CONG_VIEC_62 |
+| Bảng đối soát người bán | Công ty, số bảng, người bán, tuần, A (tiền hàng có thuế), B (trả hàng), C (thu hộ), D (phí giao), thuế suất, E (thuế giá trị gia tăng của phí giao), số còn lại, trạng thái (Nháp, Đã xác nhận), đơn phí giao, phiếu chi hoàn tiền; dòng theo chứng từ nguồn | CONG_VIEC_62 |

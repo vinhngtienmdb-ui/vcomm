@@ -423,6 +423,14 @@ describe("TIEUCHI_NGHIEMTHU_469: đối soát tuần người bán", () => {
     const runDay = nextWeek.toISOString().slice(0, 10);
     expect(await service.generateWeekly(runDay)).toBeGreaterThanOrEqual(1);
     expect(await service.generateWeekly(runDay)).toBe(0);
+    // Bảng lập theo (công ty, người bán): mọi dòng thuộc đơn của đúng công ty, đúng người bán của bảng; người bán cùng đối tác ở công ty khác không vào bảng này.
+    const mixed = await pool.query<{ total: number }>(
+      `SELECT count(*)::int AS total FROM finance.reseller_settlement_lines l JOIN finance.reseller_settlements s ON s.id = l.settlement_id JOIN sales.orders o ON o.id = l.order_id
+       WHERE o.company_id <> s.company_id OR o.customer_id <> s.reseller_id`,
+    );
+    expect(mixed.rows[0]!.total).toBe(0);
+    const tradingSettlements = await pool.query("SELECT 1 FROM finance.reseller_settlements WHERE company_id <> $1", [retail]);
+    expect(tradingSettlements.rows).toHaveLength(0);
     const list = await call(admin, "get", `/finance/reseller-settlements?resellerId=${sellerId}`);
     expect(list.status, JSON.stringify(list.body)).toBe(200);
     expect(list.body.data).toHaveLength(1);

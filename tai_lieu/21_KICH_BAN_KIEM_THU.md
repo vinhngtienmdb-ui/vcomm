@@ -5668,6 +5668,139 @@ Dữ liệu chung: `apps/api/test/c66-open-api-customers.test.ts` – công ty V
 - Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
 
 
+## CHUC_NANG_222 đến CHUC_NANG_225: Dropship (MODULE_16 phần 2, CONG_VIEC_62)
+
+Dữ liệu chung: `apps/api/test/c62-dropship.test.ts` (lát L1 đến L3) – công ty VCR có kho Dropship và kho thường, hai nhà cung cấp có hồ sơ nhà cung cấp và bảng giá mua, sản phẩm hàng hóa và dịch vụ, nhân viên mua hàng, thủ kho, kế toán, khóa API nhà cung cấp. `apps/api/test/c62-dropship-resellers.test.ts` (lát L4, L5) – đối tác có cờ người bán dropship và đối tác không cờ, khóa `sales_order.write`, máy chủ GHN giả lập.
+
+### KICHBAN_KIEMTHU_639
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_458
+- Chức năng: CHUC_NANG_222
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Tạo kho Dropship; tạo kho Dropship thứ hai đang hoạt động bị từ chối; kho Dropship bật vị trí bị từ chối; lập tay phiếu nhập, xuất, chuyển kho, kiểm kê, giữ hàng tay, đơn mua tay vào kho Dropship bị từ chối.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_640
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_459
+- Chức năng: CHUC_NANG_222
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Bốn trường hợp thêm sai (dịch vụ, có lô hoặc serial, nhà cung cấp không có hồ sơ, trùng biến thể) báo lỗi đúng trường; thêm đúng; sửa tồn hai lần, lịch sử hai dòng có người đổi; nhập tệp Excel cập nhật tồn, dòng sai báo lỗi theo dòng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_641
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_460
+- Chức năng: CHUC_NANG_222, CHUC_NANG_223
+- Loại: Đúng, sai, giá trị biên
+- Các bước và kết quả mong đợi: Khai báo 10; đơn A 6 gửi duyệt giữ chỗ, khả dụng còn 4; đơn B 5 bị từ chối đúng dòng; đơn B 4 được; dòng không phải sản phẩm dropship, dòng không có giá mua hiệu lực bị từ chối đúng dòng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L1, L2
+
+### KICHBAN_KIEMTHU_642
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_461
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Đơn bán hai nhà cung cấp xác nhận (không ngoại lệ và qua duyệt ngoại lệ): đúng hai đơn mua Đã duyệt, giá theo bảng giá mua, kho nhận là kho Dropship, không có yêu cầu duyệt mua.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_643
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_462
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, đồng thời
+- Các bước và kết quả mong đợi: Báo Đã giao: phiếu nhập mua, phiếu xuất bán ghi sổ ngày giao; công nợ phải trả, phải thu; bút toán 156, 632, 331, 131; giá vốn bằng giá mua; tồn kho Dropship về 0; báo lại không đổi; hai yêu cầu báo song song chỉ một bộ chứng từ. Bổ sung khi rà soát: nhà cung cấp hạ tồn khai báo về 0, sản phẩm dropship ngừng sau khi có đơn mua vẫn báo Đã giao được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_644
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_463
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, ngoại lệ
+- Các bước và kết quả mong đợi: Giao thất bại một nhà cung cấp khi chưa nhà cung cấp nào giao: đơn bán Đã hủy, giữ chỗ được nhả; khi nhà cung cấp kia đã giao: đơn bán Đóng phần còn lại.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_645
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_464
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Trả về nhà cung cấp (chờ, hủy, xác nhận): khi xác nhận có phiếu trả hàng bán và trả hàng mua cùng số lượng, công nợ hai bên giảm; trả về kho công ty: tồn kho thường tăng; trả quá số đã xuất trừ đã trả bị từ chối.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_646
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_465
+- Chức năng: CHUC_NANG_224
+- Loại: Phân quyền, bảo mật, sai
+- Các bước và kết quả mong đợi: Khóa nhà cung cấp A tra đơn của B nhận `404`; trường trả về không có giá bán, khách; chuyển trạng thái sai thứ tự `409`; cập nhật tồn biến thể của B bị từ chối dòng; khóa thiếu phạm vi `dropship.supplier` nhận `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_647
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_466
+- Chức năng: CHUC_NANG_223
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Kỳ có hai đơn giao, một lần trả, một đơn chưa có số hóa đơn: số đơn đã giao, giá trị nhận, trả lại, số đơn chưa có số hóa đơn, phải trả cuối kỳ khớp sổ; tệp Excel đúng số.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_648
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_467
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Người bán có cờ gửi đơn có người nhận (`street`, `wardCode`): khách là người bán, giá nhóm người bán; gửi `customerCode` bị lỗi trường; thiếu phường, xã bị lỗi trường; đối tác không cờ giữ cách CONG_VIEC_66; tắt cờ sau khi tạo đơn thì đơn đã tạo không đổi.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_649
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_468
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, bảo mật
+- Các bước và kết quả mong đợi: Sinh phiếu giao PDF, kiểm văn bản có tên, điện thoại người bán, tiền thu hộ, người nhận, dòng hàng, mã đơn đối tác; không có tên công ty, số đơn VComm, giá bán; nhập vận đơn tay rồi tra API_263 có `shipment`; công nợ theo người bán.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_650
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_469
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, phân quyền
+- Các bước và kết quả mong đợi: Tuần có giao, hoàn, thu hộ: lập bảng đúng A đến E, số còn lại; lập lại không trùng; xác nhận có đơn bán dịch vụ phí giao, bút toán, phiếu chi hoàn tiền Nháp khi số âm; chứng từ trễ vào bảng tuần sau. Phần "người bán công ty B không vào bảng của A" chưa có bước kiểm riêng trong tệp kiểm thử (truy vấn lọc `company_id`, xem tài liệu `22`).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L5
+
+### KICHBAN_KIEMTHU_651
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_458 đến TIEUCHI_NGHIEMTHU_466
+- Chức năng: CHUC_NANG_222, CHUC_NANG_223, CHUC_NANG_224
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Trên ứng dụng chạy thật, MAN_HINH_234 đến MAN_HINH_237, biểu mẫu kho, khối Dropship ở chi tiết đơn bán, phạm vi khóa nhà cung cấp; đủ trạng thái rỗng, đang tải, lỗi, không quyền, có dữ liệu; đổi tiếng Việt, tiếng Anh; màn hình hẹp.
+- Kiểm thử tự động: Chưa tự động – không có tệp Playwright trong dự án; kiểm bằng ảnh chụp màn hình khi xem trước lát L1 đến L3 (thư mục `tam_thoi/c62`, chụp bằng Playwright ngoài dự án)
+- Lát: L1, L2, L3
+
+### KICHBAN_KIEMTHU_652
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_467 đến TIEUCHI_NGHIEMTHU_469
+- Chức năng: CHUC_NANG_225
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Trên ứng dụng chạy thật, MAN_HINH_238, MAN_HINH_240, MAN_HINH_241, phiếu giao MAN_HINH_239, ô người bán dropship ở chi tiết đối tác, cài đặt sản phẩm phí giao; đủ trạng thái rỗng, đang tải, lỗi, không quyền, có dữ liệu; đổi tiếng Việt, tiếng Anh; màn hình hẹp.
+- Kiểm thử tự động: Chưa tự động – không có tệp Playwright trong dự án; kiểm bằng ảnh chụp màn hình khi xem trước lát L4, L5 (thư mục `tam_thoi/c62`, chụp bằng Playwright ngoài dự án)
+- Lát: L4, L5
+
+### KICHBAN_KIEMTHU_729
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_534
+- Chức năng: CHUC_NANG_225
+- Loại: Đúng, đồng thời
+- Các bước và kết quả mong đợi: Tạo vận đơn bằng máy chủ GHN giả lập: có phiếu xuất nháp, giá hàng gửi bằng 0, có tiền thu hộ; webhook lấy hàng ghi sổ phiếu xuất; webhook đã giao ghi ngày thu hộ (nhận hai lần không đổi); mã vận đơn lạ bị bỏ qua.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_730
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_534
+- Chức năng: CHUC_NANG_225
+- Loại: Ngoại lệ
+- Các bước và kết quả mong đợi: Hoàn hàng: phiếu nhận trả, công nợ người bán giảm; hủy vận đơn trước khi lấy hàng rồi tạo lại; mất phản hồi khi tạo vận đơn, tra lại ghi nhận vận đơn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c62-dropship-resellers.test.ts`
+- Lát: L4
+
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin ở phạm vi công ty và tập đoàn, người không có quyền.

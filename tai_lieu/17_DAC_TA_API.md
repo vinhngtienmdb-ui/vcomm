@@ -1919,6 +1919,49 @@ MODULE_16 phần 1 (CONG_VIEC_61) không phát, không nghe sự kiện outbox.
 
 Sửa API hiện có (chỉ thêm trường): API_262 nhận `customerCode` từ khóa đối tác (khách trong phạm vi) và `recipient` (`name`, `phone`, `address`; không gửi cùng `deliveryAddress`); API_263 trả `recipient`; API_71 (`GET /crm/partners`) lọc `source` (`web`, `open_api`), mỗi dòng có `createdViaOpenApi`; chi tiết đối tác có `openApi[]`; chi tiết đơn bán có `recipient`, `customerCreatedViaOpenApi`; chi tiết phiếu kho có `recipient`. Mã lỗi dùng mã có sẵn. API_293, API_294 không dùng.
 
+### Dropship (MODULE_16 phần 2, CONG_VIEC_62)
+
+Mã lỗi dùng mã có sẵn (`VALIDATION_FAILED`, `NOT_FOUND`, `BUSINESS_RULE`, `CONFLICT_VERSION`, `SCOPE_NOT_GRANTED`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_62.md` mục 10.
+
+Cho nhân viên (gốc `/api/v1`, đăng nhập, `X-Company-Id`; `apps/api/src/purchasing/dropship.controller.ts`, `apps/api/src/sales/reseller-shipments.controller.ts`, `apps/api/src/finance/reseller-settlements.controller.ts`):
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_265 | `GET`, `POST /purchasing/dropship-products`; `GET`, `PATCH /purchasing/dropship-products/{id}`; `GET /purchasing/dropship-options` | CHUC_NANG_222 | Xem: `purchasing.dropship.view` hoặc `purchasing.dropship.manage`; thêm, sửa: `purchasing.dropship.manage` | Danh sách: `search`, `supplierId`, `status`, `page`, `pageSize` ≤ 100; `createDropshipProductSchema`: `variantId`, `supplierId`, `unitId`, `declaredQuantity`; `updateDropshipProductSchema`: `supplierId`, `unitId`, `status`, `version` | `PageResponse<DropshipProductResponse>` (giá mua hiệu lực, tồn khai báo, giữ chỗ, khả dụng); chi tiết kèm lịch sử đổi tồn; lựa chọn (nhà cung cấp, kho Dropship) |
+| API_266 | `PATCH /purchasing/dropship-products/{id}/stock`; `POST /purchasing/dropship-products/stock-import`; `GET /purchasing/dropship-products/stock-import-template` | CHUC_NANG_222 | Sửa, nhập: `purchasing.dropship.manage`; tải mẫu: như xem API_265 | `{ declaredQuantity, version }`; tệp Excel `file` (cột "Mã biến thể", "Tồn khai báo") | `DropshipProductResponse`; `DropshipStockImportResponse` (số dòng cập nhật, lỗi theo dòng); tệp mẫu `.xlsx` |
+| API_267 | `GET /purchasing/dropship-orders`; `GET /purchasing/dropship-orders/{id}` | CHUC_NANG_223 | Như xem API_265 | `status`, `supplierId`, `search`, `overdueOnly`, `missingInvoiceOnly`, `page`, `pageSize` ≤ 100 | `PageResponse<DropshipOrderListItem>`; `DropshipOrderResponse` (dòng, người nhận, lịch sử trạng thái, phiếu xuất, lần trả hàng) |
+| API_268 | `POST /purchasing/dropship-orders/{id}/shipping`, `/delivered`, `/failed`, `/cancel`; `PATCH /purchasing/dropship-orders/{id}/supplier-invoice` | CHUC_NANG_223 | `purchasing.dropship.manage` | `{ carrierName, trackingCode, version }`; `{ deliveredOn, version }`; `{ reason, version }`; `{ invoiceNo, invoiceDate, version }` | `DropshipOrderResponse`; chuyển trạng thái sai `409 BUSINESS_RULE`; sai `version` `409 CONFLICT_VERSION` |
+| API_269 | `POST /purchasing/dropship-returns`; `POST /purchasing/dropship-returns/{id}/received`, `/cancel` | CHUC_NANG_223 | `purchasing.dropship.manage` | `createDropshipReturnSchema`: `orderId`, `destination` (`supplier`, `warehouse`), `warehouseId` (khi về kho công ty), `reason`, `lines[]` (`issueLineId`, `quantity`); `{ version }` | `DropshipOrderResponse` |
+| API_270 | `GET /purchasing/dropship-reconciliation` | CHUC_NANG_223 | Như xem API_265 | `from`, `to`, `supplierId`, `format` (`json`, `xlsx`) | `DropshipReconciliationResponse` (dòng theo nhà cung cấp, chi tiết đơn); `format=xlsx` trả tệp Excel |
+| API_310 | `GET /sales/reseller-shipments`; `GET`, `PATCH /sales/orders/{id}/reseller-shipment`; `GET /sales/orders/{id}/reseller-delivery-note` | CHUC_NANG_225 | `inventory.access`; `inventory.sales.issue` tại kho của đơn (kiểm trong dịch vụ) | Danh sách: `status` (trạng thái vận đơn hoặc `none`), `search`, `page`, `pageSize` ≤ 100; `resellerShipmentManualSchema`: `carrierName`, `trackingCode`, `fee` (đồng, 0 đến 5.000.000), `status`, `version` | `ResellerShipmentListResponse` (kèm `carriers`: đơn vị vận chuyển đang bật); `ResellerShipmentOrder`; phiếu giao PDF A5 |
+| API_311 | `POST /sales/orders/{id}/reseller-shipment/carrier`, `/carrier/refresh`, `/carrier/cancel` | CHUC_NANG_225 | Như API_310 | `{ carrierCode, version }`; —; `{ version }` | `ResellerShipmentOrder`; tạo vận đơn lập phiếu xuất nháp, gửi giá hàng bằng 0 và tiền thu hộ; hủy chỉ trước khi lấy hàng |
+| API_312 | `GET /finance/reseller-settlements`; `GET /finance/reseller-settlements/{id}` | CHUC_NANG_225 | `finance.debt.view` hoặc `finance.debt.manage` | `status`, `resellerId`, `weekStart`, `page`, `pageSize` ≤ 100 | `ResellerSettlementListResponse`; `ResellerSettlementResponse` (dòng theo loại, đơn phí giao, phiếu chi, `canConfirm`) |
+| API_313 | `POST /finance/reseller-settlements/{id}/confirm` | CHUC_NANG_225 | `finance.debt.manage` | `{ fundId, version }` (`fundId` bắt buộc khi số còn lại âm) | `ResellerSettlementResponse`; chưa chọn sản phẩm phí giao `409 BUSINESS_RULE` |
+
+Cho nhà cung cấp dropship (`apps/api/src/open-api/open-api.controller.ts`, `Authorization: Bearer <khóa>`, gốc `/api/v1/open`):
+
+| Mã | Phương thức, đường dẫn | Chức năng | Phạm vi | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_271 | `GET /open/dropship/orders`; `GET /open/dropship/orders/{code}` | CHUC_NANG_224 | `dropship.supplier` | `status`, `updatedSince`, `page`, `pageSize` ≤ 100 | `PageResponse<OpenDropshipOrder>`; `OpenDropshipOrder`; đơn của nhà cung cấp khác `404` |
+| API_272 | `POST /open/dropship/orders/{code}/events` | CHUC_NANG_224 | `dropship.supplier` | `openDropshipEventSchema`: `type` (`shipping`, `delivered`, `failed`), `carrierName`, `trackingCode`, `deliveredOn`, `reason` | `OpenDropshipOrder`; cùng trạng thái lần hai `200` không đổi; sai thứ tự `409 BUSINESS_RULE` |
+| API_309 | `PUT /open/dropship/stock` | CHUC_NANG_224 | `dropship.supplier` | `items[]` (1 đến 500): `variantCode` hoặc `supplierSku`, `quantity` | `OpenDropshipStockResponse`: `updated`, `errors[]` (`index`, `code`); biến thể không phải của nhà cung cấp bị từ chối dòng |
+
+`OpenDropshipOrder`: `code` (số đơn mua), `status`, `orderDate`, `recipient` (`name`, `phone`, `address`), `lines[]` (`variantCode`, `supplierSku`, `productName`, `unitCode`, `quantity`, `unitPrice`, `vatRate` theo đơn mua), `carrierName`, `trackingCode`, `deliveredOn`, `reason`, `updatedAt`. Không trả giá bán, khách hàng, đơn bán.
+
+Sửa API hiện có (tương thích ngược, chỉ thêm trường):
+
+- API_63 (kho): danh sách, tạo, sửa thêm `kind` (`standard`, `dropship`; chỉ nhận khi tạo).
+- API_72 (`PUT /crm/partners/{id}/profile`) và chi tiết đối tác (API_71): `isDropshipReseller` (chỉ khi là khách hàng).
+- API_77 chi tiết đơn bán: thêm `dropship[]` (đơn mua theo nhà cung cấp, trạng thái giao) và `resellerShipment` (`ResellerShipmentOrder` hoặc `null`).
+- API_78 (`GET`, `PUT /sales/settings`): `dropshipFeeVariantId` (sản phẩm dịch vụ phí giao; bỏ trống thì giữ giá trị đang lưu).
+- API_128 (webhook đơn vị vận chuyển): mã vận đơn không thuộc đơn sàn chuyển sang vận đơn đơn người bán; trạng thái luôn tra lại như đơn sàn.
+- API_256, API_257 (khóa API): nhận phạm vi `dropship.supplier`.
+- API_261 (tồn Open API): kho Dropship trả khả dụng theo QUYTAC_NGHIEPVU_498.
+- API_262: nhận `codAmount` (chuỗi số, đồng, 0 đến 50.000.000); `recipient` của đơn người bán gửi `street` (1 đến 300 ký tự), `wardCode` (danh mục phường, xã của sàn) thay cho `address`; đối tác có cờ người bán gửi `customerCode` bị lỗi trường; đơn người bán chỉ kho thường.
+- API_263: trả `shipment` (`carrierName`, `trackingCode`, `status`, `shippingFee`, `codAmount`) hoặc `null`.
+
+MODULE_16 phần 2 (CONG_VIEC_62) không phát, không nghe sự kiện outbox; móc sau xác nhận đơn bán gọi dịch vụ mua hàng trong cùng tiến trình.
+
 ## 2v. Endpoint cửa hàng liên kết qua Open API (MODULE_12 phần 2, CONG_VIEC_67)
 
 Nhân viên, cổng cửa hàng (gốc `/api/v1`):
