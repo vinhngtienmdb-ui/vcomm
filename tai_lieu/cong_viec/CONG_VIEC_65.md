@@ -3,7 +3,7 @@
 - Mô tả: Đối tác ngoài tập đoàn có chương trình điểm riêng (hãng bay, ngân hàng) ký hợp đồng liên minh điểm với công ty vận hành sàn. Khách liên kết số thành viên đối tác trong ứng dụng VComm, đổi điểm VComm ra điểm đối tác và đổi điểm đối tác vào điểm VComm; VComm gọi API đối tác qua lớp kết nối chung (bộ giả lập trong công việc này). Đối tác mua điểm VComm tặng khách qua Open API, trả trước hoặc trả sau theo hợp đồng. Hạch toán từng giao dịch; đối soát tháng đối chiếu tự động với số liệu đối tác, nhân viên xác nhận, bù trừ, công nợ.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 đạt xem trước; lát L3 đạt xem trước (2026-11-16, gồm khóa API `loyalty.partner` sau khi hợp nhất `main` bản 0.10.0); lát L4 đạt xem trước (2026-11-16); chờ nghiệm thu.
+- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 đạt xem trước; lát L3 đạt xem trước (2026-11-16, gồm khóa API `loyalty.partner` sau khi hợp nhất `main` bản 0.10.0); lát L4 đạt xem trước (2026-11-16); trình nghiệm thu 2026-11-16.
 - Nhánh: `chuc-nang/CONG_VIEC_65-doi-tac-lien-minh-diem`.
 - Nguồn: tài liệu `01` (MODULE_11: đối soát liên minh; rủi ro ví điện tử), `05` mục 2.3; CONG_VIEC_51 (sổ cái điểm, QUYTAC_NGHIEPVU_344 đến 355); CONG_VIEC_55 (đối soát cửa hàng liên kết, công nợ, hạch toán theo giao dịch); CONG_VIEC_61 (khóa API, nhật ký gọi, tần suất); CONG_VIEC_53 (Smart OTP); CONG_VIEC_60 (tách công việc này, quyết định 4); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (tích hợp bên ngoài, nghiệp vụ tài chính mới, sửa ràng buộc dùng chung `loyalty`, `accounting`, `finance`, `core.api_keys`; nhiều module: MODULE_11, MODULE_06, MODULE_16).
@@ -292,3 +292,15 @@ Kiểm thử tự động: `apps/api/test/c65-*.test.ts`.
 
 - Tài liệu API của đối tác cụ thể: chặn phát hành lên môi trường thật cho tới khi có bộ chuyển đổi thật (công việc sau).
 - Tài liệu hướng dẫn tích hợp Open API tặng điểm cho đối tác: gửi bản trích tài liệu `17` như CONG_VIEC_61.
+
+## 22. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Theo mục 4 đến 10, quyết định mục 17 (gồm THAY_DOI_34), đề xuất mục 18; điều chỉnh khi lập trình đã ghi vào mục 5, 9, 10: giao dịch chỉ gắn vào bảng đối soát khi xác nhận (so lại danh sách giao dịch), quy tắc chống gian lận 2 cho đổi ra (chỉ quy tắc 2), các cột, bảng, đường dẫn thêm |
+| Giao diện | MAN_HINH_258 đến 263 trên `web-crm` (máy tính 1360 điểm ảnh), MAN_HINH_264, 265 và phần sửa MAN_HINH_151 trên ứng dụng VComm (điện thoại); ảnh ở bốn điểm xem trước L1 đến L4, người dùng duyệt |
+| Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU_514 đến 524 đạt bằng `apps/api/test/c65-partners.test.ts` (9), `c65-exchanges.test.ts` (12), `c65-gifts.test.ts` (11), `c65-settlements.test.ts` (6); 525 đạt bằng ảnh chụp ứng dụng chạy thật |
+| Kiểm thử hồi quy | Toàn bộ kiểm thử `apps/api` sau khi hợp nhất `main` 0.10.0: 145 tệp, 788/788 đạt (2026-11-16); kiểm tra kiểu `api`, `web-crm`, `mobile-vcomm` đạt; tệp dịch khớp khóa |
+| Bảo mật | Tài liệu `22` mục đối tác liên minh điểm: OTP đối tác, số thành viên đầy đủ, số điện thoại không ghi log, nhật ký thao tác; bộ giả lập chỉ chạy khi bật biến môi trường; khóa API băm, phạm vi riêng, IP, tần suất; tệp biên bản kiểm đuôi và chữ ký tệp. Không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thêm thư viện; CI "Quét bảo mật" đạt |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24` (THAY_DOI_34), `25` gửi phiên điều phối ghi |
+| Chưa làm, ghi nhận | Bộ chuyển đổi thật cho từng đối tác (cần tài liệu API đối tác; chặn phát hành thật, mục 21); thời gian chờ 10 giây áp khi có bộ chuyển đổi thật; số giao dịch tặng `TL-<năm>-<số>` dùng tiền tố `TL` giống phiếu trả hàng bán lẻ (`TL-<công ty>-<năm>-<số>`), khác dạng nên không trùng nhưng dễ nhầm, chờ người dùng quyết có đổi tiền tố không; liên kết Nhật ký gọi mở màn hình chung, chưa lọc sẵn theo khóa (như CONG_VIEC_67) |
