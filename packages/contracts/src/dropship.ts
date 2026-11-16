@@ -410,3 +410,59 @@ export interface ResellerShipmentListResponse {
   // Đơn vị vận chuyển đang bật và đã cấu hình kết nối; rỗng thì chỉ nhập tay.
   carriers: CarrierCode[];
 }
+
+// Đối soát tuần với người bán dropship (CONG_VIEC_62 CHUC_NANG_225; QUYTAC_NGHIEPVU_509; API_312, API_313; MAN_HINH_240, MAN_HINH_241).
+export const resellerSettlementStatuses = ["draft", "confirmed"] as const;
+export type ResellerSettlementStatus = (typeof resellerSettlementStatuses)[number];
+export const resellerSettlementLineKinds = ["issue", "return", "collection", "shipping_fee"] as const;
+export type ResellerSettlementLineKind = (typeof resellerSettlementLineKinds)[number];
+
+export const resellerSettlementListQuerySchema = z
+  .object({
+    status: z.enum(resellerSettlementStatuses).optional(),
+    resellerId: z.uuid().optional(),
+    weekStart: z.iso.date().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+// Số còn lại âm: chọn quỹ để lập phiếu chi hoàn tiền khách ở trạng thái nháp.
+export const confirmResellerSettlementSchema = z.object({ fundId: z.uuid().nullable().optional(), version: z.number().int().min(1) }).strict();
+
+export interface ResellerSettlementListItem {
+  id: string;
+  documentNo: string;
+  resellerId: string;
+  resellerName: string;
+  weekStart: string;
+  weekEnd: string;
+  issueAmount: string;
+  returnAmount: string;
+  collectionAmount: string;
+  feeAmount: string;
+  feeTaxRate: string;
+  feeTaxAmount: string;
+  remainingAmount: string;
+  status: ResellerSettlementStatus;
+  currency: string;
+}
+
+export interface ResellerSettlementListResponse {
+  data: ResellerSettlementListItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+  resellers: { id: string; name: string }[];
+}
+
+export interface ResellerSettlementResponse extends ResellerSettlementListItem {
+  counts: Record<ResellerSettlementLineKind, number>;
+  lines: { kind: ResellerSettlementLineKind; documentNo: string; documentDate: string; orderId: string; orderCode: string | null; amount: string }[];
+  feeOrder: { id: string; documentNo: string | null } | null;
+  refundPayment: { id: string; documentNo: string | null; status: string; amount: string } | null;
+  confirmedByName: string | null;
+  confirmedAt: string | null;
+  canConfirm: boolean;
+  version: number;
+}

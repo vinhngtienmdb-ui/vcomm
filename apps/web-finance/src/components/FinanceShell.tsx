@@ -13,6 +13,8 @@ export const financeMenu = [
   { href: "/bank-connections", key: "bankConnections", permission: "finance.bank.setup" },
   { href: "/collection-statements", key: "collections", permission: "finance.collection.view" },
   { href: "/loyalty-settlements", key: "loyaltySettlements", permission: "loyalty.settlement.view" },
+  // CONG_VIEC_62 MAN_HINH_240: đối soát tuần người bán dropship.
+  { href: "/reseller-settlements", key: "resellerSettlements", permission: "finance.debt.view" },
   { href: "/journals", key: "journals", permission: "finance.ledger.view" },
   { href: "/revaluations", key: "revaluations", permission: "finance.ledger.view" },
   { href: "/books", key: "books", permission: "finance.ledger.view" },

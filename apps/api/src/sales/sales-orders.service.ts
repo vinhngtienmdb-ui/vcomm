@@ -870,6 +870,50 @@ export class SalesOrdersService implements OnModuleInit {
     return { orderId, documentNo };
   }
 
+  // Đơn phí giao dropship của bảng đối soát người bán (CONG_VIEC_62; QUYTAC_NGHIEPVU_509; quyết định người dùng 2026-11-16): một dòng dịch vụ, giá chưa thuế cố định
+  // (không theo bảng giá, không khuyến mãi, không ngoại lệ), xác nhận ngay trong giao dịch của bên gọi; móc sau xác nhận lập phiếu xuất dịch vụ (công nợ, hóa đơn, bút toán).
+  async placeServiceWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: { customerId: string; channelId: string; warehouseId: string; orderDate: string; note: string; variantId: string; netPrice: string },
+  ): Promise<{ orderId: string; documentNo: string; taxAmount: string }> {
+    const unit = (
+      await transaction.execute<{ unit_id: string; vat_rate: VatRate; kind: string }>(sql`
+      SELECT p.base_unit_id AS unit_id, p.vat_rate, p.kind FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+      WHERE v.id = ${input.variantId} AND p.company_id = ${actor.companyId}`)
+    ).rows[0];
+    if (!unit || unit.kind !== "service") throw new ApiError("BUSINESS_RULE", "dropshipFeeProductMissing");
+    const amounts = lineAmounts(input.netPrice, false, unit.vat_rate, "1", 0, "0");
+    const line = withoutPromotion({
+      variantId: input.variantId,
+      unitId: unit.unit_id,
+      quantity: "1",
+      baseQuantity: "1.0000",
+      priceListId: null,
+      listPrice: input.netPrice,
+      includesVat: false,
+      discountPercent: "0",
+      unitPrice: amounts.unitPrice,
+      vatRate: unit.vat_rate,
+      net: amounts.net.toFixed(4),
+      tax: amounts.tax.toFixed(4),
+      total: amounts.total.toFixed(4),
+    });
+    const orderId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO sales.orders (company_id, customer_id, channel_id, customer_group_id, warehouse_id, order_date, note, currency, created_by)
+      VALUES (${actor.companyId}, ${input.customerId}, ${input.channelId}, ${await this.customerGroup(transaction, actor.companyId, input.customerId)}, ${input.warehouseId},
+        ${input.orderDate}::date, ${input.note}, ${await companyCurrency(transaction, actor.companyId)}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, orderId, [line]);
+    const documentNo = await this.sequences.next(actor.companyId, documentTypeCode, transaction);
+    await transaction.execute(sql`
+      UPDATE sales.orders SET status = 'confirmed', document_no = ${documentNo}, submitted_at = now(), confirmed_at = now(), updated_at = now(), version = version + 1 WHERE id = ${orderId}`);
+    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.dropship_fee_place", entityId: orderId, afterData: { documentNo, input } }, transaction);
+    await this.afterConfirmed(transaction, orderId);
+    return { orderId, documentNo, taxAmount: line.tax };
+  }
+
   // Chốt nhóm mua chung thành công (CONG_VIEC_49; QUYTAC_NGHIEPVU_331): sửa đơn giá các dòng thành giá chốt gồm thuế trước khi xuất kho, tính lại tổng đơn bán.
   async repriceMarketplaceWithin(transaction: Executor, orderId: string, grossPrice: string): Promise<void> {
     const issued = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE type = 'sales_issue' AND source_id = ${orderId} LIMIT 1`);
@@ -907,11 +951,19 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageSettings);
     const before = await readSettings(this.database, actor.companyId);
     if (before.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    // CONG_VIEC_62: sản phẩm dịch vụ phí giao dropship của công ty (QUYTAC_NGHIEPVU_509); bỏ trống thì giữ giá trị đang lưu.
+    const feeVariantId = input.dropshipFeeVariantId === undefined ? before.dropshipFeeVariantId : input.dropshipFeeVariantId;
+    if (feeVariantId && feeVariantId !== before.dropshipFeeVariantId) {
+      const service = await this.database.execute(sql`
+        SELECT 1 FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ${feeVariantId} AND p.company_id = ${actor.companyId} AND p.kind = 'service'`);
+      if (service.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { dropshipFeeVariantId: "invalidValue" } });
+    }
     await this.database.transaction(async (transaction) => {
       const saved = await transaction.execute(sql`
-        INSERT INTO sales.settings (company_id, max_manual_discount_percent, allow_manual_goods_orders, updated_by)
-        VALUES (${actor.companyId}, ${input.maxManualDiscountPercent}::numeric, ${input.allowManualGoodsOrders ?? before.allowManualGoodsOrders}, ${actor.userId})
+        INSERT INTO sales.settings (company_id, max_manual_discount_percent, allow_manual_goods_orders, dropship_fee_variant_id, updated_by)
+        VALUES (${actor.companyId}, ${input.maxManualDiscountPercent}::numeric, ${input.allowManualGoodsOrders ?? before.allowManualGoodsOrders}, ${feeVariantId}, ${actor.userId})
         ON CONFLICT (company_id) DO UPDATE SET max_manual_discount_percent = EXCLUDED.max_manual_discount_percent, allow_manual_goods_orders = EXCLUDED.allow_manual_goods_orders,
+          dropship_fee_variant_id = EXCLUDED.dropship_fee_variant_id,
           updated_by = EXCLUDED.updated_by, updated_at = now(),
           version = sales.settings.version + 1
         WHERE sales.settings.version = ${input.version} RETURNING company_id`);
@@ -1139,10 +1191,22 @@ export class SalesOrdersService implements OnModuleInit {
 
 export async function readSettings(executor: Pick<Database, "execute">, companyId: string): Promise<SalesSettingsResponse> {
   const row = (
-    await executor.execute<{ percent: string; allowed: boolean; version: number }>(sql`
-    SELECT max_manual_discount_percent::text AS percent, allow_manual_goods_orders AS allowed, version FROM sales.settings WHERE company_id = ${companyId}`)
+    await executor.execute<{ percent: string; allowed: boolean; version: number; fee_variant_id: string | null; fee_name: string | null }>(sql`
+    SELECT s.max_manual_discount_percent::text AS percent, s.allow_manual_goods_orders AS allowed, s.version, s.dropship_fee_variant_id AS fee_variant_id,
+      CASE WHEN v.id IS NOT NULL THEN v.sku || ' · ' || p.name END AS fee_name
+    FROM sales.settings s LEFT JOIN catalog.variants v ON v.id = s.dropship_fee_variant_id LEFT JOIN catalog.products p ON p.id = v.product_id WHERE s.company_id = ${companyId}`)
   ).rows[0];
-  return { maxManualDiscountPercent: row ? trimDecimal(row.percent) : "0", allowManualGoodsOrders: row?.allowed ?? false, version: row?.version ?? 0 };
+  const options = await executor.execute<{ id: string; name: string; vat_rate: string }>(sql`
+    SELECT v.id, v.sku || ' · ' || p.name AS name, p.vat_rate FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+    WHERE p.company_id = ${companyId} AND p.kind = 'service' AND p.status = 'active' ORDER BY p.name, v.sku LIMIT 200`);
+  return {
+    maxManualDiscountPercent: row ? trimDecimal(row.percent) : "0",
+    dropshipFeeOptions: options.rows.map((option) => ({ id: option.id, name: option.name, vatRate: option.vat_rate })),
+    allowManualGoodsOrders: row?.allowed ?? false,
+    dropshipFeeVariantId: row?.fee_variant_id ?? null,
+    dropshipFeeVariantName: row?.fee_name ?? null,
+    version: row?.version ?? 0,
+  };
 }
 
 function toItem(row: OrderRow): SalesOrderListItem {

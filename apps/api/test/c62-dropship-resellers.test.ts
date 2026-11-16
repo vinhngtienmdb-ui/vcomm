@@ -1,5 +1,5 @@
 // CONG_VIEC_62 lát L4: người bán dropship, vận đơn đơn người bán, phiếu giao danh nghĩa người bán
-// (TIEUCHI_NGHIEMTHU_467, 468, 534; KICHBAN_KIEMTHU_648, 649, 729, 730).
+// (TIEUCHI_NGHIEMTHU_467 đến 469, 534; KICHBAN_KIEMTHU_648 đến 650, 729, 730).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { messages } from "i18n";
 import { createServer, type Server } from "node:http";
@@ -9,6 +9,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
+import { ResellerSettlementsService } from "../src/finance/reseller-settlements.service";
 import { ResellerShipmentsService } from "../src/sales/reseller-shipments.service";
 import { allowManualGoodsOrders, createTestUser, grantSalesOrderManage, signIn, type Session } from "./helpers";
 import { startTestApplication } from "./setup-database";
@@ -369,5 +370,137 @@ describe("TIEUCHI_NGHIEMTHU_534: vận đơn tự tạo qua đơn vị vận chu
 
     // Người không có quyền xuất giao hàng tại kho không thao tác được.
     expect((await call(admin, "get", `/sales/orders/${lost}/reseller-shipment`)).status).toBe(200);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_469: đối soát tuần người bán", () => {
+  it("KICHBAN_KIEMTHU_650: tuần có giao, hoàn, thu hộ: lập bảng A đến E, lập lại không trùng, xác nhận có đơn phí giao, bút toán, phiếu chi nháp; chứng từ trễ vào tuần sau", async () => {
+    await pool.query("UPDATE marketplace.carriers SET is_enabled = false");
+    // Người bán riêng cho kịch bản để số liệu độc lập với các kịch bản trước.
+    const sellerId = (await call(admin, "post", "/crm/partners", { kind: "organization", name: "Hộ kinh doanh Nhà Nông Online", taxCode: "0320006233", phone: "0977000111" })).body.id as string;
+    expect((await saveProfile(sellerId, { isDropshipReseller: true })).status).toBe(200);
+    const sellerKey = await issueKey(sellerId);
+    const place = async (code: string, cod: string) => {
+      const created = await open("post", "/sales-orders", sellerKey, orderBody(code, { recipient: resellerRecipient, codAmount: cod }));
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      const id = (await pool.query<{ id: string }>("SELECT id FROM sales.orders WHERE partner_order_code = $1", [code])).rows[0]!.id;
+      expect((await call(admin, "post", `/sales/orders/${id}/submit`)).body.status).toBe("confirmed");
+      return id;
+    };
+    const ship = async (orderId: string, steps: string[], fee: string) => {
+      let version = 0;
+      for (const status of steps) {
+        const saved = await call(keeper, "patch", `/sales/orders/${orderId}/reseller-shipment`, { carrierName: "Xe nhà", trackingCode: `XN-${orderId.slice(0, 6)}`, fee, status, version });
+        expect(saved.status, JSON.stringify(saved.body)).toBe(200);
+        version = saved.body.shipment?.version ?? 0;
+      }
+    };
+    const delivered = await place("NNO-1", "300000");
+    await ship(delivered, ["awaiting_pickup", "shipping", "delivered"], "30000");
+    const returned = await place("NNO-2", "150000");
+    await ship(returned, ["awaiting_pickup", "shipping", "returned"], "20000");
+    // Bảng thu hộ đã ghi sổ của đơn vị vận chuyển cho đơn đã giao (luồng CONG_VIEC_19 đọc ở đây chỉ để đối chiếu).
+    const collectorPartner = (await call(admin, "post", "/crm/partners", { kind: "organization", name: "Đơn vị thu hộ Xe nhà", taxCode: "0320006234" })).body.id as string;
+    const adminId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE email = 'quantri.vcr@vcomm.test'")).rows[0]!.id;
+    const collector = (
+      await pool.query<{ id: string }>("INSERT INTO finance.collectors (company_id, partner_id, kind, created_by) VALUES ($1, $2, 'cod', $3) RETURNING id", [retail, collectorPartner, adminId])
+    ).rows[0]!.id;
+    const statement = (
+      await pool.query<{ id: string }>(
+        "INSERT INTO finance.collection_statements (company_id, collector_id, statement_no, document_no, statement_date, status, total_collected, created_by) VALUES ($1, $2, 'XN-0001', 'BTH-0001', $3, 'posted', 300000, $4) RETURNING id",
+        [retail, collector, today, adminId],
+      )
+    ).rows[0]!.id;
+    const orderNo = (await pool.query<{ document_no: string }>("SELECT document_no FROM sales.orders WHERE id = $1", [delivered])).rows[0]!.document_no;
+    await pool.query(
+      "INSERT INTO finance.collection_statement_lines (statement_id, line_no, reference, order_no, order_id, customer_id, collected_amount, fee_amount, collected_date) VALUES ($1, 1, 'XN-T1', $2, $3, $4, 300000, 0, $5)",
+      [statement, orderNo, delivered, sellerId, today],
+    );
+
+    const service = application.get(ResellerSettlementsService);
+    const nextWeek = new Date(`${today}T00:00:00Z`);
+    nextWeek.setUTCDate(nextWeek.getUTCDate() + 7);
+    const runDay = nextWeek.toISOString().slice(0, 10);
+    expect(await service.generateWeekly(runDay)).toBeGreaterThanOrEqual(1);
+    expect(await service.generateWeekly(runDay)).toBe(0);
+    const list = await call(admin, "get", `/finance/reseller-settlements?resellerId=${sellerId}`);
+    expect(list.status, JSON.stringify(list.body)).toBe(200);
+    expect(list.body.data).toHaveLength(1);
+    const draft = list.body.data[0];
+    // A: hai phiếu xuất 151.200; B: một phiếu nhận trả; C: thu hộ 300.000; D: 30.000 + 20.000; E: 8% của D theo mặc định.
+    expect(draft).toMatchObject({ issueAmount: "302400", returnAmount: "151200", collectionAmount: "300000", feeAmount: "50000", feeTaxAmount: "4000", remainingAmount: "-94800", status: "draft" });
+    const detail = (await call(admin, "get", `/finance/reseller-settlements/${draft.id}`)).body;
+    expect(detail.counts).toEqual({ issue: 2, return: 1, collection: 1, shipping_fee: 2 });
+    expect(detail.canConfirm).toBe(true);
+
+    const missingProduct = await call(admin, "post", `/finance/reseller-settlements/${draft.id}/confirm`, { version: draft.version ?? detail.version });
+    expect(missingProduct.status).toBe(409);
+    expect(missingProduct.body.error.message).toBe(errorText.dropshipFeeProductMissing);
+    const category = (await pool.query<{ id: string }>("SELECT id FROM catalog.categories WHERE code = 'RS62'")).rows[0]!.id;
+    const feeProduct = await call(admin, "post", "/catalog/products", {
+      categoryId: category,
+      name: "Phí giao hàng dropship",
+      kind: "service",
+      vatRate: "8",
+      tracksLots: false,
+      tracksSerials: false,
+      warrantyMonths: 0,
+      baseUnitId: units.CAI,
+      variants: [{ barcodes: [] }],
+    });
+    expect(feeProduct.status, JSON.stringify(feeProduct.body)).toBe(201);
+    const settings = (await call(admin, "get", "/sales/settings")).body;
+    const saved = await call(admin, "put", "/sales/settings", {
+      maxManualDiscountPercent: settings.maxManualDiscountPercent,
+      dropshipFeeVariantId: feeProduct.body.variants[0].id,
+      version: settings.version,
+    });
+    expect(saved.status, JSON.stringify(saved.body)).toBe(200);
+    expect(saved.body.dropshipFeeVariantId).toBe(feeProduct.body.variants[0].id);
+
+    const noFund = await call(admin, "post", `/finance/reseller-settlements/${draft.id}/confirm`, { version: detail.version });
+    expect(noFund.status).toBe(400);
+    expect(noFund.body.error.fields.fundId).toBe(errorText.required);
+    let fund = (await pool.query<{ id: string }>("SELECT id FROM finance.funds WHERE company_id = $1 AND status = 'active' LIMIT 1", [retail])).rows[0]?.id;
+    fund ??= (await pool.query<{ id: string }>("INSERT INTO finance.funds (company_id, code, name, kind, created_by) VALUES ($1, 'TM62', 'Tiền mặt', 'cash', $2) RETURNING id", [retail, adminId]))
+      .rows[0]!.id;
+    const confirmed = await call(admin, "post", `/finance/reseller-settlements/${draft.id}/confirm`, { version: detail.version, fundId: fund });
+    expect(confirmed.status, JSON.stringify(confirmed.body)).toBe(201);
+    expect(confirmed.body).toMatchObject({ status: "confirmed", feeAmount: "50000", feeTaxAmount: "4000", remainingAmount: "-94800", canConfirm: false });
+    expect(confirmed.body.refundPayment).toMatchObject({ status: "draft", amount: "94800" });
+    const payment = (await pool.query<{ kind: string; partner_id: string }>("SELECT kind, partner_id FROM finance.payments WHERE id = $1", [confirmed.body.refundPayment.id])).rows[0]!;
+    expect(payment).toEqual({ kind: "customer_refund", partner_id: sellerId });
+    // Đơn phí giao: đơn bán dịch vụ đã giao, công nợ người bán 54.000, bút toán của phiếu dịch vụ.
+    const feeOrder = (
+      await pool.query<{ status: string; customer_id: string; total_amount: string; is_reseller_dropship: boolean }>(
+        "SELECT status, customer_id, total_amount::text, is_reseller_dropship FROM sales.orders WHERE id = $1",
+        [confirmed.body.feeOrder.id],
+      )
+    ).rows[0]!;
+    expect(feeOrder).toEqual({ status: "delivered", customer_id: sellerId, total_amount: "54000.0000", is_reseller_dropship: false });
+    const feeDebt = await pool.query<{ partner_id: string; amount: string; journal: string | null }>(
+      `SELECT d.partner_id, d.amount::text, (SELECT j.id::text FROM accounting.journals j WHERE j.source_type = 'inventory_document' AND j.source_id = doc.id) AS journal
+       FROM inventory.documents doc JOIN finance.debt_items d ON d.source_type = 'sales_issue' AND d.source_id = doc.id WHERE doc.source_id = $1`,
+      [confirmed.body.feeOrder.id],
+    );
+    expect(feeDebt.rows).toHaveLength(1);
+    expect(feeDebt.rows[0]).toMatchObject({ partner_id: sellerId, amount: "54000.0000" });
+    expect(feeDebt.rows[0]!.journal).not.toBeNull();
+    expect((await call(admin, "post", `/finance/reseller-settlements/${draft.id}/confirm`, { version: confirmed.body.version, fundId: fund })).status).toBe(409);
+
+    // Chứng từ trễ: đơn giao sau khi đã lập bảng vào bảng tuần sau; chứng từ đã vào bảng không lặp lại.
+    const late = await place("NNO-3", "0");
+    await ship(late, ["awaiting_pickup", "shipping", "delivered"], "15000");
+    const later = new Date(`${runDay}T00:00:00Z`);
+    later.setUTCDate(later.getUTCDate() + 7);
+    expect(await service.generateWeekly(later.toISOString().slice(0, 10))).toBeGreaterThanOrEqual(1);
+    const second = (await call(admin, "get", `/finance/reseller-settlements?resellerId=${sellerId}&status=draft`)).body.data;
+    expect(second).toHaveLength(1);
+    expect(second[0]).toMatchObject({ issueAmount: "151200", returnAmount: "0", collectionAmount: "0", feeAmount: "15000", feeTaxAmount: "1200" });
+    // Đơn phí giao không phải đơn người bán nên không vào bảng.
+    const kinds = await pool.query<{ order_id: string }>("SELECT order_id FROM finance.reseller_settlement_lines WHERE settlement_id = $1", [second[0].id]);
+    expect(kinds.rows.every((row) => row.order_id === late)).toBe(true);
+    // Người không có quyền tài chính không xem được.
+    expect((await call(keeper, "get", "/finance/reseller-settlements")).status).toBe(403);
   });
 });

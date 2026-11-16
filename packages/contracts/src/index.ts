@@ -2906,11 +2906,16 @@ export interface SalesSettingsResponse {
   maxManualDiscountPercent: string;
   // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): cho phép lập đơn bán tay có hàng hóa (mặc định tắt).
   allowManualGoodsOrders: boolean;
+  // CONG_VIEC_62: sản phẩm dịch vụ phí giao dropship (đơn phí giao khi xác nhận bảng đối soát người bán).
+  dropshipFeeVariantId: string | null;
+  dropshipFeeVariantName: string | null;
+  // Sản phẩm loại dịch vụ đang bán của công ty để chọn làm phí giao dropship.
+  dropshipFeeOptions: { id: string; name: string; vatRate: string }[];
   version: number;
 }
-// Bỏ trống allowManualGoodsOrders thì giữ giá trị đang lưu.
+// Bỏ trống allowManualGoodsOrders, dropshipFeeVariantId thì giữ giá trị đang lưu.
 export const updateSalesSettingsSchema = z
-  .object({ maxManualDiscountPercent: percentText, allowManualGoodsOrders: z.boolean().optional(), version: z.number().int().min(0) })
+  .object({ maxManualDiscountPercent: percentText, allowManualGoodsOrders: z.boolean().optional(), dropshipFeeVariantId: z.uuid().nullable().optional(), version: z.number().int().min(0) })
   .strict();
 export const closeSalesOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
 

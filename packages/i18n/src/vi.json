@@ -748,7 +748,8 @@
     "resellerShipmentCarrierManaged": "Vận đơn tạo qua đơn vị vận chuyển: trạng thái lấy từ đơn vị vận chuyển, không nhập tay",
     "resellerOrderNotShippable": "Đơn chưa ở trạng thái đã xác nhận nên chưa tạo vận đơn được",
     "resellerShipmentStatusInvalid": "Trạng thái giao không chuyển được như vậy (chỉ tiến lên; hoàn hàng sau Đang giao; hủy khi Chờ lấy hàng)",
-    "resellerShipmentNotCarrier": "Đơn chưa có vận đơn tạo qua đơn vị vận chuyển"
+    "resellerShipmentNotCarrier": "Đơn chưa có vận đơn tạo qua đơn vị vận chuyển",
+    "dropshipFeeProductMissing": "Chưa chọn sản phẩm dịch vụ phí giao dropship trong Cài đặt bán hàng (sản phẩm loại dịch vụ của công ty)"
   },
   "login": {
     "title": "Đăng nhập",
@@ -2836,7 +2837,10 @@
     "resellerStatus_shipping": "Đang giao",
     "resellerStatus_delivered": "Đã giao",
     "resellerStatus_returned": "Hoàn hàng",
-    "resellerStatus_cancelled": "Đã hủy"
+    "resellerStatus_cancelled": "Đã hủy",
+    "dropshipFeeProduct": "Sản phẩm phí giao dropship",
+    "dropshipFeeProductHint": "Sản phẩm dịch vụ dùng lập đơn phí giao cho người bán khi kế toán xác nhận bảng đối soát tuần; thuế suất theo sản phẩm (thường 8%).",
+    "dropshipFeeProductNone": "Chưa chọn"
   },
   "salesMenu": {
     "title": "Bán hàng",
@@ -2943,7 +2947,8 @@
     "consolidation": "Báo cáo hợp nhất",
     "commissions": "Hoa hồng",
     "commissionSettings": "Cài đặt hoa hồng",
-    "revaluations": "Đánh giá lại ngoại tệ"
+    "revaluations": "Đánh giá lại ngoại tệ",
+    "resellerSettlements": "Đối soát người bán"
   },
   "debts": {
     "title": "Công nợ",
@@ -10037,5 +10042,54 @@
     "carrier_jt": "J&T Express",
     "carrier_viettel_post": "Viettel Post",
     "carrier_vnpost": "VNPost"
+  },
+  "resellerSettlements": {
+    "title": "Đối soát người bán",
+    "hint": "Lập tự động lúc 2 giờ thứ Hai cho tuần trước. Số còn lại = A tiền hàng − B trả hàng − C thu hộ + D phí giao + E thuế phí giao. Dương: người bán phải nộp; âm: công ty phải trả.",
+    "empty": "Chưa có bảng đối soát người bán",
+    "allResellers": "Người bán: tất cả",
+    "allStatuses": "Trạng thái: tất cả",
+    "documentNo": "Số bảng",
+    "reseller": "Người bán",
+    "week": "Tuần",
+    "issue": "A tiền hàng",
+    "return": "B trả hàng",
+    "collection": "C thu hộ",
+    "fee": "D phí giao",
+    "feeTax": "E thuế",
+    "remaining": "Số còn lại",
+    "status": "Trạng thái",
+    "status_draft": "Nháp",
+    "status_confirmed": "Đã xác nhận",
+    "back": "Danh sách đối soát người bán",
+    "detailTitle": "Bảng đối soát {documentNo}",
+    "confirmedBy": "Người xác nhận",
+    "feeOrder": "Đơn phí giao",
+    "refundPayment": "Phiếu chi hoàn tiền",
+    "refundDraft": "Phiếu nháp",
+    "item": "Khoản",
+    "amount": "Số tiền",
+    "lineIssue": "A · Tiền hàng có thuế ({count} phiếu xuất)",
+    "lineReturn": "B · Trả hàng ({count} phiếu)",
+    "lineCollection": "C · Thu hộ đã ghi sổ ({count} dòng)",
+    "lineFee": "D · Phí giao ({count} vận đơn)",
+    "lineFeeTax": "E · Thuế giá trị gia tăng phí giao ({rate}%)",
+    "remainingCompanyPays": "Số còn lại (công ty phải trả)",
+    "remainingResellerPays": "Số còn lại (người bán phải nộp)",
+    "confirmHint": "Xác nhận: lập đơn bán dịch vụ phí giao D (thuế E theo sản phẩm phí giao) cho người bán, ghi công nợ, bút toán, hóa đơn điện tử theo luồng đơn bán dịch vụ. Số âm: lập phiếu chi hoàn tiền khách ở trạng thái nháp, gửi ở màn hình Phiếu thu chi. A, B, C đã ghi công nợ theo luồng hiện có, ở đây để đối chiếu. Bảng đã xác nhận không sửa; sai thì điều chỉnh ở bảng tuần sau.",
+    "fund": "Quỹ chi",
+    "fundHint": "Lập phiếu chi hoàn tiền khách {amount} ở trạng thái nháp.",
+    "chooseFund": "Chọn quỹ",
+    "confirm": "Xác nhận",
+    "confirmed": "Đã xác nhận bảng đối soát",
+    "lines": "Chi tiết",
+    "kind": "Loại",
+    "document": "Chứng từ",
+    "date": "Ngày",
+    "order": "Đơn",
+    "kind_issue": "Phiếu xuất",
+    "kind_return": "Trả hàng",
+    "kind_collection": "Thu hộ",
+    "kind_shipping_fee": "Phí giao"
   }
 }

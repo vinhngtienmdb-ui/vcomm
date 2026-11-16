@@ -748,7 +748,8 @@
     "resellerShipmentCarrierManaged": "This shipment was created with the carrier; its status comes from the carrier and cannot be entered manually",
     "resellerOrderNotShippable": "The order is not confirmed, so a shipment cannot be created",
     "resellerShipmentStatusInvalid": "This delivery status change is not allowed (forward only; returned after Shipping; cancel while Awaiting pickup)",
-    "resellerShipmentNotCarrier": "The order has no shipment created with a carrier"
+    "resellerShipmentNotCarrier": "The order has no shipment created with a carrier",
+    "dropshipFeeProductMissing": "No dropship shipping fee service product is selected in Sales settings (a service product of the company)"
   },
   "login": {
     "title": "Sign in",
@@ -2836,7 +2837,10 @@
     "resellerStatus_shipping": "Shipping",
     "resellerStatus_delivered": "Delivered",
     "resellerStatus_returned": "Returned",
-    "resellerStatus_cancelled": "Cancelled"
+    "resellerStatus_cancelled": "Cancelled",
+    "dropshipFeeProduct": "Dropship shipping fee product",
+    "dropshipFeeProductHint": "Service product used for the shipping fee order billed to the reseller when the weekly settlement is confirmed; the tax rate follows the product (usually 8%).",
+    "dropshipFeeProductNone": "Not selected"
   },
   "salesMenu": {
     "title": "Sales",
@@ -2943,7 +2947,8 @@
     "consolidation": "Consolidation",
     "commissions": "Commissions",
     "commissionSettings": "Commission settings",
-    "revaluations": "Currency revaluation"
+    "revaluations": "Currency revaluation",
+    "resellerSettlements": "Reseller settlements"
   },
   "debts": {
     "title": "Debts",
@@ -10037,5 +10042,54 @@
     "carrier_jt": "J&T Express",
     "carrier_viettel_post": "Viettel Post",
     "carrier_vnpost": "VNPost"
+  },
+  "resellerSettlements": {
+    "title": "Reseller settlements",
+    "hint": "Created automatically at 2:00 on Monday for the previous week. Remaining = A goods − B returns − C cash collected + D shipping fees + E tax on fees. Positive: the reseller pays; negative: the company pays.",
+    "empty": "No reseller settlements yet",
+    "allResellers": "Reseller: all",
+    "allStatuses": "Status: all",
+    "documentNo": "Number",
+    "reseller": "Reseller",
+    "week": "Week",
+    "issue": "A goods",
+    "return": "B returns",
+    "collection": "C collected",
+    "fee": "D shipping",
+    "feeTax": "E tax",
+    "remaining": "Remaining",
+    "status": "Status",
+    "status_draft": "Draft",
+    "status_confirmed": "Confirmed",
+    "back": "Reseller settlements",
+    "detailTitle": "Settlement {documentNo}",
+    "confirmedBy": "Confirmed by",
+    "feeOrder": "Shipping fee order",
+    "refundPayment": "Refund payment",
+    "refundDraft": "Draft payment",
+    "item": "Item",
+    "amount": "Amount",
+    "lineIssue": "A · Goods including tax ({count} goods issues)",
+    "lineReturn": "B · Returns ({count} documents)",
+    "lineCollection": "C · Cash on delivery posted ({count} lines)",
+    "lineFee": "D · Shipping fees ({count} shipments)",
+    "lineFeeTax": "E · VAT on shipping fees ({rate}%)",
+    "remainingCompanyPays": "Remaining (the company pays)",
+    "remainingResellerPays": "Remaining (the reseller pays)",
+    "confirmHint": "Confirm: creates a service sales order for shipping fees D (tax E per the fee product) billed to the reseller, with receivable, journal and e-invoice through the service order flow. Negative remaining: a draft customer refund payment is created, to be submitted on the Payments screen. A, B, C are already in receivables and shown for reconciliation. Confirmed settlements cannot be edited; correct differences in next week's settlement.",
+    "fund": "Paying fund",
+    "fundHint": "A draft customer refund payment of {amount} will be created.",
+    "chooseFund": "Choose a fund",
+    "confirm": "Confirm",
+    "confirmed": "Settlement confirmed",
+    "lines": "Details",
+    "kind": "Type",
+    "document": "Document",
+    "date": "Date",
+    "order": "Order",
+    "kind_issue": "Goods issue",
+    "kind_return": "Return",
+    "kind_collection": "Cash on delivery",
+    "kind_shipping_fee": "Shipping fee"
   }
 }

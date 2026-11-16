@@ -405,7 +405,9 @@ export class ResellerShipmentsService implements OnModuleInit {
     let state = (await transaction.execute<{ shipping_status: ResellerShippingStatus }>(sql`SELECT shipping_status FROM sales.order_shipments WHERE id = ${shipment.id}`)).rows[0]!.shipping_status;
     const setState = async (next: ResellerShippingStatus, inactive = false) => {
       await transaction.execute(sql`
-        UPDATE sales.order_shipments SET shipping_status = ${next}, is_active = ${!inactive}, synced_at = now(), version = version + 1 WHERE id = ${shipment.id}`);
+        UPDATE sales.order_shipments SET shipping_status = ${next}, is_active = ${!inactive}, synced_at = now(), version = version + 1,
+          finished_at = CASE WHEN ${next} IN ('delivered', 'returned') THEN now() ELSE finished_at END
+        WHERE id = ${shipment.id}`);
       state = next;
     };
     if (["shipping", "delivered", "returned"].includes(target) && (state === "awaiting_pickup" || state === "requesting")) {

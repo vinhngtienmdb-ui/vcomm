@@ -7,7 +7,7 @@
 // tính lại công ngày hôm trước lúc 1 giờ (CHUC_NANG_165), cộng phép năm, hết hạn phép tồn lúc 0 giờ 15 phút (CHUC_NANG_166),
 // tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172),
 // hết hạn, nhắc hạn voucher cửa hàng liên kết lúc 0 giờ 20 phút (CHUC_NANG_195), lập bảng đối soát cửa hàng liên kết 1 giờ thứ Hai (CHUC_NANG_196),
-// nhắc hẹn chăm sóc khách lúc 7 giờ (CHUC_NANG_205).
+// nhắc hẹn chăm sóc khách lúc 7 giờ (CHUC_NANG_205), lập bảng đối soát người bán dropship 2 giờ thứ Hai (CHUC_NANG_225).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -20,6 +20,7 @@ import { LoyaltySettlementsService } from "../loyalty/settlements.service";
 import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
+import { ResellerSettlementsService } from "../finance/reseller-settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { OfficeTasksService } from "../office/office-tasks.service";
@@ -74,6 +75,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const groupBuys = application.get(GroupBuysService);
   const affiliateVouchers = application.get(AffiliateVouchersService);
   const affiliateSettlements = application.get(AffiliateSettlementsService);
+  const resellerSettlements = application.get(ResellerSettlementsService);
   const affiliateReports = application.get(AffiliateReportsService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
@@ -120,6 +122,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("affiliate-voucher-daily", { pattern: "20 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-voucher-daily" });
   // Đối soát cửa hàng liên kết (CONG_VIEC_55; QUYTAC_NGHIEPVU_403): lập bảng tuần trước 1 giờ sáng thứ Hai; tự xác nhận bảng quá hạn mỗi giờ.
   await queue.upsertJobScheduler("affiliate-settlement-weekly", { pattern: "0 1 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-settlement-weekly" });
+  await queue.upsertJobScheduler("reseller-settlement-weekly", { pattern: "0 2 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "reseller-settlement-weekly" });
   await queue.upsertJobScheduler("affiliate-settlement-confirm", { every: 60 * 60_000 }, { name: "affiliate-settlement-confirm" });
   // Xóa nhật ký gọi API đối tác quá 90 ngày lúc 2 giờ (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
   await queue.upsertJobScheduler("open-api-log-purge", { pattern: "0 2 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "open-api-log-purge" });
@@ -177,6 +180,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
       if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };
       if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
+      if (job.name === "reseller-settlement-weekly") return resellerSettlements.generateWeekly();
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
       if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
