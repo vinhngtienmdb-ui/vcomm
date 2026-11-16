@@ -161,7 +161,8 @@ export interface DraftJournal {
     | "affiliate_settlement"
     | "loyalty_partner_exchange"
     | "loyalty_partner_gift"
-    | "loyalty_partner_gift_cancel";
+    | "loyalty_partner_gift_cancel"
+    | "loyalty_partner_settlement";
   sourceId: string;
   journalNo: string;
   date: string;

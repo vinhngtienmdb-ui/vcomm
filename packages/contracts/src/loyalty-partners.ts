@@ -401,3 +401,88 @@ export interface PartnerApiKeySecret {
   key: PartnerApiKeyItem;
   secret: string;
 }
+
+// Bảng đối soát tháng với đối tác liên minh (QUYTAC_NGHIEPVU_548, 549; API_305).
+export const partnerSettlementStatuses = ["unreconciled", "mismatched", "matched", "confirmed", "paid"] as const;
+export type PartnerSettlementStatus = (typeof partnerSettlementStatuses)[number];
+export const partnerSettlementListQuerySchema = z.object({
+  contractId: z.string().uuid().optional(),
+  status: z.enum(partnerSettlementStatuses).optional(),
+  period: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .optional(),
+  ...pageQuery,
+});
+export const partnerSettlementRebuildSchema = z.object({ version: z.number().int().positive() }).strict();
+// Gửi dạng multipart: `note`, `version` (chuỗi) và tệp `file` tùy chọn.
+export const partnerSettlementConfirmSchema = z.object({ note: z.string().trim().min(1).max(500), version: z.coerce.number().int().positive() });
+
+export type PartnerSettlementLineKind = "gift" | "inbound" | "outbound";
+export type PartnerSettlementMismatchKind = "missing_partner" | "missing_vcomm" | "units" | "points" | "status";
+export interface PartnerSettlementMismatch {
+  kind: PartnerSettlementMismatchKind;
+  lineKind: PartnerSettlementLineKind;
+  reference: string;
+  documentNo: string | null;
+  vcomm: string | null;
+  partner: string | null;
+}
+
+export interface PartnerSettlementItem {
+  id: string;
+  documentNo: string;
+  contractId: string;
+  contractCode: string;
+  partnerName: string;
+  unitNameVi: string;
+  period: string;
+  receivableAmount: string;
+  payableAmount: string;
+  offsetAmount: string;
+  netAmount: string;
+  status: PartnerSettlementStatus;
+  mismatchCount: number;
+  dueDate: string | null;
+  overdue: boolean;
+  version: number;
+}
+
+export interface PartnerSettlementTotals {
+  count: number;
+  points: number;
+  units: number | null;
+  amount: string;
+}
+
+export interface PartnerSettlementLine {
+  kind: PartnerSettlementLineKind;
+  id: string;
+  date: string;
+  documentNo: string;
+  reference: string;
+  partnerTransactionCode: string | null;
+  customerMasked: string;
+  points: number;
+  units: number | null;
+  amount: string;
+}
+
+export interface PartnerSettlementDetail extends PartnerSettlementItem {
+  gift: PartnerSettlementTotals;
+  inbound: PartnerSettlementTotals;
+  outbound: PartnerSettlementTotals;
+  mismatches: PartnerSettlementMismatch[];
+  reconcileError: string | null;
+  builtAt: string;
+  confirmNote: string | null;
+  confirmFile: { id: string; fileName: string } | null;
+  confirmedByName: string | null;
+  confirmedAt: string | null;
+  paidAt: string | null;
+  paymentTermDays: number;
+  paymentMode: PartnerPaymentMode;
+  debt: { side: "receivable" | "payable"; amount: string; openAmount: string } | null;
+  lines: PartnerSettlementLine[];
+  canManage: boolean;
+}

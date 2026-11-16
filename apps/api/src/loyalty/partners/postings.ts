@@ -88,3 +88,20 @@ export async function giftDraft(executor: Executor, giftId: string, cancel: bool
     lines: receivableLines(Math.round(Number(row.amount)), Math.round(Number(row.point_value_amount)), Math.round(Number(row.tax_amount)), row.partner_id, cancel ? -1 : 1),
   };
 }
+
+// Xác nhận bảng đối soát tháng (QUYTAC_NGHIEPVU_547, 549): bù trừ Nợ 331 / Có 131 bằng số nhỏ hơn giữa phải thu và phải trả của bảng.
+export function settlementDraft(input: { companyId: string; partnerId: string; id: string; documentNo: string; date: string; offset: number }): DraftJournal | null {
+  if (input.offset < 1) return null;
+  return {
+    companyId: input.companyId,
+    sourceType: "loyalty_partner_settlement",
+    sourceId: input.id,
+    journalNo: input.documentNo,
+    date: input.date,
+    description: `Bù trừ đối soát đối tác liên minh ${input.documentNo}`,
+    lines: affiliateLines([
+      { role: "loyalty_partner_payable", amount: input.offset, partnerId: input.partnerId },
+      { role: "loyalty_partner_receivable", amount: -input.offset, partnerId: input.partnerId },
+    ]),
+  };
+}

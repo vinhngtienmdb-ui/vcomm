@@ -26,7 +26,18 @@ export interface PartnerConnector {
   confirmDebit(contract: PartnerContractRef, input: { reference: string; otp: string }): Promise<ConnectorResult<{ partnerReference: string }>>;
   // Hỏi trạng thái theo mã tham chiếu VComm.
   status(contract: PartnerContractRef, input: { reference: string }): Promise<ConnectorResult<PartnerTransactionState>>;
+  // Đối soát tháng (QUYTAC_NGHIEPVU_548): danh sách giao dịch của tháng `period` (YYYY-MM, giờ Việt Nam) theo số liệu đối tác.
+  statement(contract: PartnerContractRef, input: { period: string }): Promise<ConnectorResult<PartnerStatementLine[]>>;
 }
+
+// Dòng số liệu đối tác: cộng điểm (đổi ra), trừ điểm (đổi vào) theo mã tham chiếu VComm; tặng điểm theo mã giao dịch đối tác.
+export type PartnerStatementLine = {
+  reference: string;
+  kind: "credit" | "debit" | "gift";
+  units: number | null;
+  points: number | null;
+  status: "completed" | "pending" | "rejected" | "cancelled";
+};
 
 export type PartnerTransactionState = { state: "completed" | "rejected" | "pending" | "not_found"; partnerReference: string | null };
 

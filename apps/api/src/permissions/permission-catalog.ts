@@ -575,6 +575,8 @@ export const documentTypeCatalog = [
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
   // CONG_VIEC_60: bảng đối soát điểm nội bộ chỉ đánh số, không duyệt (QUYTAC_NGHIEPVU_470).
   { code: "loyalty.settlement", appCode: "finance", nameVi: "Bảng đối soát điểm nội bộ", nameEn: "Intercompany loyalty settlement", requiresApproval: false },
+  // CONG_VIEC_65: bảng đối soát tháng với đối tác liên minh điểm (số DM…).
+  { code: "loyalty.partner_settlement", appCode: "crm", nameVi: "Bảng đối soát đối tác liên minh điểm", nameEn: "Loyalty partner settlement", requiresApproval: false },
   // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
   { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },

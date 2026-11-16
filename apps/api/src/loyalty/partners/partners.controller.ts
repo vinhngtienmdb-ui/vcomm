@@ -1,7 +1,13 @@
 // API_301 đến API_304 (CONG_VIEC_65): quản trị đối tác liên minh điểm trên web-crm; quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_551).
 // API_306, API_307: người mua liên kết số thành viên đối tác, đổi điểm trên ứng dụng VComm.
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  partnerSettlementConfirmSchema,
+  partnerSettlementListQuerySchema,
+  partnerSettlementRebuildSchema,
+  type PartnerSettlementDetail,
+  type PartnerSettlementItem,
   partnerApiKeyCreateSchema,
   partnerApiKeyUpdateSchema,
   rotateApiKeySchema,
@@ -37,6 +43,7 @@ import {
   type PartnerRate,
   type PartnerSimulatorState,
 } from "contracts";
+import type { Response } from "express";
 import { clientInfo } from "../../auth/auth.controller";
 import type { AuthenticatedRequest } from "../../auth/auth.guard";
 import { UuidPipe } from "../../common/uuid.pipe";
@@ -46,6 +53,7 @@ import { BuyerPartnersService } from "./buyer-partners.service";
 import { PartnerContractsService } from "./contracts.service";
 import { PartnerExchangesService } from "./exchanges.service";
 import { PartnerGiftsService } from "./gifts.service";
+import { PartnerSettlementsService, settlementFileMaximumBytes, type SettlementFile } from "./settlements.service";
 
 @Controller("loyalty")
 export class PartnerContractsController {
@@ -55,6 +63,7 @@ export class PartnerContractsController {
     private readonly exchanges: PartnerExchangesService,
     private readonly gifts: PartnerGiftsService,
     private readonly apiKeys: PartnerApiKeysService,
+    private readonly settlements: PartnerSettlementsService,
   ) {}
 
   private manager(request: AuthenticatedRequest) {
@@ -177,6 +186,53 @@ export class PartnerContractsController {
   async revokeApiKey(@Req() request: AuthenticatedRequest, @Param("keyId", UuidPipe) keyId: string, @Body() body: unknown): Promise<PartnerApiKeyItem> {
     const input = revokeApiKeySchema.parse(body);
     return this.apiKeys.revoke(await this.manager(request), keyId, input.reason, input.version);
+  }
+
+  // API_305: bảng đối soát tháng, lập lại, xác nhận kèm biên bản.
+  @Get("partner-settlements")
+  async settlementList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<PartnerSettlementItem>> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view");
+    return this.settlements.list(actor, partnerSettlementListQuerySchema.parse(query));
+  }
+
+  @Get("partner-settlements/:id")
+  async settlementDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerSettlementDetail> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view");
+    return this.settlements.detail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "loyalty.partner.manage"));
+  }
+
+  @Post("partner-settlements/:id/rebuild")
+  @HttpCode(200)
+  async rebuildSettlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<PartnerSettlementDetail> {
+    return this.settlements.rebuild(await this.manager(request), id, partnerSettlementRebuildSchema.parse(body).version, true);
+  }
+
+  // Multipart: ghi chú, phiên bản và tệp biên bản tùy chọn; giới hạn 10 MB kiểm ở dịch vụ để báo đúng thông báo, multer chỉ cắt tệp quá lớn bất thường.
+  @Post("partner-settlements/:id/confirm")
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: settlementFileMaximumBytes * 2, files: 1 } }))
+  async confirmSettlement(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @UploadedFile() file: SettlementFile | undefined,
+  ): Promise<PartnerSettlementDetail> {
+    return this.settlements.confirm(await this.manager(request), id, partnerSettlementConfirmSchema.parse(body), file);
+  }
+
+  @Get("partner-settlements/:id/file")
+  async settlementFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response): Promise<void> {
+    const file = await this.settlements.file(await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view"), id);
+    response.setHeader("content-type", file.contentType);
+    response.setHeader(
+      "content-disposition",
+      `attachment; filename="${file.fileName
+        .normalize("NFD")
+        .replace(/[^\x20-\x7e]/g, "")
+        .replace(/"/g, "")}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+    );
+    response.setHeader("x-content-type-options", "nosniff");
+    response.send(file.content);
   }
 
   // API_303 (phần bộ giả lập).

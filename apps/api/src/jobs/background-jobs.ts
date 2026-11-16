@@ -19,6 +19,7 @@ import { LoyaltyJobsService } from "../loyalty/jobs.service";
 import { LoyaltySettlementsService } from "../loyalty/settlements.service";
 import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import { PartnerExchangesService } from "../loyalty/partners/exchanges.service";
+import { PartnerSettlementsService } from "../loyalty/partners/settlements.service";
 import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
@@ -87,6 +88,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const reviews = application.get(ReviewsService);
   const apiCallLogs = application.get(ApiCallLogsService);
   const partnerExchanges = application.get(PartnerExchangesService);
+  const partnerSettlements = application.get(PartnerSettlementsService);
   const officeTasks = application.get(OfficeTasksService);
   const officePosts = application.get(OfficePostsService);
   const officeSigning = application.get(OfficeSigningService);
@@ -125,6 +127,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("affiliate-settlement-confirm", { every: 60 * 60_000 }, { name: "affiliate-settlement-confirm" });
   // Xóa nhật ký gọi API đối tác quá 90 ngày lúc 2 giờ (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
   await queue.upsertJobScheduler("loyalty-partner-exchanges", { every: 5 * 60_000 }, { name: "loyalty-partner-exchanges" });
+  // CONG_VIEC_65: bảng đối soát tháng với đối tác liên minh lúc 3 giờ ngày 1 (QUYTAC_NGHIEPVU_548).
+  await queue.upsertJobScheduler("loyalty-partner-settlements", { pattern: "0 3 1 * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-partner-settlements" });
   await queue.upsertJobScheduler("open-api-log-purge", { pattern: "0 2 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "open-api-log-purge" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
@@ -183,6 +187,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
       if (job.name === "loyalty-partner-exchanges") return partnerExchanges.processDue();
+      if (job.name === "loyalty-partner-settlements") return partnerSettlements.generateMonthly();
       if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
       if (job.name === "office-task-reminders") return officeTasks.remindDue();
       if (job.name === "office-post-publish") return officePosts.publishDue();

@@ -8,7 +8,7 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { CLOCK, type Clock } from "../../common/clock";
 import { DATABASE, type Database } from "../../database/database.module";
 import { maskName } from "../smart-otp.service";
-import type { ConnectorResult, PartnerConnector, PartnerContractRef, PartnerTransactionState } from "./connector";
+import type { ConnectorResult, PartnerConnector, PartnerContractRef, PartnerStatementLine, PartnerTransactionState } from "./connector";
 
 const otpLifetimeMinutes = 5;
 const maximumWrongCodes = 5;
@@ -157,5 +157,26 @@ export class PartnerSimulator implements PartnerConnector {
     const found = await this.transaction(input.reference);
     if (!found) return { outcome: "success", value: { state: "not_found", partnerReference: null } };
     return { outcome: "success", value: { state: found.status, partnerReference: found.status === "completed" ? found.partner_reference : null } };
+  }
+
+  // Số liệu tháng của đối tác giả: giao dịch cộng, trừ điểm đối tác đã ghi và giao dịch tặng điểm đối tác đã gửi.
+  // Chế độ sai lệch đối soát: bỏ dòng đầu, tăng số của dòng thứ hai, thêm một dòng VComm không có.
+  async statement(contract: PartnerContractRef, input: { period: string }): Promise<ConnectorResult<PartnerStatementLine[]>> {
+    const interrupted = await this.interrupted<PartnerStatementLine[]>(contract.id);
+    if (interrupted) return interrupted;
+    const month = sql`date_trunc('month', ${`${input.period}-01`}::date)`;
+    const inMonth = (column: ReturnType<typeof sql>) => sql`(${column} AT TIME ZONE 'Asia/Ho_Chi_Minh') >= ${month} AND (${column} AT TIME ZONE 'Asia/Ho_Chi_Minh') < ${month} + interval '1 month'`;
+    const rows = await this.database.execute<PartnerStatementLine>(sql`
+      SELECT reference, kind, units, NULL::int AS points, status FROM loyalty.partner_simulator_transactions
+      WHERE contract_id = ${contract.id} AND ${inMonth(sql`coalesce(completed_at, created_at)`)}
+      UNION ALL
+      SELECT partner_transaction_code, 'gift', NULL::int, points, status FROM loyalty.partner_gifts WHERE contract_id = ${contract.id} AND ${inMonth(sql`created_at`)}
+      ORDER BY 1`);
+    const lines = rows.rows.map((row) => ({ ...row, units: row.units === null ? null : Number(row.units), points: row.points === null ? null : Number(row.points) }));
+    if ((await this.mode(contract.id)) !== "statement_mismatch") return { outcome: "success", value: lines };
+    const altered = lines.slice(1);
+    if (altered[0]) altered[0] = altered[0].units !== null ? { ...altered[0], units: altered[0].units + 1 } : { ...altered[0], points: (altered[0].points ?? 0) + 1 };
+    altered.push({ reference: `SIM-EXTRA-${input.period}`, kind: "credit", units: 1, points: null, status: "completed" });
+    return { outcome: "success", value: altered };
   }
 }
