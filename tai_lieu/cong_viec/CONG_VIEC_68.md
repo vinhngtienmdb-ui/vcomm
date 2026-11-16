@@ -3,10 +3,11 @@
 - Mô tả: Đường dẫn chia sẻ sản phẩm hiện thẻ xem trước có ảnh, tên, giá trên Facebook, Zalo, Messenger, giữ mã giới thiệu và mã cộng tác viên, mở ứng dụng VComm hoặc bản web; tệp danh mục sản phẩm theo chuẩn Facebook Commerce Manager tự cập nhật giá, tồn.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-16
-- Trạng thái: Chờ nghiệm thu (lát L1, L2 người dùng đã duyệt xem trước)
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng, 2026-11-16)
 - Mức: Vừa (chức năng mới trong MODULE_09; thêm cột vào bảng có sẵn, thêm endpoint; không đổi kiến trúc, không đổi API đang dùng).
 - Nhánh: `chuc-nang/CONG_VIEC_68-chia-se-mang-xa-hoi`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-12; quyết định của người dùng (mục 17).
+- Phiếu thay đổi: THAY_DOI_33 (đường dẫn `/s/` thay đường dẫn trong nút "Chia sẻ sản phẩm" của QUYTAC_NGHIEPVU_434; người dùng duyệt 2026-11-16).
 - Phụ thuộc: CONG_VIEC_22 (nút "Chia sẻ sản phẩm", QUYTAC_NGHIEPVU_434), CONG_VIEC_49 (mã cộng tác viên, QUYTAC_NGHIEPVU_325), CONG_VIEC_24 (cửa hàng VComm, đăng bán, giá kênh).
 
 ## 1. Mục tiêu
@@ -210,6 +211,7 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 | Duyệt đặc tả, bản mẫu    | Duyệt, làm L1                                                                                            |
 | Xem trước lát L1         | Duyệt, làm L2 (qua phiên điều phối, 2026-11-16)                                                          |
 | Xem trước lát L2         | Duyệt (qua phiên điều phối, 2026-11-16)                                                                  |
+| Nghiệm thu               | Nghiệm thu; duyệt THAY_DOI_33 (2026-11-16)                                                               |
 
 ## 18. Thành phần không được thay đổi
 
@@ -237,7 +239,7 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 | Rà soát mã | Sửa: thẻ Tệp danh mục tải lại khi phiên bản cài đặt đổi (lỗi 409 sau khi lưu thẻ Bán hàng); cổng đăng nhập ứng dụng cho `/s/` đi qua; lỗi kiểu trong kiểm thử (CI) |
 | Rà soát bảo mật | Tài liệu `22` mục CONG_VIEC_68: không lỗi mức Nghiêm trọng, Cao; không thêm thư viện; CI Quét bảo mật đạt |
 | Chưa kiểm được | Thẻ xem trước trên Facebook, Zalo thật và Commerce Manager thật (cần tên miền HTTPS công khai, tài khoản của người dùng); mở thẳng ứng dụng bằng liên kết tên miền (cần ứng dụng phát hành) |
-| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `25` gửi phiên điều phối ghi; đề nghị phiếu `24` cho việc QUYTAC_NGHIEPVU_552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `25` gửi phiên điều phối ghi; phiếu THAY_DOI_33 (người dùng duyệt 2026-11-16) cho việc QUYTAC_NGHIEPVU_552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 |
 | Thư viện mới | Không |
 | Mã trả lại | MAN_HINH_267, 268; database migration 0155 |
 

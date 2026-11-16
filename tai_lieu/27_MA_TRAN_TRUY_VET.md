@@ -822,4 +822,4 @@ Quy tắc: QUYTAC_NGHIEPVU_495; bổ sung QUYTAC_NGHIEPVU_392, 394, 396, 397, 40
 | YCAU_NGHIEPVU_198, 199 | CHUC_NANG_240 | TIEUCHI_NGHIEMTHU_526 đến 530 | KICHBAN_KIEMTHU_719 đến 724 | `apps/api/src/marketplace/share.service.ts`, `share-page.ts`, `share.controller.ts`, `common/html.ts`, `main.ts`; `apps/mobile-vcomm/src/lib/product-link.ts`, `app/s/[id].tsx`, `app/_layout.tsx`, `app/san-pham/[id].tsx` |
 | YCAU_NGHIEPVU_200, 201 | CHUC_NANG_241 | TIEUCHI_NGHIEMTHU_531 đến 533 | KICHBAN_KIEMTHU_725 đến 728 | `database/migrations/0154_facebook_product_feed.sql`; `apps/api/src/marketplace/product-feed.service.ts`, `product-feed.controller.ts`; `apps/web-crm/src/app/store-settings/page.tsx`; `packages/contracts` (`ProductFeedStatus`) |
 
-Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434). Luồng 65. Màn hình MAN_HINH_266; sửa MAN_HINH_86, 201 (267, 268 không dùng). API_314 đến 317.
+Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 theo THAY_DOI_33). Luồng 65. Màn hình MAN_HINH_266; sửa MAN_HINH_86, 201 (267, 268 không dùng). API_314 đến 317.
