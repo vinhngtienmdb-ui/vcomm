@@ -2012,3 +2012,21 @@ Người mua (gốc `/api/v1`, token ứng dụng VComm):
 Lỗi nghiệp vụ dùng mô hình lỗi chung; nội dung tiếng Việt theo tài liệu `07` mục MODULE_11 phần 3. Mã thông báo chính: `partnerNotActive`, `partnerNoRate`, `partnerUnitsNotMultiple`, `partnerLimitExceeded`, `partnerMemberNumberInvalid`, `partnerMemberTaken`, `partnerNotLinked`, `partnerOtpInvalid`, `partnerConnectionFailed`, `partnerConnectorUnavailable`, `partnerPrepaidInsufficient`, `partnerCreditExceeded`, `partnerGiftNoAccount`, `partnerGiftNotCancellable`, `partnerSettlementNotMatched`, `partnerSettlementChanged`, `partnerSettlementClosed`, `partnerExchangePending`, `partnerRateOverlap`, `partnerRateStarted`, `partnerPaymentModeLocked`; đổi ra bị quy tắc chống gian lận chặn: `409 BUSINESS_RULE` `loyaltyFraudBlocked` (THAY_DOI_34).
 
 Sửa API đã có: API_177 bút toán điểm có `sourceType` `partner_exchange`, `partner_gift` (nhãn "Đổi điểm đối tác", "Đối tác tặng"); API_255 khóa `loyalty.partner` trả `channelId`, `channelName` trống; API_256, 257 từ chối cấp phạm vi `loyalty.partner`, sửa khóa này `409` (chỉ cấp lại, thu hồi). Thông báo trong ứng dụng: `loyalty.partner_exchange`, `loyalty.partner_gift` (người mua), `loyalty.partner_exchange_review`, `loyalty.partner_exposure` (người có `loyalty.partner.manage`). Nhật ký thao tác: `loyalty_partner_contract.create`, `.update`, `.active`, `.suspended`, `.terminated`; `loyalty_partner_rate.create`, `.update`, `.delete`; `loyalty_partner_simulator.mode`, `.member`; `loyalty_partner_exchange.recheck`, `.complete`, `.refund`; `loyalty_partner_settlement.create`, `.rebuild`, `.confirm`; khóa API `api_key.*` (mini app `crm`). Việc nền: `loyalty-partner-exchanges` mỗi 5 phút, `loyalty-partner-settlements` 3 giờ ngày 1 hằng tháng (giờ Việt Nam).
+
+## 2x. Chia sẻ sản phẩm lên mạng xã hội (MODULE_09, CONG_VIEC_68)
+
+Trang công khai, ngoài tiền tố `/api/v1` (`main.ts` loại trừ khỏi tiền tố chung):
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_314 | `GET /s/{productId}?ref=&ctv=` | Không đăng nhập; 300 lần mỗi phút mỗi địa chỉ | Trang HTML MAN_HINH_266 có thẻ Open Graph; `200` hoặc `404`; `Cache-Control: public, max-age=300`; Content-Security-Policy không cho script |
+| API_315 | `GET /.well-known/apple-app-site-association`, `GET /.well-known/assetlinks.json` | Không đăng nhập | Tệp liên kết ứng dụng `vn.vcomm.app` cho `/s/*`; chưa cấu hình `404` |
+
+Gốc `/api/v1`:
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_316 | `GET /public/product-feeds/facebook/{token}.csv` | Không đăng nhập, mã bí mật | Tệp danh mục CSV chuẩn Facebook; `text/csv; charset=utf-8`; tắt, sai mã `404` |
+| API_317 | `GET /marketplace/product-feed`; `PUT /marketplace/product-feed` (`enabled`, `version`); `POST /marketplace/product-feed/regenerate` (`version`) | xem `marketplace.order.view`; sửa `marketplace.order.manage` | Trả `ProductFeedStatus` (`enabled`, `url` khi có quyền sửa, `tokenCreatedAt`, `lastFetchedAt`, `productCount`, `skippedWithoutImage`, `version`, `canManage`); sai `version` `409 CONFLICT_VERSION`; cửa hàng chưa cài đặt `409 BUSINESS_RULE` |
+
+Biến môi trường: `SHARE_PUBLIC_URL` (địa chỉ công khai trỏ tới máy chủ API), `VCOMM_WEB_URL`, `VCOMM_APP_LINK_BASE`, `APP_STORE_URL`, `GOOGLE_PLAY_URL`, `APPLE_TEAM_ID`, `ANDROID_SHA256_CERT_FINGERPRINTS`; ứng dụng `EXPO_PUBLIC_SHARE_URL`. Ảnh trong thẻ, tệp dùng API hiện có `GET /buyer/shop/images/{id}`. Không sửa API đã có.

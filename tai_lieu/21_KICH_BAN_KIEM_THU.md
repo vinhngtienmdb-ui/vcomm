@@ -6132,3 +6132,18 @@ Dữ liệu chung: `apps/api/test/c65-fixture.ts` trên dữ liệu mẫu CONG_V
 | KICHBAN_KIEMTHU_716 | 524 | Tắt biến môi trường thì kết nối báo lỗi; tìm OTP, số thành viên, số điện thoại trong nhật ký gọi, nhật ký thao tác | Tích hợp | `apps/api/test/c65-partners.test.ts` (phần L1); phần còn lại rà soát bảo mật (tài liệu `22`) |
 | KICHBAN_KIEMTHU_717 | 525 | MAN_HINH_258 đến 263: năm trạng thái, đổi ngôn ngữ, ba kích thước | Giao diện (ảnh chụp) | Ảnh xem trước lát L1 đến L4 |
 | KICHBAN_KIEMTHU_718 | 525 | MAN_HINH_264, 265 trên ứng dụng (khổ điện thoại): liên kết, đổi ra, đổi vào, chờ, lịch sử | Giao diện (ảnh chụp) | Ảnh xem trước lát L1, L2 |
+
+## CHUC_NANG_240, CHUC_NANG_241: Chia sẻ sản phẩm lên mạng xã hội (CONG_VIEC_68)
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_719 | 526 | Tên có `<b>&"`, mô tả nhiều dòng: đủ thẻ, ảnh tuyệt đối, giá, tên đã thoát, chính sách nội dung; tiếng Anh; hai phân loại khác giá ghi "Từ" | Tích hợp, đơn vị | `apps/api/test/c68-share.test.ts` |
+| KICHBAN_KIEMTHU_720 | 526 | Không ảnh: không có `og:image`; mô tả cắt 160 ký tự; đọc thẻ với máy đọc `facebookexternalhit` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_721 | 527 | `ref` và `ctv`, chỉ `ctv`, không mã, mã sai dạng: đường dẫn nút đúng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_722 | 527 | Có, không có cấu hình cửa hàng ứng dụng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_723 | 528 | Mã sai, không có, sản phẩm công ty khác, ngừng đăng bán, chờ duyệt: `404`; hết hàng `200` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_724 | 529, 530 | Tệp liên kết có, không có cấu hình; tiền tố `/api/v1` không đổi; ứng dụng bản web mở `/s/` chuyển đăng ký có mã; nút chia sẻ tạo `/s/?ref=` | Tích hợp, giao diện | như trên; ảnh xem trước lát L1 |
+| KICHBAN_KIEMTHU_725 | 531 | Ô CSV; ba dòng (một sản phẩm hai phân loại), cột, giá, còn hàng, ảnh phụ, thuộc tính phân loại; không có sản phẩm chưa ảnh; ngừng bán, hết hàng thấy sau 5 phút giữ tạm | Đơn vị, tích hợp | `apps/api/test/c68-product-feed.test.ts` |
+| KICHBAN_KIEMTHU_726 | 532 | Tắt mặc định; sai phiên bản `409`; bật tạo mã; tắt `404`; bật lại giữ mã; tạo lại mã thì mã cũ `404`; mã sai dạng, sai đuôi `404`; nhật ký không có mã | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_727 | 532 | Nhân viên không quyền `403`; người chỉ xem không có `url`, bật, tạo lại `403`; người mua `403` | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_728 | 533 | Thẻ tắt, bật, chỉ xem, hộp xác nhận; vi, en; 1360, 390 điểm ảnh; lưu thẻ Bán hàng rồi tắt tệp không lỗi phiên bản | Giao diện (ảnh chụp, trình duyệt) | Ảnh xem trước lát L2 |

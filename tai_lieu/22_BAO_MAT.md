@@ -1361,3 +1361,18 @@ Kết quả rà soát bảo mật CONG_VIEC_67 (2026-11-12): không phát hiện
 - Gọi đối tác ngoài giao dịch cơ sở dữ liệu; trạng thái lưu trước khi gọi; mã tham chiếu VComm ngẫu nhiên, duy nhất chống tạo trùng phía đối tác.
 - Rủi ro tài chính: trả trước chặn khi số dư không đủ, trả sau chặn khi vượt hạn mức hoặc quá hạn thanh toán; bảng đối soát chỉ xác nhận khi khớp và danh sách giao dịch không đổi từ lúc lập.
 - Rủi ro chấp nhận: phần mềm đối tác có khóa dò được số điện thoại nào có tài khoản VComm (trả "Số điện thoại chưa có tài khoản VComm."), giới hạn bởi tần suất của khóa, danh sách IP và nhật ký gọi; phát hành lên môi trường thật bị chặn cho tới khi có bộ chuyển đổi thật của từng đối tác; ý kiến luật sư về điểm thưởng (CONG_VIEC_51) vẫn áp dụng.
+
+### Chia sẻ sản phẩm lên mạng xã hội (MODULE_09, CONG_VIEC_68)
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `GET /s/{productId}` | Không | Chỉ sản phẩm đang hiện của công ty vận hành sàn; mọi giá trị thoát ký tự; không script; Content-Security-Policy `default-src 'none'`; `ref`, `ctv` kiểm dạng; 300 lần mỗi phút mỗi địa chỉ |
+| `/.well-known/*` | Không | Chỉ nội dung tĩnh từ biến môi trường; mức chung 20 lần mỗi phút |
+| `GET /api/v1/public/product-feeds/facebook/{token}.csv` | Mã bí mật 32 byte trong đường dẫn | So mã theo thời gian không đổi; tắt hoặc sai mã cùng `404`; `Cache-Control: no-store`, `X-Robots-Tag: noindex`; mức chung 20 lần mỗi phút |
+| `/api/v1/marketplace/product-feed*` | Phiên nhân viên, `marketplace.order.view` / `marketplace.order.manage` | Đường dẫn có mã chỉ trả cho người có quyền sửa; khóa lạc quan theo phiên bản cài đặt |
+
+- Dữ liệu trả công khai chỉ là thông tin đã hiện trên cửa hàng VComm (tên, giá, ảnh, mô tả, tình trạng còn hàng); không có dữ liệu người dùng. Mã giới thiệu là số điện thoại người chia sẻ, đã nằm trong đường dẫn từ CONG_VIEC_22.
+- Mã bí mật tệp lưu rõ trong `marketplace.store_settings` để người có quyền sửa sao chép lại (bảo vệ dữ liệu vốn công khai trên cửa hàng); không ghi vào nhật ký thao tác, log.
+- Đường dẫn chia sẻ có `ref`, `ctv` thành thẻ `og:url` để mạng xã hội giữ mã khi người nhận bấm.
+
+Kết quả rà soát bảo mật CONG_VIEC_68 (2026-11-16): không phát hiện lỗi mức Nghiêm trọng, Cao; không thêm thư viện; quét khóa bí mật và thư viện phụ thuộc trên CI (Quét bảo mật) đạt.

@@ -731,3 +731,16 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | TIEUCHI_NGHIEMTHU_523 | CHUC_NANG_239 | Xác nhận chỉ khi khớp; bút toán bù trừ; công nợ đúng chiều, hạn; trả trước khớp ngay với tiền đã nộp; phiếu thu chi về 0 thì Đã thanh toán | Gọi API, truy vấn sổ cái | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_524 | CHUC_NANG_236 đến CHUC_NANG_238 | Bộ giả lập chỉ chạy khi bật biến môi trường; nhật ký gọi, log không chứa OTP, số thành viên đầy đủ, số điện thoại | Gọi API, truy vấn cơ sở dữ liệu | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_525 | CHUC_NANG_236 đến CHUC_NANG_239 | MAN_HINH_258 đến 265 và phần sửa màn hình đủ trạng thái rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; chạy được trên máy tính, máy tính bảng, điện thoại | Ảnh chụp | Bắt buộc |
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_526 | CHUC_NANG_240 | Trang chia sẻ sản phẩm đang bán đủ thẻ Open Graph, ảnh tuyệt đối, giá kênh gồm thuế, "Từ" khi nhiều giá; ký tự đặc biệt được thoát | Gọi API, đọc thẻ | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_527 | CHUC_NANG_240 | Nút giữ đúng `ref`, `ctv`; mã sai dạng bị bỏ; nút tải ứng dụng chỉ hiện khi có cấu hình | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_528 | CHUC_NANG_240 | Sản phẩm không hiện trên cửa hàng: `404` không lộ tên, giá; hết hàng vẫn hiện "Hết hàng" | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_529 | CHUC_NANG_240 | Nút "Chia sẻ sản phẩm" tạo đường dẫn `/s/` đúng mã; ứng dụng mở `/s/` chuyển như đường dẫn cũ; đường dẫn cũ vẫn chạy | Giao diện | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_530 | CHUC_NANG_240 | Tệp liên kết ứng dụng đúng nội dung khi có cấu hình, `404` khi chưa có | Gọi API | Mong muốn |
+| TIEUCHI_NGHIEMTHU_531 | CHUC_NANG_241 | Tệp danh mục đúng cột Facebook, mỗi phân loại một dòng, giá, còn hàng mới nhất sau 5 phút; không có sản phẩm ngừng bán, chưa có ảnh; đúng chuẩn CSV | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_532 | CHUC_NANG_241 | Tắt, sai mã, mã cũ `404`; bật, tắt, tạo lại mã chỉ `marketplace.order.manage`, sai phiên bản `409`, nhật ký không có mã; người chỉ xem không thấy đường dẫn | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_533 | CHUC_NANG_241 | Thẻ Tệp danh mục Facebook đủ trạng thái tắt, bật, đang tải, lỗi, chỉ xem; vi, en; 1360 và 390 điểm ảnh | Ảnh chụp | Bắt buộc |

@@ -972,3 +972,14 @@ Không thêm quyền.
 | Bảng đối soát: lập lại, xác nhận kèm biên bản | Có | Có | Xem | Không | Không | Không | Không |
 | Phiếu thu, phiếu chi với đối tác liên minh | Theo quyền công nợ | Không | Không | Không | Có | Không | Không |
 | Liên kết, hủy liên kết, đổi ra, đổi vào | Không | Không | Không | Không | Không | Có | Không |
+
+## 59. Chia sẻ sản phẩm lên mạng xã hội (MODULE_09, CONG_VIEC_68)
+
+Không thêm quyền.
+
+| Thao tác | Người ngoài | Người mua | `marketplace.order.view` | `marketplace.order.manage` |
+|---|---|---|---|---|
+| Xem trang chia sẻ, tệp liên kết ứng dụng | Có | Có | Có | Có |
+| Nút "Chia sẻ sản phẩm" tạo đường dẫn `/s/` | Không | Có (có mã giới thiệu hoặc mã cộng tác viên) | Không | Không |
+| Tải tệp danh mục | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật |
+| Thẻ Tệp danh mục Facebook (MAN_HINH_86) | Không | Không | Xem trạng thái, không thấy đường dẫn | Xem, bật, tắt, sao chép, tạo lại mã |

@@ -2463,3 +2463,12 @@ Yêu cầu phi chức năng:
 - Gọi đối tác ngoài giao dịch cơ sở dữ liệu; trạng thái giao dịch lưu trước khi gọi; mã tham chiếu VComm duy nhất chống tạo trùng phía đối tác; tặng điểm chống trùng bằng chỉ mục duy nhất.
 - Mã OTP, số thành viên đầy đủ, số điện thoại, khóa bí mật không ghi vào nhật ký gọi, log, nhật ký thao tác; bộ giả lập chỉ chạy khi `LOYALTY_PARTNER_SIMULATOR=on`.
 - Không thêm thư viện; dùng lại sổ cái điểm (CONG_VIEC_51), khóa API (CONG_VIEC_61), Smart OTP (CONG_VIEC_53), công nợ, phiếu thu chi (CONG_VIEC_13), kho tệp, dãy số chứng từ, việc nền, thông báo trong ứng dụng.
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+| Mã | Chức năng | Yêu cầu | Màn hình | API |
+|---|---|---|---|---|
+| CHUC_NANG_240 | Trang chia sẻ sản phẩm công khai có thẻ Open Graph, nút mở ứng dụng, xem trên web, tải ứng dụng; tệp liên kết ứng dụng; nút "Chia sẻ sản phẩm" tạo đường dẫn `/s/`; ứng dụng mở `/s/` chuyển sang đường dẫn cũ | YCAU_NGHIEPVU_198, 199 | MAN_HINH_266; sửa MAN_HINH_201 | API_314, API_315 |
+| CHUC_NANG_241 | Tệp danh mục sản phẩm CSV theo chuẩn Facebook Commerce Manager tạo khi được gọi; thẻ Tệp danh mục Facebook ở Cài đặt bán hàng VComm | YCAU_NGHIEPVU_200, 201 | Sửa MAN_HINH_86 | API_316, API_317 |
+
+Yêu cầu phi chức năng: trang chia sẻ không có script, mọi giá trị được thoát ký tự, Content-Security-Policy chặt, giữ tạm 5 phút ở trình duyệt; giới hạn 300 lần mỗi phút mỗi địa chỉ cho trang chia sẻ; so mã bí mật theo thời gian không đổi; tệp danh mục giữ tạm 5 phút trong tiến trình.

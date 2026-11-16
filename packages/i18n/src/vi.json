@@ -4416,7 +4416,8 @@
     "affiliateVoucherStatus_unused": "Chưa dùng",
     "affiliateVoucherStatus_used": "Đã dùng",
     "affiliateVoucherStatus_expired": "Hết hạn",
-    "affiliateVoucherExpires": "Hạn dùng đến {date}"
+    "affiliateVoucherExpires": "Hạn dùng đến {date}",
+    "shareSocialHint": "Dán lên Facebook, Zalo sẽ hiện ảnh, tên, giá sản phẩm."
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -4605,7 +4606,29 @@
     "fee_maximumFee": "Phần trăm tối đa (để trống: không giới hạn)",
     "feeRemove": "Bỏ dòng",
     "feeAddCount": "Thêm mức theo lần",
-    "feeAddAmount": "Thêm mức theo số tiền"
+    "feeAddAmount": "Thêm mức theo số tiền",
+    "feedTitle": "Tệp danh mục Facebook",
+    "feedIntro": "Đưa sản phẩm đang bán trên VComm lên Facebook Shop. Facebook tải tệp theo lịch, giá và tình trạng còn hàng tự cập nhật.",
+    "feedEnable": "Bật tệp danh mục",
+    "feedDisable": "Tắt tệp danh mục",
+    "feedUrl": "Đường dẫn tệp (dán vào Commerce Manager)",
+    "feedUrlHint": "Giữ bí mật đường dẫn này: ai có đường dẫn đều tải được danh mục.",
+    "feedCopy": "Sao chép",
+    "feedCopied": "Đã sao chép đường dẫn.",
+    "feedProductCount": "Số sản phẩm trong tệp",
+    "feedSkipped": "{count} ({skipped} sản phẩm chưa có ảnh không đưa vào)",
+    "feedLastFetched": "Facebook lấy lần gần nhất",
+    "feedNeverFetched": "Chưa lấy",
+    "feedTokenCreated": "Mã tạo lúc",
+    "feedGuideStep1": "Mở Commerce Manager → Danh mục → Nguồn dữ liệu → Thêm mặt hàng → Lịch dữ liệu.",
+    "feedGuideStep2": "Dán đường dẫn trên, chọn lặp lại Hằng giờ, đơn vị tiền VND.",
+    "feedRegenerate": "Tạo lại mã",
+    "feedRegenerateTitle": "Tạo lại mã tệp danh mục?",
+    "feedRegenerateText": "Đường dẫn cũ ngừng dùng ngay. Bạn phải dán đường dẫn mới vào Commerce Manager, nếu không Facebook sẽ báo lỗi lấy tệp.",
+    "feedEnabledSaved": "Đã bật tệp danh mục.",
+    "feedDisabledSaved": "Đã tắt tệp danh mục.",
+    "feedRegenerated": "Đã tạo mã mới. Dán đường dẫn mới vào Commerce Manager.",
+    "feedViewOnly": "Bạn chỉ có quyền xem; đường dẫn tệp chỉ hiện với người có quyền sửa cài đặt bán hàng."
   },
   "listings": {
     "title": "Đăng bán",
@@ -10480,5 +10503,17 @@
     "entryExchangeRefund": "Hoàn điểm đổi đối tác {document}",
     "entryGift": "Đối tác tặng điểm {document}",
     "entryGiftCancel": "Đối tác hủy tặng điểm {document}"
+  },
+  "sharePage": {
+    "priceFrom": "Từ {price}",
+    "outOfStock": "Hết hàng",
+    "store": "Cửa hàng: {name}",
+    "openApp": "Mở ứng dụng VComm",
+    "openWeb": "Xem trên web",
+    "appStore": "Tải trên App Store",
+    "googlePlay": "Tải trên Google Play",
+    "referralHint": "Đăng ký từ đường dẫn này sẽ ghi người giới thiệu {code}.",
+    "unavailable": "Sản phẩm không còn bán.",
+    "viewStore": "Xem cửa hàng VComm"
   }
 }

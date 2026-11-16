@@ -1286,3 +1286,18 @@ Thông báo lỗi mới (vi): "Đối tác chưa hoạt động hoặc hợp đ�
 | Quy tắc | Bổ sung |
 |---|---|
 | QUYTAC_NGHIEPVU_476 | Mục 2 "Đổi điểm dồn dập" áp thêm cho giao dịch đổi điểm ra đối tác liên minh (QUYTAC_NGHIEPVU_542): đổi ra tính như một lần dùng điểm (số lần, số điểm trong 24 giờ, phần trăm số dư theo thiết bị mới), xét trước khi trừ điểm, theo mức xử lý đã cài: cảnh báo ghi vụ việc kèm chứng từ là giao dịch đổi (nguồn `partner_exchange`); chặn thì từ chối, không tạo giao dịch, không gọi đối tác; chặn và khóa ví thì khóa ví như CONG_VIEC_60. Chỉ quy tắc 2; quy tắc 1 (nhiều tài khoản trên một thiết bị) không xét ở đổi ra. Đổi vào, tặng điểm là cộng điểm, không xét. THAY_DOI_34 phê duyệt 2026-11-16 |
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_68.md` mục 5.
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| QUYTAC_NGHIEPVU_552 | Đường dẫn chia sẻ `<địa chỉ chia sẻ>/s/<mã sản phẩm>` kèm `ref` (mã giới thiệu), `ctv` (mã cộng tác viên đã duyệt); thay đường dẫn trong nút "Chia sẻ sản phẩm" của QUYTAC_NGHIEPVU_434 (THAY_DOI_33); đường dẫn cũ `/r/`, `/p/` vẫn chạy; `ref` chỉ số và `+`, tối đa 15 ký tự; `ctv` chữ, số, tối đa 8 ký tự; sai dạng thì bỏ tham số, trang vẫn hiện | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_553 | Thẻ xem trước: tên sản phẩm; ảnh đầu tiên (không có ảnh thì không có thẻ ảnh); giá kênh VComm gồm thuế, nhiều giá ghi "Từ <giá thấp nhất>"; mô tả đăng bán (không có thì mô tả sản phẩm), một dòng, tối đa 160 ký tự; tên ngắn công ty vận hành sàn; không giá khuyến mãi | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_554 | Chỉ sản phẩm đang hiện trên cửa hàng VComm có trang chia sẻ; còn lại `404` "Sản phẩm không còn bán." kèm nút "Xem cửa hàng VComm", không lộ tên, giá; hết hàng vẫn hiện, ghi "Hết hàng" | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_555 | Nút "Mở ứng dụng VComm" (`vcomm://`), "Xem trên web", "Tải trên App Store", "Tải trên Google Play" (khi có cấu hình); đường dẫn ứng dụng: có `ref` thì `/r/<ref>?sp=…[&ctv=]`, chỉ `ctv` thì `/p/<mã>?ctv=`, không mã thì `/san-pham/<mã>`; đăng ký, ghi lượt bấm, mở sản phẩm theo QUYTAC_NGHIEPVU_434, 325; trang không tự chuyển hướng, không ghi lượt bấm | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_556 | Tệp liên kết `/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json` khai `/s/*` cho `vn.vcomm.app` khi có cấu hình, chưa có thì `404`; ứng dụng mở bằng `/s/<mã>` chuyển như QUYTAC_NGHIEPVU_555 | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_557 | Tệp danh mục Facebook CSV UTF-8: mỗi phân loại một dòng; mọi sản phẩm đang hiện trên cửa hàng VComm có ảnh (chưa có ảnh không đưa vào); cột `id` (SKU), `item_group_id`, `title`, `description`, `availability`, `condition`, `price` (giá kênh gồm thuế), `link` (trang chia sẻ không mã), `image_link`, `additional_image_link` (tối đa 10), `brand` (thương hiệu, không có thì tên ngắn công ty), `additional_variant_attribute` | Người dùng 2026-11-12, 2026-11-16 |
+| QUYTAC_NGHIEPVU_558 | Đường dẫn tệp chứa mã bí mật 32 byte; mặc định tắt; `marketplace.order.manage` bật, tắt, tạo lại mã (mã cũ hết hiệu lực ngay), thấy đường dẫn; `marketplace.order.view` chỉ thấy trạng thái; tắt, sai mã, cửa hàng chưa cài đặt `404`; nhật ký thao tác không ghi mã | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_559 | Tệp tạo khi được gọi từ giá, tồn mới nhất, giữ tạm 5 phút; bật, tắt, tạo lại mã xóa bản giữ tạm; lưu thời điểm lấy gần nhất; Commerce Manager lấy hằng giờ | Người dùng 2026-11-12 |

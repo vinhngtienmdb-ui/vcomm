@@ -3950,3 +3950,11 @@ Ràng buộc dùng chung định nghĩa lại (gồm mọi giá trị trên `mai
 - Quyền `loyalty.partner.view`, `loyalty.partner.manage` (nhạy cảm) của mini app `crm` (0150); loại chứng từ `loyalty.partner_settlement` (đánh số, không duyệt; danh mục trong mã nguồn `apps/api/src/permissions/permission-catalog.ts`), dãy số `DM` (đặt lại theo năm) tự tạo ở công ty vận hành sàn khi lập bảng đầu tiên.
 
 Quy tắc xóa và lưu giữ: không xóa hợp đồng, giao dịch đổi, tặng điểm, bảng đối soát; lưu giữ cùng dữ liệu kế toán. Bảng bộ giả lập chỉ có dữ liệu ở máy phát triển, kiểm thử, môi trường thử nghiệm.
+
+## 44. Database migration 0154 – CONG_VIEC_68 (tệp danh mục Facebook)
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0154 | `marketplace.store_settings` | `facebook_feed_enabled` boolean mặc định `false`; `facebook_feed_token` text duy nhất, 43 ký tự base64url hoặc trống; `facebook_feed_token_created_at`, `facebook_feed_fetched_at` timestamptz; ràng buộc `store_settings_facebook_feed_enabled_needs_token` (bật thì có mã) |
+
+Chỉ thêm cột. Database migration 0155 không dùng, trả phiên điều phối.

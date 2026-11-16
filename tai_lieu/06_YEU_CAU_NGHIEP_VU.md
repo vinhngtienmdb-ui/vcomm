@@ -671,3 +671,16 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_65.md`.
 | Giao dịch đối tác tặng điểm | Số `DT-<năm>-<số>`, hợp đồng, khóa API, mã giao dịch đối tác, người mua, tỷ lệ, điểm, giá bán, tiền, thuế, giá trị điểm, nội dung, lô điểm, trạng thái (hoàn tất, đã hủy), lý do hủy, thời điểm hủy, bảng đối soát | Mã giao dịch đối tác duy nhất theo hợp đồng; hủy trong 24 giờ khi khách chưa dùng (CONG_VIEC_65) |
 | Bảng đối soát đối tác liên minh | Số `DM…`, hợp đồng, tháng, số giao dịch, số điểm, số đơn vị, tiền theo loại (tặng điểm A, đổi vào B, đổi ra C), phải thu, phải trả, bù trừ, số còn lại, dòng lệch, lỗi đối chiếu, dấu danh sách giao dịch, trạng thái (chưa đối chiếu được, không khớp, khớp, đã xác nhận, đã thanh toán), ghi chú, tệp biên bản, người, thời điểm xác nhận, hạn thanh toán, khoản công nợ | Mỗi hợp đồng mỗi tháng một bảng; chỉ xác nhận khi khớp (CONG_VIEC_65) |
 | Bộ giả lập đối tác | Chế độ trả lời theo hợp đồng (bình thường, từ chối, không trả lời, sai lệch đối soát), thành viên giả (số thành viên, tên, số điện thoại, số dư đơn vị), mã OTP giả (chỉ lưu băm), giao dịch giả | Chỉ dùng khi bật biến môi trường `LOYALTY_PARTNER_SIMULATOR=on` (máy phát triển, kiểm thử, môi trường thử nghiệm) (CONG_VIEC_65) |
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_198 | Đường dẫn chia sẻ sản phẩm dán lên Facebook, Zalo, Messenger hiện thẻ xem trước có ảnh, tên, giá, mô tả ngắn, tên cửa hàng; giữ mã giới thiệu, mã cộng tác viên | Người mua, cộng tác viên | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_199 | Người nhận bấm đường dẫn: mở ứng dụng VComm nếu đã cài; không thì xem trên bản web hoặc tải ứng dụng | Người nhận đường dẫn | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_200 | Danh mục sản phẩm đang bán trên VComm có mặt trên Facebook Commerce Manager, giá và tình trạng còn hàng tự cập nhật | Quản lý bán hàng VComm | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_201 | Quản trị bật, tắt, lấy đường dẫn, đổi mã bí mật của tệp danh mục; người ngoài không tải được toàn bộ danh mục | Quản lý bán hàng VComm | Người dùng 2026-11-12 |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Tệp danh mục Facebook (bổ sung cài đặt bán hàng) | Bật hay tắt, mã bí mật, thời điểm tạo mã, thời điểm Facebook lấy gần nhất | CONG_VIEC_68 |

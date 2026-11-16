@@ -4416,7 +4416,8 @@
     "affiliateVoucherStatus_unused": "Unused",
     "affiliateVoucherStatus_used": "Used",
     "affiliateVoucherStatus_expired": "Expired",
-    "affiliateVoucherExpires": "Valid until {date}"
+    "affiliateVoucherExpires": "Valid until {date}",
+    "shareSocialHint": "Paste it on Facebook or Zalo to show the product photo, name and price."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -4605,7 +4606,29 @@
     "fee_maximumFee": "Percent maximum (empty: no limit)",
     "feeRemove": "Remove",
     "feeAddCount": "Add count tier",
-    "feeAddAmount": "Add amount tier"
+    "feeAddAmount": "Add amount tier",
+    "feedTitle": "Facebook catalog feed",
+    "feedIntro": "List the products on sale in VComm on your Facebook Shop. Facebook downloads the file on a schedule, so prices and stock status stay up to date.",
+    "feedEnable": "Turn on catalog feed",
+    "feedDisable": "Turn off catalog feed",
+    "feedUrl": "Feed URL (paste into Commerce Manager)",
+    "feedUrlHint": "Keep this URL private: anyone with it can download the catalog.",
+    "feedCopy": "Copy",
+    "feedCopied": "URL copied.",
+    "feedProductCount": "Products in the feed",
+    "feedSkipped": "{count} (left out for having no photo: {skipped})",
+    "feedLastFetched": "Last fetched by Facebook",
+    "feedNeverFetched": "Not fetched yet",
+    "feedTokenCreated": "Code created",
+    "feedGuideStep1": "Open Commerce Manager → Catalog → Data sources → Add items → Data feed schedule.",
+    "feedGuideStep2": "Paste the URL above, set it to repeat Hourly, currency VND.",
+    "feedRegenerate": "Create new code",
+    "feedRegenerateTitle": "Create a new feed code?",
+    "feedRegenerateText": "The old URL stops working right away. Paste the new URL into Commerce Manager, or Facebook will report fetch errors.",
+    "feedEnabledSaved": "Catalog feed turned on.",
+    "feedDisabledSaved": "Catalog feed turned off.",
+    "feedRegenerated": "New code created. Paste the new URL into Commerce Manager.",
+    "feedViewOnly": "You can only view this; the feed URL is shown only to people who can edit store settings."
   },
   "listings": {
     "title": "Listings",
@@ -10480,5 +10503,17 @@
     "entryExchangeRefund": "Partner conversion refund {document}",
     "entryGift": "Partner gift points {document}",
     "entryGiftCancel": "Partner gift cancelled {document}"
+  },
+  "sharePage": {
+    "priceFrom": "From {price}",
+    "outOfStock": "Out of stock",
+    "store": "Store: {name}",
+    "openApp": "Open the VComm app",
+    "openWeb": "View on the web",
+    "appStore": "Download on the App Store",
+    "googlePlay": "Get it on Google Play",
+    "referralHint": "Signing up from this link records {code} as your referrer.",
+    "unavailable": "This product is no longer for sale.",
+    "viewStore": "Visit the VComm store"
   }
 }

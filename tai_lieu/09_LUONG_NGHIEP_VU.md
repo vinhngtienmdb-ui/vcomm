@@ -1350,3 +1350,9 @@ Ngoại lệ: mã giao dịch đối tác đã có trả giao dịch cũ; mã OT
 - Trạng thái: theo tài liệu `07` mục MODULE_11 phần 3 (hợp đồng, giao dịch đổi ra, đổi vào, tặng điểm, bảng đối soát).
 
 Sơ đồ: đặc tả `cong_viec/CONG_VIEC_65.md` mục 7.
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+Luồng 65: người mua bấm "Chia sẻ sản phẩm" → đường dẫn `/s/<mã sản phẩm>?ref&ctv` → dán lên Facebook, Zalo, Messenger → mạng xã hội đọc thẻ Open Graph (ảnh, tên, giá) → người nhận bấm → tên miền đã liên kết với ứng dụng đã cài thì mở thẳng ứng dụng; không thì trang chia sẻ với nút Mở ứng dụng, Xem trên web, Tải ứng dụng → ứng dụng hoặc bản web xử lý như đường dẫn `/r/`, `/p/`, `/san-pham/` (QUYTAC_NGHIEPVU_434, 325). Song song: quản trị bật tệp danh mục, dán đường dẫn vào Commerce Manager, lịch hằng giờ → Facebook lấy tệp tạo từ giá, tồn mới nhất → Facebook Shop, quảng cáo danh mục liên kết về trang chia sẻ.
+
+Ngoại lệ: sản phẩm ngừng bán thì trang báo "Sản phẩm không còn bán.", lần lấy tệp sau sản phẩm rời danh mục; tạo lại mã thì Commerce Manager báo lỗi lấy tệp đến khi dán đường dẫn mới.
