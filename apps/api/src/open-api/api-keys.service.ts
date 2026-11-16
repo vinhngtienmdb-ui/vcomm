@@ -188,6 +188,8 @@ export class ApiKeysService {
     } else if (input.partnerId) fields.partnerId = "invalidValue";
     // Phạm vi điểm thưởng chỉ cấp cho cửa hàng liên kết ở màn hình Cửa hàng liên kết (QUYTAC_NGHIEPVU_495).
     if (input.scopes.includes("loyalty.member")) fields.scopes = "apiKeyLoyaltyScopeAffiliate";
+    // Phạm vi tặng điểm chỉ cấp ở màn hình Đối tác liên minh (CONG_VIEC_65; QUYTAC_NGHIEPVU_545).
+    if (input.scopes.includes("loyalty.partner")) fields.scopes = "apiKeyLoyaltyPartnerScope";
     const settings = await this.checkSettings(actor, input, fields, null);
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     const generated = generateApiKey();
@@ -225,11 +227,12 @@ export class ApiKeysService {
 
   async update(actor: Actor, id: string, input: z.output<typeof updateApiKeySchema>): Promise<ApiKeyDetail> {
     const current = await this.current(actor, id);
-    if (current.loyaltyOnly) throw new ApiError("BUSINESS_RULE", "apiKeyManagedByAffiliate");
+    if (current.loyaltyOnly) throw new ApiError("BUSINESS_RULE", current.loyaltyPartner ? "apiKeyManagedByLoyaltyPartner" : "apiKeyManagedByAffiliate");
     const fields: Record<string, ErrorMessageKey> = {};
     if (input.scopes.includes("loyalty.member")) fields.scopes = "apiKeyLoyaltyScopeAffiliate";
     const partnerId = (await this.database.execute<{ partner_id: string | null }>(sql`SELECT partner_id FROM core.api_keys WHERE id = ${id}`)).rows[0]?.partner_id ?? null;
     if (partnerId && !(await this.partnerUsable(this.database, actor.companyId, partnerId, input.scopes))) fields.scopes = "apiKeyPartnerInvalid";
+    if (input.scopes.includes("loyalty.partner")) fields.scopes = "apiKeyLoyaltyPartnerScope";
     const settings = await this.checkSettings(actor, input, fields, current.expires_on);
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     try {
@@ -315,7 +318,7 @@ export class ApiKeysService {
   }
 
   // Khóa còn dùng của công ty; khóa đã thu hồi không sửa (QUYTAC_NGHIEPVU_483).
-  private async current(actor: Actor, id: string): Promise<{ key_prefix: string; expires_on: string | null; loyaltyOnly: boolean; audit: Record<string, unknown> }> {
+  private async current(actor: Actor, id: string): Promise<{ key_prefix: string; expires_on: string | null; loyaltyOnly: boolean; loyaltyPartner: boolean; audit: Record<string, unknown> }> {
     const row = (
       await this.database.execute<{
         key_prefix: string;
@@ -338,6 +341,7 @@ export class ApiKeysService {
       key_prefix: row.key_prefix,
       expires_on: row.expires_on,
       loyaltyOnly: row.channel_id === null,
+      loyaltyPartner: row.scopes.includes("loyalty.partner"),
       audit: {
         name: row.name,
         scopes: row.scopes,
@@ -396,17 +400,28 @@ export class ApiKeysService {
   }
 
   // Khóa cửa hàng liên kết (CONG_VIEC_67; QUYTAC_NGHIEPVU_495): loại Đối tác, chỉ phạm vi `loyalty.member`, không kênh, không kho.
-  // Người gọi đã kiểm cửa hàng, điểm bán, IP; ghi trong giao dịch cơ sở dữ liệu của người gọi.
+  // Khóa tặng điểm của đối tác liên minh (CONG_VIEC_65; QUYTAC_NGHIEPVU_545): như trên, phạm vi `loyalty.partner`, ghi nhật ký ở mini app `crm`.
+  // Người gọi đã kiểm cửa hàng hoặc hợp đồng, điểm bán, IP; ghi trong giao dịch cơ sở dữ liệu của người gọi.
   async issueLoyaltyKey(
     executor: Executor & Pick<Database, "insert">,
     actor: Actor,
-    input: { partnerId: string; name: string; rateLimitPerMinute: number; expiresOn: string | null; ips: string[]; merchantId: string },
+    input: {
+      partnerId: string;
+      name: string;
+      rateLimitPerMinute: number;
+      expiresOn: string | null;
+      ips: string[];
+      merchantId?: string;
+      contractId?: string;
+      scope?: "loyalty.member" | "loyalty.partner";
+    },
   ): Promise<{ id: string; secret: string }> {
+    const scope = input.scope ?? "loyalty.member";
     const generated = generateApiKey();
     const id = (
       await executor.execute<{ id: string }>(sql`
       INSERT INTO core.api_keys (company_id, kind, partner_id, name, key_prefix, key_hash, scopes, channel_id, rate_limit_per_minute, expires_on, allowed_ips, created_by, updated_by)
-      VALUES (${actor.companyId}, 'partner', ${input.partnerId}, ${input.name}, ${generated.prefix}, ${generated.hash}, ARRAY['loyalty.member']::text[], NULL, ${input.rateLimitPerMinute},
+      VALUES (${actor.companyId}, 'partner', ${input.partnerId}, ${input.name}, ${generated.prefix}, ${generated.hash}, ARRAY[${scope}]::text[], NULL, ${input.rateLimitPerMinute},
         ${input.expiresOn}::date, ${pgArray(input.ips)}::inet[], ${actor.userId}, ${actor.userId})
       RETURNING id`)
     ).rows[0]!.id;
@@ -414,16 +429,17 @@ export class ApiKeysService {
       {
         actorUserId: actor.userId,
         companyId: actor.companyId,
-        appCode: "affiliate",
+        appCode: scope === "loyalty.partner" ? "crm" : "affiliate",
         action: "api_key.create",
         entityType: "api_key",
         entityId: id,
         afterData: {
           kind: "partner",
           partnerId: input.partnerId,
-          merchantId: input.merchantId,
+          ...(input.merchantId ? { merchantId: input.merchantId } : {}),
+          ...(input.contractId ? { contractId: input.contractId } : {}),
           name: input.name,
-          scopes: ["loyalty.member"],
+          scopes: [scope],
           rateLimitPerMinute: input.rateLimitPerMinute,
           expiresOn: input.expiresOn,
           allowedIps: input.ips,
@@ -442,6 +458,7 @@ export class ApiKeysService {
     id: string,
     input: { name: string; rateLimitPerMinute: number; expiresOn: string | null; ips: string[]; version: number },
     auditExtra: { before: Record<string, unknown>; after: Record<string, unknown> },
+    appCode: "affiliate" | "crm" = "affiliate",
   ): Promise<void> {
     const updated = await executor.execute(sql`
       UPDATE core.api_keys SET name = ${input.name}, rate_limit_per_minute = ${input.rateLimitPerMinute}, expires_on = ${input.expiresOn}::date, allowed_ips = ${pgArray(input.ips)}::inet[],
@@ -452,7 +469,7 @@ export class ApiKeysService {
       {
         actorUserId: actor.userId,
         companyId: actor.companyId,
-        appCode: "affiliate",
+        appCode,
         action: "api_key.update",
         entityType: "api_key",
         entityId: id,

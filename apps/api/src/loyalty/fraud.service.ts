@@ -175,7 +175,8 @@ export class LoyaltyFraudService implements OnModuleInit {
     const documents = await this.database.execute<{ source_type: string; source_id: string; effect: string; user_name: string | null; created_at: Date | string; document_no: string | null }>(sql`
       SELECT d.source_type, d.source_id, d.effect, u.full_name AS user_name, d.created_at,
         CASE d.source_type WHEN 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = d.source_id)
-          WHEN 'retail_sale' THEN (SELECT s.document_no FROM retail.sales s WHERE s.id = d.source_id) END AS document_no
+          WHEN 'retail_sale' THEN (SELECT s.document_no FROM retail.sales s WHERE s.id = d.source_id)
+          WHEN 'partner_exchange' THEN (SELECT x.document_no FROM loyalty.partner_exchanges x WHERE x.id = d.source_id) END AS document_no
       FROM loyalty.fraud_case_documents d LEFT JOIN core.users u ON u.id = d.user_id WHERE d.case_id = ${id} ORDER BY d.created_at, d.id`);
     const accounts = row.device_hash
       ? await this.database.execute<{ full_name: string; phone: string | null }>(sql`

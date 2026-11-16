@@ -27,7 +27,10 @@ export type MarketplacePermission =
   | "affiliate.view"
   | "affiliate.manage"
   // CONG_VIEC_60: chống gian lận nâng cao.
-  | "loyalty.fraud.manage";
+  | "loyalty.fraud.manage"
+  // CONG_VIEC_65: đối tác liên minh điểm.
+  | "loyalty.partner.view"
+  | "loyalty.partner.manage";
 
 export interface BuyerAdminActor {
   userId: string;

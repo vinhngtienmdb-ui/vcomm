@@ -37,6 +37,7 @@
 - Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 80, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
 - Cập nhật CONG_VIEC_59 (2026-11-12): thêm MAN_HINH_210 đến MAN_HINH_217 của MODULE_13 Văn phòng số phần 2 (chữ ký số, trình ký, kho hợp đồng; mini app `web-office`; bản mẫu `ban_mau/MAN_HINH_210` đến `MAN_HINH_217`, đã duyệt 2026-11-12); sửa MAN_HINH_158 (công văn đi: nút Ký số, khối tiến trình phiên ký), MAN_HINH_118 (hợp đồng lao động của Nhân sự: nút Ký số); menu Văn phòng số thêm Trình ký, Hợp đồng, Kiểm tra chữ ký, Cài đặt ký số và hợp đồng
 - Cập nhật CONG_VIEC_60 (2026-11-12): thêm MAN_HINH_218 đến MAN_HINH_223 của MODULE_11 Điểm thưởng phần 2 (đối soát điểm nội bộ trong `web-finance`; quy tắc, vụ việc gian lận, báo cáo, thiết bị của ví điểm trong `web-crm`; bản mẫu MAN_HINH_218 đến 223); sửa MAN_HINH_146 (kiểu chia chi phí), MAN_HINH_147 (thẻ Thiết bị)
+- Cập nhật CONG_VIEC_65 (2026-11-16): thêm MAN_HINH_258 đến MAN_HINH_265 của MODULE_11 Điểm thưởng phần 3 (đối tác liên minh điểm ngoài tập đoàn; quản trị trong `web-crm` nhóm Điểm thưởng; liên kết, đổi điểm trên ứng dụng VComm; bản mẫu MAN_HINH_258 đến 265); sửa MAN_HINH_151 (lối vào, nhãn nguồn), MAN_HINH_147 (nhãn nguồn)
 
 ## MODULE_01 Nền tảng
 
@@ -3050,3 +3051,23 @@ Sửa màn hình đã có (CHUC_NANG_213):
 | MAN_HINH_233 | Dự phòng | — | Chưa dùng | — |
 
 Sửa màn hình đã có: MAN_HINH_174, 176, 180 danh sách giao dịch hiện nhãn "Phần mềm cửa hàng", cách "mã OTP", mã phần mềm; MAN_HINH_176, 180 bảng đối soát thêm dòng F; MAN_HINH_177, 178 hợp đồng thêm Phí mỗi tin OTP SMS. Menu cổng cửa hàng thêm "Kết nối phần mềm" (chủ cửa hàng).
+
+## MODULE_11 Điểm thưởng phần 3: đối tác liên minh điểm ngoài tập đoàn (CONG_VIEC_65)
+
+Bản mẫu đã duyệt 2026-11-12: `ban_mau/MAN_HINH_258_DOI_TAC_LIEN_MINH.html` đến `ban_mau/MAN_HINH_265_DOI_DIEM_DOI_TAC.html`.
+
+| Mã | Màn hình | Đường dẫn | Vai trò |
+|---|---|---|---|
+| MAN_HINH_258 | Đối tác liên minh: danh sách hợp đồng (mã, đối tác, chương trình điểm, chiều, cách thanh toán, số dư trả trước hoặc dư nợ/hạn mức, trạng thái); lọc trạng thái, tìm; tạo | `/crm/loyalty/partners` | `loyalty.partner.view`; tạo: `loyalty.partner.manage` |
+| MAN_HINH_259 | Chi tiết đối tác liên minh: khối Hợp đồng (sửa, kích hoạt, tạm ngưng, chấm dứt), Tỷ lệ quy đổi theo chiều và giai đoạn, Giới hạn, Khóa API (cấp, hiện một lần, sửa, cấp lại, thu hồi, nhật ký gọi), Bộ giả lập (chế độ trả lời, thành viên giả; chỉ hiện khi loại kết nối `simulator`), số dư trả trước hoặc dư nợ | `/crm/loyalty/partners/<id>` | Xem: `loyalty.partner.view`; sửa: `loyalty.partner.manage` |
+| MAN_HINH_260 | Giao dịch đổi điểm đối tác: danh sách đổi ra, đổi vào (lọc đối tác, chiều, trạng thái, ngày), chi tiết; hỏi lại, chốt hoàn tất, hoàn điểm cho giao dịch Cần xử lý | `/crm/loyalty/partner-exchanges` | Xem: `loyalty.partner.view`; xử lý: `loyalty.partner.manage` |
+| MAN_HINH_261 | Điểm đối tác tặng: danh sách giao dịch tặng (lọc đối tác, trạng thái, ngày): số, mã giao dịch đối tác, khách đã che, điểm, tiền, trạng thái | `/crm/loyalty/partner-gifts` | `loyalty.partner.view` |
+| MAN_HINH_262 | Đối soát đối tác liên minh: danh sách bảng tháng (tháng, đối tác, phải thu, phải trả, bù trừ, còn lại, trạng thái, hạn) | `/crm/loyalty/partner-settlements` | `loyalty.partner.view` |
+| MAN_HINH_263 | Chi tiết bảng đối soát đối tác: số liệu A, B, C, bù trừ, còn lại; dòng lệch; chi tiết giao dịch; lập lại; xác nhận kèm ghi chú, tệp biên bản; công nợ, phiếu thu chi | `/crm/loyalty/partner-settlements/<id>` | Xem, tải biên bản: `loyalty.partner.view`; lập lại, xác nhận: `loyalty.partner.manage` |
+| MAN_HINH_264 | Đối tác liên minh (khách): danh sách đối tác đang hoạt động, trạng thái liên kết (số thành viên đã che); liên kết bằng OTP đối tác; hủy liên kết | Ứng dụng VComm `doi-tac-lien-minh` | Người mua |
+| MAN_HINH_265 | Đổi điểm với đối tác: chọn chiều; nhập số đơn vị (bội số), xem số điểm VComm tương ứng, giới hạn còn lại; Smart OTP (đổi ra) hoặc OTP đối tác (đổi vào); kết quả, trạng thái chờ; lịch sử đổi và điểm được tặng | Ứng dụng VComm `doi-diem-doi-tac/<id>` | Người mua |
+
+Sửa: MAN_HINH_151 (Điểm của tôi) thêm lối vào MAN_HINH_264, 265; nhãn nguồn bút toán "Đổi điểm đối tác", "Đối tác tặng"; MAN_HINH_147 (chi tiết ví điểm) hiện nhãn nguồn như trên. Menu `web-crm` nhóm "Điểm thưởng" thêm "Đối tác liên minh", "Giao dịch đổi điểm đối tác", "Điểm đối tác tặng", "Đối soát đối tác liên minh" (hiện theo `loyalty.partner.view`).
+
+- Trạng thái mỗi màn hình: rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; máy tính, máy tính bảng, điện thoại (TIEUCHI_NGHIEMTHU_525). Khóa API rõ chỉ hiện một lần trong hộp sau khi cấp, cấp lại.
+- Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.

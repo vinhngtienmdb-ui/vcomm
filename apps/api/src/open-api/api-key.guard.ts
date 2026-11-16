@@ -25,7 +25,7 @@ export interface OpenApiCaller {
   companyId: string;
   partnerId: string | null;
   customerGroupId: string | null;
-  // Trống với khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67).
+  // Trống với khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67) và khóa tặng điểm của đối tác liên minh (chỉ `loyalty.partner`, CONG_VIEC_65).
   channelId: string | null;
   warehouseIds: string[];
   scopes: ApiKeyScope[];

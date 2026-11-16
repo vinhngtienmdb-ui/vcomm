@@ -386,6 +386,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     affiliate_fee_revenue: "511",
     affiliate_fee_tax: "33311",
     affiliate_voucher_deferred: "3387",
+    loyalty_partner_receivable: "131",
+    loyalty_partner_payable: "331",
+    loyalty_partner_revenue: "511",
+    loyalty_partner_tax: "33311",
   },
   TT133: {
     receivable: "131",
@@ -442,6 +446,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     affiliate_fee_revenue: "5113",
     affiliate_fee_tax: "33311",
     affiliate_voucher_deferred: "3387",
+    loyalty_partner_receivable: "131",
+    loyalty_partner_payable: "331",
+    loyalty_partner_revenue: "5113",
+    loyalty_partner_tax: "33311",
   },
 };
 
@@ -500,4 +508,8 @@ export const roleDescriptions: Record<PostingRole, string> = {
   affiliate_fee_revenue: "Doanh thu phí dịch vụ cửa hàng liên kết",
   affiliate_fee_tax: "Thuế giá trị gia tăng đầu ra của phí dịch vụ cửa hàng liên kết",
   affiliate_voucher_deferred: "Doanh thu chưa thực hiện của voucher đổi bằng điểm",
+  loyalty_partner_receivable: "Phải thu đối tác liên minh điểm (đổi vào, tặng điểm)",
+  loyalty_partner_payable: "Phải trả đối tác liên minh điểm (đổi ra)",
+  loyalty_partner_revenue: "Doanh thu liên minh điểm (chênh lệch giá bán điểm)",
+  loyalty_partner_tax: "Thuế giá trị gia tăng đầu ra của doanh thu liên minh điểm",
 };
