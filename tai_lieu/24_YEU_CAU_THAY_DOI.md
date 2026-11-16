@@ -503,3 +503,14 @@
 - Mức quy mô: Vừa; làm trong CONG_VIEC_68 lát L1.
 - Rủi ro: thấp (đường dẫn cũ giữ nguyên; tham số sai dạng bị bỏ, trang vẫn hiện).
 - Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_68 lát L1, nghiệm thu 2026-11-16, chờ phát hành.
+
+### THAY_DOI_34: Quy tắc chống gian lận "Đổi điểm dồn dập" áp cho đổi điểm ra đối tác liên minh – 2026-11-16
+- Lý do: đổi điểm ra (CONG_VIEC_65) chuyển điểm VComm thành điểm của đối tác ngoài, tức đưa giá trị ra khỏi hệ thống; đây là đường rút điểm điển hình khi tài khoản bị chiếm. Quy tắc 2 của QUYTAC_NGHIEPVU_476 (CONG_VIEC_60, đã duyệt) chỉ xét khi dùng điểm ở đơn VComm và bán tại quầy.
+- Nội dung thay đổi (người dùng chọn phương án 1 ngày 2026-11-16): QUYTAC_NGHIEPVU_476 mục 2 thêm thời điểm xét "đổi điểm ra đối tác liên minh (CONG_VIEC_65)". Đổi ra tính như một lần dùng điểm (cộng vào số lần, số điểm trong 24 giờ, tỷ lệ số dư trên thiết bị mới); xét trước khi trừ điểm theo mức xử lý đã cài: cảnh báo ghi vụ việc với chứng từ là giao dịch đổi (số DL…); chặn thì từ chối "Giao dịch điểm tạm bị chặn để kiểm tra. Vui lòng liên hệ chăm sóc khách hàng.", không tạo giao dịch, không gọi đối tác; chặn và khóa ví thì thêm khóa ví. Chỉ xét quy tắc 2; quy tắc 1 không xét ở đổi ra; đổi vào, tặng điểm không xét.
+- Thành phần bị ảnh hưởng: CONG_VIEC_60 (QUYTAC_NGHIEPVU_476, fraud.ts evaluateRedeem thêm tham số tùy chọn `only`, fraud.service.ts lấy số chứng từ DL…); CONG_VIEC_65 (QUYTAC_NGHIEPVU_542, luồng đổi ra).
+- Dữ liệu, API, giao diện, quyền: không đổi bảng, không đổi ràng buộc (`loyalty.fraud_case_documents.source_type` là cột text, nhận `partner_exchange`). API_307 chiều đổi ra có thể trả 409 `loyaltyFraudBlocked`, đọc tiêu đề `X-Device-Id`. MAN_HINH_221 hiện số giao dịch đổi; MAN_HINH_265 hiện thông báo chặn có sẵn. Không đổi quyền.
+- Ảnh hưởng chức năng cũ: nơi gọi cũ (dùng điểm đơn VComm, bán tại quầy) giữ nguyên hành vi.
+- Kiểm thử cần thực hiện: kịch bản mới trong c65-exchanges (mức cảnh báo ghi vụ việc kèm số DL; mức chặn không trừ điểm, không gọi đối tác, không tạo giao dịch); chạy lại c60-fraud và toàn bộ kiểm thử.
+- Mức quy mô: Nhỏ (mở rộng thời điểm xét của quy tắc đã có, không đổi dữ liệu, kiến trúc); làm trong CONG_VIEC_65 lát L4.
+- Rủi ro: thấp (mặc định chỉ cảnh báo; chặn nhầm chỉ khi quản lý đặt ngưỡng chặn).
+- Trạng thái: Đã phê duyệt 2026-11-16. Đang làm trong CONG_VIEC_65.
