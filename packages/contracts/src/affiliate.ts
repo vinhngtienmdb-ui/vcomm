@@ -158,7 +158,8 @@ export interface MerchantPortalStore extends AffiliateMerchantTerms {
 export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] as const;
 export type AffiliateTransactionMethod = (typeof affiliateTransactionMethods)[number];
 export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
-export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue";
+// CONG_VIEC_60: fraud_rule – quy tắc chống gian lận chặn tích.
+export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue" | "fraud_rule";
 
 export const affiliateTransactionCreateSchema = z
   .object({

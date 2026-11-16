@@ -1,10 +1,12 @@
 // Sổ cái điểm theo chứng từ nguồn chung (CONG_VIEC_51; CHUC_NANG_179, 180; QUYTAC_NGHIEPVU_344, 346 đến 349, 351).
 // Mọi hàm *Within chạy trong giao dịch của bên gọi (đơn VComm; bán, trả hàng tại quầy của CONG_VIEC_53) và khóa dòng ví điểm trước khi đổi số dư.
 import { Inject, Injectable } from "@nestjs/common";
+import type { LoyaltyCostBearer } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { notify } from "../common/notifications";
 import { DATABASE, type Database } from "../database/database.module";
+import { evaluateEarn, evaluateRedeem, evaluateReversal } from "./fraud";
 import { phaseById, phaseOn, type ActivePhase } from "./program.service";
 import { lockAccount, recomputeTiers } from "./tiers";
 
@@ -13,7 +15,7 @@ type Executor = Pick<Database, "execute">;
 export type SaleSourceType = "marketplace_order" | "retail_sale" | "affiliate_transaction";
 export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment" | "affiliate_voucher";
 export type EntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
-export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero";
+export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "fraud_rule";
 export type BlockedReason = "no_phase" | "locked" | "inactive" | "insufficient";
 type Allocation = { lotId: string; points: number; pointValue: number };
 
@@ -34,6 +36,7 @@ type DocumentRow = {
   reversed_points: number;
   shortfall_amount: string;
   earn_status: "pending" | "earned" | "skipped" | "cancelled";
+  device_hash: string | null;
 };
 
 export interface ReturnResult {
@@ -69,6 +72,8 @@ async function addEntry(
     sourceId: string | null;
     companyId: string | null;
     allocations: Allocation[];
+    // Trừ lại điểm đã tích: chứng từ bán gốc, để hạch toán phần thiếu quy tiền theo kiểu chia chi phí của lô chứng từ bán (QUYTAC_NGHIEPVU_469).
+    saleLink?: { sourceType: SaleSourceType; sourceId: string };
   },
 ): Promise<string> {
   const balance = (
@@ -81,6 +86,9 @@ async function addEntry(
   ).rows[0]!.id;
   for (const allocation of input.allocations) {
     await executor.execute(sql`INSERT INTO loyalty.entry_lots (entry_id, lot_id, points, point_value) VALUES (${entryId}, ${allocation.lotId}, ${allocation.points}, ${allocation.pointValue})`);
+  }
+  if (input.saleLink) {
+    await executor.execute(sql`INSERT INTO loyalty.refund_links (entry_id, sale_source_type, sale_source_id) VALUES (${entryId}, ${input.saleLink.sourceType}, ${input.saleLink.sourceId})`);
   }
   if (entryPoster) await entryPoster(executor, entryId);
   return entryId;
@@ -99,13 +107,14 @@ export async function creditLot(
     pointValue: number;
     day: string;
     validityMonths: number;
+    costBearer?: LoyaltyCostBearer;
   },
 ): Promise<string> {
   const lotId = (
     await executor.execute<{ id: string }>(sql`
-    INSERT INTO loyalty.lots (user_id, source_type, source_id, company_id, points, remaining, point_value, earned_on, expires_on)
+    INSERT INTO loyalty.lots (user_id, source_type, source_id, company_id, points, remaining, point_value, earned_on, expires_on, cost_bearer)
     VALUES (${input.userId}, ${input.sourceType}, ${input.sourceId}, ${input.companyId}, ${input.points}, ${input.points}, ${input.pointValue}, ${input.day}::date,
-      (${input.day}::date + make_interval(months => ${input.validityMonths}))::date) RETURNING id`)
+      (${input.day}::date + make_interval(months => ${input.validityMonths}))::date, ${input.costBearer ?? "earning_company"}) RETURNING id`)
   ).rows[0]!.id;
   return addEntry(executor, { ...input, allocations: [{ lotId, points: input.points, pointValue: input.pointValue }] });
 }
@@ -258,6 +267,7 @@ export async function returnSalePoints(
         await addEntry(executor, {
           userId: document.user_id,
           kind: "earn_reversal",
+          saleLink: { sourceType: input.saleSourceType, sourceId: input.saleSourceId },
           points: -taken,
           amount: Math.round((toReverse - taken) * Number(lot?.point_value ?? 0)),
           ...entrySource,
@@ -266,6 +276,8 @@ export async function returnSalePoints(
         });
       }
       reversedPoints = taken;
+      // CONG_VIEC_60 (QUYTAC_NGHIEPVU_476): tích rồi trả hàng lặp lại.
+      await evaluateReversal(executor, { userId: document.user_id, companyId: input.companyId, sourceType: input.saleSourceType, sourceId: input.saleSourceId });
       // Phần điểm thiếu quy ra tiền theo giá trị một điểm lúc tích (quyết định người dùng 2026-11-11).
       shortfallAmount = Math.round((toReverse - taken) * Number(lot?.point_value ?? 0));
       await executor.execute(sql`
@@ -354,7 +366,7 @@ async function documentOf(executor: Executor, sourceType: SaleSourceType, source
     (
       await executor.execute<DocumentRow>(sql`
     SELECT company_id, user_id, document_date::text, goods_amount::text, returned_amount::text, phase_id, multiplier::text, redeemed_points, redeemed_amount::text,
-      refunded_points, refunded_amount::text, expected_points, earned_points, reversed_points, shortfall_amount::text, earn_status
+      refunded_points, refunded_amount::text, expected_points, earned_points, reversed_points, shortfall_amount::text, earn_status, device_hash
     FROM loyalty.document_points WHERE source_type = ${sourceType} AND source_id = ${sourceId} FOR UPDATE`)
     ).rows[0] ?? null
   );
@@ -379,7 +391,18 @@ async function addSpend(executor: Executor, userId: string, companyId: string, a
 // Chốt giai đoạn ngày chứng từ, hạng và hệ số lúc đặt hoặc lúc bán (QUYTAC_NGHIEPVU_346); điểm dự kiến theo tiền hàng trừ tiền điểm.
 export async function snapshotWithin(
   executor: Executor,
-  input: { sourceType: SaleSourceType; sourceId: string; userId: string; companyId: string; day: string; goodsAmount: number; redeemedPoints?: number; redeemedAmount?: number },
+  input: {
+    sourceType: SaleSourceType;
+    sourceId: string;
+    userId: string;
+    companyId: string;
+    day: string;
+    goodsAmount: number;
+    redeemedPoints?: number;
+    redeemedAmount?: number;
+    // CONG_VIEC_60: băm mã cài đặt ứng dụng lúc đặt (QUYTAC_NGHIEPVU_474).
+    deviceHash?: string | null;
+  },
 ): Promise<{ expectedPoints: number }> {
   await lockAccount(executor, input.userId);
   await recomputeTiers(executor, input.userId, "year_start");
@@ -388,9 +411,10 @@ export async function snapshotWithin(
   const redeemedAmount = input.redeemedAmount ?? 0;
   const expectedPoints = phase ? pointsFor(input.goodsAmount - redeemedAmount, phase, multiplier) : 0;
   await executor.execute(sql`
-    INSERT INTO loyalty.document_points (source_type, source_id, company_id, user_id, document_date, goods_amount, phase_id, tier_id, multiplier, redeemed_points, redeemed_amount, expected_points)
+    INSERT INTO loyalty.document_points (source_type, source_id, company_id, user_id, document_date, goods_amount, phase_id, tier_id, multiplier, redeemed_points, redeemed_amount, expected_points,
+      device_hash)
     VALUES (${input.sourceType}, ${input.sourceId}, ${input.companyId}, ${input.userId}, ${input.day}::date, ${input.goodsAmount}, ${phase?.id ?? null}, ${tierId}, ${multiplier},
-      ${input.redeemedPoints ?? 0}, ${redeemedAmount}, ${expectedPoints})`);
+      ${input.redeemedPoints ?? 0}, ${redeemedAmount}, ${expectedPoints}, ${input.deviceHash ?? null})`);
   return { expectedPoints };
 }
 
@@ -409,10 +433,12 @@ export class LoyaltyLedgerService {
   // Dùng điểm cho chứng từ bán (QUYTAC_NGHIEPVU_348): kiểm điều kiện, trừ điểm lô hạn sớm trước, chốt giai đoạn, hạng; 0 điểm thì chỉ chốt.
   async redeemWithin(
     executor: Executor,
-    input: { userId: string; companyId: string; sourceType: SaleSourceType; sourceId: string; day: string; goodsAmount: number; points: number },
+    input: { userId: string; companyId: string; sourceType: SaleSourceType; sourceId: string; day: string; goodsAmount: number; points: number; deviceHash?: string | null },
   ): Promise<{ points: number; amount: number; expectedPoints: number }> {
     if (!Number.isInteger(input.points) || input.points < 0) throw new ApiError("BUSINESS_RULE", "loyaltyRedeemInvalid");
     if (input.points === 0) return { points: 0, amount: 0, ...(await snapshotWithin(executor, input)) };
+    // CONG_VIEC_60 (QUYTAC_NGHIEPVU_475, 476): xét quy tắc chống gian lận trước khi khóa ví điểm.
+    await evaluateRedeem(executor, { ...input, deviceHash: input.deviceHash ?? null });
     await lockAccount(executor, input.userId);
     const quote = await quoteRedemption(executor, input);
     if (quote.blockedReason === "no_phase") throw new ApiError("BUSINESS_RULE", "loyaltyNoPhase");
@@ -460,7 +486,9 @@ export class LoyaltyLedgerService {
       ).rows[0]!.total;
       points = Math.min(points, Math.max(phase.monthlyCapPoints - used, 0));
     }
-    const skipReason: SkipReason | null = account.testBuyer ? "test_buyer" : account.locked ? "locked" : account.inactive ? "inactive" : !phase ? "no_phase" : points <= 0 ? "zero" : null;
+    let skipReason: SkipReason | null = account.testBuyer ? "test_buyer" : account.locked ? "locked" : account.inactive ? "inactive" : !phase ? "no_phase" : points <= 0 ? "zero" : null;
+    // CONG_VIEC_60 (QUYTAC_NGHIEPVU_475, 476): quy tắc chặn thì không tích.
+    if (!skipReason && (await evaluateEarn(executor, { ...input, deviceHash: document.device_hash }))) skipReason = "fraud_rule";
     await executor.execute(sql`
       UPDATE loyalty.document_points SET earn_status = ${skipReason ? "skipped" : "earned"}, skip_reason = ${skipReason}, earned_points = ${skipReason ? null : points},
         earned_value = ${earningValue}, earned_at = now() WHERE source_type = ${input.sourceType} AND source_id = ${input.sourceId}`);
@@ -475,6 +503,7 @@ export class LoyaltyLedgerService {
         pointValue: phase!.pointValue,
         day: input.day,
         validityMonths: phase!.validityMonths,
+        costBearer: phase!.costBearer,
       });
     }
     if (input.countSpend !== false) await addSpend(executor, input.userId, input.companyId, input.goodsAmount);
