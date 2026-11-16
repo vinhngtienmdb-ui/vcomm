@@ -814,3 +814,12 @@
 | YCAU_NGHIEPVU_169 | CHUC_NANG_235 | TIEUCHI_NGHIEMTHU_505 đến 512 | KICHBAN_KIEMTHU_694 đến 702 | `apps/api/src/affiliate/open-affiliate.service.ts`, `open-affiliate.controller.ts`, `transactions.service.ts`, `settlements.service.ts`, `open-api/api-key.guard.ts`, `auth/phone-otp.service.ts`; database migration 0146 đến 0148 |
 
 Quy tắc: QUYTAC_NGHIEPVU_495; bổ sung QUYTAC_NGHIEPVU_392, 394, 396, 397, 400, 402, 403, 404 (THAY_DOI_31). Luồng 63. Màn hình MAN_HINH_231, 232 (233 dự phòng).
+
+## 41. Kiểm tra bao phủ CONG_VIEC_68 – 2026-11-16
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_198, 199 | CHUC_NANG_240 | TIEUCHI_NGHIEMTHU_526 đến 530 | KICHBAN_KIEMTHU_719 đến 724 | `apps/api/src/marketplace/share.service.ts`, `share-page.ts`, `share.controller.ts`, `common/html.ts`, `main.ts`; `apps/mobile-vcomm/src/lib/product-link.ts`, `app/s/[id].tsx`, `app/_layout.tsx`, `app/san-pham/[id].tsx` |
+| YCAU_NGHIEPVU_200, 201 | CHUC_NANG_241 | TIEUCHI_NGHIEMTHU_531 đến 533 | KICHBAN_KIEMTHU_725 đến 728 | `database/migrations/0154_facebook_product_feed.sql`; `apps/api/src/marketplace/product-feed.service.ts`, `product-feed.controller.ts`; `apps/web-crm/src/app/store-settings/page.tsx`; `packages/contracts` (`ProductFeedStatus`) |
+
+Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434). Luồng 65. Màn hình MAN_HINH_266; sửa MAN_HINH_86, 201 (267, 268 không dùng). API_314 đến 317.

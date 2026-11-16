@@ -1938,3 +1938,21 @@ Phần mềm cửa hàng (khóa phạm vi `loyalty.member`, gốc `/api/v1/open/
 | API_300 | `POST /transactions/{partnerTransactionCode}/cancel` | Hủy (`reason`) |
 
 Sửa API đã có: API_206 hợp đồng nhận, trả `smsFee`; API_212 bảng đối soát trả `smsCount`, `smsFeeAmount`; API_208, 213 giao dịch trả `source`, `partnerTransactionCode`, `cashierName` trống khi qua API; API_255 khóa trả `channelId`, `channelName` trống với khóa cửa hàng; API_256, 257 từ chối phạm vi `loyalty.member`, sửa khóa cửa hàng `409`. Nhật ký gọi giữ thêm tham số `from`, `to`.
+
+## 2w. Chia sẻ sản phẩm lên mạng xã hội (MODULE_09, CONG_VIEC_68)
+
+Trang công khai, ngoài tiền tố `/api/v1` (`main.ts` loại trừ khỏi tiền tố chung):
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_314 | `GET /s/{productId}?ref=&ctv=` | Không đăng nhập; 300 lần mỗi phút mỗi địa chỉ | Trang HTML MAN_HINH_266 có thẻ Open Graph; `200` hoặc `404`; `Cache-Control: public, max-age=300`; Content-Security-Policy không cho script |
+| API_315 | `GET /.well-known/apple-app-site-association`, `GET /.well-known/assetlinks.json` | Không đăng nhập | Tệp liên kết ứng dụng `vn.vcomm.app` cho `/s/*`; chưa cấu hình `404` |
+
+Gốc `/api/v1`:
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_316 | `GET /public/product-feeds/facebook/{token}.csv` | Không đăng nhập, mã bí mật | Tệp danh mục CSV chuẩn Facebook; `text/csv; charset=utf-8`; tắt, sai mã `404` |
+| API_317 | `GET /marketplace/product-feed`; `PUT /marketplace/product-feed` (`enabled`, `version`); `POST /marketplace/product-feed/regenerate` (`version`) | xem `marketplace.order.view`; sửa `marketplace.order.manage` | Trả `ProductFeedStatus` (`enabled`, `url` khi có quyền sửa, `tokenCreatedAt`, `lastFetchedAt`, `productCount`, `skippedWithoutImage`, `version`, `canManage`); sai `version` `409 CONFLICT_VERSION`; cửa hàng chưa cài đặt `409 BUSINESS_RULE` |
+
+Biến môi trường: `SHARE_PUBLIC_URL` (địa chỉ công khai trỏ tới máy chủ API), `VCOMM_WEB_URL`, `VCOMM_APP_LINK_BASE`, `APP_STORE_URL`, `GOOGLE_PLAY_URL`, `APPLE_TEAM_ID`, `ANDROID_SHA256_CERT_FINGERPRINTS`; ứng dụng `EXPO_PUBLIC_SHARE_URL`. Ảnh trong thẻ, tệp dùng API hiện có `GET /buyer/shop/images/{id}`. Không sửa API đã có.

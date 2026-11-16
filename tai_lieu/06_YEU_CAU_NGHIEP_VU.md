@@ -621,3 +621,16 @@ YCAU_NGHIEPVU_47 (ứng dụng nhân viên kinh doanh riêng, CONG_VIEC_22 bản
 | Đơn bán (bổ sung) | Khóa API đã tạo, phạm vi mã đơn đối tác, mã đơn đối tác | CONG_VIEC_61 |
 | Khách do đối tác tạo | Hồ sơ đối tác dùng chung đánh dấu khóa đã tạo; phạm vi (đối tác hoặc khóa nội bộ), khóa tạo hoặc gắn, do phạm vi tạo hay gắn do trùng, thời điểm xác nhận đồng ý xử lý dữ liệu cá nhân | CONG_VIEC_66 |
 | Đơn bán (bổ sung) | Tên, điện thoại người nhận giao thẳng (địa chỉ là địa chỉ giao) | CONG_VIEC_66 |
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_198 | Đường dẫn chia sẻ sản phẩm dán lên Facebook, Zalo, Messenger hiện thẻ xem trước có ảnh, tên, giá, mô tả ngắn, tên cửa hàng; giữ mã giới thiệu, mã cộng tác viên | Người mua, cộng tác viên | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_199 | Người nhận bấm đường dẫn: mở ứng dụng VComm nếu đã cài; không thì xem trên bản web hoặc tải ứng dụng | Người nhận đường dẫn | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_200 | Danh mục sản phẩm đang bán trên VComm có mặt trên Facebook Commerce Manager, giá và tình trạng còn hàng tự cập nhật | Quản lý bán hàng VComm | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_201 | Quản trị bật, tắt, lấy đường dẫn, đổi mã bí mật của tệp danh mục; người ngoài không tải được toàn bộ danh mục | Quản lý bán hàng VComm | Người dùng 2026-11-12 |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Tệp danh mục Facebook (bổ sung cài đặt bán hàng) | Bật hay tắt, mã bí mật, thời điểm tạo mã, thời điểm Facebook lấy gần nhất | CONG_VIEC_68 |

@@ -3009,3 +3009,16 @@ Sửa màn hình đã có (CHUC_NANG_213):
 | MAN_HINH_233 | Dự phòng | — | Chưa dùng | — |
 
 Sửa màn hình đã có: MAN_HINH_174, 176, 180 danh sách giao dịch hiện nhãn "Phần mềm cửa hàng", cách "mã OTP", mã phần mềm; MAN_HINH_176, 180 bảng đối soát thêm dòng F; MAN_HINH_177, 178 hợp đồng thêm Phí mỗi tin OTP SMS. Menu cổng cửa hàng thêm "Kết nối phần mềm" (chủ cửa hàng).
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+| Mã | Tên | Mini app | Nội dung | Bản mẫu |
+|---|---|---|---|---|
+| MAN_HINH_266 | Trang chia sẻ sản phẩm công khai | API trả HTML (`/s/<mã sản phẩm>`) | Ảnh, tên, giá ("Từ" khi nhiều giá), Hết hàng, mô tả ngắn, tên cửa hàng; nút Mở ứng dụng VComm, Xem trên web, Tải trên App Store, Tải trên Google Play (khi có cấu hình); câu ghi người giới thiệu khi có mã; trạng thái "Sản phẩm không còn bán."; vi, en theo trình duyệt | `ban_mau/MAN_HINH_266_TRANG_CHIA_SE_SAN_PHAM.html` |
+| MAN_HINH_267, MAN_HINH_268 | Không dùng, trả phiên điều phối | — | — | — |
+
+Sửa màn hình đã có: MAN_HINH_201 nội dung gửi đi dùng đường dẫn `/s/`, thêm câu "Dán lên Facebook, Zalo sẽ hiện ảnh, tên, giá sản phẩm."; MAN_HINH_86 thêm thẻ "Tệp danh mục Facebook" (`ban_mau/SUA_CAI_DAT_BAN_HANG_TEP_DANH_MUC.html`).
+
+Điều hướng: đường dẫn chia sẻ trên mạng xã hội → MAN_HINH_266 → ứng dụng (MAN_HINH_91 hoặc đăng ký) hoặc bản web. Vai trò – màn hình: MAN_HINH_266 mọi người (không đăng nhập); thẻ Tệp danh mục theo mục 58 tài liệu `08`.
+
+Trang MAN_HINH_266 dùng giá trị màu, chữ, khoảng cách chép từ `packages/ui/src/styles.css` (không thêm giá trị vào tài liệu `15`).

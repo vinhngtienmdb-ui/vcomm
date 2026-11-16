@@ -1,9 +1,9 @@
 # CONG_VIEC_68: Chia sẻ sản phẩm lên mạng xã hội (MODULE_09)
 
 - Mô tả: Đường dẫn chia sẻ sản phẩm hiện thẻ xem trước có ảnh, tên, giá trên Facebook, Zalo, Messenger, giữ mã giới thiệu và mã cộng tác viên, mở ứng dụng VComm hoặc bản web; tệp danh mục sản phẩm theo chuẩn Facebook Commerce Manager tự cập nhật giá, tồn.
-- Phiên bản: 0.1
-- Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện (đặc tả, bản mẫu đã duyệt 2026-11-12)
+- Phiên bản: 0.2
+- Ngày cập nhật: 2026-11-16
+- Trạng thái: Chờ nghiệm thu (lát L1, L2 người dùng đã duyệt xem trước)
 - Mức: Vừa (chức năng mới trong MODULE_09; thêm cột vào bảng có sẵn, thêm endpoint; không đổi kiến trúc, không đổi API đang dùng).
 - Nhánh: `chuc-nang/CONG_VIEC_68-chia-se-mang-xa-hoi`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-12; quyết định của người dùng (mục 17).
@@ -102,7 +102,7 @@ Không thêm giá trị vào tài liệu `15`: trang chia sẻ dùng màu, chữ
 
 | Database migration | Bảng, cột                   | Nội dung                                                                                                                                                                                         |
 | ------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0154               | `marketplace.store_settings` | Thêm `facebook_feed_enabled` (boolean, mặc định `false`), `facebook_feed_token` (text, duy nhất, 43 ký tự base64url, có thể trống), `facebook_feed_token_created_at`, `facebook_feed_fetched_at` (timestamptz) |
+| 0154               | `marketplace.store_settings` | Thêm `facebook_feed_enabled` (boolean, mặc định `false`), `facebook_feed_token` (text, duy nhất, 43 ký tự base64url, có thể trống), `facebook_feed_token_created_at`, `facebook_feed_fetched_at` (timestamptz); ràng buộc `store_settings_facebook_feed_enabled_needs_token` (bật thì có mã) |
 
 Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dùng chung.
 
@@ -208,6 +208,8 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 | Tra cứu pháp lý          | Không cần (người dùng quyết định)                                                                       |
 | Sản phẩm chưa có ảnh     | Không đưa vào tệp danh mục; thẻ ghi số sản phẩm bị bỏ                                                   |
 | Duyệt đặc tả, bản mẫu    | Duyệt, làm L1                                                                                            |
+| Xem trước lát L1         | Duyệt, làm L2 (qua phiên điều phối, 2026-11-16)                                                          |
+| Xem trước lát L2         | Duyệt (qua phiên điều phối, 2026-11-16)                                                                  |
 
 ## 18. Thành phần không được thay đổi
 
@@ -222,3 +224,20 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 | --- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | L1  | API_314, API_315; tách `escapeHtml`; nút chia sẻ ứng dụng dùng `/s/`; `s/[id].tsx`; chuỗi dịch; kiểm thử TIEUCHI_NGHIEMTHU_526 đến 530 | Ảnh trang chia sẻ (390, 1360 điểm ảnh; sản phẩm, không còn bán); bảng thẻ Open Graph đọc bằng trình duyệt giả lập máy đọc Facebook; kết quả kiểm thử |
 | L2  | Database migration 0154; API_316, API_317; thẻ Tệp danh mục Facebook ở MAN_HINH_86; kiểm thử TIEUCHI_NGHIEMTHU_531 đến 533         | Tệp CSV mẫu, bảng đối chiếu cột bắt buộc của Facebook; ảnh thẻ (1360, 390 điểm ảnh, tiếng Việt, tiếng Anh)                           |
+
+## 20. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt theo mục 5, 6; dữ liệu công khai chỉ là thông tin đã hiện trên cửa hàng VComm |
+| Giao diện | MAN_HINH_266 và thẻ Tệp danh mục Facebook chụp màn hình chạy thật 1360 và 390 điểm ảnh, tiếng Việt, tiếng Anh; đủ trạng thái tắt, bật, đang tải, lỗi, chỉ xem, không còn bán, hết hàng |
+| Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU_526 đến 532 đạt bằng `apps/api/test/c68-share.test.ts` (7 kiểm thử), `c68-product-feed.test.ts` (4 kiểm thử); 529, 533 đạt thêm bằng chạy bản web ứng dụng và web-crm thật (chuyển `/s/` sang đăng ký có mã; nút chia sẻ tạo `/s/?ref=`; lưu thẻ Bán hàng rồi tắt tệp không lỗi phiên bản) |
+| Kiểm thử toàn bộ máy chủ | Sau khi hợp nhất main 0.10.0: 143 tệp, 760/761 đạt; `c60-fraud` lỗi do vai trò cơ sở dữ liệu cục bộ thiếu quyền đặt `session_replication_role`, cấp quyền rồi chạy lại 4/4 đạt. CI trên GitHub đạt ở mọi commit sau sửa `51adce6` |
+| Kiểm tra kiểu, lint | `pnpm typecheck` 19/19, `pnpm lint` đạt; tệp dịch khớp |
+| Rà soát mã | Sửa: thẻ Tệp danh mục tải lại khi phiên bản cài đặt đổi (lỗi 409 sau khi lưu thẻ Bán hàng); cổng đăng nhập ứng dụng cho `/s/` đi qua; lỗi kiểu trong kiểm thử (CI) |
+| Rà soát bảo mật | Tài liệu `22` mục CONG_VIEC_68: không lỗi mức Nghiêm trọng, Cao; không thêm thư viện; CI Quét bảo mật đạt |
+| Chưa kiểm được | Thẻ xem trước trên Facebook, Zalo thật và Commerce Manager thật (cần tên miền HTTPS công khai, tài khoản của người dùng); mở thẳng ứng dụng bằng liên kết tên miền (cần ứng dụng phát hành) |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `25` gửi phiên điều phối ghi; đề nghị phiếu `24` cho việc QUYTAC_NGHIEPVU_552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 |
+| Thư viện mới | Không |
+| Mã trả lại | MAN_HINH_267, 268; database migration 0155 |
+

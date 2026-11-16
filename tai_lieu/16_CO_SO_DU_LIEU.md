@@ -3895,3 +3895,11 @@ CREATE INDEX signing_requests_source_idx ON office.signing_requests (source_type
 | 0148 | `core.otp_codes` | Ràng buộc dùng chung `otp_codes_purpose_check` định nghĩa lại: `login`, `register`, `password_reset`, `smart_otp`, `affiliate_redeem` (gồm mọi giá trị trên `main` từ 0119) |
 
 Không đổi nguồn chứng từ của `loyalty`, `accounting.journals`, `finance.debt_items`.
+
+## 43. Database migration 0154 – CONG_VIEC_68 (tệp danh mục Facebook)
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0154 | `marketplace.store_settings` | `facebook_feed_enabled` boolean mặc định `false`; `facebook_feed_token` text duy nhất, 43 ký tự base64url hoặc trống; `facebook_feed_token_created_at`, `facebook_feed_fetched_at` timestamptz; ràng buộc `store_settings_facebook_feed_enabled_needs_token` (bật thì có mã) |
+
+Chỉ thêm cột. Database migration 0155 không dùng, trả phiên điều phối.

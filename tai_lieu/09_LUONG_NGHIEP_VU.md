@@ -1287,3 +1287,9 @@ Nguồn: `tai_lieu/cong_viec/CONG_VIEC_59.md` mục 5, 7, 10.
 Luồng 63: người có `affiliate.manage` cấp khóa (MAN_HINH_231) → phần mềm cửa hàng gọi API kèm khóa → kiểm khóa, IP, phạm vi, tần suất, cửa hàng hoạt động, điểm bán → tra điểm (mã thành viên hoặc số điện thoại) → chọn cách: mã thành viên (hoàn tất ngay); số điện thoại (chờ khách xác nhận trên ứng dụng, phần mềm hỏi lại trạng thái); mã OTP (khách có Smart OTP đọc mã; chưa có thì phần mềm yêu cầu gửi SMS, ghi phí tin) → hoàn tất: voucher, trừ điểm, tích điểm (trong hạn mức), bút toán → hủy trước khi chốt tuần qua API hoặc cổng → thứ Hai lập bảng đối soát tuần gồm phí tin nhắn F.
 
 Ngoại lệ: mã giao dịch đối tác đã có trả giao dịch cũ; mã OTP sai không lập giao dịch; Smart OTP sai 5 lần khóa 15 phút; vượt số tin mỗi ngày của khóa `429`.
+
+## MODULE_09 Sàn thương mại điện tử (chia sẻ sản phẩm lên mạng xã hội, CONG_VIEC_68)
+
+Luồng 65: người mua bấm "Chia sẻ sản phẩm" → đường dẫn `/s/<mã sản phẩm>?ref&ctv` → dán lên Facebook, Zalo, Messenger → mạng xã hội đọc thẻ Open Graph (ảnh, tên, giá) → người nhận bấm → tên miền đã liên kết với ứng dụng đã cài thì mở thẳng ứng dụng; không thì trang chia sẻ với nút Mở ứng dụng, Xem trên web, Tải ứng dụng → ứng dụng hoặc bản web xử lý như đường dẫn `/r/`, `/p/`, `/san-pham/` (QUYTAC_NGHIEPVU_434, 325). Song song: quản trị bật tệp danh mục, dán đường dẫn vào Commerce Manager, lịch hằng giờ → Facebook lấy tệp tạo từ giá, tồn mới nhất → Facebook Shop, quảng cáo danh mục liên kết về trang chia sẻ.
+
+Ngoại lệ: sản phẩm ngừng bán thì trang báo "Sản phẩm không còn bán.", lần lấy tệp sau sản phẩm rời danh mục; tạo lại mã thì Commerce Manager báo lỗi lấy tệp đến khi dán đường dẫn mới.

@@ -950,3 +950,14 @@ Không thêm quyền.
 | Cấp lại, thu hồi khóa cửa hàng | Có | Không | Có (MAN_HINH_225) | Không | Không | Không |
 | Xem khóa cửa hàng | Có | Có | Có | Khóa cửa hàng mình (MAN_HINH_232) | Không | Không |
 | Tra điểm, tích, đổi, hủy qua API | — | — | — | — | — | Cửa hàng, điểm bán của khóa |
+
+## 58. Chia sẻ sản phẩm lên mạng xã hội (MODULE_09, CONG_VIEC_68)
+
+Không thêm quyền.
+
+| Thao tác | Người ngoài | Người mua | `marketplace.order.view` | `marketplace.order.manage` |
+|---|---|---|---|---|
+| Xem trang chia sẻ, tệp liên kết ứng dụng | Có | Có | Có | Có |
+| Nút "Chia sẻ sản phẩm" tạo đường dẫn `/s/` | Không | Có (có mã giới thiệu hoặc mã cộng tác viên) | Không | Không |
+| Tải tệp danh mục | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật |
+| Thẻ Tệp danh mục Facebook (MAN_HINH_86) | Không | Không | Xem trạng thái, không thấy đường dẫn | Xem, bật, tắt, sao chép, tạo lại mã |
