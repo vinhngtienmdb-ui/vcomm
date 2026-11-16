@@ -502,7 +502,7 @@
 - Kiểm thử cần thực hiện: c68-share (KICHBAN_KIEMTHU_719 đến 724); kiểm thử ghi nhận mã giới thiệu, cộng tác viên của CONG_VIEC_22, 49; hồi quy toàn bộ.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_68 lát L1.
 - Rủi ro: thấp (đường dẫn cũ giữ nguyên; tham số sai dạng bị bỏ, trang vẫn hiện).
-- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_68 lát L1, nghiệm thu 2026-11-16, chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_68 lát L1, nghiệm thu 2026-11-16, đã phát hành v0.11.0 2026-11-17, chờ triển khai.
 
 ### THAY_DOI_34: Quy tắc chống gian lận "Đổi điểm dồn dập" áp cho đổi điểm ra đối tác liên minh – 2026-11-16
 - Lý do: đổi điểm ra (CONG_VIEC_65) chuyển điểm VComm thành điểm của đối tác ngoài, tức đưa giá trị ra khỏi hệ thống; đây là đường rút điểm điển hình khi tài khoản bị chiếm. Quy tắc 2 của QUYTAC_NGHIEPVU_476 (CONG_VIEC_60, đã duyệt) chỉ xét khi dùng điểm ở đơn VComm và bán tại quầy.
@@ -513,7 +513,7 @@
 - Kiểm thử cần thực hiện: kịch bản mới trong c65-exchanges (mức cảnh báo ghi vụ việc kèm số DL; mức chặn không trừ điểm, không gọi đối tác, không tạo giao dịch); chạy lại c60-fraud và toàn bộ kiểm thử.
 - Mức quy mô: Nhỏ (mở rộng thời điểm xét của quy tắc đã có, không đổi dữ liệu, kiến trúc); làm trong CONG_VIEC_65 lát L4.
 - Rủi ro: thấp (mặc định chỉ cảnh báo; chặn nhầm chỉ khi quản lý đặt ngưỡng chặn).
-- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_65 lát L4 (c65-exchanges 12/12, c60 13/13, toàn bộ 788/788), nghiệm thu 2026-11-16, chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_65 lát L4 (c65-exchanges 12/12, c60 13/13, toàn bộ 788/788), nghiệm thu 2026-11-16, đã phát hành v0.11.0 2026-11-17, chờ triển khai.
 
 ### THAY_DOI_35: Dropship người bán – phí giao qua đơn bán dịch vụ, dùng quyền có sẵn – 2026-11-16
 - Lý do: khi làm CONG_VIEC_62 lát L4, L5, hai điểm khác đặc tả đã duyệt 2026-11-12: cách ghi phí giao của bảng đối soát tuần người bán và quyền riêng cho vận đơn, đối soát người bán.
@@ -526,4 +526,4 @@
 - Kiểm thử cần thực hiện: c62-dropship-resellers (KICHBAN_KIEMTHU_650), hồi quy đơn bán, công nợ, hóa đơn điện tử, toàn bộ kiểm thử.
 - Mức quy mô: Nhỏ trong CONG_VIEC_62 (chưa phát hành; giảm thay đổi cấu trúc dữ liệu dùng chung).
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_62 lát L4, L5, nghiệm thu 2026-11-16, chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_62 lát L4, L5, nghiệm thu 2026-11-16, đã phát hành v0.11.0 2026-11-17, chờ triển khai.

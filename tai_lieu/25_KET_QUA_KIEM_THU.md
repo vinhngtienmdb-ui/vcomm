@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – Phát hành 0.11.0
+
+- Phạm vi: nhánh `phat-hanh/v0.11.0` gộp CONG_VIEC_62 (`7a3e5af`), CONG_VIEC_65 (`b823305`), CONG_VIEC_68 (`5027197`) (pull request #166, commit hợp nhất `4916028`).
+- Gộp: xung đột ở app.module.ts, background-jobs.ts, api-keys.service.ts, contracts open-api.ts, tệp dịch, tài liệu 06, 07, 08, 16, 17, 27 – giữ cả hai phía, đánh lại số mục trùng. Ràng buộc kiểm tra từ 1078 lên 1192; so từng ràng buộc theo giá trị: chỉ core.api_keys_scopes_check thiếu dropship.supplier (0152 định nghĩa lại sau 0133) nên tạo database migration 0156 gồm mọi giá trị main, dropship.supplier, loyalty.partner; api_keys_channel_scope_check đúng với cả hai loại khóa.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 10207 khóa, mobile-warehouse 5/5; toàn bộ kiểm thử API 149 tệp, 814 kiểm thử đạt (lần chạy đầu c55-settlements lỗi đúng lúc 0 giờ giờ Việt Nam, chạy riêng 3/3 đạt, chạy toàn bộ lần hai đạt hết); CI pull request #166 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.11.0` đã gắn tự động.
+
 ## Lần kiểm thử 2026-11-16 – CONG_VIEC_62
 
 - Phạm vi: Dropship (MODULE_16 phần 2) lát L1 đến L5, nhánh `chuc-nang/CONG_VIEC_62-dropship` (pull request #153, commit `7a3e5af`, đã hợp nhất main mới nhất); THAY_DOI_35.
