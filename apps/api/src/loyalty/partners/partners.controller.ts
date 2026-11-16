@@ -269,7 +269,7 @@ export class BuyerPartnersController {
 
   @Post("partner-exchanges")
   createExchange(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerPartnerExchange> {
-    return this.exchanges.create(request.auth.userId, buyerPartnerExchangeCreateSchema.parse(body));
+    return this.exchanges.create(request.auth.userId, buyerPartnerExchangeCreateSchema.parse(body), clientInfo(request).deviceId);
   }
 
   @Post("partner-exchanges/:id/otp")

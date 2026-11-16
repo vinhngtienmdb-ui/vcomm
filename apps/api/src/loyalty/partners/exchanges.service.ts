@@ -27,6 +27,7 @@ import { vietnamToday } from "../../marketplace/shop.service";
 import { creditLot, refundRedeemEntry, spendPointsWithin } from "../ledger.service";
 import { phaseOn } from "../program.service";
 import { maskName, SmartOtpService } from "../smart-otp.service";
+import { deviceHashOf, evaluateRedeem } from "../fraud";
 import { lockAccount } from "../tiers";
 import { assertBuyer, maskMemberNumber, openContract } from "./buyer-partners.service";
 import { PartnerConnectors, type PartnerContractRef } from "./connector";
@@ -242,12 +243,16 @@ export class PartnerExchangesService {
     await executor.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`partner-exchange:${contractId}:${direction}`}))`);
   }
 
-  async create(userId: string, input: { contractId: string; direction: PartnerExchangeDirection; partnerUnits: number; smartOtp?: string | undefined }): Promise<BuyerPartnerExchange> {
-    return input.direction === "outbound" ? this.createOutbound(userId, input) : this.requestInbound(userId, input);
+  async create(
+    userId: string,
+    input: { contractId: string; direction: PartnerExchangeDirection; partnerUnits: number; smartOtp?: string | undefined },
+    deviceId?: string | null,
+  ): Promise<BuyerPartnerExchange> {
+    return input.direction === "outbound" ? this.createOutbound(userId, input, deviceHashOf(deviceId)) : this.requestInbound(userId, input);
   }
 
   // Đổi ra (QUYTAC_NGHIEPVU_542): Smart OTP khi khách đã kích hoạt; trừ điểm VComm từ lô hạn sớm nhất, lưu giao dịch, rồi gọi đối tác cộng điểm.
-  private async createOutbound(userId: string, input: { contractId: string; partnerUnits: number; smartOtp?: string | undefined }): Promise<BuyerPartnerExchange> {
+  private async createOutbound(userId: string, input: { contractId: string; partnerUnits: number; smartOtp?: string | undefined }, deviceHash: string | null): Promise<BuyerPartnerExchange> {
     const prepared = await this.prepare(this.database, userId, input.contractId, "outbound", input.partnerUnits);
     if ((await this.smartOtp.state(this.database, userId)).active) {
       if (!input.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { smartOtp: "required" } });
@@ -264,6 +269,17 @@ export class PartnerExchangesService {
             ${input.partnerUnits}, ${prepared.rate.unit_price}::numeric, ${amount}::numeric, ${`VCX-${randomBytes(9).toString("base64url")}`}, 'sending')
           RETURNING id`)
       ).rows[0]!.id;
+      // Quy tắc chống gian lận 2 "Đổi điểm dồn dập" của CONG_VIEC_60 áp cho đổi ra như một lần dùng điểm, xét trước khi trừ điểm
+      // (quyết định người dùng 2026-11-16; THAY_DOI cho QUYTAC_NGHIEPVU_476). Mức chặn: báo lỗi, giao dịch đổi không được tạo; vụ việc đã ghi riêng.
+      await evaluateRedeem(transaction, {
+        userId,
+        companyId: prepared.terms.company_id,
+        sourceType: "partner_exchange",
+        sourceId: inserted,
+        points: prepared.points,
+        deviceHash,
+        only: ["redeem_burst"],
+      });
       const spent = await spendPointsWithin(transaction, {
         userId,
         companyId: prepared.terms.company_id,

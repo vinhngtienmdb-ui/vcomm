@@ -263,3 +263,42 @@ describe("KICHBAN_KIEMTHU_709: đổi vào bằng OTP đối tác", () => {
     expect((await thao.call("get", `/buyer/loyalty/partner-exchanges/${requested.body.id}`)).status).toBe(404);
   });
 });
+
+describe("Quy tắc chống gian lận 2 cho đổi ra (CONG_VIEC_60 QUYTAC_NGHIEPVU_476, quyết định người dùng 2026-11-16)", () => {
+  it("đổi ra tính như một lần dùng điểm: cảnh báo ghi vụ việc kèm số giao dịch đổi; mức chặn từ chối trước khi trừ điểm, không gọi đối tác", async () => {
+    const { contractId } = await fixture.createContract("Hãng bay Phú Quốc", "0300000104");
+    const an = await fixture.register("0912100009", "Trần Văn An");
+    await fixture.link(an, contractId, "9704123456");
+    await fixture.grantPoints(an.id, 50000);
+    await pool.query(`UPDATE loyalty.fraud_rules SET params = params || '{"maxCount": 1}'::jsonb, action = 'alert' WHERE code = 'redeem_burst'`);
+    try {
+      expect((await outbound(an, contractId, 100)).body.status).toBe("completed");
+      const alerted = await outbound(an, contractId, 100);
+      expect(alerted.body.status).toBe("completed");
+      const cases = await pool.query<{ effect: string; source_type: string; document_no: string }>(
+        `SELECT d.effect, d.source_type, x.document_no FROM loyalty.fraud_case_documents d JOIN loyalty.fraud_cases f ON f.id = d.case_id
+         JOIN loyalty.partner_exchanges x ON x.id = d.source_id WHERE f.user_id = $1 AND f.rule_code = 'redeem_burst'`,
+        [an.id],
+      );
+      expect(cases.rows).toEqual([{ effect: "alerted", source_type: "partner_exchange", document_no: alerted.body.documentNo }]);
+
+      await pool.query("UPDATE loyalty.fraud_rules SET action = 'block' WHERE code = 'redeem_burst'");
+      const before = await balance(an.id);
+      const partnerBefore = await simulatorBalance(contractId, "9704123456");
+      const blocked = await outbound(an, contractId, 100);
+      expect(blocked.status).toBe(409);
+      expect(blocked.body.error.message).toBe("Giao dịch điểm tạm bị chặn để kiểm tra. Vui lòng liên hệ chăm sóc khách hàng.");
+      expect(await balance(an.id)).toBe(before);
+      expect(await simulatorBalance(contractId, "9704123456")).toBe(partnerBefore);
+      const effects = await pool.query<{ effect: string }>(
+        "SELECT d.effect FROM loyalty.fraud_case_documents d JOIN loyalty.fraud_cases f ON f.id = d.case_id WHERE f.user_id = $1 ORDER BY d.created_at",
+        [an.id],
+      );
+      expect(effects.rows.map((row) => row.effect)).toEqual(["alerted", "blocked_redeem"]);
+      const exchanges = await pool.query("SELECT count(*)::int AS total FROM loyalty.partner_exchanges WHERE user_id = $1", [an.id]);
+      expect(exchanges.rows[0].total).toBe(2);
+    } finally {
+      await pool.query(`UPDATE loyalty.fraud_rules SET params = params || '{"maxCount": 5}'::jsonb, action = 'alert' WHERE code = 'redeem_burst'`);
+    }
+  });
+});

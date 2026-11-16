@@ -208,8 +208,13 @@ async function notifyManagers(executor: Executor, hit: Hit): Promise<void> {
 const blocking = (hits: Hit[]) => hits.some((hit) => hit.rule.action !== "alert");
 
 // Dùng điểm (đơn VComm, bán tại quầy): quy tắc 1, 2. Chặn thì ghi vụ việc bằng kết nối riêng rồi báo lỗi; chỉ cảnh báo thì ghi trong giao dịch của bên gọi.
-export async function evaluateRedeem(executor: Executor, input: { userId: string; companyId: string; sourceType: string; sourceId: string; points: number; deviceHash: string | null }): Promise<void> {
+// `only`: chỉ xét các quy tắc này (CONG_VIEC_65: đổi điểm ra đối tác liên minh chỉ xét quy tắc 2, quyết định người dùng 2026-11-16).
+export async function evaluateRedeem(
+  executor: Executor,
+  input: { userId: string; companyId: string; sourceType: string; sourceId: string; points: number; deviceHash: string | null; only?: FraudRuleCode[] },
+): Promise<void> {
   const rules = await rulesOf(executor);
+  if (input.only) for (const code of [...rules.keys()]) if (!input.only.includes(code)) rules.delete(code);
   const hits: Hit[] = [];
   const shared = rules.get("shared_device");
   if (shared) {
