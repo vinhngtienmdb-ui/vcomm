@@ -96,6 +96,8 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage loyalty program, lock point accounts, adjust points",
     isSensitive: true,
   },
+  // CONG_VIEC_60: chống gian lận nâng cao (QUYTAC_NGHIEPVU_479), xét tại công ty vận hành sàn.
+  { code: "loyalty.fraud.manage", appCode: "crm", nameVi: "Sửa quy tắc chống gian lận điểm, xử lý vụ việc", nameEn: "Manage loyalty fraud rules and cases", isSensitive: true },
   // CONG_VIEC_55: cửa hàng liên kết (xét tại công ty vận hành sàn).
   { code: "affiliate.view", appCode: "crm", nameVi: "Xem cửa hàng liên kết, giao dịch, voucher, đối soát", nameEn: "View affiliate stores, transactions, vouchers, settlements", isSensitive: false },
   {
@@ -141,6 +143,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.bank.setup", appCode: "finance", nameVi: "Cài đặt kết nối ngân hàng", nameEn: "Set up bank connections", isSensitive: true },
   { code: "finance.collection.view", appCode: "finance", nameVi: "Xem bảng đối soát thu hộ", nameEn: "View collection statements", isSensitive: false },
   { code: "finance.collection.manage", appCode: "finance", nameVi: "Nhập, gửi bảng đối soát thu hộ", nameEn: "Manage collection statements", isSensitive: false },
+  // CONG_VIEC_60: đối soát nợ nội bộ điểm thưởng giữa công ty vận hành sàn và công ty con (QUYTAC_NGHIEPVU_479).
+  { code: "loyalty.settlement.view", appCode: "finance", nameVi: "Xem bảng đối soát điểm nội bộ", nameEn: "View intercompany loyalty settlements", isSensitive: false },
+  { code: "loyalty.settlement.manage", appCode: "finance", nameVi: "Xác nhận, khiếu nại bảng đối soát điểm nội bộ", nameEn: "Confirm intercompany loyalty settlements", isSensitive: false },
   { code: "finance.collection.setup", appCode: "finance", nameVi: "Khai đơn vị thu hộ", nameEn: "Set up collectors", isSensitive: true },
   { code: "finance.consolidation.view", appCode: "finance", nameVi: "Xem báo cáo hợp nhất (phạm vi tập đoàn)", nameEn: "View consolidated statements", isSensitive: false },
   { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
@@ -250,6 +255,7 @@ const companyAdminPermissions = [
   "marketplace.payment.manage",
   "loyalty.view",
   "loyalty.manage",
+  "loyalty.fraud.manage",
   "affiliate.view",
   "affiliate.manage",
   "marketplace.community.manage",
@@ -283,6 +289,8 @@ const companyAdminPermissions = [
   "finance.bank.setup",
   "finance.collection.view",
   "finance.collection.manage",
+  "loyalty.settlement.view",
+  "loyalty.settlement.manage",
   "finance.collection.setup",
   "retail.sale",
   "retail.return",
@@ -415,6 +423,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.bank.manage",
       "finance.collection.view",
       "finance.collection.manage",
+      "loyalty.settlement.view",
+      "loyalty.settlement.manage",
       "crm.access",
       "crm.partner.view",
       "marketplace.order.view",
@@ -458,6 +468,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.bank.setup",
       "finance.collection.view",
       "finance.collection.manage",
+      "loyalty.settlement.view",
+      "loyalty.settlement.manage",
       "finance.collection.setup",
       "finance.consolidation.view",
       "finance.consolidation.manage",
@@ -544,6 +556,8 @@ export const documentTypeCatalog = [
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
   // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
+  // CONG_VIEC_60: bảng đối soát điểm nội bộ chỉ đánh số, không duyệt (QUYTAC_NGHIEPVU_470).
+  { code: "loyalty.settlement", appCode: "finance", nameVi: "Bảng đối soát điểm nội bộ", nameEn: "Intercompany loyalty settlement", requiresApproval: false },
   // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
   { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },

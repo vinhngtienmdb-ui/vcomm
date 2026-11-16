@@ -187,10 +187,12 @@ export class AffiliateReportsService {
     }
     if (want("phone_declines")) {
       const rows = await this.database.execute<{ merchant_id: string; name: string; day: string; count: number; cashier: string }>(sql`
-        SELECT t.merchant_id, p.name, (t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day, count(*)::int AS count, u.full_name AS cashier
-        FROM affiliate.transactions t JOIN affiliate.merchants m ON m.id = t.merchant_id JOIN crm.partners p ON p.id = m.partner_id JOIN core.users u ON u.id = t.cashier_user_id
+        SELECT t.merchant_id, p.name, (t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day, count(*)::int AS count, coalesce(u.full_name, k.name) AS cashier
+        FROM affiliate.transactions t JOIN affiliate.merchants m ON m.id = t.merchant_id JOIN crm.partners p ON p.id = m.partner_id
+          -- Giao dịch qua Open API không có thu ngân: gom theo khóa, hiện tên khóa (CONG_VIEC_67).
+          LEFT JOIN core.users u ON u.id = t.cashier_user_id LEFT JOIN core.api_keys k ON k.id = t.api_key_id
         WHERE ${merchantFilter} AND t.method = 'phone' AND t.status IN ('declined', 'expired') AND (t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date >= ${since}
-        GROUP BY t.merchant_id, p.name, 3, t.cashier_user_id, u.full_name HAVING count(*) >= 10 ORDER BY 3 DESC`);
+        GROUP BY t.merchant_id, p.name, 3, t.cashier_user_id, t.api_key_id, u.full_name, k.name HAVING count(*) >= 10 ORDER BY 3 DESC`);
       for (const row of rows.rows) alerts.push({ ...empty, kind: "phone_declines", merchantId: row.merchant_id, merchantName: row.name, day: row.day, count: row.count, cashierName: row.cashier });
     }
     if (want("credit_usage")) {

@@ -46,6 +46,7 @@ type MerchantRow = {
   transaction_cap: string;
   payment_term_days: number;
   auto_confirm_days: number;
+  sms_fee: string;
   status: AffiliateMerchantStatus;
   status_reason: string | null;
   version: number;
@@ -87,13 +88,14 @@ export const termsOf = (row: MerchantRow) => ({
   transactionCap: trimDecimal(row.transaction_cap),
   paymentTermDays: row.payment_term_days,
   autoConfirmDays: row.auto_confirm_days,
+  smsFee: trimDecimal(row.sms_fee),
 });
 
 export async function merchantRow(executor: Executor, merchantId: string, companyId: string, lock = false): Promise<MerchantRow> {
   const row = (
     await executor.execute<MerchantRow>(sql`
       SELECT m.id, m.code, m.partner_id, p.code AS partner_code, p.name, p.tax_code, m.contract_no, m.starts_on::text, m.ends_on::text, m.earn_percent::text,
-        m.fee_percent::text, m.credit_limit::text, m.transaction_cap::text, m.payment_term_days, m.auto_confirm_days, m.status, m.status_reason, m.version
+        m.fee_percent::text, m.credit_limit::text, m.transaction_cap::text, m.payment_term_days, m.auto_confirm_days, m.sms_fee::text, m.status, m.status_reason, m.version
       FROM affiliate.merchants m JOIN crm.partners p ON p.id = m.partner_id
       WHERE m.id = ${merchantId} AND m.company_id = ${companyId} ${lock ? sql`FOR UPDATE OF m` : sql``}`)
   ).rows[0];
@@ -247,9 +249,9 @@ export class AffiliateMerchantsService {
       .transaction(async (transaction) => {
         const inserted = await transaction.execute<{ id: string }>(sql`
           INSERT INTO affiliate.merchants (company_id, partner_id, contract_no, starts_on, ends_on, earn_percent, fee_percent, credit_limit, transaction_cap,
-            payment_term_days, auto_confirm_days, created_by, updated_by)
+            payment_term_days, auto_confirm_days, sms_fee, created_by, updated_by)
           VALUES (${actor.operatorCompanyId}, ${input.partnerId}, ${input.contractNo}, ${input.startsOn}, ${input.endsOn}, ${input.earnPercent}, ${input.feePercent},
-            ${input.creditLimit}, ${input.transactionCap}, ${input.paymentTermDays}, ${input.autoConfirmDays}, ${actor.userId}, ${actor.userId})
+            ${input.creditLimit}, ${input.transactionCap}, ${input.paymentTermDays}, ${input.autoConfirmDays}, ${input.smsFee}, ${actor.userId}, ${actor.userId})
           RETURNING id`);
         const merchantId = inserted.rows[0]!.id;
         await this.record(actor, "affiliate_merchant.create", merchantId, input, transaction);
@@ -271,7 +273,7 @@ export class AffiliateMerchantsService {
       await transaction.execute(sql`
         UPDATE affiliate.merchants SET contract_no = ${input.contractNo}, starts_on = ${input.startsOn}, ends_on = ${input.endsOn}, earn_percent = ${input.earnPercent},
           fee_percent = ${input.feePercent}, credit_limit = ${input.creditLimit}, transaction_cap = ${input.transactionCap}, payment_term_days = ${input.paymentTermDays},
-          auto_confirm_days = ${input.autoConfirmDays}, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+          auto_confirm_days = ${input.autoConfirmDays}, sms_fee = ${input.smsFee}, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
         WHERE id = ${merchantId}`);
       await this.record(actor, "affiliate_merchant.update", merchantId, input, transaction);
     });

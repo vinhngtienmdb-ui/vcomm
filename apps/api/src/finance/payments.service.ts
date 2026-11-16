@@ -33,6 +33,7 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { daysBetween, DebtsService, type Executor } from "./debts.service";
 import { financeAudit, financePermissions, requireFinancePermission } from "./finance-context";
+import { assertSettlementPayment, isLoyaltySettlementPaymentKind, refreshSettlementPaid } from "../loyalty/settlement-payments";
 import { checkCustomsOnPost } from "./customs-tax";
 import { averageRate, fundBalance, fundForeignBalance } from "./funds.service";
 
@@ -499,6 +500,8 @@ export class PaymentsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, financePermissions.managePayments);
     await this.database.transaction(async (transaction) => {
       const before = await this.lockEditable(transaction, actor.companyId, id, input.version);
+      // Phiếu nợ nội bộ điểm lập từ bảng đối soát điểm nội bộ, không sửa ở đây (CONG_VIEC_60).
+      if (isLoyaltySettlementPaymentKind(before.kind)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
       if (before.kind === "currency_purchase" || before.kind === "customs_tax_payment" || before.kind === "customs_tax_refund") {
         throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "invalidValue" } });
       }
@@ -666,6 +669,10 @@ export class PaymentsService implements OnModuleInit {
       FROM finance.payments WHERE id = ${id} AND status = 'pending' FOR UPDATE`)
     ).rows[0];
     if (!payment) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    if (isLoyaltySettlementPaymentKind(payment.kind)) {
+      await this.postLoyaltySettlementPayment(transaction, id);
+      return;
+    }
     if (payment.kind === "currency_purchase") return this.postCurrencyPurchase(transaction, id, payment.fund_id, payment.counter_fund_id!, payment.amount);
     // Phiếu nộp, nhận hoàn thuế hải quan: kiểm lại số dư thuế, quỹ rồi ghi sổ; không có công nợ (QUYTAC_NGHIEPVU_416).
     if (payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund") {
@@ -715,6 +722,31 @@ export class PaymentsService implements OnModuleInit {
     }
     await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
     for (const hook of this.postedHooks) await hook(transaction, id);
+  }
+
+  // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu nợ nội bộ điểm không trừ công nợ; kiểm số dư quỹ (phiếu chi) và số còn lại của bảng đối soát.
+  private async postLoyaltySettlementPayment(transaction: Executor, id: string): Promise<void> {
+    const payment = (
+      await transaction.execute<{ company_id: string; kind: "loyalty_intercompany_receipt" | "loyalty_intercompany_payment"; fund_id: string; amount: string; loyalty_settlement_id: string }>(sql`
+      SELECT company_id, kind, fund_id, amount::text, loyalty_settlement_id FROM finance.payments WHERE id = ${id}`)
+    ).rows[0]!;
+    await assertSettlementPayment(transaction, {
+      settlementId: payment.loyalty_settlement_id,
+      companyId: payment.company_id,
+      kind: payment.kind,
+      amount: Number(payment.amount),
+      paymentId: id,
+      lock: true,
+    });
+    const fundStatus = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${payment.fund_id} FOR UPDATE`)).rows[0]!.status;
+    if (fundStatus !== "active") throw new ApiError("BUSINESS_RULE", "fundInactive");
+    if (payment.kind === "loyalty_intercompany_payment") {
+      const balance = (await transaction.execute<{ balance: string }>(sql`SELECT ${fundBalance(payment.fund_id)}::text AS balance`)).rows[0]!.balance;
+      if (Number(payment.amount) > Number(balance) + 0.00005) throw new ApiError("BUSINESS_RULE", "insufficientFundBalance");
+    }
+    await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
+    for (const hook of this.postedHooks) await hook(transaction, id);
+    await refreshSettlementPaid(transaction, id);
   }
 
   // Phiếu ngoại tệ có ngày không sau ngày đánh giá lại đã ghi sổ thì không ghi sổ được (QUYTAC_NGHIEPVU_411).
