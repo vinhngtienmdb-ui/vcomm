@@ -390,6 +390,18 @@ describe("TIEUCHI_NGHIEMTHU_462: báo đã giao ghi sổ nhập mua, xuất bán
   });
 });
 
+describe("TIEUCHI_NGHIEMTHU_462: báo đã giao khi tồn khai báo đã đổi", () => {
+  it("KICHBAN_KIEMTHU_643 (bổ sung khi rà soát): nhà cung cấp hạ tồn khai báo về 0, sản phẩm dropship ngừng sau khi có đơn mua vẫn báo đã giao được", async () => {
+    const sales = await confirmedDropshipOrder([{ variantId: variants.honey!, quantity: "1" }]);
+    const order = await dropshipOrder(sales.dropship[0]!.id);
+    await pool.query("UPDATE purchasing.dropship_products SET declared_quantity = 0, status = 'inactive' WHERE company_id = $1 AND variant_id = $2", [retail, variants.honey]);
+    const delivered = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: today, version: order.version });
+    expect(delivered.status, JSON.stringify(delivered.body)).toBe(201);
+    expect(delivered.body.status).toBe("delivered");
+    await pool.query("UPDATE purchasing.dropship_products SET declared_quantity = 50, status = 'active' WHERE company_id = $1 AND variant_id = $2", [retail, variants.honey]);
+  });
+});
+
 describe("TIEUCHI_NGHIEMTHU_463: giao thất bại", () => {
   it("KICHBAN_KIEMTHU_644: thất bại khi chưa nhà cung cấp nào giao thì hủy đơn bán; khi nhà cung cấp kia đã giao thì đóng phần còn lại", async () => {
     const declaredBefore = (await call(purchaser, "get", `/purchasing/dropship-products?search=${encodeURIComponent("Trà ô long")}`)).body.data[0];

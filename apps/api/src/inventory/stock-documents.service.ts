@@ -818,7 +818,11 @@ export class StockDocumentsService implements OnModuleInit {
       ).rows[0]!;
       if (Number(balance.quantity) < needed.quantity) fields[`lines.${needed.index}.quantity`] = "insufficientStock";
     }
+    // Kho Dropship (CONG_VIEC_62): chỉ có phiếu hệ thống ghi cặp nhập, xuất theo đơn đã giữ chỗ không thời hạn; khả dụng theo tồn khai báo chỉ dùng khi giữ chỗ,
+    // không chặn ghi sổ (nhà cung cấp hạ tồn khai báo, ngừng sản phẩm sau khi đã có đơn mua vẫn ghi được đã giao, trả hàng). Tồn thực đã kiểm ở trên.
+    const dropshipWarehouse = (await executor.execute<{ kind: string }>(sql`SELECT kind FROM inventory.warehouses WHERE id = ${row.warehouse_id}`)).rows[0]?.kind === "dropship";
     for (const [variantId, needed] of neededByVariant) {
+      if (dropshipWarehouse) break;
       if (fields[`lines.${needed.index}.quantity`]) continue;
       const available = await this.reservations.available(executor, row.warehouse_id, row.company_id, variantId);
       if (Number(available) < needed.quantity) fields[`lines.${needed.index}.quantity`] = "insufficientAvailableStock";

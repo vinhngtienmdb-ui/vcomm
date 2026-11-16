@@ -825,6 +825,9 @@ export class SalesOrdersService implements OnModuleInit {
     },
     rejectExceptions: (exceptions: SalesException[]) => never,
   ): Promise<{ orderId: string; documentNo: string }> {
+    // Kho Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_496): đơn VComm, bán lẻ tại quầy không qua móc lập đơn mua dropship nên không xuất từ kho Dropship.
+    const kind = (await transaction.execute<{ kind: string }>(sql`SELECT kind FROM inventory.warehouses WHERE id = ${input.warehouseId}`)).rows[0]?.kind;
+    if (kind === "dropship") throw new ApiError("BUSINESS_RULE", "dropshipWarehouseManual");
     const { lines, giftShortages } = await this.quoteMarketplace(transaction, actor.companyId, input);
     const orderId = (
       await transaction.execute<{ id: string }>(sql`

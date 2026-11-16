@@ -26,6 +26,7 @@ import {
   type PageResponse,
 } from "contracts";
 import type { Response } from "express";
+import { messages } from "i18n";
 import writeXlsxFile from "write-excel-file/node";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -160,7 +161,9 @@ export class DropshipController {
     const parsed = dropshipReconciliationQuerySchema.parse(query);
     const result = await this.returns.reconciliation(await this.actor(request, companyId), parsed);
     if (parsed.format !== "xlsx") return result;
-    const header = ["Nhà cung cấp", "Số đơn đã giao", "Giá trị nhận có thuế", "Giá trị trả lại có thuế", "Đơn chưa có số hóa đơn", "Phải trả cuối kỳ"].map((value) => ({
+    // Tiêu đề cột theo ngôn ngữ của người dùng (cùng chuỗi màn hình MAN_HINH_237).
+    const text = messages[localeOf(request)].dropshipReconciliation;
+    const header = [text.supplier, text.deliveredCount, text.receivedAmount, text.returnedAmount, text.missingInvoiceCount, text.payableBalance].map((value) => ({
       value,
       fontWeight: "bold" as const,
     }));
@@ -174,7 +177,7 @@ export class DropshipController {
     ]);
     response.setHeader("content-type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     response.setHeader("content-disposition", `attachment; filename="doi-soat-dropship-${parsed.from}-${parsed.to}.xlsx"`);
-    response.send(await writeXlsxFile([header, ...rows], { sheet: "Đối soát" }).toBuffer());
+    response.send(await writeXlsxFile([header, ...rows], { sheet: text.title.slice(0, 31) }).toBuffer());
     return undefined;
   }
 }

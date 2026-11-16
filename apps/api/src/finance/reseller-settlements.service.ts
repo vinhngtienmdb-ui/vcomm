@@ -50,6 +50,9 @@ type SettlementRow = {
   version: number;
 };
 
+// Cộng trừ theo đơn vị 0,0001 (số nguyên) để số còn lại khớp đúng ràng buộc A − B − C + D + E của cơ sở dữ liệu.
+const units = (amount: string | number) => Math.round(Number(amount) * 10_000);
+const fromUnits = (value: number) => (value / 10_000).toFixed(4);
 const vatFraction = (rate: string) => (["0", "5", "8", "10"].includes(rate) ? Number(rate) / 100 : 0);
 // Thuế suất phí giao khi công ty chưa chọn sản phẩm dịch vụ phí giao (QUYTAC_NGHIEPVU_509, mặc định 8%).
 const defaultFeeTaxRate = "8";
@@ -147,7 +150,7 @@ export class ResellerSettlementsService {
       if (exists.rows.length > 0) return false;
       const sources = (await transaction.execute<SourceRow>(this.sources(companyId, resellerId, weekEnd))).rows;
       if (sources.length === 0) return false;
-      const sum = (kind: ResellerSettlementLineKind) => sources.filter((row) => row.kind === kind).reduce((total, row) => total + Number(row.amount), 0);
+      const sum = (kind: ResellerSettlementLineKind) => sources.filter((row) => row.kind === kind).reduce((total, row) => total + units(row.amount), 0);
       const rate =
         (
           await transaction.execute<{ vat_rate: string }>(sql`
@@ -155,14 +158,15 @@ export class ResellerSettlementsService {
           WHERE st.company_id = ${companyId}`)
         ).rows[0]?.vat_rate ?? defaultFeeTaxRate;
       const fee = sum("shipping_fee");
-      const tax = Math.round(fee * vatFraction(rate));
+      // Thuế phí giao làm tròn đến đồng.
+      const tax = Math.round((fee / 10_000) * vatFraction(rate)) * 10_000;
       const [issue, returned, collected] = [sum("issue"), sum("return"), sum("collection")];
       const remaining = issue - returned - collected + fee + tax;
       const id = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO finance.reseller_settlements (company_id, reseller_id, week_start, issue_amount, return_amount, collection_amount, fee_amount, fee_tax_rate, fee_tax_amount, remaining_amount)
-        VALUES (${companyId}, ${resellerId}, ${weekStart}::date, ${issue.toFixed(4)}::numeric, ${returned.toFixed(4)}::numeric, ${collected.toFixed(4)}::numeric, ${fee.toFixed(4)}::numeric,
-          ${rate}, ${tax.toFixed(4)}::numeric, ${remaining.toFixed(4)}::numeric) RETURNING id`)
+        VALUES (${companyId}, ${resellerId}, ${weekStart}::date, ${fromUnits(issue)}::numeric, ${fromUnits(returned)}::numeric, ${fromUnits(collected)}::numeric, ${fromUnits(fee)}::numeric,
+          ${rate}, ${fromUnits(tax)}::numeric, ${fromUnits(remaining)}::numeric) RETURNING id`)
       ).rows[0]!.id;
       for (const row of sources)
         await transaction.execute(sql`
@@ -237,10 +241,10 @@ export class ResellerSettlementsService {
           netPrice: row.fee_amount,
         });
         feeOrderId = placed.orderId;
-        tax = Number(placed.taxAmount);
+        tax = units(placed.taxAmount);
         rate = setting.vat_rate;
       }
-      const remaining = Number(row.issue_amount) - Number(row.return_amount) - Number(row.collection_amount) + Number(row.fee_amount) + tax;
+      const remaining = units(row.issue_amount) - units(row.return_amount) - units(row.collection_amount) + units(row.fee_amount) + tax;
       let paymentId: string | null = null;
       if (remaining < 0) {
         if (!input.fundId) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { fundId: "required" } });
@@ -250,16 +254,16 @@ export class ResellerSettlementsService {
         paymentId = (
           await transaction.execute<{ id: string }>(sql`
           INSERT INTO finance.payments (company_id, kind, partner_id, fund_id, payment_date, amount, note, created_by, reseller_settlement_id)
-          VALUES (${actor.companyId}, 'customer_refund', ${row.reseller_id}, ${input.fundId}, ${today}::date, ${(-remaining).toFixed(4)}::numeric,
+          VALUES (${actor.companyId}, 'customer_refund', ${row.reseller_id}, ${input.fundId}, ${today}::date, ${fromUnits(-remaining)}::numeric,
             ${`Trả tiền người bán theo bảng đối soát ${row.document_no}`}, ${actor.userId}, ${id}) RETURNING id`)
         ).rows[0]!.id;
       }
       await transaction.execute(sql`
-        UPDATE finance.reseller_settlements SET status = 'confirmed', fee_order_id = ${feeOrderId}, refund_payment_id = ${paymentId}, fee_tax_amount = ${tax.toFixed(4)}::numeric,
-          fee_tax_rate = coalesce(${rate}, fee_tax_rate), remaining_amount = ${remaining.toFixed(4)}::numeric, confirmed_by = ${actor.userId}, confirmed_at = now(), version = version + 1
+        UPDATE finance.reseller_settlements SET status = 'confirmed', fee_order_id = ${feeOrderId}, refund_payment_id = ${paymentId}, fee_tax_amount = ${fromUnits(tax)}::numeric,
+          fee_tax_rate = coalesce(${rate}, fee_tax_rate), remaining_amount = ${fromUnits(remaining)}::numeric, confirmed_by = ${actor.userId}, confirmed_at = now(), version = version + 1
         WHERE id = ${id}`);
       await this.auditService.record(
-        { ...financeAudit(actor, "reseller_settlement"), action: "reseller_settlement.confirm", entityId: id, afterData: { feeOrderId, paymentId, remaining } },
+        { ...financeAudit(actor, "reseller_settlement"), action: "reseller_settlement.confirm", entityId: id, afterData: { feeOrderId, paymentId, remaining: fromUnits(remaining) } },
         transaction,
       );
     });

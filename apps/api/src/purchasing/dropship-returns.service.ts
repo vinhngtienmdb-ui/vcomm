@@ -165,21 +165,27 @@ export class DropshipReturnsService {
       received: string;
       returned: string;
       supplier_invoice_no: string | null;
+      in_period: boolean;
     }>(sql`
-      SELECT po.id, po.document_no, so.document_no AS sales_order_no, po.supplier_id, s.name AS supplier_name, po.delivered_on, (po.total_amount + po.tax_amount)::text AS received,
+      SELECT po.id, po.delivered_on BETWEEN ${query.from}::date AND ${query.to}::date AS in_period, po.document_no, so.document_no AS sales_order_no, po.supplier_id, s.name AS supplier_name, po.delivered_on, (po.total_amount + po.tax_amount)::text AS received,
         coalesce((SELECT sum(di.amount) FROM finance.debt_items di JOIN inventory.documents r ON r.id = di.source_id
           JOIN inventory.documents rc ON rc.id = r.source_id
           WHERE di.source_type = 'purchase_return' AND r.type = 'purchase_return' AND r.status = 'posted' AND rc.source_id = po.id
             AND r.document_date BETWEEN ${query.from}::date AND ${query.to}::date), 0)::text AS returned,
         po.supplier_invoice_no
       FROM purchasing.orders po JOIN crm.partners s ON s.id = po.supplier_id JOIN sales.orders so ON so.id = po.dropship_sales_order_id
-      WHERE po.company_id = ${actor.companyId} AND po.dropship_status = 'delivered' AND po.delivered_on BETWEEN ${query.from}::date AND ${query.to}::date
+      -- Đơn giao trong kỳ, hoặc giao kỳ trước mà có phiếu trả hàng mua ghi sổ trong kỳ (trả hàng tính vào kỳ ghi sổ phiếu trả).
+      WHERE po.company_id = ${actor.companyId} AND po.dropship_status = 'delivered'
+        AND (po.delivered_on BETWEEN ${query.from}::date AND ${query.to}::date OR EXISTS (
+          SELECT 1 FROM inventory.documents r JOIN inventory.documents rc ON rc.id = r.source_id
+          WHERE r.type = 'purchase_return' AND r.status = 'posted' AND rc.source_id = po.id AND r.document_date BETWEEN ${query.from}::date AND ${query.to}::date))
         AND (${query.supplierId ?? null}::uuid IS NULL OR po.supplier_id = ${query.supplierId ?? null}::uuid)
       ORDER BY s.name, po.delivered_on, po.document_no`);
     const suppliers = [...new Map(orders.rows.map((row) => [row.supplier_id, row.supplier_name])).entries()];
     const rows: DropshipReconciliationRow[] = [];
     for (const [supplierId, supplierName] of suppliers) {
-      const own = orders.rows.filter((row) => row.supplier_id === supplierId);
+      const all = orders.rows.filter((row) => row.supplier_id === supplierId);
+      const own = all.filter((row) => row.in_period);
       const balance = (
         await this.database.execute<{ balance: string }>(sql`
         SELECT coalesce(sum(CASE WHEN direction = 'debit' THEN amount ELSE -amount END), 0)::text AS balance FROM finance.debt_items
@@ -190,7 +196,7 @@ export class DropshipReturnsService {
         supplierName,
         deliveredCount: own.length,
         receivedAmount: trimDecimal(own.reduce((sum, row) => sum + Number(row.received), 0).toFixed(4)),
-        returnedAmount: trimDecimal(own.reduce((sum, row) => sum + Number(row.returned), 0).toFixed(4)),
+        returnedAmount: trimDecimal(all.reduce((sum, row) => sum + Number(row.returned), 0).toFixed(4)),
         missingInvoiceCount: own.filter((row) => !row.supplier_invoice_no).length,
         payableBalance: trimDecimal(balance),
       });
@@ -215,7 +221,7 @@ export class DropshipReturnsService {
             documentNo: row.document_no,
             salesOrderNo: row.sales_order_no,
             deliveredOn: day(row.delivered_on),
-            receivedAmount: trimDecimal(row.received),
+            receivedAmount: row.in_period ? trimDecimal(row.received) : "0",
             returnedAmount: trimDecimal(row.returned),
             supplierInvoiceNo: row.supplier_invoice_no,
           }))

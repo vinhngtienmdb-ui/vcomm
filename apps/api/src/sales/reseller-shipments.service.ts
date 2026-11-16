@@ -281,20 +281,24 @@ export class ResellerShipmentsService implements OnModuleInit {
   // Hủy vận đơn trước khi lấy hàng: hủy với đơn vị vận chuyển, xóa phiếu xuất nháp; đơn bán giữ nguyên để tạo vận đơn khác.
   async cancel(actor: Actor, orderId: string, version: number): Promise<ResellerShipmentOrder> {
     const order = await this.operableOrder(actor, orderId);
+    const shipment = await this.activeShipment(this.database, orderId, false);
+    if (!shipment?.carrier_code) throw new ApiError("BUSINESS_RULE", "resellerShipmentNotCarrier");
+    if (shipment.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    if (shipment.tracking_code === null) throw new ApiError("BUSINESS_RULE", "shipmentRequesting");
+    if (shipment.shipping_status !== "awaiting_pickup") throw new ApiError("BUSINESS_RULE", "resellerShipmentStatusInvalid");
+    // Gọi đơn vị vận chuyển ngoài giao dịch (không giữ khóa dòng trong lúc chờ); đơn vị vận chuyển từ chối thì không đổi gì.
+    await this.adapterOf(shipment.carrier_code)
+      .cancelShipment(shipment.tracking_code, order.document_no!)
+      .catch((error: unknown) => {
+        throw this.failure(error, "carrierCancelRejected");
+      });
     await this.database.transaction(async (transaction) => {
       await transaction.execute(sql`SELECT 1 FROM sales.orders WHERE id = ${orderId} FOR UPDATE`);
-      const shipment = await this.activeShipment(transaction, orderId, true);
-      if (!shipment?.carrier_code) throw new ApiError("BUSINESS_RULE", "resellerShipmentNotCarrier");
-      if (shipment.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      if (shipment.tracking_code === null) throw new ApiError("BUSINESS_RULE", "shipmentRequesting");
-      if (shipment.shipping_status !== "awaiting_pickup") throw new ApiError("BUSINESS_RULE", "resellerShipmentStatusInvalid");
-      await this.adapterOf(shipment.carrier_code)
-        .cancelShipment(shipment.tracking_code, order.document_no!)
-        .catch((error: unknown) => {
-          throw this.failure(error, "carrierCancelRejected");
-        });
+      const current = await this.activeShipment(transaction, orderId, true);
+      // Đã hủy với đơn vị vận chuyển: ghi nhận dù vận đơn vừa đổi phiên bản (ví dụ webhook cùng lúc); chỉ bỏ qua khi không còn là vận đơn đó.
+      if (!current || current.id !== shipment.id) return;
       await transaction.execute(sql`UPDATE sales.order_shipments SET carrier_status = 'cancel', synced_at = now() WHERE id = ${shipment.id}`);
-      await this.advance(transaction, shipment, "cancelled", actor, false);
+      await this.advance(transaction, current, "cancelled", actor, false);
       await this.audit(transaction, actor, orderId, "reseller_shipment.cancel", { trackingCode: shipment.tracking_code });
     });
     return (await this.orderView(orderId))!;
