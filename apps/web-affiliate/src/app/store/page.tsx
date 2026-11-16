@@ -135,6 +135,8 @@ export default function StorePage() {
                 <dd>{formatNumber(store.transactionCap, 0)} đ</dd>
                 <dt>{t("settlement")}</dt>
                 <dd>{t("settlementValue", { confirm: store.autoConfirmDays, pay: store.paymentTermDays })}</dd>
+                <dt>{t("smsFee")}</dt>
+                <dd>{formatNumber(store.smsFee, 0)} đ</dd>
               </dl>
               <p className="chu-thich">{t("contractHint")}</p>
             </section>

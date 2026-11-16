@@ -1,6 +1,12 @@
 // API_206: cửa hàng liên kết trên web quản trị (CONG_VIEC_55). Quyền xét tại công ty vận hành sàn.
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  affiliateApiKeyCreateSchema,
+  affiliateApiKeyUpdateSchema,
+  revokeApiKeySchema,
+  rotateApiKeySchema,
+  type AffiliateApiKeyItem,
+  type AffiliateApiKeySecret,
   affiliateMemberVersionSchema,
   affiliateMerchantCreateSchema,
   affiliateMerchantListQuerySchema,
@@ -35,6 +41,7 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
+import { AffiliateApiKeysService } from "./api-keys.service";
 import { AffiliateMerchantsService } from "./merchants.service";
 import { AffiliateReportsService } from "./reports.service";
 import { AffiliateTransactionsService } from "./transactions.service";
@@ -50,6 +57,7 @@ export class AffiliateController {
     private readonly settlements: AffiliateSettlementsService,
     private readonly reports: AffiliateReportsService,
     private readonly transactions: AffiliateTransactionsService,
+    private readonly apiKeys: AffiliateApiKeysService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -197,6 +205,35 @@ export class AffiliateController {
   @HttpCode(200)
   async resolveSettlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateSettlementDetail> {
     return this.settlements.resolve(await this.settlementActor(request, "affiliate.manage"), id, affiliateSettlementResolveSchema.parse(body));
+  }
+
+  // API_295: khóa API của cửa hàng (CONG_VIEC_67; QUYTAC_NGHIEPVU_495).
+  @Get("merchants/:id/api-keys")
+  async listApiKeys(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateApiKeyItem[]> {
+    return this.apiKeys.list(await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view"), id);
+  }
+
+  @Post("merchants/:id/api-keys")
+  async createApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeySecret> {
+    return this.apiKeys.create(await this.manager(request), id, affiliateApiKeyCreateSchema.parse(body));
+  }
+
+  @Put("api-keys/:id")
+  async updateApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeyItem> {
+    return this.apiKeys.update(await this.manager(request), id, affiliateApiKeyUpdateSchema.parse(body));
+  }
+
+  @Post("api-keys/:id/rotate")
+  @HttpCode(200)
+  async rotateApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeySecret> {
+    return this.apiKeys.rotate(await this.manager(request), id, rotateApiKeySchema.parse(body).version);
+  }
+
+  @Post("api-keys/:id/revoke")
+  @HttpCode(200)
+  async revokeApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeyItem> {
+    const input = revokeApiKeySchema.parse(body);
+    return this.apiKeys.revoke(await this.manager(request), id, input.reason, input.version);
   }
 
   private async companyIssued(actor: VoucherActor, id: string): Promise<void> {

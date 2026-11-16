@@ -5,6 +5,16 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## 2026-11-16
+
+### Công việc đã thực hiện
+
+- Người dùng nghiệm thu CONG_VIEC_67 (Cửa hàng liên kết phần 2), pull request #145 (kiểm thử 737/737). Người dùng duyệt lát L2 CONG_VIEC_65, lát L2 CONG_VIEC_62, lát L1 CONG_VIEC_68.
+
+### Quyết định
+
+- Phát hành 0.10.0 gồm CONG_VIEC_60, 67 ngay; dành database migration 0156 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần. Chưa triển khai.
+
 ## 2026-11-12
 
 ### Công việc đã thực hiện

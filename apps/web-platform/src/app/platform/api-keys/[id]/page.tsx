@@ -111,7 +111,7 @@ export default function ApiKeyDetailPage() {
                       <ScopeList scopes={key.scopes} />
                     </dd>
                     <dt>{t("channelShort")}</dt>
-                    <dd>{key.channelName}</dd>
+                    <dd>{key.channelName ?? "—"}</dd>
                     <dt>{t("warehousesShort")}</dt>
                     <dd>{key.warehouses.map((warehouse) => `${warehouse.code} · ${warehouse.name}`).join(", ") || common("none")}</dd>
                     <dt>{t("rateLimit")}</dt>

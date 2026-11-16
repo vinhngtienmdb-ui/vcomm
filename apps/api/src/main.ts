@@ -20,7 +20,8 @@ export function configureApplication(application: NestExpressApplication): NestE
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
-  if (appOrigins.length > 0) application.enableCors({ origin: appOrigins, credentials: false, allowedHeaders: ["authorization", "content-type", "x-company-id", "accept-language"], maxAge: 600 });
+  if (appOrigins.length > 0)
+    application.enableCors({ origin: appOrigins, credentials: false, allowedHeaders: ["authorization", "content-type", "x-company-id", "accept-language", "x-device-id"], maxAge: 600 });
   return application;
 }
 
