@@ -11,11 +11,19 @@
 
 - Phát hành 0.10.0 (pull request #159, commit hợp nhất `b3e0b3f`): CONG_VIEC_60 (liên minh điểm trong tập đoàn, chống gian lận), CONG_VIEC_67 (Cửa hàng liên kết phần 2); THAY_DOI_31. Kiểm thử API 141 tệp, 750/750. Không tạo database migration 0156 (mỗi ràng buộc dùng chung chỉ định nghĩa lại một lần, hai cách chạy cùng 1078 ràng buộc kiểm tra). Không thêm thư viện. Chưa triển khai.
 - CONG_VIEC_62 xong lát L3, CONG_VIEC_65 xong lát L3, CONG_VIEC_68 xong lát L2; chờ người dùng xem trước.
+- Người dùng duyệt lát L3 CONG_VIEC_62, lát L3 CONG_VIEC_65, lát L2 CONG_VIEC_68. Ba nhánh đã hợp nhất main 0.10.0. Cấp TIEUCHI_NGHIEMTHU_534, KICHBAN_KIEMTHU_729, 730 cho CONG_VIEC_62 lát L4.
+- CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội, MODULE_09) lát L1, L2: người dùng nghiệm thu; pull request #157 (commit `130bf70`; kiểm thử 760/761, lỗi còn lại c60-fraud do quyền cơ sở dữ liệu cục bộ, chạy lại đạt): trang chia sẻ /s/ có thẻ Open Graph giữ mã giới thiệu, cộng tác viên; tệp danh mục Facebook Commerce Manager có mã bí mật; database migration 0154; API_314 đến 317. Không dùng MAN_HINH_267, 268, database migration 0155. Cấp THAY_DOI_33 (đường dẫn chia sẻ /s/ thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434), người dùng duyệt 2026-11-16.
 - Người dùng nghiệm thu CONG_VIEC_67 (Cửa hàng liên kết phần 2), pull request #145 (kiểm thử 737/737). Người dùng duyệt lát L2 CONG_VIEC_65, lát L2 CONG_VIEC_62, lát L1 CONG_VIEC_68.
 
 ### Quyết định
 
 - Phát hành 0.10.0 gồm CONG_VIEC_60, 67 ngay; dành database migration 0156 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần. Chưa triển khai.
+- Quy tắc chống gian lận 2 (QUYTAC_NGHIEPVU_476) áp dụng đủ cho chiều đổi điểm ra của CONG_VIEC_65 (làm trong lát L4; phiếu tài liệu 24 lập sau).
+- CONG_VIEC_68: trang chia sẻ do API trả HTML; tên miền qua biến SHARE_PUBLIC_URL; tệp danh mục gồm mọi sản phẩm đang bán, sản phẩm chưa có ảnh không đưa vào; mã bí mật quản lý trên web; không thêm thư viện (người dùng chọn 2026-11-12).
+
+### Vấn đề tồn đọng
+
+- CONG_VIEC_68: thử thẻ trên Facebook, Zalo và Commerce Manager thật khi có tên miền HTTPS; khai liên kết tên miền trong bản dựng ứng dụng khi phát hành ứng dụng.
 
 ## 2026-11-12
 
