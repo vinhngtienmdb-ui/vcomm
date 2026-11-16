@@ -313,6 +313,7 @@ function ReportTab() {
 function TransactionsTab() {
   const t = useTranslations("affiliateReport");
   const counter = useTranslations("merchantPortal");
+  const affiliate = useTranslations("affiliate");
   const { membership } = usePortal();
   const today = vietnamToday();
   const [filter, setFilter] = useState({ from: firstOfMonth(today), to: today, outletId: "", status: "", search: "" });
@@ -389,7 +390,15 @@ function TransactionsTab() {
                       <td data-nhan={t("column_document")}>{item.documentNo}</td>
                       <td data-nhan={t("column_time")}>{formatDateTime(item.createdAt)}</td>
                       <td data-nhan={t("outlet")}>{item.outletName}</td>
-                      <td data-nhan={t("column_method")}>{counter(`method_${item.method}`)}</td>
+                      <td data-nhan={t("column_method")}>
+                        {counter(`method_${item.method}`)}
+                        {item.source === "open_api" && (
+                          <>
+                            {" "}
+                            <span className="nhan thong-tin">{affiliate("source_open_api")}</span>
+                          </>
+                        )}
+                      </td>
                       <td data-nhan={t("billAmount")} className="so">
                         {money(item.billAmount)}
                       </td>
