@@ -181,6 +181,7 @@ function SettingsDrawer({ onClose }: { onClose: () => void }) {
   const { state } = useApi<SalesSettingsResponse>("/sales/settings");
   const [percent, setPercent] = useState<string | null>(null);
   const [allowGoods, setAllowGoods] = useState<boolean | null>(null);
+  const [feeVariantId, setFeeVariantId] = useState<string | null>(null);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const current = state.kind === "ready" ? state.data : null;
   function submit(event: FormEvent) {
@@ -192,6 +193,7 @@ function SettingsDrawer({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({
           maxManualDiscountPercent: percent ?? current.maxManualDiscountPercent,
           allowManualGoodsOrders: allowGoods ?? current.allowManualGoodsOrders,
+          dropshipFeeVariantId: (feeVariantId ?? current.dropshipFeeVariantId) || null,
           version: current.version,
         }),
       });
@@ -216,6 +218,22 @@ function SettingsDrawer({ onClose }: { onClose: () => void }) {
             <input id="don-tay-hang-hoa" type="checkbox" checked={allowGoods ?? current?.allowManualGoodsOrders ?? false} onChange={(event) => setAllowGoods(event.target.checked)} />{" "}
             {t("allowManualGoodsOrders")}
           </label>
+        </Field>
+        {/* CONG_VIEC_62 (QUYTAC_NGHIEPVU_509): sản phẩm dịch vụ lập đơn phí giao khi xác nhận bảng đối soát người bán dropship. */}
+        <Field id="phi-giao-dropship" label={t("dropshipFeeProduct")} hint={t("dropshipFeeProductHint")} error={fields.dropshipFeeVariantId}>
+          <select
+            id="phi-giao-dropship"
+            className={inputClass("dropshipFeeVariantId")}
+            value={feeVariantId ?? current?.dropshipFeeVariantId ?? ""}
+            onChange={(event) => setFeeVariantId(event.target.value)}
+          >
+            <option value="">{t("dropshipFeeProductNone")}</option>
+            {(current?.dropshipFeeOptions ?? []).map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name} · {option.vatRate}%
+              </option>
+            ))}
+          </select>
         </Field>
         <FormError text={formError} />
         <div className="nhom-nut">

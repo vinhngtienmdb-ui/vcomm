@@ -264,6 +264,30 @@ export class SalesDeliveriesService {
     await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.submit", entityId: id, afterData: { documentNo } }, transaction);
   }
 
+  // Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_501): lập và ghi sổ phiếu xuất các dòng đơn bán của nhà cung cấp đã giao, không xét quyền kho.
+  async issueAsSystem(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; lines: { orderLineId: string; quantity: string }[] }): Promise<string> {
+    const documentId = await this.draftIssueAsSystem(transaction, actor, input);
+    await this.postDraftAsSystem(transaction, documentId, actor);
+    return documentId;
+  }
+
+  // Phiếu xuất nháp không xét quyền kho: dùng cho issueAsSystem và vận đơn đơn người bán dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_507),
+  // ghi sổ khi đơn vị vận chuyển lấy hàng như đơn VComm.
+  async draftIssueAsSystem(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; lines: { orderLineId: string; quantity: string }[] }): Promise<string> {
+    const order = await this.order(transaction, input.orderId, true);
+    const issueInput = { orderId: input.orderId, documentDate: input.documentDate, note: null, lines: input.lines.map((line) => ({ ...line, serials: [] })) } as unknown as IssueInput;
+    const { documentInput, sourceLines } = await this.issueInput(order, issueInput);
+    const prepared = await this.documents.prepare(null, documentInput, inventoryPermissions.issueSales);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${order.company_id}, ${order.warehouse_id}, 'sales_issue', ${input.documentDate}::date, 'sale', ${documentInput.reason}, NULL, ${salesOrderSource}, ${order.id},
+        ${order.customer_id}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
+    return documentId;
+  }
+
   // Đơn VComm (CONG_VIEC_24): ghi sổ phiếu xuất nháp khi đơn vị vận chuyển lấy hàng, không xét quyền kho; dãy số đã tạo lúc giao đơn.
   async postDraftAsSystem(transaction: Executor, documentId: string, actor: Actor): Promise<void> {
     const row = (
@@ -287,13 +311,16 @@ export class SalesDeliveriesService {
   async returnAsSystem(
     transaction: Executor,
     actor: Actor,
-    input: { issueId: string; documentDate: string; reason: string; lines: { issueLineId: string; quantity: string; serials?: string[] }[] },
+    input: { issueId: string; documentDate: string; reason: string; lines: { issueLineId: string; quantity: string; serials?: string[] }[]; warehouseId?: string },
   ): Promise<string> {
     const issue = (
       await transaction.execute<{ id: string; company_id: string; warehouse_id: string; partner_id: string | null; status: string; type: string }>(sql`
       SELECT id, company_id, warehouse_id, partner_id, status, type FROM inventory.documents WHERE id = ${input.issueId}`)
     ).rows[0];
     if (!issue || issue.type !== "sales_issue" || issue.status !== "posted") throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
+    // Dropship trả về kho công ty (CONG_VIEC_62; QUYTAC_NGHIEPVU_503): nhận vào kho khác kho xuất; không giữ lô, vị trí của kho gốc.
+    const warehouseId = input.warehouseId ?? issue.warehouse_id;
+    const otherWarehouse = warehouseId !== issue.warehouse_id;
     const issueLines = new Map((await this.documents.lines(issue.id, transaction)).map((line) => [line.id, line]));
     const lines = input.lines.map((line) => {
       const source = issueLines.get(line.issueLineId);
@@ -309,7 +336,7 @@ export class SalesDeliveriesService {
         manufacturedOn: source.manufactured_on,
         expiresOn: source.expires_on,
         lotOverrideReason: null,
-        locationId: source.location_id,
+        locationId: otherWarehouse ? null : source.location_id,
         destinationLocationId: null,
         serials: line.serials ?? [],
         responsibleUserId: null,
@@ -318,7 +345,7 @@ export class SalesDeliveriesService {
     });
     const documentInput = {
       type: "sales_return",
-      warehouseId: issue.warehouse_id,
+      warehouseId,
       companyId: issue.company_id,
       documentDate: input.documentDate,
       reasonCode: "sales_return",
@@ -330,7 +357,7 @@ export class SalesDeliveriesService {
     const documentId = (
       await transaction.execute<{ id: string }>(sql`
       INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
-      VALUES (${issue.company_id}, ${issue.warehouse_id}, 'sales_return', ${input.documentDate}::date, 'sales_return', ${input.reason}, NULL, 'inventory.document', ${issue.id},
+      VALUES (${issue.company_id}, ${warehouseId}, 'sales_return', ${input.documentDate}::date, 'sales_return', ${input.reason}, NULL, 'inventory.document', ${issue.id},
         ${issue.partner_id}, ${actor.userId}) RETURNING id`)
     ).rows[0]!.id;
     await this.writeLines(
@@ -342,7 +369,7 @@ export class SalesDeliveriesService {
     );
     await this.postDraft(
       transaction,
-      { id: documentId, type: "sales_return", company_id: issue.company_id, warehouse_id: issue.warehouse_id, source_id: issue.id, reason_code: "sales_return", stocktake_id: null },
+      { id: documentId, type: "sales_return", company_id: issue.company_id, warehouse_id: warehouseId, source_id: issue.id, reason_code: "sales_return", stocktake_id: null },
       actor,
     );
     return documentId;

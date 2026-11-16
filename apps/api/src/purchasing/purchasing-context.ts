@@ -17,6 +17,9 @@ export const purchasingPermissions = {
   // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
   viewBudgets: "purchasing.budget.view",
   manageBudgets: "purchasing.budget.manage",
+  // CONG_VIEC_62.
+  viewDropship: "purchasing.dropship.view",
+  manageDropship: "purchasing.dropship.manage",
 } as const;
 
 export type FieldErrors = Record<string, keyof Messages["errors"]>;
@@ -55,11 +58,11 @@ export async function isActiveSupplier(executor: Executor, companyId: string, su
   return rows.rows.length > 0;
 }
 
-// Kho nhận hàng: kho đang dùng nhận hàng của công ty.
-export async function isReceivingWarehouse(executor: Executor, companyId: string, warehouseId: string): Promise<boolean> {
+// Kho nhận hàng: kho đang dùng nhận hàng của công ty. Kho Dropship chỉ nhận đơn mua hệ thống tự lập; đơn bán chọn được kho Dropship (QUYTAC_NGHIEPVU_496, 499).
+export async function isReceivingWarehouse(executor: Executor, companyId: string, warehouseId: string, allowDropship = false): Promise<boolean> {
   const rows = await executor.execute(sql`
     SELECT 1 FROM inventory.warehouses w JOIN inventory.warehouse_owners o ON o.warehouse_id = w.id
-    WHERE w.id = ${warehouseId} AND w.status = 'active' AND o.company_id = ${companyId}`);
+    WHERE w.id = ${warehouseId} AND w.status = 'active' AND (w.kind = 'standard' OR ${allowDropship}) AND o.company_id = ${companyId}`);
   return rows.rows.length > 0;
 }
 

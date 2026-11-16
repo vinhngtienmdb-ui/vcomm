@@ -6,6 +6,7 @@ import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
+import { CLOCK, vietnamDate, type Clock } from "../common/clock";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
@@ -33,6 +34,7 @@ type ReservationRow = {
   version: number;
 };
 export const manualSource = "inventory.manual";
+type DropshipProductRow = { id: string; supplier_id: string; unit_id: string; declared_quantity: string };
 
 export interface ReservationRequest {
   warehouseId: string;
@@ -52,6 +54,7 @@ export class ReservationsService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly auditService: AuditService,
     private readonly warehouses: WarehousesService,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
   async list(actor: Actor, query: z.output<typeof reservationListQuerySchema>): Promise<PageResponse<ReservationResponse>> {
@@ -69,6 +72,7 @@ export class ReservationsService {
   // Giữ thủ công, hạn giữ theo cài đặt của công ty chủ hàng (QUYTAC_NGHIEPVU_54).
   async create(actor: Actor, input: z.output<typeof createReservationSchema>): Promise<ReservationResponse> {
     const warehouse = await this.warehouses.operable(actor.userId, input.warehouseId, inventoryPermissions.manageReservations);
+    if (warehouse.kind === "dropship") throw new ApiError("BUSINESS_RULE", "dropshipWarehouseManual");
     if (!warehouse.ownerIds.includes(input.companyId)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { companyId: "warehouseOwnerNotAllowed" } });
     const owned = await this.database.execute(sql`SELECT 1 FROM catalog.variants WHERE id = ${input.variantId} AND company_id = ${input.companyId}`);
     if (owned.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { variantId: "stockItemNotOwned" } });
@@ -167,6 +171,8 @@ export class ReservationsService {
 
   // Khóa dòng giá vốn của mặt hàng để hai lần giữ đồng thời không vượt tồn khả dụng.
   async available(transaction: Executor, warehouseId: string, companyId: string, variantId: string, excludeSource?: { type: string; id: string }): Promise<string> {
+    const dropship = await this.dropshipProduct(transaction, warehouseId, companyId, variantId);
+    if (dropship) return this.dropshipAvailable(transaction, dropship, warehouseId, companyId, variantId, excludeSource);
     await transaction.execute(sql`INSERT INTO inventory.costs (warehouse_id, company_id, variant_id) VALUES (${warehouseId}, ${companyId}, ${variantId}) ON CONFLICT DO NOTHING`);
     const row = (
       await transaction.execute<{ available: string }>(sql`
@@ -182,6 +188,8 @@ export class ReservationsService {
   async reserve(transaction: Executor, request: ReservationRequest): Promise<string> {
     // Dịch vụ không giữ hàng (QUYTAC_NGHIEPVU_275); bên gọi bỏ dòng dịch vụ trước khi giữ.
     await requireStockedVariant(transaction, request.variantId);
+    const dropship = await this.dropshipProduct(transaction, request.warehouseId, request.companyId, request.variantId);
+    if (dropship) await this.requireDropshipPrice(transaction, dropship, request.companyId, request.variantId, request.quantity);
     const available = await this.available(transaction, request.warehouseId, request.companyId, request.variantId, { type: request.sourceType, id: request.sourceId });
     if (Number(available) < Number(request.quantity)) throw new ApiError("BUSINESS_RULE", "insufficientAvailableStock");
     const row = (
@@ -211,6 +219,71 @@ export class ReservationsService {
         remaining = 0;
       }
     }
+  }
+
+  // Kho Dropship: sản phẩm dropship đang dùng của mặt hàng (QUYTAC_NGHIEPVU_497, 499); kho thường trả null.
+  // Khóa dòng sản phẩm dropship để hai lần giữ đồng thời không vượt tồn khai báo.
+  private async dropshipProduct(transaction: Executor, warehouseId: string, companyId: string, variantId: string): Promise<DropshipProductRow | null> {
+    const kind = (await transaction.execute<{ kind: string }>(sql`SELECT kind FROM inventory.warehouses WHERE id = ${warehouseId}`)).rows[0]?.kind;
+    if (kind !== "dropship") return null;
+    const row = (
+      await transaction.execute<DropshipProductRow>(sql`
+      SELECT dp.id, dp.supplier_id, dp.unit_id, dp.declared_quantity::text FROM purchasing.dropship_products dp
+      JOIN crm.partners s ON s.id = dp.supplier_id AND s.status = 'active'
+      JOIN crm.partner_profiles pr ON pr.partner_id = dp.supplier_id AND pr.company_id = dp.company_id AND pr.status = 'active' AND pr.is_supplier
+      WHERE dp.company_id = ${companyId} AND dp.variant_id = ${variantId} AND dp.status = 'active' FOR UPDATE OF dp`)
+    ).rows[0];
+    if (!row) throw new ApiError("BUSINESS_RULE", "dropshipProductMissing");
+    return row;
+  }
+
+  // Khả dụng = tồn khai báo − giữ chỗ đang có (QUYTAC_NGHIEPVU_498).
+  private async dropshipAvailable(
+    transaction: Executor,
+    product: DropshipProductRow,
+    warehouseId: string,
+    companyId: string,
+    variantId: string,
+    excludeSource?: { type: string; id: string },
+  ): Promise<string> {
+    const row = (
+      await transaction.execute<{ available: string }>(sql`
+      SELECT (${product.declared_quantity}::numeric - coalesce((
+        SELECT sum(quantity) FROM inventory.reservations
+        WHERE warehouse_id = ${warehouseId} AND company_id = ${companyId} AND variant_id = ${variantId} AND status = 'active'
+          AND NOT (source_type = ${excludeSource?.type ?? ""} AND source_id IS NOT DISTINCT FROM ${excludeSource?.id ?? null}::uuid)), 0))::text AS available`)
+    ).rows[0]!;
+    return row.available;
+  }
+
+  // Giá mua hiệu lực hôm nay (giờ Việt Nam) theo bảng giá mua, số lượng quy về đơn vị mua (QUYTAC_NGHIEPVU_497).
+  private async requireDropshipPrice(transaction: Executor, product: DropshipProductRow, companyId: string, variantId: string, baseQuantity: string): Promise<void> {
+    const today = vietnamDate(this.clock.now());
+    const rows = await transaction.execute(sql`
+      WITH factor AS (
+        SELECT CASE WHEN p.base_unit_id = ${product.unit_id} THEN 1 ELSE pu.factor END AS value
+        FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+        LEFT JOIN catalog.product_units pu ON pu.product_id = p.id AND pu.unit_id = ${product.unit_id}
+        WHERE v.id = ${variantId})
+      SELECT 1 FROM purchasing.supplier_prices sp, factor
+      WHERE sp.company_id = ${companyId} AND sp.supplier_id = ${product.supplier_id} AND sp.variant_id = ${variantId} AND sp.unit_id = ${product.unit_id} AND sp.status = 'active'
+        AND sp.valid_from <= ${today}::date AND (sp.valid_to IS NULL OR sp.valid_to >= ${today}::date)
+        AND factor.value IS NOT NULL AND sp.min_quantity <= ${baseQuantity}::numeric / factor.value
+      LIMIT 1`);
+    if (rows.rows.length === 0) throw new ApiError("BUSINESS_RULE", "dropshipPriceMissing");
+  }
+
+  // Đơn bán dropship đã có đơn mua: giữ chỗ không hết hạn đến khi giao, thất bại hoặc hủy (QUYTAC_NGHIEPVU_498, 500).
+  async holdWithoutExpiry(transaction: Executor, sourceType: string, sourceId: string): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE inventory.reservations SET expires_at = NULL, version = version + 1 WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND status = 'active'`);
+  }
+
+  // Nhả phần giữ của một số mặt hàng của nguồn (nhà cung cấp dropship giao thất bại, hủy) (QUYTAC_NGHIEPVU_502).
+  async releaseVariants(transaction: Executor, sourceType: string, sourceId: string, variantIds: string[]): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE inventory.reservations SET status = 'released', released_at = now(), version = version + 1
+      WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND status = 'active' AND variant_id = ANY(${pgArray(variantIds)}::uuid[])`);
   }
 
   async closeBySource(transaction: Executor, sourceType: string, sourceId: string, status: "released" | "consumed"): Promise<void> {

@@ -11,7 +11,7 @@ import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import type { Actor } from "../permissions/roles.service";
 import { SalesOrdersService } from "../sales/sales-orders.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
-import { CarrierFailure, type CreatedShipment, type ShipmentInfo } from "./carriers/carrier";
+import { CarrierFailure, type CreatedShipment, type ShipmentInfo, type WebhookReport } from "./carriers/carrier";
 import { carrierAdapter, webhookKeyOf } from "./carriers/carrier-registry";
 import { MarketplaceOrdersService, refundRemainingPaid } from "./marketplace-orders.service";
 import { vietnamToday } from "./shop.service";
@@ -27,6 +27,8 @@ type ShipmentRow = { id: string; order_id: string; carrier_code: CarrierCode; tr
 @Injectable()
 export class ShipmentsService implements OnModuleInit {
   private readonly logger = new Logger(ShipmentsService.name);
+  // CONG_VIEC_62: vận đơn của đơn người bán dropship (sales.order_shipments) cùng webhook; ResellerShipmentsService đăng ký, trả true khi đã xử lý.
+  otherShipments: ((carrier: CarrierCode, trackingCode: string | null, report: WebhookReport | undefined) => Promise<boolean>) | null = null;
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -279,6 +281,17 @@ export class ShipmentsService implements OnModuleInit {
       if (requesting) {
         await this.confirmRequest(requesting.order_id, { trackingCode: report.trackingCode, fee: report.fee, status: report.status }, null);
         shipment = await findShipment();
+      }
+    }
+    if (!shipment && this.otherShipments) {
+      try {
+        if (await this.otherShipments(carrier, trackingCode, report ?? undefined)) {
+          await record("applied");
+          return reply("applied");
+        }
+      } catch (error) {
+        await record(`failed: ${(error as Error).message}`.slice(0, 500));
+        throw error instanceof ApiError ? error : this.failure(error, "carrierRejected");
       }
     }
     if (!shipment) {

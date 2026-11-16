@@ -11,6 +11,8 @@ export const inventoryMenu = [
   { href: "/stocktakes", key: "stocktakes", permission: "inventory.stocktake.manage" },
   { href: "/reservations", key: "reservations", permission: "inventory.access" },
   { href: "/internal-discrepancies", key: "internalDiscrepancies", permission: "inventory.sales.issue" },
+  // CONG_VIEC_62 MAN_HINH_238: giao hàng đơn dropship của người bán.
+  { href: "/reseller-shipments", key: "resellerShipments", permission: "inventory.sales.issue" },
   { href: "/warehouses", key: "warehouses", permission: "inventory.access" },
 ] as const;
 

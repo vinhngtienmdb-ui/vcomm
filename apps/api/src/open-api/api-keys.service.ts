@@ -167,7 +167,7 @@ export class ApiKeysService {
     const partners = await this.database.execute<{ id: string; code: string; name: string; customer_group_name: string | null }>(sql`
       SELECT p.id, p.code, p.name, g.name AS customer_group_name
       FROM crm.partner_profiles pp JOIN crm.partners p ON p.id = pp.partner_id LEFT JOIN catalog.customer_groups g ON g.id = pp.customer_group_id
-      WHERE pp.company_id = ${actor.companyId} AND pp.is_customer AND pp.status = 'active' AND p.status = 'active'
+      WHERE pp.company_id = ${actor.companyId} AND (pp.is_customer OR pp.is_supplier) AND pp.status = 'active' AND p.status = 'active'
         AND (${text} = '' OR strpos(lower(p.name), ${text}) > 0 OR strpos(lower(p.code), ${text}) > 0)
       ORDER BY p.name LIMIT 50`);
     const channels = await this.database.execute<{ id: string; code: string; name: string }>(sql`
@@ -184,7 +184,7 @@ export class ApiKeysService {
   async create(actor: Actor, input: z.output<typeof createApiKeySchema>): Promise<ApiKeySecretResponse> {
     const fields: Record<string, ErrorMessageKey> = {};
     if (input.kind === "partner") {
-      if (!input.partnerId || !(await this.partnerUsable(this.database, actor.companyId, input.partnerId))) fields.partnerId = "apiKeyPartnerInvalid";
+      if (!input.partnerId || !(await this.partnerUsable(this.database, actor.companyId, input.partnerId, input.scopes))) fields.partnerId = "apiKeyPartnerInvalid";
     } else if (input.partnerId) fields.partnerId = "invalidValue";
     // Phạm vi điểm thưởng chỉ cấp cho cửa hàng liên kết ở màn hình Cửa hàng liên kết (QUYTAC_NGHIEPVU_495).
     if (input.scopes.includes("loyalty.member")) fields.scopes = "apiKeyLoyaltyScopeAffiliate";
@@ -228,6 +228,8 @@ export class ApiKeysService {
     if (current.loyaltyOnly) throw new ApiError("BUSINESS_RULE", "apiKeyManagedByAffiliate");
     const fields: Record<string, ErrorMessageKey> = {};
     if (input.scopes.includes("loyalty.member")) fields.scopes = "apiKeyLoyaltyScopeAffiliate";
+    const partnerId = (await this.database.execute<{ partner_id: string | null }>(sql`SELECT partner_id FROM core.api_keys WHERE id = ${id}`)).rows[0]?.partner_id ?? null;
+    if (partnerId && !(await this.partnerUsable(this.database, actor.companyId, partnerId, input.scopes))) fields.scopes = "apiKeyPartnerInvalid";
     const settings = await this.checkSettings(actor, input, fields, current.expires_on);
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     try {
@@ -462,10 +464,14 @@ export class ApiKeysService {
     );
   }
 
-  private async partnerUsable(executor: Executor, companyId: string, partnerId: string): Promise<boolean> {
+  // Phạm vi dropship.supplier cần hồ sơ nhà cung cấp; phạm vi khác cần hồ sơ khách hàng (QUYTAC_NGHIEPVU_481, 505).
+  private async partnerUsable(executor: Executor, companyId: string, partnerId: string, scopes: ApiKeyScope[]): Promise<boolean> {
+    const needsSupplier = scopes.includes("dropship.supplier");
+    const needsCustomer = scopes.some((scope) => scope !== "dropship.supplier");
     const rows = await executor.execute(sql`
       SELECT 1 FROM crm.partner_profiles pp JOIN crm.partners p ON p.id = pp.partner_id
-      WHERE pp.company_id = ${companyId} AND pp.partner_id = ${partnerId} AND pp.is_customer AND pp.status = 'active' AND p.status = 'active'`);
+      WHERE pp.company_id = ${companyId} AND pp.partner_id = ${partnerId} AND pp.status = 'active' AND p.status = 'active'
+        AND (pp.is_customer OR NOT ${needsCustomer}) AND (pp.is_supplier OR NOT ${needsSupplier})`);
     return rows.rows.length > 0;
   }
 

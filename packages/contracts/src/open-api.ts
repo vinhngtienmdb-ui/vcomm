@@ -2,7 +2,8 @@
 import { z } from "zod";
 import { vietnamPhone } from "./affiliate";
 
-export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member"] as const;
+// CONG_VIEC_62 (QUYTAC_NGHIEPVU_505): dropship.supplier cho khóa của nhà cung cấp dropship.
+export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member", "dropship.supplier"] as const;
 export type ApiKeyScope = (typeof apiKeyScopes)[number];
 export const apiKeyKinds = ["partner", "internal"] as const;
 export type ApiKeyKind = (typeof apiKeyKinds)[number];
@@ -206,9 +207,25 @@ export const openSalesOrderSchema = z
     buyerName: z.string().trim().min(1).max(200).optional(),
     deliveryAddress: z.string().trim().min(1).max(500).optional(),
     // Người nhận giao thẳng (CONG_VIEC_66; QUYTAC_NGHIEPVU_494 khoản 7): có người nhận thì địa chỉ giao lấy từ người nhận.
+    // CONG_VIEC_62 (QUYTAC_NGHIEPVU_506): người bán dropship gửi địa chỉ tách street, wardCode (danh mục phường/xã) thay address.
     recipient: z
-      .object({ name: z.string().trim().min(1).max(100), phone: vietnamPhone, address: z.string().trim().min(1).max(500) })
+      .object({
+        name: z.string().trim().min(1).max(100),
+        phone: vietnamPhone,
+        address: z.string().trim().min(1).max(500).optional(),
+        street: z.string().trim().min(1).max(300).optional(),
+        wardCode: z.string().trim().min(1).max(10).optional(),
+      })
       .strict()
+      .refine((value) => Boolean(value.address) !== Boolean(value.street && value.wardCode) && !(value.address && (value.street || value.wardCode)), {
+        path: ["address"],
+        message: "invalidValue",
+      })
+      .optional(),
+    // Tiền thu hộ của đơn dropship người bán (đồng, 0 đến 50.000.000; QUYTAC_NGHIEPVU_508).
+    codAmount: z
+      .string()
+      .regex(/^\d{1,8}$/)
       .optional(),
     note: z.string().trim().min(1).max(1000).optional(),
     lines: z
@@ -264,6 +281,8 @@ export interface OpenSalesOrder {
   buyerName: string | null;
   deliveryAddress: string | null;
   recipient: OpenRecipient | null;
+  // CONG_VIEC_62: vận đơn của đơn dropship người bán (QUYTAC_NGHIEPVU_507); null khi chưa có hoặc không phải đơn người bán.
+  shipment: { carrierName: string | null; trackingCode: string | null; status: string; shippingFee: string | null; codAmount: string } | null;
   note: string | null;
   currency: string;
   netAmount: string;

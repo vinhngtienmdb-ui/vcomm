@@ -1184,6 +1184,48 @@ Trạng thái bài đăng, bình luận:
 | Đơn Open API Nháp | Đối tác hủy | Đã hủy |
 | Đơn Open API Nháp | Nhân viên gửi duyệt | Chờ duyệt hoặc Đã xác nhận (như đơn thường) |
 
+### Luồng 59. Dropship (CONG_VIEC_62)
+
+Chiều bán (công ty bán, nhà cung cấp giao thẳng khách):
+
+- Bắt đầu: nhân viên mua hàng khai báo sản phẩm dropship (biến thể, nhà cung cấp, đơn vị mua) và tồn nhà cung cấp (MAN_HINH_234, nhập tệp Excel hoặc nhà cung cấp gửi qua API_309).
+- Các bước:
+  1. Đơn bán có kho xuất là kho Dropship (nhập trên web, Open API, sàn VComm) gửi duyệt: giữ chỗ theo khả dụng = tồn khai báo − giữ chỗ; không đủ hoặc dòng không phải sản phẩm dropship, không có giá mua hiệu lực thì báo lỗi dòng.
+  2. Đơn bán Đã xác nhận: hệ thống tự lập mỗi nhà cung cấp một đơn mua Đã duyệt (không qua duyệt mua, không kiểm ngân sách), kho nhận là kho Dropship.
+  3. Nhà cung cấp (API_272) hoặc nhân viên mua hàng (MAN_HINH_236) báo Đang giao, Đã giao, Giao thất bại; nhân viên có thể Hủy.
+  4. Đã giao: trong một giao dịch ghi sổ phiếu nhập mua và phiếu xuất bán ở kho Dropship, ngày chứng từ là ngày giao; công nợ phải trả, phải thu, hóa đơn điện tử, bút toán, giá vốn theo luồng ghi sổ phiếu kho hiện có; trừ tồn khai báo.
+  5. Khách trả hàng: nhân viên chọn về nhà cung cấp (chờ nhà cung cấp xác nhận rồi ghi sổ phiếu trả hàng bán và trả hàng mua ở kho Dropship) hoặc về kho công ty (phiếu trả hàng bán vào kho thường).
+  6. Nhân viên ghi số hóa đơn nhà cung cấp; xem báo cáo đối soát nhà cung cấp theo kỳ (MAN_HINH_237).
+- Ngoại lệ: giao thất bại, hủy khi chưa nhà cung cấp nào giao thì đơn bán Đã hủy; đã có nhà cung cấp giao thì đơn bán Đóng phần còn lại; nhà cung cấp ngừng giao dịch thì sản phẩm dropship của họ không bán được, đơn mua đang mở giữ nguyên để xử lý.
+
+Chiều cung cấp cho người bán dropship:
+
+- Bắt đầu: người bán (đối tác có cờ "Người bán dropship") gửi đơn API_262 có `recipient` (`street`, `wardCode`) và `codAmount`; đơn bán Nháp, khách là người bán, kho thường.
+- Các bước:
+  1. Nhân viên bán hàng gửi duyệt, xác nhận như đơn thường.
+  2. Thủ kho (MAN_HINH_238) tạo vận đơn với đơn vị vận chuyển đang bật (phiếu xuất nháp toàn đơn, gửi giá hàng bằng 0, kèm tiền thu hộ) hoặc nhập tay vận đơn, phí, trạng thái; in phiếu giao danh nghĩa người bán (MAN_HINH_239).
+  3. Đơn vị vận chuyển lấy hàng (webhook API_128, luôn tra lại): ghi sổ phiếu xuất; Đã giao: ghi thời điểm thu hộ; Hoàn hàng: nhận trả toàn bộ phần đã xuất, giảm công nợ người bán.
+  4. Tiền thu hộ về qua bảng đối soát thu hộ hiện có (Luồng 31), ghi giảm công nợ người bán.
+  5. 2 giờ thứ Hai, tác vụ nền `reseller-settlement-weekly` lập bảng đối soát tuần Nháp cho từng người bán có phát sinh: A − B − C + D + E.
+  6. Kế toán xác nhận (MAN_HINH_241): lập đơn bán dịch vụ phí giao cho người bán, tự xác nhận (công nợ, bút toán, hóa đơn điện tử theo luồng có sẵn); số còn lại âm thì lập phiếu chi hoàn tiền khách Nháp, kế toán gửi theo luồng phiếu chi hoàn tiền (Luồng 21).
+- Ngoại lệ: người bán bị tắt cờ thì đơn mới theo cách của CONG_VIEC_66, đơn đã tạo giữ nguyên; hủy vận đơn trước khi lấy hàng thì xóa phiếu xuất nháp, đơn bán giữ Đã xác nhận để tạo vận đơn khác; mất phản hồi khi tạo vận đơn thì tra lại theo số đơn; chứng từ trễ của tuần trước vào bảng tuần sau.
+- Sơ đồ: `tai_lieu/cong_viec/CONG_VIEC_62.md` mục 7.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Đơn mua dropship Chờ giao | Nhà cung cấp hoặc nhân viên báo đang giao | Đang giao |
+| Đơn mua dropship Chờ giao, Đang giao | Báo đã giao (ghi sổ phiếu nhập mua, phiếu xuất bán) | Đã giao (đơn mua Đã nhận) |
+| Đơn mua dropship Chờ giao, Đang giao | Báo giao thất bại (có lý do) | Giao thất bại (đơn mua Đóng) |
+| Đơn mua dropship Chờ giao, Đang giao | Nhân viên hủy (có lý do) | Đã hủy (đơn mua Đóng) |
+| Trả hàng dropship về nhà cung cấp Chờ nhà cung cấp | Nhân viên ghi nhà cung cấp đã nhận | Đã nhận (ghi sổ phiếu trả hàng bán, trả hàng mua) |
+| Trả hàng dropship về nhà cung cấp Chờ nhà cung cấp | Nhân viên hủy | Đã hủy |
+| Vận đơn đơn người bán (chưa có) | Tạo vận đơn với đơn vị vận chuyển | Đang tạo vận đơn → Chờ lấy hàng (đơn vị vận chuyển từ chối thì bỏ) |
+| Vận đơn Chờ lấy hàng | Đơn vị vận chuyển lấy hàng (ghi sổ phiếu xuất) | Đang giao |
+| Vận đơn Chờ lấy hàng | Hủy trước khi lấy hàng (xóa phiếu xuất nháp) | Đã hủy |
+| Vận đơn Đang giao | Giao thành công | Đã giao |
+| Vận đơn Đang giao | Hoàn hàng (nhận trả) | Hoàn hàng |
+| Bảng đối soát người bán Nháp | Kế toán xác nhận | Đã xác nhận (không sửa) |
+
 ### Luồng 62. Khách hàng do đối tác tạo, giao thẳng người nhận (CONG_VIEC_66)
 
 - Bắt đầu: đối tác có khóa phạm vi `customer.write` gửi khách (API_289).

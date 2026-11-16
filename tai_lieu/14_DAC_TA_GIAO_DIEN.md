@@ -2928,6 +2928,47 @@ Không màn hình mới (người dùng chọn 2026-11-12; MAN_HINH_227 đến 2
 Trạng thái đang tải, lỗi, không quyền, rỗng dùng như màn hình hiện có. Xem trước L2 đạt (2026-11-12).
 
 
+## MODULE_16 Mở rộng kinh doanh (phần 2: Dropship, CONG_VIEC_62)
+
+Bản mẫu: `ban_mau/MAN_HINH_234_SAN_PHAM_DROPSHIP.html` đến `ban_mau/MAN_HINH_241_CHI_TIET_DOI_SOAT_NGUOI_BAN.html`, phần sửa màn hình có sẵn `ban_mau/SUA_DROPSHIP_MAN_HINH_CO_SAN.html` (tệp `dropship.js`), duyệt cùng đặc tả 2026-11-12. Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_62.md` mục 8.
+
+### Danh sách màn hình
+
+| Mã | Tên | Chức năng | Vai trò | Vào từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_234 | Sản phẩm dropship | CHUC_NANG_222 | Người có `purchasing.dropship.view` (xem), `purchasing.dropship.manage` (thêm, sửa, sửa tồn, nhập tệp) | Mini app Mua hàng `apps/web-purchasing`, menu Sản phẩm dropship (`/dropship-products`) | `ban_mau/MAN_HINH_234_SAN_PHAM_DROPSHIP.html` |
+| MAN_HINH_235 | Đơn dropship | CHUC_NANG_223 | Như MAN_HINH_234 | Menu Đơn dropship (`/dropship-orders`) | `ban_mau/MAN_HINH_235_DON_DROPSHIP.html` |
+| MAN_HINH_236 | Chi tiết đơn dropship | CHUC_NANG_223 | Xem: `purchasing.dropship.view`; báo giao, hủy, số hóa đơn, trả hàng: `purchasing.dropship.manage` | Bấm số đơn ở MAN_HINH_235; khối Dropship ở chi tiết đơn bán (`/dropship-orders/{id}`) | `ban_mau/MAN_HINH_236_CHI_TIET_DON_DROPSHIP.html` |
+| MAN_HINH_237 | Đối soát nhà cung cấp dropship | CHUC_NANG_223 | `purchasing.dropship.view` | Menu Đối soát dropship (`/dropship-reconciliation`) | `ban_mau/MAN_HINH_237_DOI_SOAT_NHA_CUNG_CAP.html` |
+| MAN_HINH_238 | Giao hàng đơn người bán | CHUC_NANG_225 | Thủ kho có `inventory.sales.issue` tại kho của đơn | Mini app Kho `apps/web-inventory`, menu Giao hàng đơn người bán (`/reseller-shipments`) | `ban_mau/MAN_HINH_238_GIAO_HANG_NGUOI_BAN.html` |
+| MAN_HINH_239 | Phiếu giao danh nghĩa người bán (bản in PDF A5) | CHUC_NANG_225 | Như MAN_HINH_238 | Nút "In phiếu giao" ở MAN_HINH_238 (API_310) | `ban_mau/MAN_HINH_239_PHIEU_GIAO_NGUOI_BAN.html` |
+| MAN_HINH_240 | Đối soát người bán | CHUC_NANG_225 | Xem: `finance.debt.view` hoặc `finance.debt.manage`; xác nhận: `finance.debt.manage` | Mini app Tài chính `apps/web-finance`, menu Đối soát người bán (`/reseller-settlements`) | `ban_mau/MAN_HINH_240_DOI_SOAT_NGUOI_BAN.html` |
+| MAN_HINH_241 | Chi tiết bảng đối soát người bán | CHUC_NANG_225 | Như MAN_HINH_240 | Bấm số bảng ở MAN_HINH_240 (`/reseller-settlements/{id}`) | `ban_mau/MAN_HINH_241_CHI_TIET_DOI_SOAT_NGUOI_BAN.html` |
+
+### Đặc tả
+
+- MAN_HINH_234: bảng biến thể (mã, tên), nhà cung cấp, đơn vị, giá mua hiệu lực (thiếu giá thì nhãn cảnh báo), tồn khai báo, giữ chỗ, khả dụng, cập nhật lúc, trạng thái; tìm, lọc nhà cung cấp, trạng thái, chỉ dòng hết khả dụng. Ngăn kéo thêm, sửa (nhà cung cấp, đơn vị, ngừng dùng); hộp sửa tồn kèm lịch sử đổi tồn (số cũ, số mới, nguồn nhập tay, tệp, Open API, người hoặc khóa, thời điểm); nhập tệp Excel (tải mẫu "Mã biến thể", "Tồn khai báo"), báo lỗi theo dòng. Chưa có kho Dropship đang hoạt động thì nhắc tạo kho.
+- MAN_HINH_235: bảng số đơn mua, đơn bán, nhà cung cấp, người nhận, ngày đơn, trạng thái giao (nhãn màu: Chờ giao, Đang giao, Đã giao, Giao thất bại, Đã hủy), nhãn quá hạn; lọc trạng thái, nhà cung cấp, từ khóa, chỉ đơn quá hạn, chỉ đơn chưa có số hóa đơn nhà cung cấp.
+- MAN_HINH_236: dòng hàng, người nhận (tên, điện thoại, địa chỉ), lịch sử trạng thái (nguồn người hoặc khóa); nút Đang giao (đơn vị vận chuyển, mã vận đơn), Đã giao (ngày giao), Giao thất bại, Hủy (lý do bắt buộc); ô số, ngày hóa đơn nhà cung cấp khi Đã giao; hộp trả hàng (chọn dòng phiếu xuất, số lượng, lý do, nơi nhận về nhà cung cấp hoặc về kho công ty kèm chọn kho thường), danh sách lần trả với nút Nhà cung cấp đã nhận, Hủy.
+- MAN_HINH_237: chọn kỳ (từ ngày, đến ngày), nhà cung cấp; bảng mỗi nhà cung cấp số đơn đã giao, giá trị nhận có thuế, giá trị trả lại, số đơn chưa có số hóa đơn, phải trả cuối kỳ; mở chi tiết từng đơn; nút Xuất Excel.
+- MAN_HINH_238: bảng đơn dropship của người bán đã xác nhận ở kho thủ kho được xuất: số đơn, mã đơn đối tác, người bán, người nhận, địa chỉ, tiền thu hộ, vận đơn, phí, trạng thái giao; lọc trạng thái, tìm. Nút Tạo vận đơn (chọn đơn vị vận chuyển đang bật), Tra lại, Hủy vận đơn (trước khi lấy hàng); chưa bật đơn vị vận chuyển thì ngăn kéo nhập tay đơn vị vận chuyển, mã vận đơn, phí (đồng, 0 đến 5.000.000), trạng thái (chỉ chuyển tiến lên); nút In phiếu giao.
+- MAN_HINH_239: PDF khổ A5 theo QUYTAC_NGHIEPVU_507: người gửi là tên, điện thoại người bán; người nhận, địa chỉ; dòng hàng, số lượng; tiền thu hộ; mã đơn đối tác. Không in tên công ty, giá bán, số đơn VComm.
+- MAN_HINH_240: bảng số bảng, người bán, tuần (thứ Hai đến Chủ nhật), A, B, C, D, E, số còn lại, trạng thái (Nháp, Đã xác nhận); lọc trạng thái, người bán, tuần.
+- MAN_HINH_241: ô tóm tắt A đến E, số còn lại (người bán phải nộp hoặc công ty phải trả); bảng dòng theo loại (phiếu xuất, trả hàng, thu hộ, phí giao), số chứng từ, ngày, đơn, số tiền; nút Xác nhận (người có `finance.debt.manage`; số âm thì chọn quỹ để lập phiếu chi hoàn tiền Nháp); sau xác nhận hiện đơn phí giao, phiếu chi, người xác nhận, thời điểm. Chưa chọn sản phẩm phí giao trong cài đặt bán hàng thì báo lỗi khi xác nhận.
+- Trạng thái: dùng `Loaded`, `MessageView` dùng chung (đang tải, lỗi, không quyền, rỗng). Responsive: bảng chuyển thành thẻ ở màn hình hẹp. Chuỗi tiếng Việt, tiếng Anh.
+
+### Sửa màn hình có sẵn (CONG_VIEC_62)
+
+| Màn hình | Thay đổi | Chức năng |
+|---|---|---|
+| MAN_HINH_28 (danh sách, biểu mẫu kho) | Cột Loại kho; trường Loại kho (Thường, Dropship) chọn khi tạo, không đổi khi sửa; kho Dropship không bật vị trí | CHUC_NANG_222 |
+| MAN_HINH_43 (chi tiết đơn bán) | Khối "Dropship": đơn mua theo nhà cung cấp, trạng thái giao (nhãn màu), liên kết MAN_HINH_236; khối "Người bán dropship": người bán, tiền thu hộ, vận đơn, trạng thái giao | CHUC_NANG_223, 225 |
+| MAN_HINH_37 (chi tiết đối tác) | Ô "Là người bán dropship" trong ngăn kéo sửa hồ sơ của công ty (chỉ khi là khách hàng); nhãn Người bán dropship | CHUC_NANG_225 |
+| MAN_HINH_224, MAN_HINH_225 (khóa API) | Phạm vi "Nhà cung cấp dropship" (`dropship.supplier`) cho chọn | CHUC_NANG_224 |
+| MAN_HINH_42 (ngăn kéo Cài đặt bán hàng) | Ô chọn sản phẩm dịch vụ phí giao dropship | CHUC_NANG_225 |
+
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12; xem trước L1 đến L4 đạt; L5 chờ duyệt.
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_153` đến `MAN_HINH_160` (tệp `van_phong.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_52.md` mục 8.

@@ -154,7 +154,7 @@ export class SupplierPricesService {
       WHERE p.status = 'active' AND pr.status = 'active' AND pr.is_supplier ORDER BY p.name`);
     const warehouses = await this.database.execute<{ id: string; code: string; name: string }>(sql`
       SELECT w.id, w.code, w.name FROM inventory.warehouses w JOIN inventory.warehouse_owners o ON o.warehouse_id = w.id
-      WHERE o.company_id = ${actor.companyId} AND w.status = 'active' ORDER BY w.code`);
+      WHERE o.company_id = ${actor.companyId} AND w.status = 'active' AND w.kind = 'standard' ORDER BY w.code`);
     const currency = (await this.database.execute<{ base_currency: string }>(sql`SELECT base_currency FROM core.companies WHERE id = ${actor.companyId}`)).rows[0]!.base_currency;
     return { suppliers: suppliers.rows, warehouses: warehouses.rows, currency };
   }
