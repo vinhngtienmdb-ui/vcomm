@@ -125,3 +125,7 @@
 [data-noi-dung-the][hidden] {
   display: none;
 }
+
+/* Lớp phủ ngăn kéo, hộp thoại ẩn khi có thuộc tính hidden (CONG_VIEC_67). */
+.man-che[hidden] { display: none; }
+.noi-dung [hidden] { display: none; }

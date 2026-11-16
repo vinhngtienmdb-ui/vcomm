@@ -36,6 +36,7 @@ import { buyerReturnRequests, returnWindowHours } from "./return-requests.servic
 import { LoyaltyAccountsService } from "../loyalty/accounts.service";
 import { LoyaltyPostingsService } from "../loyalty/postings.service";
 import { LoyaltyLedgerService, pointsFor, quoteRedemption, releaseSalePoints } from "../loyalty/ledger.service";
+import { deviceHashOf, linkDevice } from "../loyalty/fraud";
 import { phaseOn } from "../loyalty/program.service";
 import { chosenStation, neededQuantities, notifyStationStaff, stationById, stationFee, stationOptions, type Station, type StationMode, stationView } from "./stations";
 import { chargeWallet, refundOrderToWallet, returnWalletPart, shoppingWalletState, walletAmountFor } from "./shopping-wallet";
@@ -383,7 +384,11 @@ export class MarketplaceOrdersService {
       // Ghép CONG_VIEC_51 với CONG_VIEC_49 (CONG_VIEC_51 mục 19): dùng điểm trước (chốt giai đoạn, hạng lúc đặt; QUYTAC_NGHIEPVU_346, 348),
       // rồi ví mua sắm trên phần còn lại; đơn mua chung không dùng điểm. Mã đơn lập trước để ghi chứng từ điểm.
       const id = randomUUID();
+      // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): ghi thiết bị đặt đơn để xét quy tắc chống gian lận khi dùng và khi tích điểm.
+      const deviceHash = deviceHashOf(client.deviceId);
+      await linkDevice(transaction, userId, deviceHash);
       const redeemed = await this.loyalty.redeemWithin(transaction, {
+        deviceHash,
         userId,
         companyId: context.companyId,
         sourceType: "marketplace_order",

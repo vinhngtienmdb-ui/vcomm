@@ -1,6 +1,6 @@
 // Chương trình điểm theo giai đoạn và bảng hạng (CONG_VIEC_51; CHUC_NANG_178; QUYTAC_NGHIEPVU_345, 351; API_176).
 import { Inject, Injectable } from "@nestjs/common";
-import type { LoyaltyPhase, LoyaltyPhaseInput, LoyaltyProgramResponse, LoyaltyTier, LoyaltyTiersInput } from "contracts";
+import type { LoyaltyCostBearer, LoyaltyPhase, LoyaltyPhaseInput, LoyaltyProgramResponse, LoyaltyTier, LoyaltyTiersInput } from "contracts";
 import { sql } from "drizzle-orm";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
@@ -23,6 +23,7 @@ type PhaseRow = {
   validity_months: number;
   order_cap_points: number | null;
   monthly_cap_points: number | null;
+  cost_bearer: LoyaltyCostBearer;
   version: number;
 };
 
@@ -35,10 +36,11 @@ export type ActivePhase = {
   validityMonths: number;
   orderCapPoints: number | null;
   monthlyCapPoints: number | null;
+  costBearer: LoyaltyCostBearer;
 };
 
 const phaseColumns = sql`id, starts_on::text, ends_on::text, earn_percent::text, point_value::text, redeem_max_percent::text, redeem_min_points, validity_months,
-  order_cap_points, monthly_cap_points, version`;
+  order_cap_points, monthly_cap_points, cost_bearer, version`;
 
 const statusOf = (row: PhaseRow, today: string) => (row.starts_on > today ? "upcoming" : row.ends_on !== null && row.ends_on < today ? "ended" : "active");
 
@@ -53,6 +55,7 @@ const phaseOf = (row: PhaseRow, today: string): LoyaltyPhase => ({
   validityMonths: row.validity_months,
   orderCapPoints: row.order_cap_points,
   monthlyCapPoints: row.monthly_cap_points,
+  costBearer: row.cost_bearer,
   status: statusOf(row, today),
   version: row.version,
 });
@@ -66,6 +69,7 @@ const activePhaseOf = (row: PhaseRow): ActivePhase => ({
   validityMonths: row.validity_months,
   orderCapPoints: row.order_cap_points,
   monthlyCapPoints: row.monthly_cap_points,
+  costBearer: row.cost_bearer,
 });
 
 // Giai đoạn hiệu lực tại một ngày (giờ Việt Nam); không có thì không tích, không đổi điểm.
@@ -132,9 +136,9 @@ export class LoyaltyProgramService {
       const inserted = (
         await transaction.execute<PhaseRow>(sql`
         INSERT INTO loyalty.program_phases (company_id, starts_on, ends_on, earn_percent, point_value, redeem_max_percent, redeem_min_points, validity_months,
-          order_cap_points, monthly_cap_points, created_by, updated_by)
+          order_cap_points, monthly_cap_points, cost_bearer, created_by, updated_by)
         VALUES (${actor.operatorCompanyId}, ${input.startsOn}::date, ${input.endsOn}::date, ${input.earnPercent}::numeric, ${input.pointValue}::numeric,
-          ${input.redeemMaxPercent}::numeric, ${input.redeemMinPoints}, ${input.validityMonths}, ${input.orderCapPoints}, ${input.monthlyCapPoints}, ${actor.userId}, ${actor.userId})
+          ${input.redeemMaxPercent}::numeric, ${input.redeemMinPoints}, ${input.validityMonths}, ${input.orderCapPoints}, ${input.monthlyCapPoints}, ${input.costBearer}, ${actor.userId}, ${actor.userId})
         RETURNING ${phaseColumns}`)
       ).rows[0]!;
       await this.audit.record(
@@ -167,6 +171,8 @@ export class LoyaltyProgramService {
           input.orderCapPoints === current.order_cap_points &&
           input.monthlyCapPoints === current.monthly_cap_points;
         if (!same) throw new ApiError("BUSINESS_RULE", "loyaltyPhaseStarted");
+        // QUYTAC_NGHIEPVU_468: giai đoạn đã bắt đầu không đổi được kiểu chia chi phí.
+        if (input.costBearer !== current.cost_bearer) throw new ApiError("BUSINESS_RULE", "loyaltyCostBearerStarted");
         if (input.endsOn !== null && input.endsOn < today) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { endsOn: "loyaltyPhaseEndInPast" } });
       }
       const updated = (
@@ -174,7 +180,7 @@ export class LoyaltyProgramService {
         UPDATE loyalty.program_phases SET starts_on = ${input.startsOn}::date, ends_on = ${input.endsOn}::date, earn_percent = ${input.earnPercent}::numeric,
           point_value = ${input.pointValue}::numeric, redeem_max_percent = ${input.redeemMaxPercent}::numeric, redeem_min_points = ${input.redeemMinPoints},
           validity_months = ${input.validityMonths}, order_cap_points = ${input.orderCapPoints}, monthly_cap_points = ${input.monthlyCapPoints},
-          updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+          cost_bearer = ${input.costBearer}, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
         WHERE id = ${id} RETURNING ${phaseColumns}`)
       ).rows[0]!;
       await this.audit.record(

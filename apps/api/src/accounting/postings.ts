@@ -446,6 +446,11 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
   // Đối tác là đơn vị thu hộ: tiền chuyển về trừ phải thu đơn vị thu hộ (1388), không phải 131 (CONG_VIEC_19; QUYTAC_NGHIEPVU_121).
   const isCollector = (await executor.execute(sql`SELECT 1 FROM finance.collectors WHERE company_id = ${payment.company_id} AND partner_id = ${partner}`)).rows.length > 0;
   const receivable: PostingRole = isCollector ? "collector_receivable" : "receivable";
+  // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): nợ nội bộ điểm ghi thuần trên một tài khoản mỗi bên: công ty vận hành sàn dùng vai trò phải thu nội bộ điểm, công ty con dùng phải trả nội bộ điểm.
+  const loyaltyRole: PostingRole =
+    (await executor.execute(sql`SELECT 1 FROM core.companies WHERE id = ${payment.company_id} AND is_marketplace_operator`)).rows.length > 0
+      ? "loyalty_intercompany_receivable"
+      : "loyalty_intercompany_payable";
   const lines: Record<string, DraftLine[]> = {
     customer_receipt: [debit(fund, amount), credit(receivable, amount, partner)],
     customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
@@ -456,6 +461,8 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     retail_refund: [debit("receivable", amount), credit(fund, amount)],
     cash_shortage: [debit("staff_receivable", amount), credit(fund, amount)],
     cash_surplus: [debit(fund, amount), credit("surplus_pending", amount)],
+    loyalty_intercompany_receipt: [debit(fund, amount), credit(loyaltyRole, amount, partner)],
+    loyalty_intercompany_payment: [debit(loyaltyRole, amount, partner), credit(fund, amount)],
     // Phiếu mua ngoại tệ (QUYTAC_NGHIEPVU_408): Nợ quỹ ngoại tệ nhận / Có quỹ tiền tệ công ty chi.
     currency_purchase: payment.counter_fund_kind ? [debit(fundRole(payment.counter_fund_kind, true), amount), credit(fund, amount)] : [],
   };
@@ -485,6 +492,8 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     retail_refund: "Hoàn tiền trả hàng bán lẻ",
     cash_shortage: "Thiếu tiền mặt khi đóng ca thu ngân",
     cash_surplus: "Thừa tiền mặt khi đóng ca thu ngân",
+    loyalty_intercompany_receipt: "Thu nợ nội bộ điểm thưởng",
+    loyalty_intercompany_payment: "Trả nợ nội bộ điểm thưởng",
     currency_purchase: "Mua ngoại tệ",
   };
   return {

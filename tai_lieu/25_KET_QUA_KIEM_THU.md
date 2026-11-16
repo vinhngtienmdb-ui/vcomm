@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_67
+
+- Phạm vi: Cửa hàng liên kết phần 2 (tích, đổi điểm qua Open API; OTP; phí tin nhắn theo THAY_DOI_31) lát L1, L2, nhánh `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2` (pull request #145, commit `14dad06`, đã hợp nhất main 0.9.0 và bản sửa LOI_13).
+- Kết quả: toàn bộ kiểm thử API 136 tệp, 737/737 đạt; c67-open-affiliate 8/8, c67-otp-sms 2/2 (KICHBAN_KIEMTHU_693 đến 702); KICHBAN_KIEMTHU_703, 704 đạt qua ảnh ứng dụng chạy thật ở điểm xem trước L1, L2 (máy tính 1360, điện thoại 390 điểm ảnh); kiểm tra kiểu api, web-crm, web-affiliate, web-platform đạt; CI đạt.
+- Bảo mật phần B, C: không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thư viện mới.
+- Còn mở (không chặn): phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức; liên kết Nhật ký gọi chưa lọc sẵn theo khóa; phát hành thật cần cấu hình mẫu OTP eSMS.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-16.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.9.0
 
 - Phạm vi: nhánh `phat-hanh/v0.9.0` gộp CONG_VIEC_59 (`73465083`, `da9255b6`), CONG_VIEC_66 (`c8dfd6a0`) (pull request #151, commit hợp nhất `e6d26a9`).
@@ -693,4 +701,4 @@
 | LOI_10 | Xuất PDF công văn đi (CONG_VIEC_52, phông Liberation Serif) lỗi tùy thứ tự nạp module: `inventory/labels.service.ts` (CONG_VIEC_05) và `proposals/proposal-pdf.service.ts` (CONG_VIEC_03) đăng ký lại bảng phông pdfmake chỉ có Roboto. Có từ bản 0.8.0 (chưa triển khai); phát hiện khi CONG_VIEC_59 làm lát L3 | Cao | Kiểm thử của CONG_VIEC_59 lát L3 | Sửa trong CONG_VIEC_59: hai nơi chuyển sang `renderPdf` dùng chung của `common/pdf` | Đã sửa, phát hành v0.9.0 |
 | LOI_11 | Phát hành công văn đi lỗi 500 khi dùng lưu trữ tệp cục bộ: khóa lưu trữ chứa "outgoing_signed" có dấu gạch dưới, `LocalFileStorage` từ chối (CONG_VIEC_52, có từ bản 0.8.0, chưa triển khai). Kiểm thử dùng kho bộ nhớ nên không phát hiện | Cao | Kiểm thử của CONG_VIEC_59 lát L3 | Sửa trong CONG_VIEC_59: đổi dấu gạch dưới thành gạch ngang trong khóa lưu trữ | Đã sửa, phát hành v0.9.0 |
 | LOI_12 | CONG_VIEC_59: `office/signing/pdf-verification.ts` cắt mọi cặp "00" cuối chuỗi hex /Contents trước khi đọc CMS; chữ ký RSA kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký) bị mất byte nên kiểm tra chữ ký báo sai và lần ký bị đánh thất bại, người dùng phải ký lại. Phát hiện khi dựng phát hành 0.9.0 (3 ca c59-phien-ky lỗi khi chạy toàn bộ) | Trung bình | KICHBAN_KIEMTHU_598, 599, 603 | Sửa trên nhánh phát hành 0.9.0: bỏ việc cắt, bộ đọc DER đã bỏ qua phần đệm; thêm kiểm thử hồi quy | Đã sửa (commit `753f465`, kiểm thử hồi quy trong c59-ky-so-pdf), phát hành v0.9.0 |
-| LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đang sửa (nhánh `sua-loi/LOI_13-kiem-thu-ky-so`) |
+| LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đã sửa (pull request #155, chỉ sửa kiểm thử, hợp nhất vào main 2026-11-12) |
