@@ -117,6 +117,8 @@ import { PurchasingBudgetsController } from "./purchasing/budgets.controller";
 import { DropshipController } from "./purchasing/dropship.controller";
 import { DropshipProductsService } from "./purchasing/dropship-products.service";
 import { DropshipOrdersService } from "./purchasing/dropship-orders.service";
+import { OpenDropshipService } from "./purchasing/open-dropship.service";
+import { DropshipReturnsService } from "./purchasing/dropship-returns.service";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
@@ -357,6 +359,8 @@ import { UsersService } from "./users/users.service";
     BudgetPlansService,
     DropshipProductsService,
     DropshipOrdersService,
+    OpenDropshipService,
+    DropshipReturnsService,
     BudgetAdjustmentsService,
     StockLedgerService,
     ReservationsService,

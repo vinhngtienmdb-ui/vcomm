@@ -177,6 +177,8 @@ export interface DropshipOrderResponse extends DropshipOrderListItem {
   taxAmount: string;
   receipt: { id: string; documentNo: string } | null;
   issue: { id: string; documentNo: string } | null;
+  issueLines: DropshipIssueLine[];
+  returns: DropshipReturnResponse[];
   lines: DropshipOrderLine[];
   events: DropshipEventResponse[];
   canManage: boolean;
@@ -192,4 +194,139 @@ export interface SalesOrderDropshipItem {
   status: DropshipStatus;
   carrierName: string | null;
   trackingCode: string | null;
+}
+
+// Open API nhà cung cấp dropship (API_271, API_272, API_309; QUYTAC_NGHIEPVU_505).
+export const openDropshipOrderListQuerySchema = z
+  .object({
+    status: z.enum(dropshipStatuses).optional(),
+    updatedSince: z.iso.datetime({ offset: true }).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+
+export const openDropshipEventSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("shipping"), carrierName: optionalText(100), trackingCode: optionalText(100) }).strict(),
+  z.object({ type: z.literal("delivered"), deliveredOn: isoDay }).strict(),
+  z.object({ type: z.literal("failed"), reason: reasonText }).strict(),
+]);
+export type OpenDropshipEventRequest = z.input<typeof openDropshipEventSchema>;
+
+export const openDropshipStockSchema = z
+  .object({
+    items: z
+      .array(
+        z
+          .object({ variantCode: z.string().trim().min(1).max(50).optional(), supplierSku: z.string().trim().min(1).max(100).optional(), quantity: dropshipQuantity })
+          .strict()
+          .refine((item) => Boolean(item.variantCode) !== Boolean(item.supplierSku), { message: "invalidValue" }),
+      )
+      .min(1)
+      .max(500),
+  })
+  .strict();
+export type OpenDropshipStockRequest = z.input<typeof openDropshipStockSchema>;
+
+export interface OpenDropshipOrder {
+  code: string;
+  status: DropshipStatus;
+  orderDate: string;
+  recipient: { name: string | null; phone: string | null; address: string | null };
+  lines: { variantCode: string; supplierSku: string | null; productName: string; unitCode: string; quantity: string; unitPrice: string; vatRate: string }[];
+  carrierName: string | null;
+  trackingCode: string | null;
+  deliveredOn: string | null;
+  reason: string | null;
+  updatedAt: string;
+}
+
+export interface OpenDropshipStockResponse {
+  updated: number;
+  errors: { index: number; code: string }[];
+}
+
+// Trả hàng dropship (API_269; QUYTAC_NGHIEPVU_503).
+const baseQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text) || Number(text) <= 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const createDropshipReturnSchema = z
+  .object({
+    orderId: z.uuid(),
+    destination: z.enum(["supplier", "warehouse"]),
+    warehouseId: z.uuid().nullable().default(null),
+    reason: reasonText,
+    lines: z
+      .array(z.object({ issueLineId: z.uuid(), quantity: baseQuantity }).strict())
+      .min(1)
+      .max(200),
+  })
+  .strict();
+export type CreateDropshipReturnRequest = z.input<typeof createDropshipReturnSchema>;
+export const dropshipReturnActionSchema = z.object({ version: z.number().int().min(1) }).strict();
+
+export interface DropshipReturnResponse {
+  id: string;
+  destination: "supplier" | "warehouse";
+  warehouseName: string | null;
+  status: "awaiting_supplier" | "received" | "cancelled";
+  reason: string;
+  lines: { issueLineId: string; productName: string; quantity: string; baseUnitName: string }[];
+  salesReturn: { id: string; documentNo: string } | null;
+  purchaseReturn: { id: string; documentNo: string } | null;
+  createdByName: string;
+  createdAt: string;
+  version: number;
+}
+
+// Dòng phiếu xuất của đơn dropship để chọn trả hàng (số lượng theo đơn vị cơ bản).
+export interface DropshipIssueLine {
+  id: string;
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  issuedQuantity: string;
+  returnedQuantity: string;
+  pendingQuantity: string;
+}
+
+// Đối soát nhà cung cấp dropship (API_270; QUYTAC_NGHIEPVU_504).
+export const dropshipReconciliationQuerySchema = z
+  .object({ from: isoDay, to: isoDay, supplierId: z.uuid().optional(), format: z.enum(["json", "xlsx"]).default("json") })
+  .strict()
+  .refine((query) => query.from <= query.to, { message: "invalidValue", path: ["to"] });
+
+export interface DropshipReconciliationRow {
+  supplierId: string;
+  supplierName: string;
+  deliveredCount: number;
+  receivedAmount: string;
+  returnedAmount: string;
+  missingInvoiceCount: number;
+  payableBalance: string;
+}
+
+export interface DropshipReconciliationOrder {
+  id: string;
+  documentNo: string;
+  salesOrderNo: string | null;
+  deliveredOn: string;
+  receivedAmount: string;
+  returnedAmount: string;
+  supplierInvoiceNo: string | null;
+}
+
+export interface DropshipReconciliationResponse {
+  from: string;
+  to: string;
+  currency: string;
+  rows: DropshipReconciliationRow[];
+  totals: { deliveredCount: number; receivedAmount: string; returnedAmount: string; missingInvoiceCount: number; payableBalance: string };
+  // Chi tiết từng đơn khi lọc một nhà cung cấp.
+  orders: DropshipReconciliationOrder[];
 }

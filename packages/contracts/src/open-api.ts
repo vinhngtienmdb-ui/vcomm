@@ -2,7 +2,8 @@
 import { z } from "zod";
 import { vietnamPhone } from "./affiliate";
 
-export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member"] as const;
+// CONG_VIEC_62 (QUYTAC_NGHIEPVU_505): dropship.supplier cho khóa của nhà cung cấp dropship.
+export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member", "dropship.supplier"] as const;
 export type ApiKeyScope = (typeof apiKeyScopes)[number];
 export const apiKeyKinds = ["partner", "internal"] as const;
 export type ApiKeyKind = (typeof apiKeyKinds)[number];

@@ -2,6 +2,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import { messages } from "i18n";
+import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
@@ -420,5 +421,197 @@ describe("TIEUCHI_NGHIEMTHU_463: giao thất bại", () => {
     const closed = await call(admin, "get", `/sales/orders/${mixed.id}`);
     expect(closed.body.status).toBe("closed");
     expect((await pool.query("SELECT 1 FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [mixed.id])).rows).toHaveLength(0);
+  });
+});
+
+// Lát L3: trả hàng, Open API nhà cung cấp, đối soát nhà cung cấp.
+async function deliveredHoneyOrder(quantity: string) {
+  const sales = await confirmedDropshipOrder([{ variantId: variants.honey!, quantity }]);
+  const order = await dropshipOrder(sales.dropship[0]!.id);
+  const delivered = await call(purchaser, "post", `/purchasing/dropship-orders/${order.id}/delivered`, { deliveredOn: today, version: order.version });
+  expect(delivered.status, JSON.stringify(delivered.body)).toBe(201);
+  return delivered.body as {
+    id: string;
+    version: number;
+    issue: { id: string };
+    receipt: { id: string };
+    issueLines: { id: string; issuedQuantity: string; returnedQuantity: string; pendingQuantity: string }[];
+    returns: { id: string; status: string; version: number; salesReturn: { id: string } | null; purchaseReturn: { id: string } | null }[];
+  };
+}
+
+describe("TIEUCHI_NGHIEMTHU_464: trả hàng dropship", () => {
+  it("KICHBAN_KIEMTHU_645: trả về nhà cung cấp (chờ, hủy, xác nhận); trả về kho công ty; trả quá số đã xuất bị từ chối", async () => {
+    const order = await deliveredHoneyOrder("3");
+    const line = order.issueLines[0]!;
+    expect(line).toMatchObject({ issuedQuantity: "3", returnedQuantity: "0", pendingQuantity: "0" });
+    const toSupplier = (quantity: string) =>
+      call(purchaser, "post", "/purchasing/dropship-returns", { orderId: order.id, destination: "supplier", reason: "Hũ bị nứt", lines: [{ issueLineId: line.id, quantity }] });
+    const first = await toSupplier("1");
+    expect(first.status, JSON.stringify(first.body)).toBe(201);
+    expect(first.body.issueLines[0]).toMatchObject({ pendingQuantity: "1" });
+    expect(first.body.returns[0]).toMatchObject({ status: "awaiting_supplier", salesReturn: null });
+    const tooMany = await toSupplier("3");
+    expect(tooMany.status).toBe(400);
+    expect(tooMany.body.error.fields).toMatchObject(fieldsOf({ "lines.0.quantity": "salesReturnExceeded" }));
+    const cancelled = await call(purchaser, "post", `/purchasing/dropship-returns/${first.body.returns[0].id}/cancel`, { version: first.body.returns[0].version });
+    expect(cancelled.status, JSON.stringify(cancelled.body)).toBe(201);
+    expect(cancelled.body.issueLines[0]).toMatchObject({ pendingQuantity: "0" });
+
+    const second = await toSupplier("1");
+    const pending = second.body.returns.find((item: { status: string }) => item.status === "awaiting_supplier");
+    const received = await call(purchaser, "post", `/purchasing/dropship-returns/${pending.id}/received`, { version: pending.version });
+    expect(received.status, JSON.stringify(received.body)).toBe(201);
+    const done = received.body.returns.find((item: { id: string }) => item.id === pending.id);
+    expect(done.status).toBe("received");
+    expect(done.salesReturn).not.toBeNull();
+    expect(done.purchaseReturn).not.toBeNull();
+    expect(received.body.issueLines[0]).toMatchObject({ returnedQuantity: "1", pendingQuantity: "0" });
+    const debts = await pool.query<{ side: string; direction: string; amount: string }>(
+      "SELECT side, direction, amount::text FROM finance.debt_items WHERE source_id = ANY($1::uuid[]) ORDER BY side",
+      [[done.salesReturn.id, done.purchaseReturn.id]],
+    );
+    expect(debts.rows.map((row) => [row.side, row.direction, Number(row.amount)])).toEqual([
+      ["payable", "credit", 232200],
+      ["receivable", "credit", 60000],
+    ]);
+    const dropshipBalance = await pool.query<{ quantity: string }>("SELECT coalesce(sum(quantity), 0)::text AS quantity FROM inventory.balances WHERE warehouse_id = $1", [dropshipWarehouse]);
+    expect(Number(dropshipBalance.rows[0]!.quantity)).toBe(0);
+
+    const toWarehouse = await call(purchaser, "post", "/purchasing/dropship-returns", {
+      orderId: order.id,
+      destination: "warehouse",
+      warehouseId: standardWarehouse,
+      reason: "Khách trả về cửa hàng",
+      lines: [{ issueLineId: line.id, quantity: "1" }],
+    });
+    expect(toWarehouse.status, JSON.stringify(toWarehouse.body)).toBe(201);
+    expect(toWarehouse.body.issueLines[0]).toMatchObject({ returnedQuantity: "2" });
+    const standardBalance = await pool.query<{ quantity: string }>("SELECT coalesce(sum(quantity), 0)::text AS quantity FROM inventory.balances WHERE warehouse_id = $1 AND variant_id = $2", [
+      standardWarehouse,
+      variants.honey,
+    ]);
+    expect(Number(standardBalance.rows[0]!.quantity)).toBe(1);
+    const wrongWarehouse = await call(purchaser, "post", "/purchasing/dropship-returns", {
+      orderId: order.id,
+      destination: "warehouse",
+      warehouseId: dropshipWarehouse,
+      reason: "Sai kho",
+      lines: [{ issueLineId: line.id, quantity: "1" }],
+    });
+    expect(wrongWarehouse.status).toBe(400);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_465: Open API nhà cung cấp", () => {
+  it("KICHBAN_KIEMTHU_646: khóa nhà cung cấp chỉ thấy đơn của mình, không có giá bán, khách; chuyển trạng thái sai 409; tồn biến thể của nhà cung cấp khác bị từ chối; khóa thiếu phạm vi 403", async () => {
+    const issueKey = async (partnerId: string, scopes: string[]) =>
+      call(admin, "post", "/platform/api-keys", {
+        kind: "partner",
+        partnerId,
+        name: `Khóa ${Math.random().toString(36).slice(2, 8)}`,
+        scopes,
+        channelId,
+        warehouseIds: scopes.includes("catalog.read") ? [dropshipWarehouse] : [],
+      });
+    const wrongPartner = await issueKey(otherSupplierId, ["dropship.supplier"]);
+    expect(wrongPartner.status).toBe(400);
+    expect(wrongPartner.body.error.fields).toMatchObject(fieldsOf({ partnerId: "apiKeyPartnerInvalid" }));
+    const key = await issueKey(supplierId, ["dropship.supplier"]);
+    expect(key.status, JSON.stringify(key.body)).toBe(201);
+    const secret = key.body.secret as string;
+    const customerKey = (await issueKey(otherSupplierId, ["catalog.read"])).body.secret as string;
+    const open = (method: "get" | "post" | "put", path: string, token: string, body?: unknown) => {
+      const sent = request(application.getHttpServer())[method](`/api/v1/open${path}`).set("authorization", `Bearer ${token}`).set("accept-language", "vi");
+      return body === undefined ? sent : sent.send(body as object);
+    };
+
+    const sales = await confirmedDropshipOrder([
+      { variantId: variants.honey!, quantity: "1" },
+      { variantId: variants.tea!, quantity: "1" },
+    ]);
+    const own = sales.dropship.find((item) => item.supplierName === "Công ty TNHH Nông sản Hòa Bình")!;
+    const other = sales.dropship.find((item) => item.supplierName === "Hợp tác xã Ong Tràm U Minh")!;
+    const list = await open("get", "/dropship/orders?status=awaiting", secret);
+    expect(list.status, JSON.stringify(list.body)).toBe(200);
+    expect(list.body.data.map((item: { code: string }) => item.code)).toContain(own.documentNo);
+    expect(list.body.data.map((item: { code: string }) => item.code)).not.toContain(other.documentNo);
+    const detail = await open("get", `/dropship/orders/${own.documentNo}`, secret);
+    expect(detail.status).toBe(200);
+    expect(Object.keys(detail.body).sort()).toEqual(["carrierName", "code", "deliveredOn", "lines", "orderDate", "reason", "recipient", "status", "trackingCode", "updatedAt"]);
+    expect(detail.body.recipient).toMatchObject({ name: "Công ty TNHH Khách dropship", address: "45 Nguyễn Gia Trí, Bình Thạnh, TP. Hồ Chí Minh" });
+    expect(detail.body.lines[0]).toMatchObject({ quantity: "1", unitPrice: "215000" });
+    expect((await open("get", `/dropship/orders/${other.documentNo}`, secret)).status).toBe(404);
+
+    const shipping = await open("post", `/dropship/orders/${own.documentNo}/events`, secret, { type: "shipping", carrierName: "GHN", trackingCode: "GHNX0001" });
+    expect(shipping.status, JSON.stringify(shipping.body)).toBe(200);
+    expect(shipping.body).toMatchObject({ status: "shipping", trackingCode: "GHNX0001" });
+    const delivered = await open("post", `/dropship/orders/${own.documentNo}/events`, secret, { type: "delivered", deliveredOn: today });
+    expect(delivered.status, JSON.stringify(delivered.body)).toBe(200);
+    expect(delivered.body.status).toBe("delivered");
+    expect((await open("post", `/dropship/orders/${own.documentNo}/events`, secret, { type: "delivered", deliveredOn: today })).status).toBe(200);
+    expect((await open("post", `/dropship/orders/${own.documentNo}/events`, secret, { type: "shipping" })).status).toBe(409);
+    expect((await open("post", `/dropship/orders/${own.documentNo}/events`, secret, { type: "cancelled", reason: "x" })).status).toBe(400);
+    const events = await pool.query<{ created_via_api_key_id: string | null }>(
+      "SELECT e.created_via_api_key_id FROM purchasing.dropship_events e JOIN purchasing.orders o ON o.id = e.order_id WHERE o.document_no = $1 AND e.status = 'delivered'",
+      [own.documentNo],
+    );
+    expect(events.rows[0]!.created_via_api_key_id).toBe(key.body.key.id);
+
+    const sku = (await pool.query<{ sku: string }>("SELECT sku FROM catalog.variants WHERE id = $1", [variants.juice])).rows[0]!.sku;
+    const teaSku = (await pool.query<{ sku: string }>("SELECT sku FROM catalog.variants WHERE id = $1", [variants.tea])).rows[0]!.sku;
+    const stock = await open("put", "/dropship/stock", secret, {
+      items: [
+        { variantCode: sku, quantity: 77 },
+        { variantCode: teaSku, quantity: 5 },
+      ],
+    });
+    expect(stock.status, JSON.stringify(stock.body)).toBe(200);
+    expect(stock.body).toEqual({ updated: 1, errors: [{ index: 1, code: "NOT_FOUND" }] });
+    const juice = (await call(purchaser, "get", `/purchasing/dropship-products?search=${encodeURIComponent("bưởi")}`)).body.data[0];
+    expect(juice).toMatchObject({ declaredQuantity: "77" });
+    expect(juice.declaredByName).toBe(key.body.key.name);
+
+    expect((await open("get", "/dropship/orders", customerKey)).status).toBe(403);
+    expect((await open("get", "/products", secret)).status).toBe(403);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_466: đối soát nhà cung cấp", () => {
+  it("KICHBAN_KIEMTHU_647: số đơn đã giao, giá trị nhận, trả lại, đơn chưa có số hóa đơn, phải trả khớp sổ; tệp Excel", async () => {
+    const delivered = await pool.query<{ id: string; total: string }>(
+      "SELECT id, (total_amount + tax_amount)::text AS total FROM purchasing.orders WHERE supplier_id = $1 AND dropship_status = 'delivered' AND delivered_on = $2::date",
+      [supplierId, today],
+    );
+    const withInvoice = delivered.rows[0]!.id;
+    const current = await dropshipOrder(withInvoice);
+    expect((await call(purchaser, "patch", `/purchasing/dropship-orders/${withInvoice}/supplier-invoice`, { invoiceNo: "1C26THB-0001532", invoiceDate: today, version: current.version })).status).toBe(
+      200,
+    );
+    const report = await call(purchaser, "get", `/purchasing/dropship-reconciliation?from=${today}&to=${today}&supplierId=${supplierId}`);
+    expect(report.status, JSON.stringify(report.body)).toBe(200);
+    const row = report.body.rows[0];
+    const returned = await pool.query<{ amount: string }>(
+      `SELECT coalesce(sum(di.amount), 0)::text AS amount FROM finance.debt_items di JOIN inventory.documents r ON r.id = di.source_id JOIN inventory.documents rc ON rc.id = r.source_id
+       JOIN purchasing.orders po ON po.id = rc.source_id WHERE di.source_type = 'purchase_return' AND po.supplier_id = $1`,
+      [supplierId],
+    );
+    const payable = await pool.query<{ balance: string }>(
+      "SELECT coalesce(sum(CASE WHEN direction = 'debit' THEN amount ELSE -amount END), 0)::text AS balance FROM finance.debt_items WHERE partner_id = $1 AND side = 'payable'",
+      [supplierId],
+    );
+    expect(row).toMatchObject({
+      supplierName: "Công ty TNHH Nông sản Hòa Bình",
+      deliveredCount: delivered.rows.length,
+      missingInvoiceCount: delivered.rows.length - 1,
+    });
+    expect(Number(row.receivedAmount)).toBe(delivered.rows.reduce((sum, item) => sum + Number(item.total), 0));
+    expect(Number(row.returnedAmount)).toBe(Number(returned.rows[0]!.amount));
+    expect(Number(row.payableBalance)).toBe(Number(payable.rows[0]!.balance));
+    expect(report.body.orders).toHaveLength(delivered.rows.length);
+    const file = await call(purchaser, "get", `/purchasing/dropship-reconciliation?from=${today}&to=${today}&format=xlsx`);
+    expect(file.status).toBe(200);
+    expect(file.headers["content-type"]).toContain("spreadsheetml");
+    expect((await call(purchaser, "get", `/purchasing/dropship-reconciliation?from=${today}&to=2020-01-01`)).status).toBe(400);
   });
 });

@@ -3,6 +3,10 @@ import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req, Res, Up
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   createDropshipProductSchema,
+  createDropshipReturnSchema,
+  dropshipReconciliationQuerySchema,
+  dropshipReturnActionSchema,
+  type DropshipReconciliationResponse,
   dropshipDeliveredSchema,
   dropshipOrderListQuerySchema,
   dropshipReasonSchema,
@@ -31,6 +35,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { DropshipOrdersService } from "./dropship-orders.service";
 import { DropshipProductsService } from "./dropship-products.service";
+import { DropshipReturnsService } from "./dropship-returns.service";
 import { purchasingPermissions } from "./purchasing-context";
 
 @Controller("purchasing")
@@ -39,6 +44,7 @@ export class DropshipController {
     private readonly permissionService: PermissionService,
     private readonly products: DropshipProductsService,
     private readonly orders: DropshipOrdersService,
+    private readonly returns: DropshipReturnsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -128,5 +134,47 @@ export class DropshipController {
   @Patch("dropship-orders/:id/supplier-invoice")
   async supplierInvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<DropshipOrderResponse> {
     return this.orders.supplierInvoice(await this.actor(request, companyId), id, dropshipSupplierInvoiceSchema.parse(body));
+  }
+
+  // API_269: trả hàng dropship.
+  @Post("dropship-returns")
+  async createReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<DropshipOrderResponse> {
+    return this.returns.create(await this.actor(request, companyId), createDropshipReturnSchema.parse(body));
+  }
+
+  @Post(["dropship-returns/:id/received", "dropship-returns/:id/cancel"])
+  async endReturn(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<DropshipOrderResponse> {
+    const { version } = dropshipReturnActionSchema.parse(body);
+    const actor = await this.actor(request, companyId);
+    return request.path.endsWith("/received") ? this.returns.received(actor, id, version) : this.returns.cancel(actor, id, version);
+  }
+
+  // API_270: đối soát nhà cung cấp dropship; format=xlsx tải tệp Excel.
+  @Get("dropship-reconciliation")
+  async reconciliation(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<DropshipReconciliationResponse | undefined> {
+    const parsed = dropshipReconciliationQuerySchema.parse(query);
+    const result = await this.returns.reconciliation(await this.actor(request, companyId), parsed);
+    if (parsed.format !== "xlsx") return result;
+    const header = ["Nhà cung cấp", "Số đơn đã giao", "Giá trị nhận có thuế", "Giá trị trả lại có thuế", "Đơn chưa có số hóa đơn", "Phải trả cuối kỳ"].map((value) => ({
+      value,
+      fontWeight: "bold" as const,
+    }));
+    const rows = result.rows.map((row) => [
+      { value: row.supplierName },
+      { value: row.deliveredCount, type: Number },
+      { value: Number(row.receivedAmount), type: Number },
+      { value: Number(row.returnedAmount), type: Number },
+      { value: row.missingInvoiceCount, type: Number },
+      { value: Number(row.payableBalance), type: Number },
+    ]);
+    response.setHeader("content-type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("content-disposition", `attachment; filename="doi-soat-dropship-${parsed.from}-${parsed.to}.xlsx"`);
+    response.send(await writeXlsxFile([header, ...rows], { sheet: "Đối soát" }).toBuffer());
+    return undefined;
   }
 }

@@ -26,20 +26,24 @@ CREATE TABLE purchasing.dropship_events (
 );
 CREATE INDEX dropship_events_order_idx ON purchasing.dropship_events (order_id, created_at);
 
--- Trả hàng dropship về nhà cung cấp: ghi sổ phiếu trả hàng bán, trả hàng mua khi nhà cung cấp xác nhận đã nhận (QUYTAC_NGHIEPVU_503).
+-- Trả hàng dropship (QUYTAC_NGHIEPVU_503): về nhà cung cấp thì ghi sổ phiếu trả hàng bán, trả hàng mua khi nhà cung cấp xác nhận đã nhận;
+-- về kho công ty thì ghi sổ phiếu trả hàng bán vào kho thường ngay.
 CREATE TABLE purchasing.dropship_returns (
     id                      uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id              uuid          NOT NULL REFERENCES core.companies(id),
     order_id                uuid          NOT NULL REFERENCES purchasing.orders(id),
     issue_id                uuid          NOT NULL,                                     -- phiếu xuất bán gốc (inventory.documents)
     reason                  text          NOT NULL CHECK (length(reason) BETWEEN 1 AND 500),
+    destination             text          NOT NULL CHECK (destination IN ('supplier', 'warehouse')),
+    warehouse_id            uuid,                                                       -- kho nhận khi trả về kho công ty (inventory.warehouses)
     status                  text          NOT NULL DEFAULT 'awaiting_supplier' CHECK (status IN ('awaiting_supplier', 'received', 'cancelled')),
     sales_return_id         uuid,                                                       -- phiếu trả hàng bán khi đã nhận
     purchase_return_id      uuid,                                                       -- phiếu trả hàng mua khi đã nhận
     created_by              uuid          NOT NULL REFERENCES core.users(id),
     created_at              timestamptz   NOT NULL DEFAULT now(),
     closed_at               timestamptz,
-    version                 integer       NOT NULL DEFAULT 1
+    version                 integer       NOT NULL DEFAULT 1,
+    CHECK ((destination = 'warehouse') = (warehouse_id IS NOT NULL))
 );
 CREATE INDEX dropship_returns_order_idx ON purchasing.dropship_returns (order_id);
 

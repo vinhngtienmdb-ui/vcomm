@@ -171,6 +171,65 @@ export class PurchaseReceiptsService {
     return documentId;
   }
 
+  // Dropship trả về nhà cung cấp (CONG_VIEC_62; QUYTAC_NGHIEPVU_503): phiếu trả hàng mua theo phiếu nhập gốc, số lượng theo đơn vị cơ bản; ghi sổ ngay.
+  async returnAsSystem(
+    transaction: Executor,
+    actor: Actor,
+    input: { receiptId: string; documentDate: string; reason: string; lines: { receiptLineId: string; baseQuantity: string }[] },
+  ): Promise<string> {
+    const receipt = (
+      await transaction.execute<{ id: string; company_id: string; warehouse_id: string; partner_id: string | null; status: string; type: string; source_id: string }>(sql`
+      SELECT id, company_id, warehouse_id, partner_id, status, type, source_id FROM inventory.documents WHERE id = ${input.receiptId}`)
+    ).rows[0];
+    if (!receipt || receipt.type !== "purchase_receipt" || receipt.status !== "posted") throw new ApiError("BUSINESS_RULE", "purchaseReceiptNotPosted");
+    const sources = new Map((await this.documents.lines(receipt.id, transaction)).map((line) => [line.id, line]));
+    const returnInput = {
+      receiptId: receipt.id,
+      documentDate: input.documentDate,
+      reason: input.reason,
+      note: null,
+      lines: input.lines.map((line) => {
+        const source = sources.get(line.receiptLineId);
+        const factor = source ? Number(source.base_quantity) / Number(source.quantity) : 1;
+        return { receiptLineId: line.receiptLineId, quantity: String(Number((Number(line.baseQuantity) / factor).toFixed(4))), serials: [] };
+      }),
+    } as unknown as ReturnInput;
+    const { documentInput, sourceLines } = await this.returnInput(receipt, returnInput);
+    const prepared = await this.documents.prepare(null, documentInput, inventoryPermissions.receivePurchases);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${receipt.company_id}, ${receipt.warehouse_id}, 'purchase_return', ${input.documentDate}::date, 'purchase_return', ${input.reason}, NULL, 'inventory.document',
+        ${receipt.id}, ${receipt.partner_id}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
+    await transaction.execute(sql`
+      UPDATE inventory.documents r SET currency = i.currency, exchange_rate = i.exchange_rate FROM inventory.documents i WHERE r.id = ${documentId} AND i.id = r.source_id`);
+    const lines = await this.documents.lines(documentId, transaction);
+    const fields = await this.returnableErrors(
+      transaction,
+      lines.map((line) => ({ receiptLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
+    );
+    Object.assign(
+      fields,
+      await this.documents.checkForSubmit(
+        { type: "purchase_return", company_id: receipt.company_id, warehouse_id: receipt.warehouse_id, reason_code: "purchase_return", stocktake_id: null },
+        lines,
+        transaction,
+      ),
+    );
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    const documentNo = await this.sequences.next(receipt.company_id, documentTypeCodes.purchase_return, transaction);
+    await transaction.execute(sql`
+      UPDATE inventory.documents SET status = 'pending', document_no = ${documentNo}, submitted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${documentId}`);
+    await this.documents.postDocument(transaction, documentId);
+    await this.auditService.record(
+      { ...inventoryAudit(actor, "stock_document"), companyId: receipt.company_id, action: "stock_document.submit", entityId: documentId, afterData: { documentNo, dropship: true } },
+      transaction,
+    );
+    return documentId;
+  }
+
   async ensureReceiptSequence(actor: Actor, companyId: string): Promise<void> {
     for (const type of ["purchase_receipt", "purchase_return"] as const) {
       const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${companyId} AND document_type_code = ${documentTypeCodes[type]} LIMIT 1`);

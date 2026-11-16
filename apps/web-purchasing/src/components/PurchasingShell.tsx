@@ -19,6 +19,7 @@ export const purchasingMenu = [
   // CONG_VIEC_62: Dropship (MAN_HINH_234).
   { href: "/dropship-products", key: "dropshipProducts", permission: "purchasing.dropship.view" },
   { href: "/dropship-orders", key: "dropshipOrders", permission: "purchasing.dropship.view" },
+  { href: "/dropship-reconciliation", key: "dropshipReconciliation", permission: "purchasing.dropship.view" },
 ] as const;
 
 export function PurchasingShell({ children }: { children: ReactNode }) {

@@ -1,8 +1,8 @@
 "use client";
 
 // MAN_HINH_236 Chi tiết đơn dropship (CONG_VIEC_62 CHUC_NANG_223; API_267, API_268): dòng hàng, người nhận, lịch sử trạng thái giao;
-// báo đang giao, đã giao, giao thất bại, hủy; số hóa đơn nhà cung cấp. Trả hàng làm ở lát L3.
-import type { DropshipOrderResponse } from "contracts";
+// báo đang giao, đã giao, giao thất bại, hủy; số hóa đơn nhà cung cấp; trả hàng (API_269, lát L3).
+import type { DropshipOrderResponse, PurchasingOptionsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,7 +14,7 @@ import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime, formatMoney, formatNumber, vietnamToday } from "ui/lib/format";
-import { useApi } from "ui/lib/use-api";
+import { failureOf, useApi } from "ui/lib/use-api";
 import { DropshipStatusBadge } from "@/components/DropshipStatusBadge";
 
 type Action = "shipping" | "delivered" | "failed" | "cancel" | "invoice";
@@ -39,7 +39,22 @@ function Detail({ order, reload }: { order: DropshipOrderResponse; reload: () =>
   const t = useTranslations("dropshipOrders");
   const { notify } = useAdmin();
   const [action, setAction] = useState<Action | null>(null);
+  const [returning, setReturning] = useState(false);
+  const [busy, setBusy] = useState(false);
   const open = order.status === "awaiting" || order.status === "shipping";
+
+  async function endReturn(id: string, version: number, kind: "received" | "cancel") {
+    setBusy(true);
+    try {
+      await apiFetch(`/purchasing/dropship-returns/${id}/${kind}`, { method: "POST", body: JSON.stringify({ version }) });
+      notify(t("saved"));
+      await reload();
+    } catch (error) {
+      notify(failureOf(error).message, "loi");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const headings = [t("product"), t("unit"), t("quantity"), t("unitPrice"), t("vatRate"), t("amount")];
   return (
@@ -69,6 +84,11 @@ function Detail({ order, reload }: { order: DropshipOrderResponse; reload: () =>
             {open && (
               <button type="button" className="nut chinh" onClick={() => setAction("delivered")}>
                 {t("delivered")}
+              </button>
+            )}
+            {order.status === "delivered" && (
+              <button type="button" className="nut phu" onClick={() => setReturning(true)}>
+                {t("return")}
               </button>
             )}
             {order.status === "delivered" && (
@@ -185,6 +205,65 @@ function Detail({ order, reload }: { order: DropshipOrderResponse; reload: () =>
           </tfoot>
         </table>
       </div>
+      {order.returns.length > 0 && (
+        <>
+          <h2>{t("returns")}</h2>
+          <div className="khung-bang">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{t("returnCreated")}</th>
+                  <th scope="col">{t("returnDestination")}</th>
+                  <th scope="col">{t("returnLines")}</th>
+                  <th scope="col">{t("returnStatus")}</th>
+                  <th scope="col">{t("documents")}</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.returns.map((item) => (
+                  <tr key={item.id}>
+                    <td data-nhan={t("returnCreated")}>
+                      <span>
+                        {formatDateTime(item.createdAt)} · {item.createdByName}
+                        <span className="chu-thich"> · {item.reason}</span>
+                      </span>
+                    </td>
+                    <td data-nhan={t("returnDestination")}>
+                      <span>{item.destination === "supplier" ? t("toSupplier") : `${t("toWarehouse")} · ${item.warehouseName ?? ""}`}</span>
+                    </td>
+                    <td data-nhan={t("returnLines")}>
+                      <span>{item.lines.map((line) => `${line.productName} × ${formatNumber(line.quantity)} ${line.baseUnitName}`).join("; ")}</span>
+                    </td>
+                    <td data-nhan={t("returnStatus")}>
+                      <span className={`nhan ${item.status === "received" ? "thanh-cong" : item.status === "cancelled" ? "trung-tinh" : "canh-bao"}`}>{t(`return_${item.status}`)}</span>
+                    </td>
+                    <td data-nhan={t("documents")}>
+                      <span className="nhom-nut">
+                        {item.salesReturn && <a href={`/inventory/documents/${item.salesReturn.id}`}>{item.salesReturn.documentNo}</a>}
+                        {item.purchaseReturn && <a href={`/inventory/documents/${item.purchaseReturn.id}`}>{item.purchaseReturn.documentNo}</a>}
+                        {!item.salesReturn && !item.purchaseReturn && "—"}
+                      </span>
+                    </td>
+                    <td data-nhan="">
+                      {order.canManage && item.status === "awaiting_supplier" && (
+                        <span className="nhom-nut">
+                          <button type="button" className="nut chu" disabled={busy} onClick={() => void endReturn(item.id, item.version, "received")}>
+                            {t("returnReceived")}
+                          </button>
+                          <button type="button" className="nut chu" disabled={busy} onClick={() => void endReturn(item.id, item.version, "cancel")}>
+                            {t("returnCancel")}
+                          </button>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
       <h2>{t("events")}</h2>
       <div className="khung-bang">
         <table>
@@ -216,6 +295,17 @@ function Detail({ order, reload }: { order: DropshipOrderResponse; reload: () =>
           </tbody>
         </table>
       </div>
+      {returning && (
+        <ReturnDrawer
+          order={order}
+          onClose={() => setReturning(false)}
+          onDone={() => {
+            setReturning(false);
+            notify(t("saved"));
+            void reload();
+          }}
+        />
+      )}
       {action && (
         <ActionDrawer
           order={order}
@@ -300,6 +390,89 @@ function ActionDrawer({ order, action, onClose, onDone }: { order: DropshipOrder
         <div className="nhom-nut">
           <button type="submit" className={`nut ${action === "cancel" ? "nguy-hiem" : "chinh"}`} disabled={submitting}>
             {action === "delivered" ? t("confirmDelivered") : common("save")}
+          </button>
+          <button type="button" className="nut phu" onClick={onClose}>
+            {common("cancel")}
+          </button>
+        </div>
+      </form>
+    </Drawer>
+  );
+}
+
+function ReturnDrawer({ order, onClose, onDone }: { order: DropshipOrderResponse; onClose: () => void; onDone: () => void }) {
+  const t = useTranslations("dropshipOrders");
+  const common = useTranslations("common");
+  const options = useApi<PurchasingOptionsResponse>("/purchasing/options");
+  const warehouses = options.state.kind === "ready" ? options.state.data.warehouses : [];
+  const [destination, setDestination] = useState<"supplier" | "warehouse">("supplier");
+  const [warehouseId, setWarehouseId] = useState("");
+  const [reason, setReason] = useState("");
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    void run(async () => {
+      const lines = order.issueLines.map((line) => ({ issueLineId: line.id, quantity: quantities[line.id] ?? "" })).filter((line) => line.quantity !== "" && line.quantity !== "0");
+      await apiFetch("/purchasing/dropship-returns", {
+        method: "POST",
+        body: JSON.stringify({ orderId: order.id, destination, warehouseId: destination === "warehouse" ? warehouseId || null : null, reason, lines }),
+      });
+      onDone();
+    });
+  }
+
+  return (
+    <Drawer title={t("return")} onClose={onClose}>
+      <form onSubmit={submit} noValidate style={{ display: "grid", gap: "var(--khoang-4)" }}>
+        {order.issueLines.map((line, index) => {
+          const remaining = Number(line.issuedQuantity) - Number(line.returnedQuantity) - Number(line.pendingQuantity);
+          return (
+            <Field
+              key={line.id}
+              id={`tra-${line.id}`}
+              label={t("returnQuantity", { product: `${line.sku} · ${line.productName}`, remaining: formatNumber(String(remaining)), unit: line.baseUnitName })}
+              error={fields[`lines.${index}.quantity`]}
+            >
+              <input
+                id={`tra-${line.id}`}
+                className={inputClass(`lines.${index}.quantity`)}
+                inputMode="decimal"
+                value={quantities[line.id] ?? ""}
+                onChange={(event) => setQuantities({ ...quantities, [line.id]: event.target.value })}
+              />
+            </Field>
+          );
+        })}
+        <fieldset style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: "var(--khoang-2)" }}>
+          <legend>{t("returnDestination")}</legend>
+          <label>
+            <input type="radio" name="noi-nhan" checked={destination === "supplier"} onChange={() => setDestination("supplier")} /> {t("toSupplierHint")}
+          </label>
+          <label>
+            <input type="radio" name="noi-nhan" checked={destination === "warehouse"} onChange={() => setDestination("warehouse")} /> {t("toWarehouse")}
+          </label>
+          {destination === "warehouse" && (
+            <Field id="kho-nhan-tra" label={`${t("returnWarehouse")} *`} error={fields.warehouseId}>
+              <select id="kho-nhan-tra" className={inputClass("warehouseId")} value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)}>
+                <option value="">—</option>
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {warehouse.code} · {warehouse.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+        </fieldset>
+        <Field id="ly-do-tra" label={`${t("reason")} *`} error={fields.reason}>
+          <input id="ly-do-tra" className={inputClass("reason")} maxLength={500} value={reason} onChange={(event) => setReason(event.target.value)} />
+        </Field>
+        <FormError text={formError ?? fields.lines ?? null} />
+        <div className="nhom-nut">
+          <button type="submit" className="nut chinh" disabled={submitting}>
+            {t("createReturn")}
           </button>
           <button type="button" className="nut phu" onClick={onClose}>
             {common("cancel")}

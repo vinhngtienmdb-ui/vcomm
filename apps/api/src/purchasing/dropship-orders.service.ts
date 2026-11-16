@@ -1,7 +1,18 @@
 // Đơn mua dropship: tự lập khi đơn bán kho Dropship xác nhận; báo đang giao, đã giao (ghi sổ phiếu nhập mua và phiếu xuất bán), giao thất bại, hủy; số hóa đơn nhà cung cấp
 // (CONG_VIEC_62 CHUC_NANG_223; QUYTAC_NGHIEPVU_500 đến 502, 504; API_267, API_268).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
-import type { DropshipEventResponse, dropshipOrderListQuerySchema, DropshipOrderListItem, DropshipOrderResponse, DropshipStatus, PageResponse, SalesOrderDropshipItem, VatRate } from "contracts";
+import type {
+  DropshipEventResponse,
+  DropshipIssueLine,
+  dropshipOrderListQuerySchema,
+  DropshipReturnResponse,
+  DropshipOrderListItem,
+  DropshipOrderResponse,
+  DropshipStatus,
+  PageResponse,
+  SalesOrderDropshipItem,
+  VatRate,
+} from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { searchText, trimDecimal } from "../catalog/catalog-context";
@@ -335,6 +346,8 @@ export class DropshipOrdersService implements OnModuleInit {
         amount: trimDecimal(line.amount),
       })),
       events: events.rows.map((event): DropshipEventResponse => ({ status: event.status, note: event.note, actorName: event.actor_name, createdAt: new Date(event.created_at).toISOString() })),
+      issueLines: issue ? await dropshipIssueLines(executor, issue.id) : [],
+      returns: await dropshipReturns(executor, id),
       canManage,
       version: row.version,
     };
@@ -383,4 +396,64 @@ function toListItem(row: OrderRow): DropshipOrderListItem {
     overdue: row.overdue,
     supplierInvoiceNo: row.supplier_invoice_no,
   };
+}
+
+// Dòng phiếu xuất của đơn dropship: đã xuất, đã trả (phiếu trả đã ghi sổ), đang chờ nhà cung cấp nhận (theo đơn vị cơ bản) (QUYTAC_NGHIEPVU_503).
+export async function dropshipIssueLines(executor: Executor, issueId: string): Promise<DropshipIssueLine[]> {
+  const rows = await executor.execute<{ id: string; sku: string; product_name: string; base_unit_name: string; issued: string; returned: string; pending: string }>(sql`
+    SELECT dl.id, v.sku, p.name AS product_name, u.name_vi AS base_unit_name, abs(dl.base_quantity)::text AS issued,
+      coalesce((SELECT sum(abs(rl.base_quantity)) FROM inventory.document_lines rl JOIN inventory.documents r ON r.id = rl.document_id
+        WHERE rl.source_line_id = dl.id AND r.type = 'sales_return' AND r.status = 'posted'), 0)::text AS returned,
+      coalesce((SELECT sum(l.quantity) FROM purchasing.dropship_return_lines l JOIN purchasing.dropship_returns t ON t.id = l.return_id
+        WHERE l.issue_line_id = dl.id AND t.status = 'awaiting_supplier'), 0)::text AS pending
+    FROM inventory.document_lines dl JOIN catalog.variants v ON v.id = dl.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = p.base_unit_id
+    WHERE dl.document_id = ${issueId} ORDER BY dl.line_no`);
+  return rows.rows.map((row) => ({
+    id: row.id,
+    sku: row.sku,
+    productName: row.product_name,
+    baseUnitName: row.base_unit_name,
+    issuedQuantity: trimDecimal(row.issued),
+    returnedQuantity: trimDecimal(row.returned),
+    pendingQuantity: trimDecimal(row.pending),
+  }));
+}
+
+export async function dropshipReturns(executor: Executor, orderId: string): Promise<DropshipReturnResponse[]> {
+  const rows = await executor.execute<{
+    id: string;
+    destination: "supplier" | "warehouse";
+    warehouse_name: string | null;
+    status: DropshipReturnResponse["status"];
+    reason: string;
+    sales_return_id: string | null;
+    sales_return_no: string | null;
+    purchase_return_id: string | null;
+    purchase_return_no: string | null;
+    created_by_name: string;
+    created_at: Date;
+    version: number;
+    lines: { issueLineId: string; productName: string; quantity: string; baseUnitName: string }[];
+  }>(sql`
+    SELECT t.id, t.destination, w.name AS warehouse_name, t.status, t.reason, t.sales_return_id, sr.document_no AS sales_return_no, t.purchase_return_id,
+      pr.document_no AS purchase_return_no, u.full_name AS created_by_name, t.created_at, t.version,
+      coalesce((SELECT json_agg(json_build_object('issueLineId', l.issue_line_id, 'productName', p.name, 'quantity', l.quantity::text, 'baseUnitName', bu.name_vi) ORDER BY dl.line_no)
+        FROM purchasing.dropship_return_lines l JOIN inventory.document_lines dl ON dl.id = l.issue_line_id JOIN catalog.variants v ON v.id = dl.variant_id
+        JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units bu ON bu.id = p.base_unit_id WHERE l.return_id = t.id), '[]') AS lines
+    FROM purchasing.dropship_returns t JOIN core.users u ON u.id = t.created_by LEFT JOIN inventory.warehouses w ON w.id = t.warehouse_id
+    LEFT JOIN inventory.documents sr ON sr.id = t.sales_return_id LEFT JOIN inventory.documents pr ON pr.id = t.purchase_return_id
+    WHERE t.order_id = ${orderId} ORDER BY t.created_at`);
+  return rows.rows.map((row) => ({
+    id: row.id,
+    destination: row.destination,
+    warehouseName: row.warehouse_name,
+    status: row.status,
+    reason: row.reason,
+    lines: row.lines.map((line) => ({ ...line, quantity: trimDecimal(line.quantity) })),
+    salesReturn: row.sales_return_id ? { id: row.sales_return_id, documentNo: row.sales_return_no ?? "" } : null,
+    purchaseReturn: row.purchase_return_id ? { id: row.purchase_return_id, documentNo: row.purchase_return_no ?? "" } : null,
+    createdByName: row.created_by_name,
+    createdAt: new Date(row.created_at).toISOString(),
+    version: row.version,
+  }));
 }
