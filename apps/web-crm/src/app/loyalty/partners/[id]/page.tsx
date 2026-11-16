@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_259 Chi tiết đối tác liên minh: hợp đồng, giới hạn, trạng thái, tỷ lệ theo chiều và giai đoạn, bộ giả lập
+// MAN_HINH_259 Chi tiết đối tác liên minh: hợp đồng, giới hạn, trạng thái, tỷ lệ theo chiều và giai đoạn, khóa API tặng điểm, bộ giả lập
 // (CONG_VIEC_65; CHUC_NANG_236; API_301 đến 303); số dư trả trước hoặc dư nợ (QUYTAC_NGHIEPVU_546).
 import type { PartnerContractDetail, PartnerDirection, PartnerRate, PartnerSimulatorMode, PartnerSimulatorState } from "contracts";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDate, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { LoyaltyPartnerApiKeys } from "@/components/LoyaltyPartnerApiKeys";
 import { exposureSummary, partnerBody, partnerDirections, partnerFormOf, partnerStatusClass, PartnerTermsFields, type PartnerForm } from "@/components/LoyaltyPartnerForm";
 
 const rateStatusClass = { upcoming: "thong-tin", active: "thanh-cong", ended: "trung-tinh" } as const;
@@ -420,6 +421,7 @@ export default function LoyaltyPartnerPage() {
             )}
           </section>
           <RatesSection contract={data} onChanged={done} />
+          <LoyaltyPartnerApiKeys contractId={data.id} canManage={data.canManage} terminated={data.status === "terminated"} notify={notify} />
           {data.connector === "simulator" && <SimulatorSection contract={data} />}
         </>
       )}

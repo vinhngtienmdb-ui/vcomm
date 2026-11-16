@@ -1,7 +1,13 @@
 // API_301 đến API_304 (CONG_VIEC_65): quản trị đối tác liên minh điểm trên web-crm; quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_551).
 // API_306, API_307: người mua liên kết số thành viên đối tác, đổi điểm trên ứng dụng VComm.
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  partnerApiKeyCreateSchema,
+  partnerApiKeyUpdateSchema,
+  rotateApiKeySchema,
+  revokeApiKeySchema,
+  type PartnerApiKeyItem,
+  type PartnerApiKeySecret,
   partnerGiftListQuerySchema,
   type PartnerGiftItem,
   buyerPartnerExchangeCreateSchema,
@@ -35,6 +41,7 @@ import { clientInfo } from "../../auth/auth.controller";
 import type { AuthenticatedRequest } from "../../auth/auth.guard";
 import { UuidPipe } from "../../common/uuid.pipe";
 import { BuyerAdminService } from "../../marketplace/buyer-admin.service";
+import { PartnerApiKeysService } from "./api-keys.service";
 import { BuyerPartnersService } from "./buyer-partners.service";
 import { PartnerContractsService } from "./contracts.service";
 import { PartnerExchangesService } from "./exchanges.service";
@@ -47,6 +54,7 @@ export class PartnerContractsController {
     private readonly contracts: PartnerContractsService,
     private readonly exchanges: PartnerExchangesService,
     private readonly gifts: PartnerGiftsService,
+    private readonly apiKeys: PartnerApiKeysService,
   ) {}
 
   private manager(request: AuthenticatedRequest) {
@@ -142,7 +150,36 @@ export class PartnerContractsController {
     return this.gifts.list(actor, partnerGiftListQuerySchema.parse(query));
   }
 
-  // API_303 (phần bộ giả lập; khóa API ở lát L3).
+  // API_303 (phần khóa API): khóa tặng điểm phạm vi `loyalty.partner` (QUYTAC_NGHIEPVU_545).
+  @Get("partners/:id/api-keys")
+  async apiKeyList(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerApiKeyItem[]> {
+    return this.apiKeys.list(await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view"), id);
+  }
+
+  @Post("partners/:id/api-keys")
+  async createApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<PartnerApiKeySecret> {
+    return this.apiKeys.create(await this.manager(request), id, partnerApiKeyCreateSchema.parse(body));
+  }
+
+  @Patch("partner-api-keys/:keyId")
+  async updateApiKey(@Req() request: AuthenticatedRequest, @Param("keyId", UuidPipe) keyId: string, @Body() body: unknown): Promise<PartnerApiKeyItem> {
+    return this.apiKeys.update(await this.manager(request), keyId, partnerApiKeyUpdateSchema.parse(body));
+  }
+
+  @Post("partner-api-keys/:keyId/rotate")
+  @HttpCode(200)
+  async rotateApiKey(@Req() request: AuthenticatedRequest, @Param("keyId", UuidPipe) keyId: string, @Body() body: unknown): Promise<PartnerApiKeySecret> {
+    return this.apiKeys.rotate(await this.manager(request), keyId, rotateApiKeySchema.parse(body).version);
+  }
+
+  @Post("partner-api-keys/:keyId/revoke")
+  @HttpCode(200)
+  async revokeApiKey(@Req() request: AuthenticatedRequest, @Param("keyId", UuidPipe) keyId: string, @Body() body: unknown): Promise<PartnerApiKeyItem> {
+    const input = revokeApiKeySchema.parse(body);
+    return this.apiKeys.revoke(await this.manager(request), keyId, input.reason, input.version);
+  }
+
+  // API_303 (phần bộ giả lập).
   @Get("partners/:id/simulator")
   async simulator(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<PartnerSimulatorState> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "loyalty.partner.view");

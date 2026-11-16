@@ -1,11 +1,10 @@
 // CONG_VIEC_65 L3: đối tác tặng điểm qua Open API, trả trước, trả sau, hạch toán tặng
-// (KICHBAN_KIEMTHU_710, 711, 712, phần tặng của 713; TIEUCHI_NGHIEMTHU_519 đến 521).
+// (KICHBAN_KIEMTHU_710, 711, 712, phần tặng của 713; TIEUCHI_NGHIEMTHU_519 đến 521); khóa API tặng điểm (API_303; QUYTAC_NGHIEPVU_545).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { randomUUID } from "node:crypto";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { generateApiKey } from "../src/open-api/api-key-secret";
 import { journalLines, noLimit, operator, preparePartners, type Buyer, type PartnerFixture } from "./c65-fixture";
 import { startTestApplication } from "./setup-database";
 
@@ -25,15 +24,11 @@ const open = (key: string, method: "get" | "post", path: string, body?: object) 
 const balance = async (userId: string) => (await pool.query<{ balance: number }>("SELECT balance FROM loyalty.accounts WHERE user_id = $1", [userId])).rows[0]?.balance ?? 0;
 const giftLimits = { outbound: noLimit, inbound: noLimit, gift: { ...noLimit, maxPoints: 100000, customerMonthlyPoints: 150000 } };
 
-// Khóa API phạm vi `loyalty.partner` (màn hình cấp khóa làm sau khi CONG_VIEC_67 vào main); ghi thẳng như service khóa của Nền tảng.
-async function issueKey(partnerId: string, scopes: string[] = ["loyalty.partner"]): Promise<string> {
-  const generated = generateApiKey();
-  await pool.query(
-    `INSERT INTO core.api_keys (company_id, kind, partner_id, name, key_prefix, key_hash, scopes, channel_id, created_by, updated_by)
-     VALUES ($1, 'partner', $2, $3, $4, $5, $6::text[], NULL, (SELECT id FROM core.users WHERE email = 'quantri.vcr@vcomm.test'), (SELECT id FROM core.users WHERE email = 'quantri.vcr@vcomm.test'))`,
-    [operator, partnerId, `Khóa ${generated.prefix}`, generated.prefix, generated.hash, scopes],
-  );
-  return generated.secret;
+// Khóa API phạm vi `loyalty.partner` cấp ở chi tiết đối tác liên minh (API_303).
+async function issueKey(contractId: string, name = `Khóa ${randomUUID().slice(0, 8)}`): Promise<string> {
+  const created = await fixture.call("post", `/loyalty/partners/${contractId}/api-keys`, { name });
+  expect(created.status, JSON.stringify(created.body)).toBe(201);
+  return created.body.secret as string;
 }
 
 // Đối tác nộp tiền trả trước bằng phiếu thu: khoản giảm phải thu chưa cấn trừ (CONG_VIEC_13).
@@ -61,7 +56,7 @@ beforeAll(async () => {
       })
     ).status,
   ).toBe(201);
-  prepaidKey = await issueKey(prepaid.partnerId);
+  prepaidKey = await issueKey(prepaid.contractId);
   thao = await fixture.register("0912200001", "Nguyễn Thị Thảo");
   binh = await fixture.register("0912200002", "Lê Văn Bình");
 });
@@ -150,7 +145,7 @@ describe("KICHBAN_KIEMTHU_712: trả trước, trả sau, cảnh báo", () => {
   it("trả sau: vượt hạn mức thì chặn; từ 80 % hạn mức cảnh báo; đổi ra làm giảm dư nợ", async () => {
     const postpaid = await fixture.createContract("Ngân hàng Bắc Hà", "0300000202", { creditLimit: "100000", limits: giftLimits });
     await fixture.call("post", `/loyalty/partners/${postpaid.contractId}/rates`, { direction: "gift", startsOn: fixture.today, endsOn: null, vcommPoints: null, partnerUnits: null, unitPrice: "1" });
-    const key = await issueKey(postpaid.partnerId);
+    const key = await issueKey(postpaid.contractId);
     // Giá bán bằng giá trị điểm: không thuế. 85.000 ≥ 80 % hạn mức.
     expect((await open(key, "post", "/gifts", { partnerTransactionCode: "BH-1", phone: "0912200002", points: 85000 })).status).toBe(201);
     expect((await open(key, "post", "/gifts", { partnerTransactionCode: "BH-2", phone: "0912200002", points: 16000 })).body.error.message).toBe("Đối tác vượt hạn mức hoặc quá hạn thanh toán.");
@@ -225,5 +220,57 @@ describe("KICHBAN_KIEMTHU_711: hủy tặng điểm", () => {
     expect((await open(prepaidKey, "post", "/gifts/AB-0001/cancel", { reason: "Thử" })).body.error.message).toBe("Giao dịch tặng không hủy được (quá 24 giờ, khách đã dùng điểm hoặc tháng đã chốt).");
     await pool.query("UPDATE loyalty.partner_gifts SET created_at = now() - interval '25 hours' WHERE partner_transaction_code = 'AB-0011'");
     expect((await open(prepaidKey, "post", "/gifts/AB-0011/cancel", { reason: "Thử" })).status).toBe(409);
+  });
+});
+
+describe("API_303: khóa API tặng điểm của đối tác liên minh", () => {
+  it("cấp: loại Đối tác, đối tác của hợp đồng, phạm vi đúng loyalty.partner, không kênh; khóa chỉ hiện một lần; danh sách theo hợp đồng", async () => {
+    const created = await fixture.call("post", `/loyalty/partners/${prepaid.contractId}/api-keys`, { name: "Máy chủ An Bình", rateLimitPerMinute: 120, allowedIps: ["203.113.10.0/28"] });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body.secret).toMatch(/^vck_/);
+    expect(created.body.key).toMatchObject({ name: "Máy chủ An Bình", rateLimitPerMinute: 120, allowedIps: ["203.113.10.0/28"], status: "active", callsToday: 0 });
+    const row = (await pool.query("SELECT kind, partner_id, scopes, channel_id FROM core.api_keys WHERE id = $1", [created.body.key.id])).rows[0];
+    expect(row).toEqual({ kind: "partner", partner_id: prepaid.partnerId, scopes: ["loyalty.partner"], channel_id: null });
+    const listed = await fixture.call("get", `/loyalty/partners/${prepaid.contractId}/api-keys`);
+    expect(listed.status).toBe(200);
+    expect(listed.body.map((item: { name: string }) => item.name)).toContain("Máy chủ An Bình");
+    expect(JSON.stringify(listed.body)).not.toContain(created.body.secret);
+    const audit = await pool.query("SELECT app_code, after_data->>'contractId' AS contract_id FROM core.audit_events WHERE entity_id = $1 AND action = 'api_key.create'", [created.body.key.id]);
+    expect(audit.rows[0]).toEqual({ app_code: "crm", contract_id: prepaid.contractId });
+    // IP ngoài danh sách bị từ chối.
+    expect((await open(created.body.secret, "get", "/gifts")).status).toBe(403);
+  });
+
+  it("sửa, cấp lại (khóa cũ hết dùng), thu hồi; hợp đồng chấm dứt không cấp khóa mới", async () => {
+    const contract = await fixture.createContract("Hãng bay Phương Đông", "0300000203", { creditLimit: "100000", limits: giftLimits });
+    const created = await fixture.call("post", `/loyalty/partners/${contract.contractId}/api-keys`, { name: "Khóa thử" });
+    const id = created.body.key.id as string;
+    expect((await open(created.body.secret, "get", "/gifts")).status).toBe(200);
+    const updated = await fixture.call("patch", `/loyalty/partner-api-keys/${id}`, { name: "Khóa chính", rateLimitPerMinute: 30, expiresOn: null, allowedIps: [], version: created.body.key.version });
+    expect(updated.status, JSON.stringify(updated.body)).toBe(200);
+    expect(updated.body).toMatchObject({ name: "Khóa chính", rateLimitPerMinute: 30 });
+    const rotated = await fixture.call("post", `/loyalty/partner-api-keys/${id}/rotate`, { version: updated.body.version });
+    expect(rotated.status).toBe(200);
+    expect((await open(created.body.secret, "get", "/gifts")).status).toBe(401);
+    expect((await open(rotated.body.secret, "get", "/gifts")).status).toBe(200);
+    const revoked = await fixture.call("post", `/loyalty/partner-api-keys/${id}/revoke`, { reason: "Đối tác đổi máy chủ", version: rotated.body.key.version });
+    expect(revoked.body).toMatchObject({ status: "revoked", revokedReason: "Đối tác đổi máy chủ" });
+    expect((await open(rotated.body.secret, "get", "/gifts")).status).toBe(401);
+    // Khóa của hợp đồng khác không sửa qua đường dẫn này được; khóa thường cũng vậy.
+    const other = (await pool.query<{ id: string }>("SELECT id FROM core.api_keys WHERE scopes <> ARRAY['loyalty.partner']::text[] LIMIT 1")).rows[0];
+    if (other) expect((await fixture.call("post", `/loyalty/partner-api-keys/${other.id}/rotate`, { version: 1 })).status).toBe(404);
+    const status = await fixture.call("get", `/loyalty/partners/${contract.contractId}`);
+    expect((await fixture.call("post", `/loyalty/partners/${contract.contractId}/terminate`, { version: status.body.version, reason: "Hết hợp tác" })).status).toBe(201);
+    const blocked = await fixture.call("post", `/loyalty/partners/${contract.contractId}/api-keys`, { name: "Khóa mới" });
+    expect(blocked.body.error.message).toBe("Hợp đồng đã chấm dứt, không cấp khóa mới.");
+  });
+
+  it("màn hình khóa API chung không cấp, không sửa khóa phạm vi loyalty.partner", async () => {
+    const generic = await fixture.call("post", "/platform/api-keys", { kind: "partner", partnerId: prepaid.partnerId, name: "Khóa chung", scopes: ["loyalty.partner"], channelId: randomUUID() });
+    expect(generic.status).toBe(400);
+    expect(generic.body.error.fields.scopes).toBe("Khóa phạm vi tặng điểm của đối tác liên minh cấp ở màn hình Đối tác liên minh.");
+    const keyId = (await fixture.call("get", `/loyalty/partners/${prepaid.contractId}/api-keys`)).body[0].id as string;
+    const edit = await fixture.call("patch", `/platform/api-keys/${keyId}`, { name: "Đổi tên", scopes: ["catalog.read"], channelId: randomUUID(), version: 1 });
+    expect(edit.body.error.message).toBe("Khóa của đối tác liên minh sửa ở màn hình Đối tác liên minh; ở đây chỉ cấp lại, thu hồi.");
   });
 });

@@ -768,7 +768,10 @@
     "partnerGiftNotCancellable": "Giao dịch tặng không hủy được (quá 24 giờ, khách đã dùng điểm hoặc tháng đã chốt).",
     "affiliateSmartOtpActive": "Khách đã có Smart OTP, dùng mã trên ứng dụng VComm.",
     "affiliateOtpInvalid": "Mã OTP không đúng hoặc đã hết hạn.",
-    "affiliateSmsLimit": "Đã hết số tin nhắn OTP trong ngày của khóa API."
+    "affiliateSmsLimit": "Đã hết số tin nhắn OTP trong ngày của khóa API.",
+    "apiKeyLoyaltyPartnerScope": "Khóa phạm vi tặng điểm của đối tác liên minh cấp ở màn hình Đối tác liên minh.",
+    "apiKeyManagedByLoyaltyPartner": "Khóa của đối tác liên minh sửa ở màn hình Đối tác liên minh; ở đây chỉ cấp lại, thu hồi.",
+    "partnerApiKeyContractTerminated": "Hợp đồng đã chấm dứt, không cấp khóa mới."
   },
   "login": {
     "title": "Đăng nhập",
@@ -10021,7 +10024,17 @@
     "giftColumn_points": "Điểm",
     "giftColumn_amount": "Tiền gồm thuế (₫)",
     "giftColumn_message": "Nội dung",
-    "giftColumn_status": "Trạng thái"
+    "giftColumn_status": "Trạng thái",
+    "apiKeysTitle": "Khóa API tặng điểm (phạm vi loyalty.partner)",
+    "apiKeysHint": "Đối tác dùng khóa để tặng điểm, tra cứu và hủy giao dịch tặng qua Open API. Khóa chỉ hiện một lần khi cấp hoặc cấp lại; gửi đối tác qua kênh an toàn.",
+    "apiKeysEmpty": "Chưa có khóa API.",
+    "apiKeyIssue": "Cấp khóa",
+    "apiKeyEdit": "Sửa khóa",
+    "apiKeyCallsToday": "Lần gọi hôm nay",
+    "apiKeyLogs": "Nhật ký gọi",
+    "apiKeyScopeHint": "Khóa loại Đối tác, gắn đối tác của hợp đồng, phạm vi đúng loyalty.partner, không kênh bán, không kho.",
+    "apiKeySecretUsage": "Đối tác gửi tiêu đề {header} khi gọi {url}.",
+    "apiKeyRevokeText": "Khóa bị thu hồi ngừng dùng ngay; đối tác không tặng điểm bằng khóa này được nữa."
   },
   "loyaltyPartnerApp": {
     "entry": "Đối tác liên minh ›",

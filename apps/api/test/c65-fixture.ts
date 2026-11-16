@@ -24,7 +24,7 @@ type Rates = { outbound: [number, number, string]; inbound: [number, number, str
 
 export interface PartnerFixture {
   admin: Session;
-  call: (method: "get" | "post" | "put" | "delete", path: string, body?: object) => request.Test;
+  call: (method: "get" | "post" | "put" | "patch" | "delete", path: string, body?: object) => request.Test;
   today: string;
   contractId: string;
   partnerId: string;
@@ -42,7 +42,7 @@ export async function preparePartners(application: NestExpressApplication, pool:
   const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   expect((await groupAdmin.call("put", "/marketplace/operator-company", { companyId: operator, body: { companyId: operator } })).status).toBe(200);
   const admin = await signIn(application, "quantri.vcr@vcomm.test");
-  const call = (method: "get" | "post" | "put" | "delete", path: string, body?: object) => admin.call(method, path, { companyId: operator, ...(body ? { body } : {}) });
+  const call = (method: "get" | "post" | "put" | "patch" | "delete", path: string, body?: object) => admin.call(method, path, { companyId: operator, ...(body ? { body } : {}) });
   expect((await call("post", "/finance/ledger/setup")).status).toBe(201);
   const phase = { startsOn: today, endsOn: null, earnPercent: "1", pointValue: "1", redeemMaxPercent: "50", redeemMinPoints: 10, validityMonths: 12, orderCapPoints: null, monthlyCapPoints: null };
   expect((await call("post", "/loyalty/phases", phase)).status).toBe(201);

@@ -768,7 +768,10 @@
     "partnerGiftNotCancellable": "The gift cannot be cancelled (over 24 hours, points already used or the month is settled).",
     "affiliateSmartOtpActive": "The customer has Smart OTP; use the code in the VComm app.",
     "affiliateOtpInvalid": "The OTP is wrong or has expired.",
-    "affiliateSmsLimit": "The API key has used up its OTP SMS for today."
+    "affiliateSmsLimit": "The API key has used up its OTP SMS for today.",
+    "apiKeyLoyaltyPartnerScope": "Loyalty partner gift keys are issued on the Loyalty partners screen.",
+    "apiKeyManagedByLoyaltyPartner": "Loyalty partner keys are edited on the Loyalty partners screen; here you can only rotate or revoke them.",
+    "partnerApiKeyContractTerminated": "The contract has been terminated; no new keys can be issued."
   },
   "login": {
     "title": "Sign in",
@@ -10021,7 +10024,17 @@
     "giftColumn_points": "Points",
     "giftColumn_amount": "Amount incl. tax (₫)",
     "giftColumn_message": "Message",
-    "giftColumn_status": "Status"
+    "giftColumn_status": "Status",
+    "apiKeysTitle": "Gift API keys (loyalty.partner scope)",
+    "apiKeysHint": "The partner uses these keys to gift, look up and cancel point gifts through the Open API. A key is shown only once when issued or rotated; send it to the partner over a secure channel.",
+    "apiKeysEmpty": "No API keys yet.",
+    "apiKeyIssue": "Issue key",
+    "apiKeyEdit": "Edit key",
+    "apiKeyCallsToday": "Calls today",
+    "apiKeyLogs": "Call logs",
+    "apiKeyScopeHint": "Partner key, bound to the contract's partner, scope loyalty.partner only, no sales channel, no warehouse.",
+    "apiKeySecretUsage": "The partner sends the header {header} when calling {url}.",
+    "apiKeyRevokeText": "A revoked key stops working immediately; the partner can no longer gift points with it."
   },
   "loyaltyPartnerApp": {
     "entry": "Alliance partners ›",

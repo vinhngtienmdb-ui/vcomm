@@ -110,6 +110,7 @@ import { BuyerPartnersService } from "./loyalty/partners/buyer-partners.service"
 import { PartnerConnectors } from "./loyalty/partners/connector";
 import { PartnerSimulator } from "./loyalty/partners/simulator";
 import { PartnerExchangesService } from "./loyalty/partners/exchanges.service";
+import { PartnerApiKeysService } from "./loyalty/partners/api-keys.service";
 import { PartnerGiftsService } from "./loyalty/partners/gifts.service";
 import { OpenPartnerGiftsController } from "./loyalty/partners/open-gifts.controller";
 import { AffiliateController } from "./affiliate/affiliate.controller";
@@ -336,6 +337,7 @@ import { UsersService } from "./users/users.service";
     PartnerSimulator,
     PartnerExchangesService,
     PartnerGiftsService,
+    PartnerApiKeysService,
     AffiliateMerchantsService,
     MerchantPortalService,
     AffiliateTransactionsService,

@@ -363,3 +363,41 @@ export interface PartnerGiftItem extends OpenPartnerGift {
   pointValueAmount: string;
   cancelReason: string | null;
 }
+
+// Khóa API tặng điểm của đối tác liên minh: phạm vi đúng `loyalty.partner`, không kênh, không kho (QUYTAC_NGHIEPVU_545; API_303).
+const partnerKeyIp = z
+  .string()
+  .trim()
+  .min(2)
+  .max(49)
+  .regex(/^[0-9A-Fa-f:.]+(\/\d{1,3})?$/);
+const partnerApiKeySettings = {
+  name: z.string().trim().min(1).max(100),
+  rateLimitPerMinute: z.number().int().min(1).max(600).default(60),
+  expiresOn: isoDate.nullable().default(null),
+  allowedIps: z.array(partnerKeyIp).max(20).default([]),
+};
+export const partnerApiKeyCreateSchema = z.object(partnerApiKeySettings).strict();
+export type PartnerApiKeyCreateRequest = z.input<typeof partnerApiKeyCreateSchema>;
+export const partnerApiKeyUpdateSchema = z.object({ ...partnerApiKeySettings, version: z.number().int().positive() }).strict();
+export type PartnerApiKeyUpdateRequest = z.input<typeof partnerApiKeyUpdateSchema>;
+
+export interface PartnerApiKeyItem {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  rateLimitPerMinute: number;
+  expiresOn: string | null;
+  allowedIps: string[];
+  status: "active" | "expired" | "revoked";
+  revokedReason: string | null;
+  lastUsedAt: string | null;
+  callsToday: number;
+  createdAt: string;
+  version: number;
+}
+
+export interface PartnerApiKeySecret {
+  key: PartnerApiKeyItem;
+  secret: string;
+}

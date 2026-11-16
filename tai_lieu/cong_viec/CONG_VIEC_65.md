@@ -3,7 +3,7 @@
 - Mô tả: Đối tác ngoài tập đoàn có chương trình điểm riêng (hãng bay, ngân hàng) ký hợp đồng liên minh điểm với công ty vận hành sàn. Khách liên kết số thành viên đối tác trong ứng dụng VComm, đổi điểm VComm ra điểm đối tác và đổi điểm đối tác vào điểm VComm; VComm gọi API đối tác qua lớp kết nối chung (bộ giả lập trong công việc này). Đối tác mua điểm VComm tặng khách qua Open API, trả trước hoặc trả sau theo hợp đồng. Hạch toán từng giao dịch; đối soát tháng đối chiếu tự động với số liệu đối tác, nhân viên xác nhận, bù trừ, công nợ.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 đạt xem trước; lát L3 chờ xem trước (phần cấp, xoay, thu hồi khóa API `loyalty.partner` của API_303 và khối khóa API MAN_HINH_259 làm sau khi CONG_VIEC_67 vào `main`, vì cùng sửa `core.api_keys` và dịch vụ khóa API).
+- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12); lát L1 đạt xem trước (2026-11-12); lát L2 đạt xem trước; lát L3 chờ xem trước (đã hợp nhất `main` bản 0.10.0 có CONG_VIEC_60, 67 và làm phần cấp, sửa, cấp lại, thu hồi khóa API `loyalty.partner` của API_303, khối khóa API MAN_HINH_259).
 - Nhánh: `chuc-nang/CONG_VIEC_65-doi-tac-lien-minh-diem`.
 - Nguồn: tài liệu `01` (MODULE_11: đối soát liên minh; rủi ro ví điện tử), `05` mục 2.3; CONG_VIEC_51 (sổ cái điểm, QUYTAC_NGHIEPVU_344 đến 355); CONG_VIEC_55 (đối soát cửa hàng liên kết, công nợ, hạch toán theo giao dịch); CONG_VIEC_61 (khóa API, nhật ký gọi, tần suất); CONG_VIEC_53 (Smart OTP); CONG_VIEC_60 (tách công việc này, quyết định 4); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (tích hợp bên ngoài, nghiệp vụ tài chính mới, sửa ràng buộc dùng chung `loyalty`, `accounting`, `finance`, `core.api_keys`; nhiều module: MODULE_11, MODULE_06, MODULE_16).
@@ -275,7 +275,7 @@ Kiểm thử tự động: `apps/api/test/c65-*.test.ts`.
 
 ## 19. Ghép với công việc song song
 
-- CONG_VIEC_60 (chưa vào `main`): `loyalty.lots.cost_bearer` mặc định `earning_company`; lô của nguồn đối tác ở công ty vận hành sàn nên ba kiểu cho cùng kết quả. Hai nguồn mới bị bỏ qua trong bút toán theo từng bút toán điểm, nên không chạm phần hạch toán theo kiểu. Quy tắc chống gian lận 2 (đổi điểm dồn dập) của CONG_VIEC_60 có áp cho đổi ra hay không: hỏi người dùng khi CONG_VIEC_60 vào `main`.
+- CONG_VIEC_60 (vào `main` bản 0.10.0): `loyalty.lots.cost_bearer` mặc định `earning_company`; lô của nguồn đối tác ở công ty vận hành sàn nên ba kiểu cho cùng kết quả. Hai nguồn mới bị bỏ qua trong bút toán theo từng bút toán điểm, nên không chạm phần hạch toán theo kiểu. Quy tắc chống gian lận 2 (đổi điểm dồn dập) của CONG_VIEC_60 có áp cho đổi ra hay không: hỏi người dùng khi CONG_VIEC_60 vào `main`.
 - CONG_VIEC_67 (chưa vào `main`): cùng sửa ràng buộc `core.api_keys` (`channel_id` trống, phạm vi); nhánh hợp nhất sau gộp `loyalty.member` và `loyalty.partner`. Ràng buộc nguồn chứng từ dùng chung: nhánh hợp nhất sau gộp mọi giá trị.
 
 ## 20. Các lát và điểm xem trước
@@ -284,7 +284,7 @@ Kiểm thử tự động: `apps/api/test/c65-*.test.ts`.
 |---|---|---|
 | L1 | Database migration 0150; lớp kết nối, bộ giả lập; API_301 đến 303 (trừ khóa API), API_306; MAN_HINH_258, 259, 264 | Ảnh MAN_HINH_258, 259, 264; liên kết thành viên bằng OTP bộ giả lập |
 | L2 | Database migration 0151; đổi ra, đổi vào, chờ đối tác, việc nền hỏi lại, xử lý tay; hạch toán đổi; API_304 (đổi), API_307; MAN_HINH_260, 265; sửa MAN_HINH_151, 147 | Đổi ra thành công, từ chối, không trả lời; đổi vào; ảnh MAN_HINH_260, 265; bút toán |
-| L3 | Database migration 0152; phạm vi khóa API `loyalty.partner`, API_308, trả trước, trả sau, cảnh báo; hạch toán tặng, hủy tặng; MAN_HINH_261; khối số dư, dư nợ MAN_HINH_258, 259 (khối khóa API của MAN_HINH_259 và phần khóa của API_303 sau khi CONG_VIEC_67 vào `main`) | `curl` tặng, gửi lại cùng mã, hủy; chặn khi hết số dư trả trước |
+| L3 | Database migration 0152; phạm vi khóa API `loyalty.partner`, API_308, trả trước, trả sau, cảnh báo; hạch toán tặng, hủy tặng; MAN_HINH_261; khối số dư, dư nợ MAN_HINH_258, 259; khối khóa API của MAN_HINH_259 và phần khóa của API_303 (làm sau khi hợp nhất CONG_VIEC_67) | `curl` tặng, gửi lại cùng mã, hủy; chặn khi hết số dư trả trước |
 | L4 | Database migration 0153; bảng đối soát tháng, đối chiếu, xác nhận, công nợ; API_305; MAN_HINH_262, 263 | Chạy việc nền lập bảng; bộ giả lập sai lệch; xác nhận; phiếu thu |
 
 ## 21. Điểm chưa xác định
