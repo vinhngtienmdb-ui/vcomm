@@ -57,7 +57,7 @@ export class OpenCatalogService {
         const found = await lookupPrice(
           this.database,
           caller.companyId,
-          { variantId: row.variant_id, unitId: unit.unitId, channelId: caller.channelId, customerGroupId: caller.customerGroupId ?? undefined, currency },
+          { variantId: row.variant_id, unitId: unit.unitId, channelId: caller.channelId!, customerGroupId: caller.customerGroupId ?? undefined, currency },
           today,
         );
         const price = found && found !== "variantNotFound" ? found : null;

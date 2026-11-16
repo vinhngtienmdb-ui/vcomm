@@ -43,7 +43,13 @@ import { verifyAccessToken } from "./tokens";
 const secureCookies = () => process.env.NODE_ENV === "production";
 
 export function clientInfo(request: Request): ClientInfo {
-  return { ip: request.ip ?? null, userAgent: request.header("user-agent") ?? null, requestId: request.header("x-request-id") ?? null, locale: localeOf(request) };
+  return {
+    ip: request.ip ?? null,
+    userAgent: request.header("user-agent") ?? null,
+    requestId: request.header("x-request-id") ?? null,
+    locale: localeOf(request),
+    deviceId: request.header("x-device-id") ?? null,
+  };
 }
 
 export function setSessionCookies(response: Response, session: IssuedSession): void {

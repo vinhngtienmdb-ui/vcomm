@@ -26,6 +26,27 @@ export async function write(key: string, value: string | null): Promise<void> {
   else await SecureStore.setItemAsync(key, value);
 }
 
+// CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): mã cài đặt ứng dụng 128 bit ngẫu nhiên sinh lần mở đầu, lưu trong bộ nhớ an toàn (bản web: localStorage),
+// gửi qua tiêu đề X-Device-Id để chống gian lận điểm; máy chủ chỉ lưu mã băm.
+const deviceKey = "vcomm.device";
+let deviceId: string | null = null;
+function randomHex(bytes: number): string {
+  const values = new Uint8Array(bytes);
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(values);
+  else for (let index = 0; index < bytes; index += 1) values[index] = Math.floor(Math.random() * 256);
+  return Array.from(values, (value) => value.toString(16).padStart(2, "0")).join("");
+}
+async function installationId(): Promise<string> {
+  if (deviceId) return deviceId;
+  const stored = Platform.OS === "web" ? (globalThis.localStorage?.getItem(deviceKey) ?? null) : await SecureStore.getItemAsync(deviceKey);
+  deviceId = stored ?? randomHex(16);
+  if (!stored) {
+    if (Platform.OS === "web") globalThis.localStorage?.setItem(deviceKey, deviceId);
+    else await SecureStore.setItemAsync(deviceKey, deviceId);
+  }
+  return deviceId;
+}
+
 let tokens: AppTokens | null = null;
 
 export async function loadStoredSession(): Promise<boolean> {
@@ -91,7 +112,7 @@ async function refresh(): Promise<RefreshOutcome> {
 }
 
 export async function api<T>(path: string, init: RequestInit & { json?: unknown } = {}, retried = false): Promise<T> {
-  const headers: Record<string, string> = { "accept-language": "vi", ...(init.headers as Record<string, string> | undefined) };
+  const headers: Record<string, string> = { "accept-language": "vi", "x-device-id": await installationId(), ...(init.headers as Record<string, string> | undefined) };
   if (tokens) headers.authorization = `Bearer ${tokens.accessToken}`;
   let body = init.body;
   if (init.json !== undefined) {
