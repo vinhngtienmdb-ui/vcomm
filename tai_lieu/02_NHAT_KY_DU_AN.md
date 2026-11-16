@@ -5,6 +5,17 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## 2026-11-17
+
+### Công việc đã thực hiện
+
+- Phát hành 0.11.0 (pull request #166, commit hợp nhất `4916028`): CONG_VIEC_62 (Dropship), CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn), CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội); THAY_DOI_33, 34, 35. Database migration 0156 gộp ràng buộc phạm vi khóa API. Kiểm thử API 814 đạt. Không thêm thư viện. Chưa triển khai.
+
+### Vấn đề tồn đọng
+
+- Kiểm thử lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam (c57-station-orders, c57-station-delivery, c55-settlements: dữ liệu dựng sẵn lấy "hôm nay" một lần); đề xuất cấp LOI riêng, chờ người dùng quyết định.
+- LOYALTY_PARTNER_SIMULATOR (CONG_VIEC_65) chưa có trong .env.example.
+
 ## 2026-11-16
 
 ### Công việc đã thực hiện
