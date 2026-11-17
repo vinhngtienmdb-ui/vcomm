@@ -42,3 +42,21 @@ export const updateAuthenticationSettingsSchema = z.object({
   version: z.number().int().min(1),
 });
 export type UpdateAuthenticationSettingsInput = z.input<typeof updateAuthenticationSettingsSchema>;
+
+// API_322: khối "Bảo mật đăng nhập" của người mua trên web-crm; hủy Smart OTP (CONG_VIEC_72; QUYTAC_NGHIEPVU_567).
+export interface BuyerSecurityResponse {
+  smartOtp: { active: boolean; deviceName: string | null; platform: "ios" | "android" | "web" | null; activatedAt: string | null; lockedUntil: string | null; version: number | null };
+  redeemLockedUntil: string | null;
+  recoveredAt: string | null;
+  trustedDevices: number;
+  lastSeenAt: string | null;
+  buyerTransitionEndsOn: string;
+  canRevoke: boolean;
+}
+
+export const revokeBuyerSmartOtpSchema = z
+  .object({
+    reason: z.string().trim().min(10).max(500),
+    version: z.number().int().min(0),
+  })
+  .strict();

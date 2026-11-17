@@ -29,6 +29,7 @@ import type { Executor } from "../finance/debts.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { LoyaltyLedgerService, pointsFor } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
+import { redeemLockedUntil } from "../auth/account-security";
 import { maskName, maskPhone, SmartOtpService } from "../auth/smart-otp.service";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import { PermissionService } from "../permissions/permission.service";
@@ -503,6 +504,7 @@ export class RetailSalesService {
       redeemBlockedReason: null,
       smartOtpActive: false,
       smartOtpLockedUntil: null,
+      redeemLockedUntil: null,
       expectedPoints: 0,
     };
     const user = (
@@ -532,6 +534,7 @@ export class RetailSalesService {
       redeemBlockedReason: quote.blockedReason ?? (!otp.active ? "smart_otp_inactive" : otp.lockedUntil ? "smart_otp_locked" : null),
       smartOtpActive: otp.active,
       smartOtpLockedUntil: otp.lockedUntil,
+      redeemLockedUntil: await redeemLockedUntil(this.database, user.id),
       expectedPoints: phase ? pointsFor(goodsAmount, phase, Number(account?.multiplier ?? 1)) : 0,
     };
   }

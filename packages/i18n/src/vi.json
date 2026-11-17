@@ -794,7 +794,8 @@
     "smartOtpLocked": "Smart OTP đang tạm khóa 15 phút do nhập sai mã nhiều lần.",
     "deviceVerificationRequired": "Đây là thiết bị mới. Xác nhận bằng mã Smart OTP để tiếp tục.",
     "deviceVerificationExpired": "Phiên xác nhận thiết bị đã hết 10 phút. Đăng nhập lại.",
-    "smartOtpPreferred": "Tài khoản dùng Smart OTP: đăng nhập bằng mật khẩu rồi nhập mã Smart OTP."
+    "smartOtpPreferred": "Tài khoản dùng Smart OTP: đăng nhập bằng mật khẩu rồi nhập mã Smart OTP.",
+    "loyaltyRedeemLocked": "Dùng điểm đang tạm khóa do tài khoản vừa khôi phục Smart OTP. Vẫn tích điểm bình thường; thử lại sau thời điểm hết khóa."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1600,7 +1601,13 @@
     "purpose_station_order_ready": "Đơn sẵn sàng nhận tại trạm",
     "purpose_station_hold_reminder": "Nhắc hết hạn giữ hàng tại trạm",
     "purpose_station_order_shipping": "Trạm đang giao đơn",
-    "purpose_station_order_cancelled": "Đơn của trạm đã hủy"
+    "purpose_station_order_cancelled": "Đơn của trạm đã hủy",
+    "key_esms_template_smart_otp_transferred": "Mã mẫu ZNS: Smart OTP chuyển máy",
+    "key_esms_template_smart_otp_revoked": "Mã mẫu ZNS: Smart OTP bị hủy",
+    "key_esms_template_smart_otp_reminder": "Mã mẫu ZNS: nhắc kích hoạt Smart OTP",
+    "purpose_smart_otp_transferred": "Smart OTP chuyển máy",
+    "purpose_smart_otp_revoked": "Smart OTP bị hủy",
+    "purpose_smart_otp_reminder": "Nhắc kích hoạt Smart OTP"
   },
   "proposals": {
     "title": "Đề xuất",

@@ -244,7 +244,7 @@ export interface BuyerAffiliateRequest {
   maxPoints: number;
   pointValue: string | null;
   redeemable: boolean;
-  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null;
   earnPercent: string;
   // Voucher của khách dùng được cho giao dịch này, kèm tiền giảm tính theo tiền hóa đơn (lát L2).
   vouchers: (BuyerVoucherCode & { discount: string })[];
@@ -630,13 +630,15 @@ export const openAffiliateQuoteSchema = z
 export interface OpenAffiliateQuote {
   buyerName: string | null;
   redeemable: boolean;
-  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null;
   minPoints: number;
   maxPoints: number;
   pointValue: string | null;
   estimatedEarnPoints: number;
   vouchers: { id: string; title: string; discount: string; expiresAt: string }[];
   smartOtpActive: boolean;
+  // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
+  redeemLockedUntil: string | null;
 }
 export const openAffiliateTransactionSchema = z
   .object({

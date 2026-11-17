@@ -9,7 +9,11 @@ import { type EsmsCredentials, MESSAGE_GATEWAY, type MessageGateway } from "./es
 import { IntegrationSettingsService } from "./integration-settings.service";
 
 // CONG_VIEC_57: tin của đơn trạm giao hàng O2O (QUYTAC_NGHIEPVU_429).
-export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed" | "station_order_ready" | "station_hold_reminder" | "station_order_shipping" | "station_order_cancelled";
+export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed" | "station_order_ready" | "station_hold_reminder" | "station_order_shipping" | "station_order_cancelled"
+  // CONG_VIEC_72: Smart OTP chuyển máy (khôi phục), bị hủy, nhắc kích hoạt (QUYTAC_NGHIEPVU_571).
+  | "smart_otp_transferred"
+  | "smart_otp_revoked"
+  | "smart_otp_reminder";
 
 const maskPhone = (phone: string) => (phone.length > 7 ? `${phone.slice(0, 5)}***${phone.slice(-4)}` : "***");
 

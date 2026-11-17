@@ -23,6 +23,7 @@ import { ApiError } from "../common/api-error";
 import { isUniqueViolation, violatedConstraint } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { estimateEarnPoints, LoyaltyLedgerService } from "../loyalty/ledger.service";
+import { redeemLockedUntil } from "../auth/account-security";
 import { SmartOtpService } from "../auth/smart-otp.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import type { OpenApiCaller } from "../open-api/api-key.guard";
@@ -180,6 +181,7 @@ export class OpenAffiliateService {
       estimatedEarnPoints: await estimateEarnPoints(this.database, { userId: buyer.id, day, amount: bill, earnPercent: Number(merchant.earn_percent) }),
       vouchers: vouchers.map((voucher) => ({ id: voucher.id, title: voucher.titleVi, discount: voucher.discount, expiresAt: voucher.expiresAt })),
       smartOtpActive: (await this.smartOtp.state(this.database, buyer.id)).active,
+      redeemLockedUntil: await redeemLockedUntil(this.database, buyer.id),
     };
   }
 

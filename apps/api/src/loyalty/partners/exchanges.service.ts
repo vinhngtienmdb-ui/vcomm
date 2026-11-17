@@ -26,6 +26,7 @@ import type { BuyerAdminActor } from "../../marketplace/buyer-admin.service";
 import { vietnamToday } from "../../marketplace/shop.service";
 import { creditLot, refundRedeemEntry, spendPointsWithin } from "../ledger.service";
 import { phaseOn } from "../program.service";
+import { assertRedeemAllowed } from "../../auth/account-security";
 import { maskName, SmartOtpService } from "../../auth/smart-otp.service";
 import { deviceHashOf, evaluateRedeem } from "../fraud";
 import { lockAccount } from "../tiers";
@@ -254,6 +255,8 @@ export class PartnerExchangesService {
   // Đổi ra (QUYTAC_NGHIEPVU_542): Smart OTP khi khách đã kích hoạt; trừ điểm VComm từ lô hạn sớm nhất, lưu giao dịch, rồi gọi đối tác cộng điểm.
   private async createOutbound(userId: string, input: { contractId: string; partnerUnits: number; smartOtp?: string | undefined }, deviceHash: string | null): Promise<BuyerPartnerExchange> {
     const prepared = await this.prepare(this.database, userId, input.contractId, "outbound", input.partnerUnits);
+    // Khóa dùng điểm sau khôi phục Smart OTP áp cả đổi ra đối tác (CONG_VIEC_72; QUYTAC_NGHIEPVU_566).
+    await assertRedeemAllowed(this.database, userId);
     if ((await this.smartOtp.state(this.database, userId)).active) {
       if (!input.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { smartOtp: "required" } });
       await this.smartOtp.verify(userId, input.smartOtp, prepared.terms.company_id);

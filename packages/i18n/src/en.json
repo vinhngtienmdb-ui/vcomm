@@ -794,7 +794,8 @@
     "smartOtpLocked": "Smart OTP is locked for 15 minutes after too many wrong codes.",
     "deviceVerificationRequired": "This is a new device. Confirm with your Smart OTP code to continue.",
     "deviceVerificationExpired": "The device confirmation has passed 10 minutes. Sign in again.",
-    "smartOtpPreferred": "This account uses Smart OTP: sign in with your password, then enter the Smart OTP code."
+    "smartOtpPreferred": "This account uses Smart OTP: sign in with your password, then enter the Smart OTP code.",
+    "loyaltyRedeemLocked": "Point use is paused because Smart OTP was just recovered on this account. Points can still be earned; try again after the pause ends."
   },
   "login": {
     "title": "Sign in",
@@ -1600,7 +1601,13 @@
     "purpose_station_order_ready": "Order ready at station",
     "purpose_station_hold_reminder": "Station hold reminder",
     "purpose_station_order_shipping": "Station delivering order",
-    "purpose_station_order_cancelled": "Station order cancelled"
+    "purpose_station_order_cancelled": "Station order cancelled",
+    "key_esms_template_smart_otp_transferred": "ZNS template ID: Smart OTP moved to a new phone",
+    "key_esms_template_smart_otp_revoked": "ZNS template ID: Smart OTP revoked",
+    "key_esms_template_smart_otp_reminder": "ZNS template ID: Smart OTP activation reminder",
+    "purpose_smart_otp_transferred": "Smart OTP moved to a new phone",
+    "purpose_smart_otp_revoked": "Smart OTP revoked",
+    "purpose_smart_otp_reminder": "Smart OTP activation reminder"
   },
   "proposals": {
     "title": "Proposals",

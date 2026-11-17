@@ -817,6 +817,9 @@ export const integrationSettingKeys = [
   "esms.template.station_hold_reminder",
   "esms.template.station_order_shipping",
   "esms.template.station_order_cancelled",
+  "esms.template.smart_otp_transferred",
+  "esms.template.smart_otp_revoked",
+  "esms.template.smart_otp_reminder",
 ] as const;
 export type IntegrationSettingKey = (typeof integrationSettingKeys)[number];
 export const secretIntegrationKeys: readonly IntegrationSettingKey[] = ["google.client_secret", "microsoft.client_secret", "zalo.app_secret", "esms.api_key", "esms.secret_key"];
@@ -5008,7 +5011,7 @@ export interface BuyerOrderPreview {
   // Phương thức đang bật, theo thứ tự hiển thị. Đơn mua chung chỉ gồm phương thức trực tuyến.
   paymentMethods: PaymentMethodCode[];
   // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
-  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null };
   pointsToRedeem: number;
   pointsAmount: string;
   expectedPoints: number;
@@ -6295,9 +6298,11 @@ export interface RetailCustomerResponse {
   minPoints: number;
   maxPoints: number;
   pointValue: string | null;
-  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "smart_otp_inactive" | "smart_otp_locked" | null;
+  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | "smart_otp_inactive" | "smart_otp_locked" | null;
   smartOtpActive: boolean;
   smartOtpLockedUntil: string | null;
+  // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
+  redeemLockedUntil: string | null;
   expectedPoints: number;
 }
 export interface RetailSaleResponse {

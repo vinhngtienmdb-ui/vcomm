@@ -22,6 +22,9 @@ import { decryptSecret, encryptSecret } from "../common/secret-box";
 import { DATABASE, type Database } from "../database/database.module";
 import { deviceHashOf } from "../common/device-hash";
 import { AuthenticationSettingsService, transitionEndsOn } from "./authentication-settings.service";
+import { MessagingService } from "../integrations/messaging.service";
+import type { ClientInfo } from "./auth.service";
+import { DeviceTrustService } from "./device-trust.service";
 
 type Executor = Pick<Database, "execute">;
 export const smartOtpPeriodSeconds = 30;
@@ -58,6 +61,9 @@ type DeviceRow = {
 
 type Installed = { secret: string };
 
+export const vietnamTime = (moment: Date) =>
+  new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" }).format(moment);
+
 @Injectable()
 export class SmartOtpService {
   constructor(
@@ -66,6 +72,8 @@ export class SmartOtpService {
     private readonly phoneOtp: PhoneOtpService,
     private readonly audit: AuditService,
     private readonly settings: AuthenticationSettingsService,
+    private readonly deviceTrust: DeviceTrustService,
+    private readonly messaging: MessagingService,
   ) {}
 
   // Chỉ người mua VComm đang hoạt động có số điện thoại.
@@ -137,7 +145,7 @@ export class SmartOtpService {
     transaction: Pick<Database, "execute" | "insert">,
     userId: string,
     device: { deviceName: string; platform: SmartOtpPlatform; deviceId: string | null },
-    action: "smart_otp.activate" | "smart_otp.transfer",
+    action: "smart_otp.activate" | "smart_otp.transfer" | "smart_otp.recover",
   ): Promise<Installed> {
     const secret = new Secret({ size: 20 }).base32;
     const now = this.clock.now();
@@ -171,12 +179,59 @@ export class SmartOtpService {
   }
 
   // Kích hoạt bằng mã SMS trên máy đang dùng.
-  async activate(userId: string, input: z.output<typeof activateSmartOtpSchema>, deviceId: string | null = null): Promise<SmartOtpActivationResponse> {
+  // Kích hoạt bằng mã SMS trên máy đang dùng. Tính là khôi phục (QUYTAC_NGHIEPVU_566) khi tài khoản đã từng có Smart OTP hoặc máy chưa tin cậy:
+  // khóa mọi giao dịch dùng điểm theo số giờ tham số, thông báo trong ứng dụng và tin ZNS (khi đã cài mẫu).
+  // Gọi từ phiên chờ xác nhận thiết bị mới (mất máy cũ, hoặc hết thời hạn mà chưa kích hoạt): xong thì phiên được xác nhận, máy thành tin cậy.
+  async activate(
+    userId: string,
+    input: z.output<typeof activateSmartOtpSchema>,
+    deviceId: string | null = null,
+    session: { id: string; client: ClientInfo } | null = null,
+  ): Promise<SmartOtpActivationResponse> {
     const platform = input.platform ?? platformOf(input.deviceName);
     this.platformAllowed(platform);
     const { phone } = await this.buyer(userId);
     if (!(await this.phoneOtp.consume(normalizePhone(phone), input.code, "smart_otp"))) throw new ApiError("BUSINESS_RULE", "otpInvalid");
-    const installed = await this.database.transaction((transaction) => this.install(transaction, userId, { deviceName: input.deviceName, platform, deviceId }, "smart_otp.activate"));
+    const deviceHash = deviceHashOf(deviceId);
+    const hadSmartOtp = Boolean(
+      (await this.database.execute(sql`SELECT 1 FROM core.account_security WHERE user_id = ${userId} AND smart_otp_first_activated_at IS NOT NULL`)).rows.length,
+    );
+    const recovery = hadSmartOtp || !(await this.deviceTrust.isTrusted(this.database, userId, deviceHash));
+    const settings = await this.settings.current();
+    const deviceName = input.deviceName;
+    const { installed, lockedUntil } = await this.database.transaction(async (transaction) => {
+      const installed = await this.install(transaction, userId, { deviceName, platform, deviceId }, recovery ? "smart_otp.recover" : "smart_otp.activate");
+      let lockedUntil: Date | null = null;
+      if (recovery) {
+        const locked = await transaction.execute<{ until: Date | null }>(sql`
+          UPDATE core.account_security SET smart_otp_recovered_at = now(), updated_at = now(),
+            redeem_locked_until = CASE WHEN ${settings.recoveryRedeemLockHours}::int > 0 THEN now() + make_interval(hours => ${settings.recoveryRedeemLockHours}::int) ELSE redeem_locked_until END
+          WHERE user_id = ${userId} RETURNING redeem_locked_until AS until`);
+        lockedUntil = locked.rows[0]?.until ? new Date(locked.rows[0].until) : null;
+        const hotline = settings.supportHotline ? ` Không phải bạn? Gọi ${settings.supportHotline}.` : "";
+        await notify(transaction, [
+          {
+            userId,
+            companyId: null,
+            kind: "auth.smart_otp_recovered",
+            title: `Smart OTP vừa chuyển sang ${deviceName}.${lockedUntil ? ` Dùng điểm tạm khóa đến ${vietnamTime(lockedUntil)}.` : ""}${hotline}`,
+            payload: { deviceName, redeemLockedUntil: lockedUntil?.toISOString() ?? null },
+          },
+        ]);
+      }
+      if (session) {
+        await transaction.execute(sql`UPDATE core.sessions SET device_verified = true WHERE id = ${session.id} AND user_id = ${userId}`);
+        await this.deviceTrust.trust(transaction, userId, deviceHash, session.client);
+      }
+      return { installed, lockedUntil };
+    });
+    if (recovery)
+      await this.messaging.sendZns(userId, "smart_otp_transferred", {
+        device: deviceName,
+        time: vietnamTime(this.clock.now()),
+        locked_until: lockedUntil ? vietnamTime(lockedUntil) : "",
+        hotline: settings.supportHotline ?? "",
+      });
     return this.activationResponse(userId, installed, deviceId);
   }
 

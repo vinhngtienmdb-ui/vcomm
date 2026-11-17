@@ -70,6 +70,12 @@ export class BuyerAccountsService {
     return this.settings.buyerTransitionOpen();
   }
 
+  // Quên mật khẩu bằng SMS: như trên, cộng ngoại lệ một lần trong 24 giờ sau khi chăm sóc khách hàng hủy Smart OTP (QUYTAC_NGHIEPVU_567).
+  private async smsResetAllowed(userId: string): Promise<boolean> {
+    const exception = await this.database.execute(sql`SELECT 1 FROM core.account_security WHERE user_id = ${userId} AND sms_password_reset_until > now()`);
+    return exception.rows.length > 0 || this.smsFallbackAllowed(userId);
+  }
+
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
   async sendRegisterOtp(phone: string): Promise<void> {
     await this.requirePhoneFree(phone);
@@ -171,7 +177,7 @@ export class BuyerAccountsService {
   // Luôn trả thành công để không lộ số nào có tài khoản; chỉ gửi mã cho số đang hoạt động.
   async sendPasswordResetOtp(phone: string): Promise<void> {
     const user = await this.phoneOtp.activeUserByPhone(phone);
-    await this.phoneOtp.send(phone, "password_reset", user ? await this.smsFallbackAllowed(user.id) : true);
+    await this.phoneOtp.send(phone, "password_reset", user ? await this.smsResetAllowed(user.id) : true);
   }
 
   // Đặt mật khẩu mới bằng mã OTP; thu hồi mọi phiên, bỏ khóa đăng nhập (QUYTAC_NGHIEPVU_147).
@@ -189,12 +195,14 @@ export class BuyerAccountsService {
         if (error instanceof ApiError && (error.message === "retailSmartOtpInvalid" || error.message === "retailSmartOtpInactive")) throw invalidField("code", "otpInvalid");
         throw error;
       }
-    } else if (!(await this.smsFallbackAllowed(user.id)) || !(await this.phoneOtp.consume(phone, proof.code!, "password_reset"))) {
+    } else if (!(await this.smsResetAllowed(user.id)) || !(await this.phoneOtp.consume(phone, proof.code!, "password_reset"))) {
       throw invalidField("code", "otpInvalid");
     }
     await this.database.transaction(async (transaction) => {
       // Hết tin cậy mọi thiết bị trừ thiết bị đang làm (QUYTAC_NGHIEPVU_568).
       await this.deviceTrust.removeAllExcept(transaction, user.id, deviceHashOf(client.deviceId));
+      // Ngoại lệ đặt lại bằng SMS sau khi chăm sóc khách hàng hủy Smart OTP chỉ dùng một lần (QUYTAC_NGHIEPVU_567).
+      await transaction.execute(sql`UPDATE core.account_security SET sms_password_reset_until = NULL, updated_at = now() WHERE user_id = ${user.id} AND sms_password_reset_until IS NOT NULL`);
       await setPassword(transaction, user.id, password);
       await transaction.execute(sql`UPDATE core.users SET login_locked_until = NULL, updated_at = now() WHERE id = ${user.id}`);
       await transaction.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE user_id = ${user.id} AND revoked_at IS NULL`);
