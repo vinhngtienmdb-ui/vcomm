@@ -1,7 +1,8 @@
 // MAN_HINH_73 Đăng nhập (CHUC_NANG_105; API_117): số điện thoại và mật khẩu, hoặc mã OTP; mã xác thực hai lớp với tài khoản nhân viên bắt buộc.
 // CONG_VIEC_72: thiết bị mới xác nhận bằng Smart OTP; đăng nhập bằng mã SMS chỉ dành cho khách chưa kích hoạt, trong thời hạn chuyển đổi.
+import type { BuyerAuthenticationPolicy } from "contracts";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthLayout, TextLink, useAction, useResendTimer } from "@/components/auth";
 import { DeviceVerification } from "@/components/DeviceVerification";
 import { Button, Card, Choice, Field, Muted, Notice } from "@/components/ui";
@@ -23,6 +24,16 @@ export default function LoginScreen() {
   const [backup, setBackup] = useState(false);
   const { busy, error, fields, run } = useAction(["phone", "password", "code", "backupCode"]);
   const timer = useResendTimer();
+  // API_326: sau thời hạn chuyển đổi không còn đăng nhập bằng mã SMS (CONG_VIEC_72; QUYTAC_NGHIEPVU_560).
+  const [smsLoginOpen, setSmsLoginOpen] = useState(true);
+  useEffect(() => {
+    api<BuyerAuthenticationPolicy>("/buyer/authentication-policy")
+      .then((policy) => {
+        setSmsLoginOpen(policy.smsFallbackOpen);
+        if (!policy.smsFallbackOpen) setMethod("password");
+      })
+      .catch(() => undefined);
+  }, []);
 
   const sendCode = () =>
     run(async () => {
@@ -66,18 +77,20 @@ export default function LoginScreen() {
       {thongBao === "datLai" ? <Notice tone="success" text={t("resetDone")} /> : null}
       <Card>
         {error ? <Notice text={error} /> : null}
-        <Choice<Method>
-          label=""
-          value={method}
-          options={[
-            { value: "password", label: t("loginByPassword") },
-            { value: "otp", label: t("loginByOtp") },
-          ]}
-          onChange={(value) => {
-            setMethod(value);
-            setCode("");
-          }}
-        />
+        {smsLoginOpen ? (
+          <Choice<Method>
+            label=""
+            value={method}
+            options={[
+              { value: "password", label: t("loginByPassword") },
+              { value: "otp", label: t("loginByOtp") },
+            ]}
+            onChange={(value) => {
+              setMethod(value);
+              setCode("");
+            }}
+          />
+        ) : null}
         <Field label={t("phone")} value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" maxLength={15} error={fields.phone} />
         {method === "password" ? (
           <>

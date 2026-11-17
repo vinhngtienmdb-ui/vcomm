@@ -4507,7 +4507,11 @@
     "deviceVerifyLostPhone": "No longer have the phone holding Smart OTP?",
     "smartOtpNoOldDeviceHint": "Activating again with a text code counts as recovery: the old phone stops working and point use is paused (24 hours by default).",
     "usePointsBlocked_redeem_locked": "Point use is paused because Smart OTP was just recovered.",
-    "affiliateNoRedeem_redeem_locked": "Point use is paused because Smart OTP was just recovered."
+    "affiliateNoRedeem_redeem_locked": "Point use is paused because Smart OTP was just recovered.",
+    "partnerActivateSmartOtp": "The transition period has ended: activate Smart OTP to exchange points to a partner.",
+    "partnerSmartOtpHere": "This phone holds Smart OTP: tap \"Get the code on this phone\", open it with fingerprint, face or lock code, and the code fills in.",
+    "smartOtpReminder": "Activate Smart OTP by the end of {date} ({days} days left): after that, spending points and signing in on a new phone need Smart OTP instead of text messages.",
+    "smartOtpReminderWeb": "Browser Smart OTP stops working after {date} ({days} days left). Install the VComm app and activate it on your phone."
   },
   "buyers": {
     "title": "Buyer accounts",

@@ -4507,7 +4507,11 @@
     "deviceVerifyLostPhone": "Không còn máy giữ Smart OTP?",
     "smartOtpNoOldDeviceHint": "Kích hoạt lại bằng mã SMS tính là khôi phục: máy cũ hết hiệu lực, dùng điểm tạm khóa (mặc định 24 giờ).",
     "usePointsBlocked_redeem_locked": "Dùng điểm đang tạm khóa do vừa khôi phục Smart OTP.",
-    "affiliateNoRedeem_redeem_locked": "Dùng điểm đang tạm khóa do vừa khôi phục Smart OTP."
+    "affiliateNoRedeem_redeem_locked": "Dùng điểm đang tạm khóa do vừa khôi phục Smart OTP.",
+    "partnerActivateSmartOtp": "Đã hết thời hạn chuyển đổi: kích hoạt Smart OTP để đổi điểm ra đối tác.",
+    "partnerSmartOtpHere": "Máy này đang giữ Smart OTP: bấm \"Lấy mã trên máy này\", mở bằng vân tay hoặc mã khóa, mã tự điền.",
+    "smartOtpReminder": "Kích hoạt Smart OTP trước hết ngày {date} (còn {days} ngày): sau ngày này, dùng điểm và đăng nhập trên máy mới cần Smart OTP thay tin nhắn SMS.",
+    "smartOtpReminderWeb": "Smart OTP trên trình duyệt hết hiệu lực sau ngày {date} (còn {days} ngày). Cài ứng dụng VComm và kích hoạt trên điện thoại."
   },
   "buyers": {
     "title": "Tài khoản người mua",
