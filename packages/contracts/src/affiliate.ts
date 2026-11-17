@@ -147,6 +147,8 @@ export interface MerchantPortalMe {
     merchantStatus: AffiliateMerchantStatus;
     role: AffiliateMemberRole;
     outlets: AffiliateOutlet[];
+    // Cửa hàng đã bật thu hộ qua ứng dụng VComm (CONG_VIEC_73; QUYTAC_NGHIEPVU_573).
+    collectionEnabled: boolean;
   }[];
 }
 export interface MerchantPortalStore extends AffiliateMerchantTerms {

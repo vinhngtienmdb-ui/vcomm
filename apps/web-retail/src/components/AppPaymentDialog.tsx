@@ -176,16 +176,16 @@ export function AppPaymentDialog({
           </div>
         )}
         {checkout?.buyer && open(checkout.status) && (
-          <div className="khoi thong-tin" role="status">
+          <div className="khoi-canh-bao thong-tin" role="status">
             {status === "awaiting_buyer"
               ? t("appWaitingBuyer", { name: checkout.buyer.maskedName })
               : t("appWaitingPayment", { name: checkout.buyer.maskedName, amount: money(checkout.amountDue ?? "0"), points: checkout.points.toLocaleString("vi-VN") })}
           </div>
         )}
-        {status === "completed" && <div className="khoi thanh-cong">{t("appCompleted")}</div>}
-        {status === "paid_unposted" && <div className="khoi loi">{t("appUnposted", { reason: checkout?.postingError ?? "" })}</div>}
+        {status === "completed" && <div className="khoi-canh-bao thong-tin">{t("appCompleted")}</div>}
+        {status === "paid_unposted" && <div className="khoi-canh-bao loi">{t("appUnposted", { reason: checkout?.postingError ?? "" })}</div>}
         {(status === "expired" || status === "declined" || status === "cancelled") && (
-          <div className="khoi canh-bao">{status === "declined" ? t("appDeclined") : status === "expired" ? t("appExpired") : t("appCancelled")}</div>
+          <div className="khoi-canh-bao canh-bao">{status === "declined" ? t("appDeclined") : status === "expired" ? t("appExpired") : t("appCancelled")}</div>
         )}
         <FormError text={error} />
         <div className="dong" style={{ gap: "var(--khoang-3)" }}>

@@ -1,6 +1,7 @@
 // MAN_HINH_277 Thanh toán tại cửa hàng (CONG_VIEC_73; QUYTAC_NGHIEPVU_577 đến 579; API_327).
 // Khách xem đơn của cửa hàng, chọn số điểm, phương thức rồi thanh toán trong ứng dụng; trả hết bằng điểm thì hoàn tất ngay.
 // Đơn mở từ mã QR của cửa hàng: dùng điểm phải mở Smart OTP (mã tự điền sau khi mở). Sau khi mở cổng, hỏi trạng thái mỗi 2 giây.
+// Cửa hàng liên kết (lát L4): chọn voucher trước, số điểm tối đa tính sau voucher; đơn thu tại quầy chỉ xác nhận, cửa hàng thu phần còn lại.
 import type { BuyerInstoreCheckout, PayInstoreCheckoutRequest, PayInstoreCheckoutResponse } from "contracts";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -30,6 +31,7 @@ export default function InstoreCheckoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [checkout, setCheckout] = useState<BuyerInstoreCheckout | null>(null);
   const [points, setPoints] = useState("0");
+  const [voucherId, setVoucherId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [invoiceOn, setInvoiceOn] = useState(false);
   const [invoice, setInvoice] = useState({ name: "", taxCode: "", address: "" });
@@ -56,10 +58,13 @@ export default function InstoreCheckoutScreen() {
 
   if (!checkout) return error ? <Notice text={error} /> : <Loading />;
   const loyalty = checkout.loyalty;
-  const canRedeem = Boolean(loyalty && !loyalty.blockedReason && loyalty.maxPoints > 0 && loyalty.pointValue);
-  const used = Math.min(Math.max(Number(points.replace(/\D/g, "")) || 0, 0), loyalty?.maxPoints ?? 0);
+  const voucher = checkout.vouchers.find((item) => item.codeId === voucherId) ?? null;
+  const maxPoints = voucher ? Math.min(voucher.maxPoints, loyalty?.maxPoints ?? 0) : (loyalty?.maxPoints ?? 0);
+  const canRedeem = Boolean(loyalty && !loyalty.blockedReason && maxPoints > 0 && loyalty.pointValue);
+  const used = Math.min(Math.max(Number(points.replace(/\D/g, "")) || 0, 0), maxPoints);
   const pointsAmount = canRedeem && loyalty?.pointValue ? Math.floor(used * Number(loyalty.pointValue)) : 0;
-  const due = Math.max(Number(checkout.billAmount) - Number(checkout.voucherAmount) - pointsAmount, 0);
+  const voucherAmount = voucher ? Number(voucher.discount) : 0;
+  const due = Math.max(Number(checkout.billAmount) - voucherAmount - pointsAmount, 0);
   const pointsValid = used === 0 || (canRedeem && used >= (loyalty?.minPoints ?? 0));
 
   async function pay(smartOtp: string | null) {
@@ -68,6 +73,7 @@ export default function InstoreCheckoutScreen() {
     try {
       const body: PayInstoreCheckoutRequest = {
         points: checkout!.status === "awaiting_buyer" ? used : 0,
+        voucherCodeId: checkout!.status === "awaiting_buyer" ? voucherId : null,
         method: due > 0 || checkout!.status === "awaiting_payment" ? paymentMethod : null,
         ...(smartOtp ? { smartOtp } : {}),
         invoiceInfo: invoiceOn && invoice.name.trim() ? { name: invoice.name.trim(), taxCode: invoice.taxCode.trim() || null, address: invoice.address.trim() || null } : null,
@@ -109,9 +115,18 @@ export default function InstoreCheckoutScreen() {
     return (
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Screen>
-          <Notice tone="success" text={t("instorePaid", { amount: money(Number(checkout.billAmount) - Number(checkout.pointsAmount) - Number(checkout.voucherAmount)) })} />
+          <Notice
+            tone="success"
+            text={
+              checkout.collectInApp
+                ? t("instorePaid", { amount: money(Number(checkout.billAmount) - Number(checkout.pointsAmount) - Number(checkout.voucherAmount)) })
+                : t("instoreConfirmed", { amount: money(checkout.amountDue ?? "0") })
+            }
+          />
           {header}
+          {Number(checkout.voucherAmount) > 0 ? <Row label={t("instoreVoucher")} value={`− ${money(checkout.voucherAmount)}`} /> : null}
           {checkout.points > 0 ? <Row label={t("instorePointsUsed", { points: checkout.points.toLocaleString("vi-VN") })} value={`− ${money(checkout.pointsAmount)}`} /> : null}
+          {!checkout.collectInApp ? <Row label={t("instorePayAtCounter")} value={money(checkout.amountDue ?? "0")} strong /> : null}
           {checkout.saleDocumentNo ? <Muted>{t("instoreReceipt", { documentNo: checkout.saleDocumentNo })}</Muted> : null}
           <Button label={t("instoreHome")} onPress={() => router.replace("/trang-chu")} />
         </Screen>
@@ -133,6 +148,7 @@ export default function InstoreCheckoutScreen() {
         {header}
         {checkout.status === "awaiting_payment" ? (
           <Card>
+            {Number(checkout.voucherAmount) > 0 ? <Row label={t("instoreVoucher")} value={`− ${money(checkout.voucherAmount)}`} /> : null}
             <Row label={t("instorePointsUsed", { points: checkout.points.toLocaleString("vi-VN") })} value={`− ${money(checkout.pointsAmount)}`} />
             <Row label={t("instoreYouPay")} value={money(checkout.amountDue ?? "0")} strong />
             <Notice tone="info" text={t("instoreWaitingGateway")} />
@@ -154,6 +170,22 @@ export default function InstoreCheckoutScreen() {
           </Card>
         ) : (
           <>
+            {checkout.vouchers.length > 0 ? (
+              <Card>
+                <Choice
+                  label={t("instoreVoucher")}
+                  value={voucherId ?? ""}
+                  options={[
+                    { value: "", label: t("instoreNoVoucher") },
+                    ...checkout.vouchers.map((item) => ({ value: item.codeId, label: `${item.titleVi} · − ${money(item.discount)}` })),
+                  ]}
+                  onChange={(value) => {
+                    setVoucherId(value || null);
+                    setPoints("0");
+                  }}
+                />
+              </Card>
+            ) : null}
             <Card>
               <Text style={{ fontWeight: "700", fontSize: 16, color: colors.text }}>{t("instoreUsePoints")}</Text>
               {loyalty && canRedeem ? (
@@ -162,11 +194,11 @@ export default function InstoreCheckoutScreen() {
                     {t("instorePointsHint", {
                       balance: loyalty.balance.toLocaleString("vi-VN"),
                       min: loyalty.minPoints.toLocaleString("vi-VN"),
-                      max: loyalty.maxPoints.toLocaleString("vi-VN"),
+                      max: maxPoints.toLocaleString("vi-VN"),
                     })}
                   </Muted>
                   <Field label={t("instorePoints")} keyboardType="number-pad" value={points} onChangeText={setPoints} error={pointsValid ? undefined : t("instorePointsInvalid")} />
-                  <Button label={t("instorePointsMax")} kind="secondary" onPress={() => setPoints(String(loyalty.maxPoints))} />
+                  <Button label={t("instorePointsMax")} kind="secondary" onPress={() => setPoints(String(maxPoints))} />
                 </>
               ) : (
                 <Muted>{loyalty?.redeemLockedUntil ? t("payCodeRedeemLocked", { time: time(loyalty.redeemLockedUntil) }) : t("instoreNoPoints")}</Muted>
@@ -182,6 +214,7 @@ export default function InstoreCheckoutScreen() {
               </Card>
             ) : null}
             <Card>
+              {voucherAmount > 0 ? <Row label={t("instoreVoucher")} value={`− ${money(voucherAmount)}`} /> : null}
               <Row label={t("instorePointsAmount")} value={`− ${money(pointsAmount)}`} />
               <Row label={checkout.collectInApp ? t("instoreYouPay") : t("instorePayAtCounter")} value={money(due)} strong />
               <Button label={invoiceOn ? t("instoreInvoiceHide") : t("instoreInvoiceShow")} kind="secondary" onPress={() => setInvoiceOn(!invoiceOn)} />

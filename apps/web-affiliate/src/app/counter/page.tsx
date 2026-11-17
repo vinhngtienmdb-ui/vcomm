@@ -1,8 +1,10 @@
 "use client";
 
 // MAN_HINH_174 Quầy tích đổi điểm (CONG_VIEC_55; CHUC_NANG_194; QUYTAC_NGHIEPVU_394 đến 400; API_208).
-// Ba cách định danh khách: hiện mã QR của cửa hàng, quét mã thành viên của khách, số điện thoại. Tiền, điểm do máy chủ tính.
-import type { AffiliateTransactionCreated, AffiliateTransactionItem, AffiliateTransactionMethod, PageResponse } from "contracts";
+// Ba cách định danh khách: hiện mã QR của cửa hàng, quét mã của khách, số điện thoại. Tiền, điểm do máy chủ tính.
+// CONG_VIEC_73 lát L4 (API_329): "Hiện mã QR" và quét Mã thanh toán 18 số tạo đơn chờ; khách chọn voucher, điểm trên ứng dụng rồi trả qua ứng dụng
+// (cửa hàng bật thu hộ, thu ngân chọn) hoặc xác nhận để trả tại quầy. Mã thành viên cũ vẫn nhận trong thời hạn chuyển đổi.
+import type { AffiliateTransactionCreated, AffiliateTransactionItem, AffiliateTransactionMethod, MerchantCheckoutResponse, PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import qrcode from "qrcode-generator";
 import { useCallback, useEffect, useState } from "react";
@@ -78,6 +80,45 @@ function Result({ transaction }: { transaction: AffiliateTransactionItem }) {
   );
 }
 
+const checkoutClass: Record<MerchantCheckoutResponse["status"], string> = {
+  awaiting_buyer: "thong-tin",
+  awaiting_payment: "thong-tin",
+  paid_unposted: "canh-bao",
+  completed: "thanh-cong",
+  declined: "loi",
+  expired: "trung-tinh",
+  cancelled: "canh-bao",
+};
+const checkoutOpen = (status: MerchantCheckoutResponse["status"]) => status === "awaiting_buyer" || status === "awaiting_payment";
+
+// Kết quả đơn chờ (bản mẫu MAN_HINH_174 sửa): voucher, điểm; tiền khách đã trả qua ứng dụng hoặc còn thu tại quầy; phí thu hộ, phí cổng, tiền VComm chuyển.
+function CheckoutResult({ checkout }: { checkout: MerchantCheckoutResponse }) {
+  const t = useTranslations("merchantPortal");
+  const money = (value: string | number) => `${formatNumber(String(value), 0)} đ`;
+  const benefits = Number(checkout.voucherAmount) + Number(checkout.pointsAmount);
+  const fees = Number(checkout.collectionFee) + Number(checkout.collectionFeeTax) + Number(checkout.gatewayFee);
+  const line = (label: string, value: string, strong = false) => (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: "var(--khoang-2)", ...(strong ? { fontWeight: 800, fontSize: 18, borderTop: "1px solid var(--mau-vien)", paddingTop: "var(--khoang-2)" } : {}) }}>
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+  return (
+    <div style={{ display: "grid", gap: "var(--khoang-2)" }}>
+      {line(t("billAmount"), money(checkout.billAmount))}
+      {benefits > 0 && line(t("voucherAndPoints", { points: formatNumber(checkout.points, 0) }), `− ${money(benefits)}`)}
+      {checkout.collectInApp
+        ? line(t("paidInApp"), money(checkout.collectedAmount), true)
+        : line(t("collectAtCounterAmount"), money(checkout.amountDue ?? "0"), true)}
+      {checkout.collectInApp && fees > 0 &&
+        line(t("collectionFees", { percent: formatNumber(checkout.feePercent ?? "0", 2) }), `− ${money(fees)}`)}
+      <div className={checkout.collectInApp ? "khoi-canh-bao thong-tin" : "khoi-canh-bao canh-bao"}>
+        {checkout.collectInApp ? t("payoutNote", { amount: money(checkout.payoutAmount) }) : t("collectAtCounterNote", { amount: money(checkout.amountDue ?? "0") })}
+      </div>
+    </div>
+  );
+}
+
 function CancelDrawer({ transaction, onClose, onDone }: { transaction: AffiliateTransactionItem; onClose: () => void; onDone: () => void }) {
   const t = useTranslations("merchantPortal");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
@@ -120,6 +161,8 @@ export default function CounterPage() {
   const [method, setMethod] = useState<AffiliateTransactionMethod>("merchant_qr");
   const [phone, setPhone] = useState("");
   const [current, setCurrent] = useState<AffiliateTransactionItem | null>(null);
+  const [checkout, setCheckout] = useState<MerchantCheckoutResponse | null>(null);
+  const [collectInApp, setCollectInApp] = useState(membership.collectionEnabled);
   const [qr, setQr] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState<AffiliateTransactionItem | null>(null);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
@@ -127,6 +170,46 @@ export default function CounterPage() {
   const { state, reload } = usePortalApi<PageResponse<AffiliateTransactionItem>>(`/merchant-portal/transactions?from=${today}&to=${today}${outletId ? `&outletId=${outletId}` : ""}`);
   const canTransact = membership.merchantStatus === "active";
   const amount = bill.replace(/[.\s,]/g, "");
+  const inApp = membership.collectionEnabled && collectInApp;
+
+  // Đơn chờ: hỏi trạng thái mỗi 2 giây đến khi khách thanh toán, xác nhận hoặc đơn đóng.
+  useEffect(() => {
+    if (!checkout || !checkoutOpen(checkout.status)) return;
+    const timer = setInterval(() => {
+      void portalFetch<MerchantCheckoutResponse>(`/merchant-portal/checkouts/${checkout.id}`).then((fresh) => {
+        if (fresh.status !== checkout.status || fresh.buyer?.maskedName !== checkout.buyer?.maskedName) {
+          setCheckout((previous) => ({ ...fresh, qrUrl: previous?.qrUrl ?? null }));
+          if (!checkoutOpen(fresh.status)) void reload();
+        }
+      });
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [checkout, reload]);
+
+  // Tạo đơn chờ: hiện mã QR (luồng 2) hoặc kèm Mã thanh toán 18 số vừa quét (luồng 1).
+  const createCheckout = useCallback(
+    (payCode?: string) =>
+      void run(async () => {
+        const created = await portalFetch<MerchantCheckoutResponse>("/merchant-portal/checkouts", {
+          method: "POST",
+          body: JSON.stringify({ clientKey: crypto.randomUUID(), outletId, billAmount: amount, collectInApp: inApp, ...(payCode ? { payCode } : {}) }),
+        });
+        setCurrent(null);
+        setQr(null);
+        setCheckout(created);
+      }),
+    [amount, inApp, outletId, run],
+  );
+  const cancelCheckout = () =>
+    void run(async () => {
+      if (checkout) setCheckout(await portalFetch<MerchantCheckoutResponse>(`/merchant-portal/checkouts/${checkout.id}/cancel`, { method: "POST", body: JSON.stringify({ reason: t("cancelCheckoutReason") }) }));
+    });
+  const reset = () => {
+    setCurrent(null);
+    setCheckout(null);
+    setBill("");
+    setPhone("");
+  };
 
   // Chờ khách xác nhận: hỏi lại trạng thái mỗi 2 giây.
   useEffect(() => {
@@ -150,6 +233,7 @@ export default function CounterPage() {
           method: "POST",
           body: JSON.stringify({ outletId, billAmount: amount, method, ...(method === "phone" ? { phone } : {}), ...(memberCode ? { memberCode } : {}) }),
         });
+        setCheckout(null);
         setCurrent(created.transaction);
         setQr(created.qrCode);
         void reload();
@@ -186,6 +270,17 @@ export default function CounterPage() {
               onChange={(event) => setBill(event.target.value.replace(/[^\d]/g, "") ? formatNumber(event.target.value.replace(/[^\d]/g, ""), 0) : "")}
             />
           </Field>
+          {membership.collectionEnabled && method !== "phone" && (
+            <fieldset style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: "var(--khoang-2)" }}>
+              <legend className="an-nhan">{t("collectMode")}</legend>
+              <label>
+                <input type="radio" name="cach-thu" checked={collectInApp} onChange={() => setCollectInApp(true)} /> {t("collectInApp")}
+              </label>
+              <label>
+                <input type="radio" name="cach-thu" checked={!collectInApp} onChange={() => setCollectInApp(false)} /> {t("collectAtCounter")}
+              </label>
+            </fieldset>
+          )}
           <div className="cac-the" role="tablist">
             {(["merchant_qr", "buyer_qr", "phone"] as const).map((item) => (
               <button key={item} type="button" role="tab" aria-selected={method === item} className={method === item ? "chon" : ""} onClick={() => (setMethod(item), setQr(null))}>
@@ -194,7 +289,7 @@ export default function CounterPage() {
             ))}
           </div>
           <p className="chu-thich" style={{ margin: 0 }}>
-            {t(`hint_${method}`)}
+            {method === "phone" ? t("hint_phone") : t(`hint_${method}_app`)}
           </p>
           {method === "phone" && (
             <Field id="sdt-khach" label={t("customerPhone")} error={fields.phone}>
@@ -203,7 +298,11 @@ export default function CounterPage() {
           )}
           {method === "buyer_qr" ? (
             amount && canTransact ? (
-              <QrScanner key={`${amount}-${current?.id ?? ""}`} onCode={(code) => submit(code)} />
+              // Mã thanh toán 18 số tạo đơn chờ; mã thành viên cũ (trong thời hạn chuyển đổi) lập giao dịch như trước.
+              <QrScanner
+                key={`${amount}-${current?.id ?? ""}-${checkout?.id ?? ""}`}
+                onCode={(code) => (/^[0-9\s]{18,24}$/.test(code.trim()) ? createCheckout(code.trim()) : submit(code))}
+              />
             ) : (
               <p className="chu-thich">{t("enterBillFirst")}</p>
             )
@@ -212,7 +311,7 @@ export default function CounterPage() {
               type="button"
               className={`nut chinh${submitting ? " dang-xu-ly" : ""}`}
               disabled={submitting || !amount || !canTransact || (method === "phone" && !phone.trim())}
-              onClick={() => submit()}
+              onClick={() => (method === "merchant_qr" ? createCheckout() : submit())}
             >
               {t(method === "merchant_qr" ? "showQr" : "sendRequest")}
             </button>
@@ -220,7 +319,34 @@ export default function CounterPage() {
           <FormError text={formError} />
         </section>
         <section className="the" aria-live="polite">
-          {!current ? (
+          {checkout ? (
+            <>
+              <h2 style={{ display: "flex", gap: "var(--khoang-2)", alignItems: "center", flexWrap: "wrap" }}>
+                {checkout.transactionNo ?? checkout.documentNo} <span className={`nhan ${checkoutClass[checkout.status]}`}>{t(`checkoutStatus_${checkout.status}`)}</span>
+              </h2>
+              {checkout.status === "awaiting_buyer" && !checkout.buyer && checkout.qrUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qrDataUrl(checkout.qrUrl)} alt={t("qrAlt", { no: checkout.documentNo })} style={{ width: 240, height: 240, justifySelf: "center", imageRendering: "pixelated" }} />
+              )}
+              {checkoutOpen(checkout.status) && (
+                <p style={{ textAlign: "center", margin: 0 }}>
+                  <span className="nhan thong-tin">
+                    {checkout.buyer ? t("checkoutBuyer", { name: checkout.buyer.maskedName }) : t("checkoutWaitingScan")} · <Countdown until={checkout.expiresAt} />
+                  </span>
+                </p>
+              )}
+              {checkout.status === "completed" && <CheckoutResult checkout={checkout} />}
+              {checkoutOpen(checkout.status) ? (
+                <button type="button" className="nut nguy-hiem" disabled={submitting || checkout.status === "awaiting_payment"} onClick={cancelCheckout}>
+                  {t("cancelCheckout")}
+                </button>
+              ) : (
+                <button type="button" className="nut chinh" onClick={reset}>
+                  {t("newTransaction")}
+                </button>
+              )}
+            </>
+          ) : !current ? (
             <MessageView text={t("noCurrent")} />
           ) : (
             <>
@@ -240,15 +366,7 @@ export default function CounterPage() {
               )}
               {current.status === "completed" && <Result transaction={current} />}
               {current.status !== "pending" && (
-                <button
-                  type="button"
-                  className="nut chinh"
-                  onClick={() => {
-                    setCurrent(null);
-                    setBill("");
-                    setPhone("");
-                  }}
-                >
+                <button type="button" className="nut chinh" onClick={reset}>
                   {t("newTransaction")}
                 </button>
               )}

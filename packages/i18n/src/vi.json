@@ -3052,7 +3052,8 @@
     "commissions": "Hoa hồng",
     "commissionSettings": "Cài đặt hoa hồng",
     "revaluations": "Đánh giá lại ngoại tệ",
-    "resellerSettlements": "Đối soát người bán"
+    "resellerSettlements": "Đối soát người bán",
+    "instoreGatewayFees": "Biểu phí cổng tại cửa hàng"
   },
   "debts": {
     "title": "Công nợ",
@@ -4606,7 +4607,11 @@
     "instoreConfirm": "Xác nhận",
     "instoreDecline": "Từ chối",
     "payCodeBrighten": "Tăng độ sáng",
-    "payCodeBrightnessRestore": "Trả độ sáng cũ"
+    "payCodeBrightnessRestore": "Trả độ sáng cũ",
+    "affiliateOpenPayCode": "Mở Mã thanh toán (cửa hàng quét)",
+    "instoreVoucher": "Voucher",
+    "instoreNoVoucher": "Không dùng voucher",
+    "instoreConfirmed": "Đã xác nhận. Trả {amount} tại quầy."
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -8701,7 +8706,19 @@
     "security_unset": "Chưa thiết lập",
     "resetAuth": "Đặt lại xác thực",
     "resetAuthText": "Xóa ứng dụng xác thực và mã dự phòng của {name}, đăng xuất mọi phiên cổng. Lần vào tới người đó nhận mã SMS một lần ở thẻ Kích hoạt của cổng, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới.",
-    "resetAuthDone": "Đã đặt lại xác thực."
+    "resetAuthDone": "Đã đặt lại xác thực.",
+    "collectionTitle": "Thu hộ qua ứng dụng",
+    "collectionEnabled": "Bật thu hộ qua ứng dụng VComm",
+    "collectionOn": "Đang bật",
+    "collectionOff": "Đang tắt",
+    "collectionFeePercent": "Phí thu hộ (%)",
+    "collectionFeeHint": "0 đến 10 %, tính trên tiền khách trả qua ứng dụng; tiền điểm không tính phí.",
+    "collectionAccount": "Tài khoản nhận tiền",
+    "collectionAccountNone": "Chưa chọn",
+    "collectionNoAccount": "Đối tác chưa có tài khoản ngân hàng. Thêm trong hồ sơ đối tác trước khi bật thu hộ.",
+    "collectionWarning": "Thu hộ tiền của cửa hàng có thể là hoạt động trung gian thanh toán. Chỉ bật khi hồ sơ pháp lý đã được xác nhận.",
+    "collectionAcknowledge": "Tôi đã đọc",
+    "collectionAcknowledgedAt": "Đã xác nhận cảnh báo lúc {time}."
   },
   "merchantPortal": {
     "brand": "VComm Liên kết",
@@ -8875,7 +8892,29 @@
     "security_unset": "Chưa thiết lập",
     "resetAuth": "Đặt lại xác thực",
     "resetAuthText": "Xóa ứng dụng xác thực và mã dự phòng của {name}, đăng xuất mọi phiên cổng. Lần vào tới người đó nhận mã SMS một lần ở thẻ Kích hoạt, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới.",
-    "resetAuthDone": "Đã đặt lại xác thực."
+    "resetAuthDone": "Đã đặt lại xác thực.",
+    "collectMode": "Cách khách trả tiền",
+    "collectInApp": "Khách trả qua ứng dụng VComm (VComm thu hộ)",
+    "collectAtCounter": "Khách trả tại quầy (chỉ tích, dùng điểm, voucher)",
+    "hint_merchant_qr_app": "Khách quét mã bằng ứng dụng VComm, chọn voucher, điểm rồi thanh toán hoặc xác nhận. Đơn giữ 10 phút.",
+    "hint_buyer_qr_app": "Quét Mã thanh toán trên ứng dụng VComm của khách (18 số). Mã thành viên cũ vẫn nhận trong thời hạn chuyển đổi.",
+    "checkoutStatus_awaiting_buyer": "Chờ khách",
+    "checkoutStatus_awaiting_payment": "Chờ khách thanh toán",
+    "checkoutStatus_paid_unposted": "Đã thu, lỗi ghi sổ",
+    "checkoutStatus_completed": "Hoàn tất",
+    "checkoutStatus_expired": "Hết hạn",
+    "checkoutStatus_cancelled": "Đã hủy",
+    "checkoutStatus_declined": "Khách từ chối",
+    "checkoutWaitingScan": "Chờ khách quét mã",
+    "checkoutBuyer": "Khách {name} đang chọn voucher, điểm trên ứng dụng",
+    "voucherAndPoints": "Voucher, điểm ({points} điểm)",
+    "paidInApp": "Khách đã trả qua ứng dụng",
+    "collectAtCounterAmount": "Thu của khách tại quầy",
+    "collectionFees": "Phí thu hộ {percent} %, thuế và phí cổng",
+    "payoutNote": "Không thu tiền của khách. VComm chuyển {amount} vào tài khoản của cửa hàng trong bảng chuyển tiền ngày.",
+    "collectAtCounterNote": "Thu của khách {amount} tại quầy (tiền mặt hoặc chuyển khoản như thường lệ).",
+    "cancelCheckout": "Hủy đơn chờ",
+    "cancelCheckoutReason": "Thu ngân hủy đơn chờ"
   },
   "affiliateVoucher": {
     "merchantTitle": "Voucher của cửa hàng",
@@ -11012,5 +11051,22 @@
     "reason": "Lý do (bắt buộc)",
     "reasonHint": "10 đến 500 ký tự; ghi vào nhật ký thao tác",
     "revoked": "Đã hủy Smart OTP của khách."
+  },
+  "instoreGatewayFees": {
+    "title": "Biểu phí cổng tại cửa hàng",
+    "hint": "Phí cổng trừ vào tiền chuyển cho cửa hàng theo biểu phí tại thời điểm thanh toán. Sửa là thêm mức áp dụng từ ngày chọn, không sửa lùi.",
+    "noMethods": "Chưa có phương thức thanh toán trực tuyến nào đang bật.",
+    "saved": "Đã lưu biểu phí cổng.",
+    "column_gateway": "Cổng",
+    "column_method": "Phương thức",
+    "column_percent": "Tỷ lệ (%)",
+    "column_fixedAmount": "Cố định mỗi giao dịch (đ)",
+    "column_effectiveFrom": "Áp dụng từ",
+    "column_current": "Mức hiện hành",
+    "none": "Chưa có (phí cổng 0)",
+    "currentRate": "{percent} % + {fixed} đ từ {from}",
+    "scheduledRate": "Hẹn {percent} % + {fixed} đ từ {from}",
+    "differenceHint": "Chênh lệch với phí thực tế trên tệp đối soát cổng do công ty vận hành sàn chịu hoặc hưởng.",
+    "save": "Lưu"
   }
 }

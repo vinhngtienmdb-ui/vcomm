@@ -3052,7 +3052,8 @@
     "commissions": "Commissions",
     "commissionSettings": "Commission settings",
     "revaluations": "Currency revaluation",
-    "resellerSettlements": "Reseller settlements"
+    "resellerSettlements": "Reseller settlements",
+    "instoreGatewayFees": "In-store gateway fees"
   },
   "debts": {
     "title": "Debts",
@@ -4606,7 +4607,11 @@
     "instoreConfirm": "Confirm",
     "instoreDecline": "Decline",
     "payCodeBrighten": "Brighten screen",
-    "payCodeBrightnessRestore": "Restore brightness"
+    "payCodeBrightnessRestore": "Restore brightness",
+    "affiliateOpenPayCode": "Open payment code (store scans)",
+    "instoreVoucher": "Voucher",
+    "instoreNoVoucher": "No voucher",
+    "instoreConfirmed": "Confirmed. Pay {amount} at the counter."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -8701,7 +8706,19 @@
     "security_unset": "Not set up",
     "resetAuth": "Reset authentication",
     "resetAuthText": "Removes {name}'s authenticator and backup codes and signs out every portal session. Next time they get a one-time SMS code on the portal Activate tab, set a new password and register a new authenticator.",
-    "resetAuthDone": "Authentication reset."
+    "resetAuthDone": "Authentication reset.",
+    "collectionTitle": "In-app collection",
+    "collectionEnabled": "Enable collection through the VComm app",
+    "collectionOn": "On",
+    "collectionOff": "Off",
+    "collectionFeePercent": "Collection fee (%)",
+    "collectionFeeHint": "0 to 10%, on the amount paid in the app; points carry no fee.",
+    "collectionAccount": "Payout bank account",
+    "collectionAccountNone": "Not selected",
+    "collectionNoAccount": "The partner has no bank account. Add one in the partner profile before enabling collection.",
+    "collectionWarning": "Collecting money for the store may be a payment intermediary activity. Enable only after the legal file has been confirmed.",
+    "collectionAcknowledge": "I have read this",
+    "collectionAcknowledgedAt": "Warning confirmed at {time}."
   },
   "merchantPortal": {
     "brand": "VComm Partners",
@@ -8875,7 +8892,29 @@
     "security_unset": "Not set up",
     "resetAuth": "Reset authentication",
     "resetAuthText": "Removes {name}'s authenticator and backup codes and signs out every portal session. Next time they get a one-time SMS code on the Activate tab, set a new password and register a new authenticator.",
-    "resetAuthDone": "Authentication reset."
+    "resetAuthDone": "Authentication reset.",
+    "collectMode": "How the customer pays",
+    "collectInApp": "Customer pays in the VComm app (VComm collects)",
+    "collectAtCounter": "Customer pays at the counter (points and vouchers only)",
+    "hint_merchant_qr_app": "The customer scans the code with the VComm app, picks vouchers and points, then pays or confirms. The order is held for 10 minutes.",
+    "hint_buyer_qr_app": "Scan the payment code in the customer's VComm app (18 digits). Old member codes are still accepted during the transition period.",
+    "checkoutStatus_awaiting_buyer": "Waiting for customer",
+    "checkoutStatus_awaiting_payment": "Customer is paying",
+    "checkoutStatus_paid_unposted": "Paid, posting failed",
+    "checkoutStatus_completed": "Completed",
+    "checkoutStatus_expired": "Expired",
+    "checkoutStatus_cancelled": "Cancelled",
+    "checkoutStatus_declined": "Declined by customer",
+    "checkoutWaitingScan": "Waiting for the customer to scan",
+    "checkoutBuyer": "Customer {name} is choosing vouchers and points in the app",
+    "voucherAndPoints": "Vouchers, points ({points} points)",
+    "paidInApp": "Customer paid in the app",
+    "collectAtCounterAmount": "Collect at the counter",
+    "collectionFees": "Collection fee {percent}%, tax and gateway fee",
+    "payoutNote": "Do not collect money from the customer. VComm transfers {amount} to the store account in the daily payout.",
+    "collectAtCounterNote": "Collect {amount} from the customer at the counter (cash or bank transfer as usual).",
+    "cancelCheckout": "Cancel pending order",
+    "cancelCheckoutReason": "Cashier cancelled the pending order"
   },
   "affiliateVoucher": {
     "merchantTitle": "Store vouchers",
@@ -11012,5 +11051,22 @@
     "reason": "Reason (required)",
     "reasonHint": "10 to 500 characters; written to the audit log",
     "revoked": "The customer's Smart OTP was revoked."
+  },
+  "instoreGatewayFees": {
+    "title": "In-store gateway fees",
+    "hint": "Gateway fees are deducted from the store payout using the schedule at payment time. Saving adds a rate effective from the chosen date; past dates cannot be changed.",
+    "noMethods": "No online payment method is enabled.",
+    "saved": "Gateway fees saved.",
+    "column_gateway": "Gateway",
+    "column_method": "Method",
+    "column_percent": "Rate (%)",
+    "column_fixedAmount": "Fixed per transaction (VND)",
+    "column_effectiveFrom": "Effective from",
+    "column_current": "Current rate",
+    "none": "None (fee 0)",
+    "currentRate": "{percent}% + {fixed} VND from {from}",
+    "scheduledRate": "Scheduled {percent}% + {fixed} VND from {from}",
+    "differenceHint": "Differences from the actual fees in the gateway reconciliation file are borne or kept by the operator company.",
+    "save": "Save"
   }
 }
