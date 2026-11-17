@@ -96,7 +96,8 @@ import { MarketplaceCommissionsService } from "./marketplace/commissions.service
 import { LoyaltyController } from "./loyalty/loyalty.controller";
 import { LoyaltyProgramService } from "./loyalty/program.service";
 import { LoyaltyLedgerService } from "./loyalty/ledger.service";
-import { SmartOtpService } from "./loyalty/smart-otp.service";
+import { SmartOtpService } from "./auth/smart-otp.service";
+import { AuthenticationSettingsService } from "./auth/authentication-settings.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -340,6 +341,7 @@ import { UsersService } from "./users/users.service";
     LoyaltyProgramService,
     LoyaltyLedgerService,
     SmartOtpService,
+    AuthenticationSettingsService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,

@@ -19,6 +19,7 @@ import {
   type PageResponse,
   listingListQuerySchema,
   type ListingItem,
+  type AuthenticationSettingsResponse,
   type StoreSettingsResponse,
   testBuyerSchema,
   updateCarrierSchema,
@@ -29,6 +30,7 @@ import {
   updateOrderingOpenSchema,
   updatePaymentMethodSchema,
   updateListingSchema,
+  updateAuthenticationSettingsSchema,
   updateStoreSettingsSchema,
   cancelMarketplaceOrderSchema,
   marketplaceOrderListQuerySchema,
@@ -45,6 +47,7 @@ import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
 import { BuyerAdminService } from "./buyer-admin.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
@@ -63,7 +66,21 @@ export class MarketplaceController {
     private readonly orders: MarketplaceOrdersService,
     private readonly shipments: ShipmentsService,
     private readonly returns: ReturnRequestsService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
   ) {}
+
+  // API_323: tham số chuyển đổi sang Smart OTP, thống kê (CONG_VIEC_72; QUYTAC_NGHIEPVU_561, 572). Xem: marketplace.buyer.view; sửa: marketplace.buyer.manage.
+  @Get("authentication-settings")
+  async authenticationSettingsView(@Req() request: AuthenticatedRequest): Promise<AuthenticationSettingsResponse> {
+    await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.view");
+    return this.authenticationSettings.view(await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"));
+  }
+
+  @Put("authentication-settings")
+  async updateAuthenticationSettings(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<AuthenticationSettingsResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage");
+    return this.authenticationSettings.update(actor, updateAuthenticationSettingsSchema.parse(body));
+  }
 
   // API_129: yêu cầu trả hàng (CONG_VIEC_24).
   @Get("return-requests")

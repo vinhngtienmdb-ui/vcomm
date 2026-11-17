@@ -58,7 +58,7 @@ export class PhoneOtpService {
         VALUES (${phone}, ${purpose}, ${hashCode(code)}, ${new Date(now.getTime() + lifetimeMinutes * 60_000)}, ${now})`);
     });
     if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return false;
-    const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null);
+    const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null, "login_otp", purpose);
     // Máy phát triển chưa cài eSMS: in mã ra log để thử đăng nhập. Không bao giờ in trên môi trường thật.
     if (!sent && process.env.NODE_ENV !== "production") {
       this.logger.warn(`Mã OTP thử (${purpose}) cho ${phone}: ${code}`);

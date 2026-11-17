@@ -11,7 +11,7 @@ import {
 } from "contracts";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { LoyaltyAccountsService } from "./accounts.service";
-import { SmartOtpService } from "./smart-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
 
 @Controller("buyer/loyalty")
 export class BuyerLoyaltyController {

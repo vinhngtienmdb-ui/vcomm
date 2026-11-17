@@ -306,16 +306,17 @@ Sửa màn hình đã có:
 
 - Database migration 0158 `core_smart_otp`:
   - Chuyển `loyalty.smart_otp_devices` sang `core.smart_otp_devices`, giữ nguyên dữ liệu.
-  - Thêm `platform` (`ios`, `android`, `web`; dữ liệu cũ suy theo tên máy), `device_hash`, `redeem_locked_until`, `recovered_at`.
-  - Bảng `core.trusted_devices`: `user_id`, `device_hash`, `device_name`, `platform`, `first_seen_at`, `last_seen_at`, `removed_at`; khóa `user_id`, `device_hash`. Nạp từ phiên còn hiệu lực có mã thiết bị và `loyalty.device_links` 12 tháng.
+  - Thêm `platform` (`ios`, `android`, `web`; dữ liệu cũ suy theo tên máy), `device_hash`.
+  - Bảng `core.account_security` (một dòng mỗi tài khoản, sống qua các lần hủy, kích hoạt lại Smart OTP): `smart_otp_first_activated_at`, `smart_otp_recovered_at`, `redeem_locked_until`, `sms_password_reset_until`. Nạp lần kích hoạt đầu từ Smart OTP đang có. (Điều chỉnh khi lập trình L1: khóa dùng điểm đặt ở bảng tài khoản thay vì bảng Smart OTP để khách tự hủy Smart OTP không xóa được khóa.)
+  - Bảng `core.trusted_devices`: `user_id`, `device_hash`, `device_name`, `platform`, `first_seen_at`, `last_seen_at`, `removed_at`; khóa `user_id`, `device_hash`. Nạp từ `loyalty.device_links` 12 tháng. Phiên có trước triển khai chưa có băm thiết bị: thiết bị được coi là tin cậy ở lần làm mới phiên đầu tiên (lát L3).
   - `core.sessions` thêm `device_hash`, `device_verified`.
 - Database migration 0159 `core_authentication_settings`:
   - Bảng một dòng `core.authentication_settings`: `transition_starts_on` (mặc định ngày chạy), `buyer_transition_days` 30, `portal_transition_days` 30, `recovery_redeem_lock_hours` 24, `version`.
   - Bảng `core.smart_otp_reminders`: `user_id`, `kind` (`start`, `day_14`, `day_7`, `day_1`, `zns_7`), `sent_at`; khóa `user_id`, `kind`.
-  - `core.otp_codes` thêm chỉ mục theo `purpose`, `created_at` cho thống kê.
+  - `core.message_deliveries` thêm `otp_purpose` (mục đích mã OTP của tin) để đếm số tin SMS đã gửi theo mục đích; tin cũ để trống.
+  - `core.authentication_settings` thêm `support_hotline` (quyết định người dùng 2026-11-17).
 - Database migration 0160 `merchant_portal_authentication`:
-  - Quyền `marketplace.buyer.security` gán vai trò mặc định.
-  - Loại thông báo mới.
+  - Quyền `marketplace.buyer.security` (gán Quản trị tập đoàn, Quản trị công ty qua danh mục quyền).
   - `affiliate.members` thêm `authentication_reset_at` (bắt kích hoạt lại bằng SMS).
 - Không lưu mã khóa, mã Smart OTP, khóa bí mật dạng rõ. Khóa TOTP vẫn mã hóa bằng `secret-box`.
 

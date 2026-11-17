@@ -26,7 +26,7 @@ import type { BuyerAdminActor } from "../../marketplace/buyer-admin.service";
 import { vietnamToday } from "../../marketplace/shop.service";
 import { creditLot, refundRedeemEntry, spendPointsWithin } from "../ledger.service";
 import { phaseOn } from "../program.service";
-import { maskName, SmartOtpService } from "../smart-otp.service";
+import { maskName, SmartOtpService } from "../../auth/smart-otp.service";
 import { deviceHashOf, evaluateRedeem } from "../fraud";
 import { lockAccount } from "../tiers";
 import { assertBuyer, maskMemberNumber, openContract } from "./buyer-partners.service";

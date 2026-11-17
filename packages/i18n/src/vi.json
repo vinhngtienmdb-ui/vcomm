@@ -786,7 +786,8 @@
     "partnerApiKeyContractTerminated": "Hợp đồng đã chấm dứt, không cấp khóa mới.",
     "partnerSettlementClosed": "Bảng đối soát đã xác nhận, không lập lại được.",
     "partnerSettlementNotMatched": "Bảng chưa khớp, chưa xác nhận được.",
-    "partnerSettlementChanged": "Giao dịch của tháng đã thay đổi từ lúc lập bảng. Vui lòng lập lại rồi xác nhận."
+    "partnerSettlementChanged": "Giao dịch của tháng đã thay đổi từ lúc lập bảng. Vui lòng lập lại rồi xác nhận.",
+    "transitionStartFuture": "Ngày bắt đầu chuyển đổi không được sau hôm nay."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4628,7 +4629,31 @@
     "feedEnabledSaved": "Đã bật tệp danh mục.",
     "feedDisabledSaved": "Đã tắt tệp danh mục.",
     "feedRegenerated": "Đã tạo mã mới. Dán đường dẫn mới vào Commerce Manager.",
-    "feedViewOnly": "Bạn chỉ có quyền xem; đường dẫn tệp chỉ hiện với người có quyền sửa cài đặt bán hàng."
+    "feedViewOnly": "Bạn chỉ có quyền xem; đường dẫn tệp chỉ hiện với người có quyền sửa cài đặt bán hàng.",
+    "authenticationTitle": "Xác thực",
+    "authenticationPeriod": "Thời hạn chuyển đổi sang Smart OTP: người mua từ {start} đến hết {buyerEnd}; cổng cửa hàng liên kết đến hết {portalEnd}. Sau hạn, tài khoản chưa kích hoạt không nhận mã SMS dự phòng.",
+    "transitionStartsOn": "Ngày bắt đầu chuyển đổi",
+    "transitionStartsOnHint": "Mặc định ngày triển khai; không sau hôm nay",
+    "buyerTransitionDays": "Số ngày chuyển đổi – người mua",
+    "portalTransitionDays": "Số ngày chuyển đổi – cổng cửa hàng liên kết",
+    "transitionDaysHint": "1 đến 180, tính cả ngày bắt đầu",
+    "recoveryRedeemLockHours": "Khóa dùng điểm sau khôi phục (giờ)",
+    "recoveryRedeemLockHoursHint": "0 đến 168",
+    "supportHotline": "Số tổng đài chăm sóc khách hàng",
+    "supportHotlineHint": "Tùy chọn; hiện trong thông báo khôi phục, hủy Smart OTP",
+    "activationTitle": "Tình hình kích hoạt",
+    "smartOtpActive": "Người mua đã kích hoạt Smart OTP",
+    "smartOtpActiveHint": "{percent}% · trên bản web còn {web}",
+    "portalSetUp": "Tài khoản cổng đã thiết lập bảo mật",
+    "percentHint": "{percent}%",
+    "smsTitle": "Tin SMS mã OTP 30 ngày gần nhất",
+    "smsPurpose": "Mục đích",
+    "smsCount": "Số tin",
+    "smsPurpose_register": "Đăng ký",
+    "smsPurpose_smart_otp": "Kích hoạt Smart OTP, khôi phục",
+    "smsPurpose_login": "Đăng nhập (dự phòng)",
+    "smsPurpose_password_reset": "Quên mật khẩu (dự phòng)",
+    "smsPurpose_affiliate_redeem": "Cửa hàng liên kết qua Open API (dự phòng)"
   },
   "listings": {
     "title": "Đăng bán",

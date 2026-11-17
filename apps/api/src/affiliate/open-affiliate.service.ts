@@ -23,7 +23,7 @@ import { ApiError } from "../common/api-error";
 import { isUniqueViolation, violatedConstraint } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { estimateEarnPoints, LoyaltyLedgerService } from "../loyalty/ledger.service";
-import { SmartOtpService } from "../loyalty/smart-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import type { OpenApiCaller } from "../open-api/api-key.guard";
 import { AffiliateTransactionsService, maskName, readMemberCode, type CounterActor } from "./transactions.service";

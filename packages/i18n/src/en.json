@@ -786,7 +786,8 @@
     "partnerApiKeyContractTerminated": "The contract has been terminated; no new keys can be issued.",
     "partnerSettlementClosed": "The settlement has been confirmed and cannot be rebuilt.",
     "partnerSettlementNotMatched": "The settlement does not match yet and cannot be confirmed.",
-    "partnerSettlementChanged": "The month's transactions have changed since the settlement was built. Please rebuild it, then confirm."
+    "partnerSettlementChanged": "The month's transactions have changed since the settlement was built. Please rebuild it, then confirm.",
+    "transitionStartFuture": "The transition start date cannot be after today."
   },
   "login": {
     "title": "Sign in",
@@ -4628,7 +4629,31 @@
     "feedEnabledSaved": "Catalog feed turned on.",
     "feedDisabledSaved": "Catalog feed turned off.",
     "feedRegenerated": "New code created. Paste the new URL into Commerce Manager.",
-    "feedViewOnly": "You can only view this; the feed URL is shown only to people who can edit store settings."
+    "feedViewOnly": "You can only view this; the feed URL is shown only to people who can edit store settings.",
+    "authenticationTitle": "Authentication",
+    "authenticationPeriod": "Smart OTP transition period: buyers from {start} to the end of {buyerEnd}; affiliate store portal to the end of {portalEnd}. After that, accounts without Smart OTP no longer get fallback SMS codes.",
+    "transitionStartsOn": "Transition start date",
+    "transitionStartsOnHint": "Defaults to the release date; not after today",
+    "buyerTransitionDays": "Transition days – buyers",
+    "portalTransitionDays": "Transition days – affiliate store portal",
+    "transitionDaysHint": "1 to 180, including the start date",
+    "recoveryRedeemLockHours": "Point use lock after recovery (hours)",
+    "recoveryRedeemLockHoursHint": "0 to 168",
+    "supportHotline": "Customer care hotline",
+    "supportHotlineHint": "Optional; shown in recovery and Smart OTP revocation notices",
+    "activationTitle": "Activation",
+    "smartOtpActive": "Buyers with Smart OTP",
+    "smartOtpActiveHint": "{percent}% · still on the web version: {web}",
+    "portalSetUp": "Portal accounts with security set up",
+    "percentHint": "{percent}%",
+    "smsTitle": "OTP text messages in the last 30 days",
+    "smsPurpose": "Purpose",
+    "smsCount": "Messages",
+    "smsPurpose_register": "Registration",
+    "smsPurpose_smart_otp": "Smart OTP activation, recovery",
+    "smsPurpose_login": "Sign-in (fallback)",
+    "smsPurpose_password_reset": "Forgot password (fallback)",
+    "smsPurpose_affiliate_redeem": "Affiliate stores via Open API (fallback)"
   },
   "listings": {
     "title": "Listings",

@@ -29,7 +29,7 @@ import type { Executor } from "../finance/debts.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { LoyaltyLedgerService, pointsFor } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
-import { maskName, maskPhone, SmartOtpService } from "../loyalty/smart-otp.service";
+import { maskName, maskPhone, SmartOtpService } from "../auth/smart-otp.service";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
