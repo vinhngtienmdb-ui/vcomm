@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L1
+- Phạm vi: mã thanh toán động, khung đơn chờ thanh toán (database migration 0161 schema `instore`, API_327, MAN_HINH_276); nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `dd4e7ee`), đã hợp nhất nhánh CONG_VIEC_72 (`f776efc`).
+- Kết quả: c73-instore-checkouts 8/8 đạt; toàn bộ kiểm thử API 162 tệp, 902 đạt; kiểm tra kiểu api, mobile-vcomm đạt; khóa dịch khớp.
+- Kết luận: Đạt lát L1; người dùng duyệt điểm xem trước 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L0
 - Phạm vi: schema `ipos` (gói, thông tin thu phí, thuê bao; trigger chặn điểm bán của cửa hàng khác), quyền `ipos.plan.manage`, `ipos.subscription.manage`, API_354, 355, việc nền `ipos-subscriptions-daily`, MAN_HINH_303, 304; nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `de76af95`).
 - Kết quả: c74-subscriptions 5/5 đạt; toàn bộ kiểm thử API 155 tệp, 880 đạt; CI đạt (kiểm tra kiểu, lint, kiểm thử; quét bảo mật).
