@@ -306,7 +306,7 @@ export class InstorePayoutsService {
     return (
       await transaction.execute<{ id: string }>(sql`
         INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount, note)
-        VALUES (${companyId}, ${partnerId}, ${side}, 'debit', 'instore_payout', ${payout.id}, ${payout.document_no}, ${day}::date, ${day}::date, ${amount}, ${amount},
+        VALUES (${companyId}, ${partnerId}, ${side}, 'debit', ${side === "payable" ? "instore_payout" : "instore_payout_owner"}, ${payout.id}, ${payout.document_no}, ${day}::date, ${day}::date, ${amount}, ${amount},
           ${`Bảng chuyển tiền thu hộ ${payout.document_no}`})
         RETURNING id`)
     ).rows[0]!.id;

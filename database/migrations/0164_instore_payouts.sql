@@ -29,11 +29,11 @@ ALTER TABLE finance.payments ADD CONSTRAINT payments_kind_check CHECK (kind IN (
     'instore_payout_payment', 'instore_payout_receipt'));
 ALTER TABLE finance.payments ADD CONSTRAINT payments_instore_payout_check CHECK ((kind IN ('instore_payout_payment', 'instore_payout_receipt')) = (instore_payout_id IS NOT NULL));
 
--- Công nợ của bảng chuyển tiền; gồm mọi giá trị trên main.
+-- Công nợ của bảng chuyển tiền: phải trả ở công ty vận hành sàn (instore_payout), phải thu nội bộ ở công ty sở hữu (instore_payout_owner); gồm mọi giá trị trên main.
 ALTER TABLE finance.debt_items DROP CONSTRAINT debt_items_source_type_check;
 ALTER TABLE finance.debt_items ADD CONSTRAINT debt_items_source_type_check
     CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off', 'collection_statement', 'landed_cost',
-        'affiliate_settlement', 'loyalty_partner_settlement', 'instore_payout'));
+        'affiliate_settlement', 'loyalty_partner_settlement', 'instore_payout', 'instore_payout_owner'));
 
 -- Bút toán: nhận tiền cổng (công ty vận hành sàn), dòng "Ứng dụng VComm" của hóa đơn bán lẻ (công ty sở hữu), lập bảng chuyển tiền (hai công ty).
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
