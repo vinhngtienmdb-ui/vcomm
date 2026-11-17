@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_74 lát L0 xong (pull request #188; kiểm thử API 880/880), người dùng duyệt, chấp nhận lưu thuế suất gói trực tiếp; chuyển lát L1. CONG_VIEC_73 bắt đầu viết mã lát L1 trên nền nhánh CONG_VIEC_72 (chờ người dùng thử Smart OTP trên điện thoại thật).
 - CONG_VIEC_72 trình nghiệm thu (pull request #177, commit `f776efc`): lát L1 đến L6; điều chỉnh L4 khôi phục qua đăng nhập mật khẩu và phiên chờ, không dùng API_320; điều chỉnh L6 (a đến f). Hợp nhất main v0.13.0 vào nhánh; kiểm thử API 894/894. Rà soát bảo mật sửa lỗi thành viên cổng tự đăng ký ứng dụng xác thực sau thời hạn. Còn người dùng thử trên điện thoại thật.
 - Phát hành 0.13.0 (pull request #185, commit hợp nhất `dd23de1`, tag `v0.13.0`): CONG_VIEC_63 (trợ lý AI). Kiểm thử API 875 đạt; database migration 0136, 0137 chạy đúng trên cơ sở dữ liệu trống và khi nâng cấp từ main; thư viện @anthropic-ai/sdk 1.4.0. Chưa triển khai.
 - Hợp nhất sổ: pull request #184 (THAY_DOI_38, dải mã CONG_VIEC_73), #186 (THAY_DOI_39, dải mã đợt 1 CONG_VIEC_74). Người dùng duyệt lát L5 CONG_VIEC_72 và phần bổ sung API_330 của CONG_VIEC_73 (trả một phần hàng để sau).
