@@ -183,6 +183,21 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – Phát hành 0.13.1
+- Phạm vi: nhánh `phat-hanh/v0.13.1` từ main `56bbc8f`, gộp LOI_15 (pull request #198).
+- Kết quả: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt; CI trên main đạt, tag `v0.13.1`.
+- Kết luận: Đạt.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L5
+- Phạm vi: trả hàng (một phần với tiền mặt, VietQR; hủy toàn bộ khi có điểm, voucher), báo cáo cửa hàng, xuất Excel (database migration 0170, API_343, 344, 350, 351, MAN_HINH_290, 293, 298 đến 300); commit `99317054`, `98c35afc`, `eed6faaa`.
+- Kết quả: kiểm thử c55, c73, c74 63/63 đạt; kiểm tra kiểu, lint đạt.
+- Kết luận: Đạt lát L5; người dùng duyệt 2026-11-17, chấp nhận 6 điều chỉnh.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L4
+- Phạm vi: thu hộ tại cửa hàng liên kết, voucher trên MAN_HINH_277 (database migration 0163, API_329, 332, MAN_HINH_174, 181, 277, 279, 280); commit `10852e5`, `afc23e3`, `8bbe344`, `3ba2421`.
+- Kết quả: toàn bộ kiểm thử API 164 tệp, 919 đạt; kiểm tra kiểu đạt; khóa dịch khớp; chạy thật trên cổng cửa hàng, web-crm, web-finance, ứng dụng bản web (voucher 30.000 đ, 100 điểm, trả 320.000 đ qua VNPAY giả lập; chuyển cho cửa hàng 310.740 đ).
+- Kết luận: Đạt lát L4; người dùng duyệt 2026-11-17, chấp nhận 7 điểm lệch.
+
 ## Lần kiểm thử 2026-11-17 – LOI_15
 - Phạm vi: `apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx` (quét mã, xác nhận, từ chối giao dịch, tạo mã thành viên dùng `json:`; bỏ thân thừa ở nhận voucher); nhánh `sua-loi/LOI_15-gui-du-lieu-cua-hang-lien-ket` (pull request #196, commit `491a7a0`).
 - Kết quả: tái hiện thủ công trên bản web với API thật (Hiện mã thành viên): trước sửa thất bại (400 VALIDATION_FAILED), sau sửa đạt (200, hiện mã QR); kiểm tra mức HTTP các đường scan, confirm, decline, claim đạt; rà mobile-warehouse và các ứng dụng web không có chỗ cùng lỗi. Hồi quy: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt.
@@ -829,4 +844,4 @@
 | LOI_12 | CONG_VIEC_59: `office/signing/pdf-verification.ts` cắt mọi cặp "00" cuối chuỗi hex /Contents trước khi đọc CMS; chữ ký RSA kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký) bị mất byte nên kiểm tra chữ ký báo sai và lần ký bị đánh thất bại, người dùng phải ký lại. Phát hiện khi dựng phát hành 0.9.0 (3 ca c59-phien-ky lỗi khi chạy toàn bộ) | Trung bình | KICHBAN_KIEMTHU_598, 599, 603 | Sửa trên nhánh phát hành 0.9.0: bỏ việc cắt, bộ đọc DER đã bỏ qua phần đệm; thêm kiểm thử hồi quy | Đã sửa (commit `753f465`, kiểm thử hồi quy trong c59-ky-so-pdf), phát hành v0.9.0 |
 | LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đã sửa (pull request #155, chỉ sửa kiểm thử, hợp nhất vào main 2026-11-12) |
 | LOI_14 | Kiểm thử c57-station-orders, c57-station-delivery, c55-settlements lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam: dữ liệu dựng sẵn lấy "hôm nay" một lần rồi gửi phiếu điều chỉnh giá, giai đoạn điểm thưởng sau khi ngày đã đổi nên bị từ chối ngày hiệu lực đã qua (400). Làm CI đỏ ngẫu nhiên (pull request #165, phát hành 0.11.0). Mã nguồn sản phẩm chạy đúng | Thấp | Kiểm thử của CONG_VIEC_55, 57 | Người dùng chọn 2026-11-17: sửa ngay; kiểm thử không phụ thuộc thời điểm chạy, chỉ sửa kiểm thử; kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example | Đã sửa (pull request #176, chỉ sửa cấu hình kiểm thử: chờ qua 0 giờ giờ Việt Nam trước mỗi tệp; kèm LOYALTY_PARTNER_SIMULATOR trong .env.example; hợp nhất vào main 2026-11-17, có trong v0.12.0) |
-| LOI_15 | Ứng dụng VComm, màn hình cửa hàng liên kết (`apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx`, CONG_VIEC_55): ba lời gọi xác nhận giao dịch, tạo mã hội viên, quét mã truyền `body: JSON.stringify(...)` thay vì `json:` nên không gắn content-type JSON; máy chủ nhận thân rỗng, báo "Dữ liệu không hợp lệ"; khách không dùng điểm được ở cửa hàng liên kết. Phát hiện 2026-11-17 bởi phiên CONG_VIEC_73, phiên điều phối kiểm tra lại trên main | Cao | Kịch bản của CONG_VIEC_55 trên ứng dụng | Sửa ngay (người dùng 2026-11-17): sửa ba lời gọi, thêm kiểm thử, rà các màn hình khác cùng kiểu lỗi, phát hành bản vá 0.13.1; chưa triển khai nên không theo luồng khẩn cấp | Đã sửa (pull request #196, commit `491a7a0`; người dùng nghiệm thu 2026-11-17; phát hành trong 0.13.1) |
+| LOI_15 | Ứng dụng VComm, màn hình cửa hàng liên kết (`apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx`, CONG_VIEC_55): ba lời gọi xác nhận giao dịch, tạo mã hội viên, quét mã truyền `body: JSON.stringify(...)` thay vì `json:` nên không gắn content-type JSON; máy chủ nhận thân rỗng, báo "Dữ liệu không hợp lệ"; khách không dùng điểm được ở cửa hàng liên kết. Phát hiện 2026-11-17 bởi phiên CONG_VIEC_73, phiên điều phối kiểm tra lại trên main | Cao | Kịch bản của CONG_VIEC_55 trên ứng dụng | Sửa ngay (người dùng 2026-11-17): sửa ba lời gọi, thêm kiểm thử, rà các màn hình khác cùng kiểu lỗi, phát hành bản vá 0.13.1; chưa triển khai nên không theo luồng khẩn cấp | Đã sửa (pull request #196, commit `491a7a0`; người dùng nghiệm thu 2026-11-17; đã phát hành v0.13.1, pull request #198; chưa triển khai) |

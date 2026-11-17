@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.13.1 – 2026-11-17 – Chờ phát hành
+## Phiên bản 0.13.1 – 2026-11-17 – Đã phát hành
 
 - Chức năng mới: không có.
 - Sửa lỗi:

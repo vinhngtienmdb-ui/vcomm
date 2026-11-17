@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.13.1 (pull request #198, tag `v0.13.1`): sửa LOI_15. Kiểm thử API 875 đạt. Không database migration, không thư viện mới. Chưa triển khai.
+- CONG_VIEC_73 lát L4, CONG_VIEC_74 lát L5 xong, người dùng duyệt; cấp database migration 0171, 0172 cho CONG_VIEC_73.
 - CONG_VIEC_74 lát L1 xong, người dùng duyệt, yêu cầu thêm ngay Smart OTP cho đăng nhập lần đầu trên máy iPOS (đã làm trên nền nhánh CONG_VIEC_72); chuyển lát L2. Thứ tự hợp nhất vào main: CONG_VIEC_72 trước CONG_VIEC_73, 74.
 - CONG_VIEC_73 lát L1 xong (mã thanh toán động, đơn chờ; kiểm thử API 902/902), người dùng duyệt, chấp nhận 2 điểm lệch và thư viện expo-brightness; chuyển lát L2.
 - CONG_VIEC_74 lát L0 xong (pull request #188; kiểm thử API 880/880), người dùng duyệt, chấp nhận lưu thuế suất gói trực tiếp; chuyển lát L1. CONG_VIEC_73 bắt đầu viết mã lát L1 trên nền nhánh CONG_VIEC_72 (chờ người dùng thử Smart OTP trên điện thoại thật).
