@@ -130,10 +130,13 @@ function VcommApp({ create, onClose, onPaid }: { create: () => Promise<IposVcomm
     <View style={{ gap: space[3] }}>
       {!checkout.completionAvailable ? <Notice tone="warning" text={t("vcommAppPending")} /> : null}
       <Text style={styles.boxTitle}>{t("checkoutNumber", { number: checkout.documentNo, amount: money(checkout.billAmount) })}</Text>
-      <Muted>{t(`checkout_${checkout.status}`)}{checkout.buyerName ? ` · ${checkout.buyerName}` : ""}</Muted>
+      <Muted>
+        {checkout.status === "awaiting_buyer" && checkout.buyerName ? t("checkoutBuyerAttached") : t(`checkout_${checkout.status}`)}
+        {checkout.buyerName ? ` · ${checkout.buyerName}` : ""}
+      </Muted>
       {open ? (
         <View style={{ flexDirection: "row", gap: space[4], flexWrap: "wrap" }}>
-          {qrUrl ? (
+          {qrUrl && !checkout.buyerName ? (
             <View style={{ alignItems: "center", gap: space[1] }}>
               <QrView value={qrUrl} size={180} label={t("checkoutQr")} />
               <Muted>{t("checkoutQrHint")}</Muted>

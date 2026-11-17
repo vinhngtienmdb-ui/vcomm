@@ -11566,7 +11566,8 @@
     "returnReason": "Reason",
     "returnEstimate": "Estimated refund {amount}",
     "returnCancelInvoice": "Cancel whole invoice",
-    "returnConfirm": "Return and refund"
+    "returnConfirm": "Return and refund",
+    "checkoutBuyerAttached": "The customer has the order and is paying in the VComm app"
   },
   "iposPortal": {
     "notSubscribed": "This store has no iPOS subscription. Contact the marketplace operator to subscribe.",

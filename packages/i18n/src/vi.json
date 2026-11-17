@@ -11566,7 +11566,8 @@
     "returnReason": "Lý do trả",
     "returnEstimate": "Tiền hoàn dự kiến {amount}",
     "returnCancelInvoice": "Hủy toàn bộ hóa đơn",
-    "returnConfirm": "Trả hàng, hoàn tiền"
+    "returnConfirm": "Trả hàng, hoàn tiền",
+    "checkoutBuyerAttached": "Khách đã nhận đơn, chờ khách trả trên ứng dụng VComm"
   },
   "iposPortal": {
     "notSubscribed": "Cửa hàng chưa có thuê bao iPOS. Liên hệ công ty vận hành sàn để đăng ký.",
