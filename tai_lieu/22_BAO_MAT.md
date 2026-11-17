@@ -1465,3 +1465,31 @@ Kết quả rà soát bảo mật CONG_VIEC_72 (2026-11-17):
 - Không ghi mã Smart OTP, mã SMS, mã khóa, khóa TOTP vào log, nhật ký thao tác, thông báo lỗi; mã SMS chỉ in ra log trên máy phát triển khi chưa cài eSMS (đã có từ trước, chặn khi `NODE_ENV=production`).
 - Thư viện mới `expo-local-authentication` 58.0.2, `@noble/hashes` 2.4.0 (MIT, cố định phiên bản). `pnpm audit --prod`: không có mức Cao (1 Thấp, 5 Trung bình là phụ thuộc có từ trước).
 - Giới hạn đã biết, người dùng chấp nhận 2026-11-17: sinh trắc học không tự tắt khi thêm vân tay, khuôn mặt mới trên máy.
+
+### Phần mềm bán hàng iPOS cho cửa hàng liên kết (MODULE_17, CONG_VIEC_74)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa thiết bị (máy bán đã ghép) | Khóa bí mật | Sinh 32 byte ngẫu nhiên, trả cho máy một lần khi ghép; máy chủ chỉ lưu băm SHA-256 (`ipos.devices.key_hash`); thu hồi thiết bị thì khóa hết hiệu lực | Không ai |
+| Mã ghép thiết bị 8 ký tự | Bí mật ngắn hạn | Băm SHA-256 (`ipos.pairing_codes.code_hash`), dùng một lần, hết hạn theo đếm ngược | Chủ cửa hàng lúc tạo |
+| Mã PIN thu ngân 6 số | Bí mật của người dùng | Băm argon2id theo (thành viên, thiết bị) (`ipos.member_pins`); sai 5 lần khóa 15 phút | Không ai |
+| Mã duyệt PIN của chủ (giảm giá vượt mức, trả hàng) | Bí mật ngắn hạn | 6 số, dùng một lần, gắn thiết bị, hết hạn 2 phút (`ipos.approval_codes`) | Thiết bị yêu cầu |
+| Dữ liệu bán hàng của cửa hàng (hóa đơn, dòng hàng, giá vốn, khách) | Dữ liệu kinh doanh của cửa hàng | Schema riêng `ipos`; mọi truy vấn lọc theo cửa hàng của phiên; ERP chỉ đọc chỉ số tổng (không dòng hàng, giá vốn, khách; QUYTAC_NGHIEPVU_626) | Chủ cửa hàng; thu ngân (ca của mình); công ty vận hành sàn (chỉ số tổng, đối soát) |
+| Phiếu phí thuê bao, công nợ, bút toán | Tài chính | `ipos.fee_invoices`, `finance.debt_items`, `accounting.journals` của công ty vận hành sàn | `affiliate.view`; hủy, lập lại: `ipos.subscription.manage` |
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `/api/v1/ipos/devices/pair` | Công khai (mã ghép) | Mã băm, dùng một lần, hết hạn; nhóm giới hạn tần suất; nhật ký ghép |
+| `/api/v1/ipos/pos/*` (API_336 đến 343) | Khóa thiết bị (header `x-ipos-device`) và token phiên thu ngân gắn thiết bị | Phiên theo chuỗi phiên gắn thiết bị; đăng nhập lần đầu bằng Smart OTP hoặc mã SMS (khi còn thời hạn chuyển đổi), sau đó mã PIN; giao dịch điểm, đơn chờ, hóa đơn chỉ của quầy, điểm bán của thiết bị; khóa yêu cầu chống ghi trùng |
+| `/api/v1/merchant-portal/ipos/*` (API_344 đến 353) | Phiên cổng cửa hàng, CSRF | Chủ cửa hàng cho mọi trang quản lý, báo cáo, thuê bao và phí; dữ liệu lọc theo cửa hàng đang chọn |
+| `/api/v1/ipos/*`, `/api/v1/affiliate/merchants/{id}/ipos*` (API_354 đến 357) | Phiên nhân viên, CSRF | Xem `affiliate.view`; sửa gói `ipos.plan.manage`; thuê bao, phiếu phí `ipos.subscription.manage`; phạm vi cửa hàng của công ty vận hành sàn |
+
+- Không ghi mã PIN, mã ghép, khóa thiết bị, mã OTP, mã thanh toán động vào log, nhật ký thao tác, thông báo lỗi; nhật ký thao tác ghi quầy, máy, người duyệt, lý do.
+- Mỗi module chỉ ghi schema của mình: iPOS ghi `affiliate` (bảng đối soát tuần) qua chỗ đăng ký khoản thu thêm của service `affiliate`, ghi `instore` (đơn chờ, khoản trừ) qua service và móc của CONG_VIEC_73.
+
+Kết quả rà soát bảo mật CONG_VIEC_74 đợt 1 (2026-11-17):
+- Truy vấn dùng tham số của `sql` (drizzle); `sql.raw` chỉ nhận bí danh bảng cố định trong mã (báo cáo cửa hàng, báo cáo ERP), không nhận dữ liệu người dùng.
+- Mọi endpoint mới của lát L5 đến L7 (trả hàng, báo cáo, đối soát ERP, phiếu phí, mã VietQR trả phí) đều kiểm quyền và phạm vi cửa hàng; đầu vào kiểm bằng zod.
+- Không thêm thư viện ở lát L5 đến L7. `pnpm audit --prod`: không có mức Cao; 1 Thấp, 5 Trung bình đều nằm trong công cụ dòng lệnh của Expo (`@expo/cli`: `glob`, `minimatch`, `node-forge`), chỉ dùng khi dựng ứng dụng, không chạy trên máy bán hay máy chủ.
+- Giới hạn đã biết, người dùng chấp nhận: thư viện in Bluetooth bản rc (RUIRO CONG_VIEC_74 ở trên); in thật, ngắt mạng thử trên máy Sunmi T2 khi nghiệm thu.
+

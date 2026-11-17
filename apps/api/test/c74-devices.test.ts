@@ -39,11 +39,16 @@ const setOtp = async (phone: string, purpose: string) => {
 };
 const portal = (method: "get" | "post" | "put", path: string, body?: object) => store.owner.call(method, `/merchant-portal/ipos${path}`, body ? { body } : {});
 
+// Bí mật dùng trong tệp này (mã OTP, mã PIN, mã ghép, khóa thiết bị) để KICHBAN_KIEMTHU_802 quét nhật ký sau cùng.
+const secrets = new Set<string>(["246810", "246813", "000001"]);
+
 async function pair(registerId: string): Promise<string> {
   const code = await portal("post", `/registers/${registerId}/pairing-codes`);
   expect(code.status, JSON.stringify(code.body)).toBe(201);
+  secrets.add(code.body.code as string);
   const paired = await http().post("/api/v1/ipos/devices/pair").send({ code: code.body.code, model: "Sunmi T2", appVersion: "1.0.0" });
   expect(paired.status, JSON.stringify(paired.body)).toBe(201);
+  secrets.add(paired.body.deviceKey as string);
   return paired.body.deviceKey as string;
 }
 
@@ -109,12 +114,14 @@ describe("CONG_VIEC_74 L1 – quầy, thiết bị, đăng nhập, thu ngân t�
   it("KICHBAN_KIEMTHU_776: mã ghép đúng, sai, hết hạn, dùng lại; ghép mới vô hiệu thiết bị cũ; thu hồi", async () => {
     expect((await http().post("/api/v1/ipos/devices/pair").send({ code: "ABCD2345" })).body.error.fields.code).toBe(message("iposPairingCodeInvalid"));
     const expired = await portal("post", `/registers/${registerOne}/pairing-codes`);
+    secrets.add(expired.body.code as string);
     expect(expired.body.code).toMatch(/^[A-HJKMNP-Z2-9]{8}$/);
     testClock.fixed = new Date(Date.now() + 11 * 60_000);
     expect((await http().post("/api/v1/ipos/devices/pair").send({ code: expired.body.code })).status).toBe(400);
     testClock.fixed = null;
 
     const code = await portal("post", `/registers/${registerOne}/pairing-codes`);
+    secrets.add(code.body.code as string);
     const first = await http().post("/api/v1/ipos/devices/pair").send({ code: `${code.body.code.slice(0, 4)}-${code.body.code.slice(4)}`, model: "Sunmi T2" });
     expect(first.status, JSON.stringify(first.body)).toBe(201);
     expect(first.body.device).toMatchObject({ registerName: "Quầy 1", outletId: store.outletA, subscriptionStatus: "active", members: [] });
@@ -288,5 +295,20 @@ describe("CONG_VIEC_74 L1 – quầy, thiết bị, đăng nhập, thu ngân t�
     // Thành viên cửa hàng khác không đăng nhập được trên thiết bị của cửa hàng này.
     expect((await otpLogin(deviceKey, "0933444555")).status).toBe(401);
     expect(otherOutlet).toBeTruthy();
+  });
+});
+
+describe("CONG_VIEC_74 – nhật ký không chứa bí mật", () => {
+  it("KICHBAN_KIEMTHU_802: sau các kịch bản trên, nhật ký thao tác, thông báo, sự kiện outbox, bảng thiết bị không chứa mã OTP, mã PIN, mã ghép, khóa thiết bị", async () => {
+    const texts = await pool.query<{ source: string; text: string }>(`
+      SELECT 'audit' AS source, coalesce(before_data::text, '') || ' ' || coalesce(after_data::text, '') || ' ' || action AS text FROM core.audit_events
+      UNION ALL SELECT 'notification', title || ' ' || coalesce(link, '') || ' ' || payload::text FROM core.notifications
+      UNION ALL SELECT 'outbox', payload::text FROM core.outbox_events
+      UNION ALL SELECT 'device', key_hash || ' ' || coalesce(model, '') FROM ipos.devices
+      UNION ALL SELECT 'pin', pin_hash FROM ipos.member_pins
+      UNION ALL SELECT 'pairing', code_hash FROM ipos.pairing_codes`);
+    expect(texts.rows.length).toBeGreaterThan(0);
+    const leaks = texts.rows.flatMap((row) => [...secrets].filter((secret) => row.text.includes(secret)).map((secret) => `${row.source}: ${secret.slice(0, 2)}…`));
+    expect(leaks).toEqual([]);
   });
 });
