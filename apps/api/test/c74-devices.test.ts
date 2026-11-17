@@ -3,6 +3,8 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { messages } from "i18n";
 import { createHash } from "node:crypto";
+import { Secret, TOTP } from "otpauth";
+import { encryptSecret } from "../src/common/secret-box";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -48,7 +50,7 @@ async function pair(registerId: string): Promise<string> {
 async function otpLogin(key: string, phone: string) {
   expect((await device(key).post("/ipos/pos/auth/otp", { phone })).status).toBe(204);
   await setOtp(phone, "ipos_login");
-  return device(key).post("/ipos/pos/auth/login", { phone, code: "246810" });
+  return device(key).post("/ipos/pos/auth/login", { phone, code: "246810", method: "sms" });
 }
 
 beforeAll(async () => {
@@ -139,7 +141,7 @@ describe("CONG_VIEC_74 L1 – quầy, thiết bị, đăng nhập, thu ngân t�
   it("KICHBAN_KIEMTHU_777: OTP lần đầu, đặt PIN yếu bị từ chối, PIN sai 5 lần khóa 15 phút, khóa thành viên giữa phiên", async () => {
     // Số không phải thành viên: vẫn trả 204, đăng nhập bị từ chối.
     expect((await device(deviceKey).post("/ipos/pos/auth/otp", { phone: "0988000111" })).status).toBe(204);
-    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0988000111", code: "246810" })).status).toBe(401);
+    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0988000111", code: "246810", method: "sms" })).status).toBe(401);
 
     const login = await otpLogin(deviceKey, "0912333444");
     expect(login.status, JSON.stringify(login.body)).toBe(201);
@@ -185,6 +187,35 @@ describe("CONG_VIEC_74 L1 – quầy, thiết bị, đăng nhập, thu ngân t�
     const owner = device(deviceKey, ownerLogin.body.tokens.accessToken as string);
     expect((await owner.post("/ipos/pos/auth/lock")).status).toBe(204);
     expect((await owner.get("/ipos/pos/me")).status).toBe(401);
+  });
+
+  it("KICHBAN_KIEMTHU_777 (Smart OTP): đã kích hoạt Smart OTP thì đăng nhập bằng Smart OTP, không nhận SMS; hết thời hạn chuyển đổi thì SMS bị chặn", async () => {
+    // Kích hoạt Smart OTP cho chủ cửa hàng bằng khóa biết trước (như thiết bị đã kích hoạt trên ứng dụng VComm).
+    const secret = new Secret({ size: 20 }).base32;
+    const ownerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84909111222'")).rows[0]!.id;
+    await pool.query(
+      "INSERT INTO core.smart_otp_devices (user_id, device_name, platform, secret_encrypted, activated_at) VALUES ($1, 'Điện thoại Android', 'android', $2, now()) ON CONFLICT (user_id) DO NOTHING",
+      [ownerId, encryptSecret(secret)],
+    );
+    const code = () => new TOTP({ secret: Secret.fromBase32(secret), digits: 6, period: 30 }).generate();
+    // Đã kích hoạt Smart OTP: mã SMS không còn dùng được để đăng nhập.
+    expect((await device(deviceKey).post("/ipos/pos/auth/otp", { phone: "0909111222" })).status).toBe(204);
+    await setOtp("0909111222", "ipos_login");
+    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0909111222", code: "246810", method: "sms" })).body.error.message).toBe(message("iposUseSmartOtp"));
+    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0909111222", code: "000000", method: "smart_otp" })).status).toBe(409);
+    const login = await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0909111222", code: code(), method: "smart_otp" });
+    expect(login.status, JSON.stringify(login.body)).toBe(201);
+    expect(login.body.member).toMatchObject({ role: "owner" });
+    // Số chưa kích hoạt Smart OTP không đăng nhập được bằng Smart OTP.
+    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0912333444", code: code(), method: "smart_otp" })).status).toBe(401);
+
+    // Hết thời hạn chuyển đổi của cổng cửa hàng: thu ngân chưa kích hoạt không đăng nhập được bằng SMS.
+    const settings = await pool.query<{ transition_starts_on: string; portal_transition_days: number }>("SELECT transition_starts_on::text, portal_transition_days FROM core.authentication_settings");
+    await pool.query("UPDATE core.authentication_settings SET transition_starts_on = '2026-01-01', portal_transition_days = 1");
+    expect((await device(deviceKey).post("/ipos/pos/auth/otp", { phone: "0912333444" })).status).toBe(204);
+    await setOtp("0912333444", "ipos_login");
+    expect((await device(deviceKey).post("/ipos/pos/auth/login", { phone: "0912333444", code: "246810", method: "sms" })).body.error.message).toBe(message("iposSmartOtpRequired"));
+    await pool.query("UPDATE core.authentication_settings SET transition_starts_on = $1, portal_transition_days = $2", [settings.rows[0]!.transition_starts_on, settings.rows[0]!.portal_transition_days]);
   });
 
   it("KICHBAN_KIEMTHU_775: thu ngân tự đăng ký luôn là thu ngân, chủ duyệt, từ chối, hết hạn; giới hạn mỗi số", async () => {

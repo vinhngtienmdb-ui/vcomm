@@ -32,6 +32,9 @@ const groups: { name: "google" | "microsoft" | "zalo" | "esms"; keys: Integratio
       "esms.template.station_hold_reminder",
       "esms.template.station_order_shipping",
       "esms.template.station_order_cancelled",
+      "esms.template.smart_otp_transferred",
+      "esms.template.smart_otp_revoked",
+      "esms.template.smart_otp_reminder",
     ],
   },
 ];

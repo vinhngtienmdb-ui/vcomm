@@ -1426,3 +1426,41 @@ Trạng thái: bản nháp mô tả dữ kiện kỹ thuật; không tra cứu, 
 | Thời gian lưu | Trên VComm: hội thoại 90 ngày, nhật ký lượt (không nội dung) 24 tháng. Tại nhà cung cấp: theo điều khoản thương mại khi đăng ký khóa |
 | Biện pháp bảo vệ | Che dữ liệu một chiều trước khi gửi; chỉ đọc theo quyền của người hỏi; quản trị bật từng tính năng, cấp quyền theo vai trò; hạn mức chi phí; thông báo và xác nhận trước lần dùng đầu; nhật ký thao tác khi đổi cài đặt |
 | Người phụ trách | Người dùng điền |
+
+### Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa TOTP của Smart OTP | Khóa bí mật | Máy chủ: `core.smart_otp_devices.secret_encrypted`, mã hóa bằng `secret-box` như CONG_VIEC_53; trả cho ứng dụng một lần khi kích hoạt, chuyển máy, khôi phục, đăng ký kèm kích hoạt. Máy: bộ nhớ an toàn (`expo-secure-store`) | Không ai (không có API đọc lại) |
+| Mã khóa Smart OTP | Bí mật của khách | Chỉ lưu trên máy, băm PBKDF2-SHA256 20.000 vòng, muối ngẫu nhiên 16 byte (`@noble/hashes`), trong bộ nhớ an toàn; không gửi máy chủ | Không ai |
+| Mã cài đặt ứng dụng (`X-Device-Id`) | Định danh thiết bị | Máy chủ chỉ lưu băm HMAC-SHA256 (`core.trusted_devices`, `core.sessions.device_hash`, `core.smart_otp_devices.device_hash`) | Người mua (danh sách thiết bị của mình, không có băm) |
+| Trạng thái bảo mật tài khoản | Nội bộ | `core.account_security` (khóa dùng điểm, lần khôi phục, ngoại lệ đặt lại mật khẩu) | `marketplace.buyer.view` (khối Bảo mật đăng nhập) |
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `POST /api/v1/buyer/login` (API_117) | Mật khẩu, khóa 15 phút sau 5 lần sai (như cũ) | Thiết bị chưa tin cậy chỉ nhận phiên chờ xác nhận (`device_verified = false`): mọi API khác `401 DEVICE_VERIFICATION_REQUIRED`, hiệu lực 10 phút, không làm mới được (làm mới phiên chờ trả `401`) |
+| `/api/v1/buyer/login/device-verification*` (API_318) | Phiên chờ xác nhận | Mã Smart OTP kiểm trong giao dịch có khóa dòng, mỗi bước dùng một lần, sai 5 lần khóa 15 phút (chung đăng nhập, quên mật khẩu, giao dịch điểm); nhóm giới hạn `otp-verify`; gửi SMS luôn `204` |
+| `/api/v1/buyer/login/otp*`, `/buyer/password-reset*` (API_117) | Công khai | Luôn `204`, không cho biết số có tài khoản hay đã kích hoạt (QUYTAC_NGHIEPVU_05); khách đã kích hoạt không nhận SMS; 5 mã mỗi giờ mỗi số; quên mật khẩu thu hồi mọi phiên, hết tin cậy thiết bị khác |
+| `/api/v1/buyer/loyalty/smart-otp*` (API_199, API_319) | Token ứng dụng (trạng thái, gửi mã, kích hoạt gọi được từ phiên chờ) | Bản web không kích hoạt; kích hoạt bằng SMS trên thiết bị chưa tin cậy hoặc khi đã từng có Smart OTP tính là khôi phục: khóa mọi cách dùng điểm theo số giờ tham số, thông báo trong ứng dụng và ZNS cho chủ tài khoản; chuyển máy cần mã của máy cũ |
+| `/api/v1/buyer/devices*` (API_321) | Token ứng dụng | Chỉ thiết bị của mình; gỡ thiết bị thu hồi mọi phiên của thiết bị đó |
+| `/api/v1/marketplace/buyers/{id}/security`, `/smart-otp/revoke` (API_322) | Phiên nhân viên, CSRF; xem `marketplace.buyer.view`; hủy `marketplace.buyer.security` (nhạy cảm) tại công ty vận hành sàn | Lý do bắt buộc 10 đến 500 ký tự, `version`; thu hồi mọi phiên, mọi thiết bị tin cậy; nhật ký thao tác kèm lý do; thông báo khách |
+| `/api/v1/marketplace/authentication-settings` (API_323) | Xem `marketplace.buyer.view`; sửa `marketplace.buyer.manage` (nhạy cảm) | Phạm vi giá trị, ngày bắt đầu không sau hôm nay, `version`; nhật ký thao tác trước, sau |
+| `/api/v1/merchant-portal/password-reset`, `/security*` (API_324) | Công khai (quên mật khẩu, nhóm giới hạn `login`); phiên cổng kể cả chưa qua bước hai (trạng thái, đặt mật khẩu) | Quên mật khẩu cần mã ứng dụng xác thực hoặc mã dự phòng; số không có tài khoản cổng đã thiết lập trả cùng lỗi như mã sai; sai 5 lần trong 15 phút khóa 15 phút (`423`); thu hồi mọi phiên web |
+| `/api/v1/merchant-portal/members/{id}/reset-authentication`, `/affiliate/merchants/{id}/members/{memberId}/reset-authentication` (API_325) | Chủ cửa hàng (chỉ thu ngân cửa hàng mình); `affiliate.manage` | Xóa ứng dụng xác thực, mã dự phòng, thu hồi mọi phiên web; không làm được với tài khoản nhân viên bắt buộc xác thực hai lớp (`409 merchantPortalResetStaff`); lần vào tới phải nhận mã SMS một lần; nhật ký thao tác |
+| `/api/v1/auth/otp/*` từ cổng (API_02, API_03) | Công khai | Hết thời hạn cổng `409 merchantPortalSmsDisabled`, không gửi SMS |
+
+- Không ghi mã Smart OTP, mã SMS, khóa TOTP, mã khóa vào log, nhật ký thao tác, thông báo lỗi; nhật ký thao tác chỉ ghi tên máy, nền tảng, lý do (tài liệu `19` mục 3.5).
+- Sai mã khóa 5 lần liên tiếp: ứng dụng xóa khóa Smart OTP trên máy và gọi `POST /buyer/loyalty/smart-otp/lockout`, máy chủ hủy Smart OTP; khách kích hoạt lại theo khôi phục.
+- Khóa dùng điểm sau khôi phục (mặc định 24 giờ) lưu ở `core.account_security`, nên khách tự hủy Smart OTP không xóa được khóa; không ai mở sớm, kể cả chăm sóc khách hàng; áp mọi cách dùng điểm, xét trước giới hạn và chống gian lận. Kẻ chiếm SIM có mật khẩu chỉ khôi phục được Smart OTP mà không dùng điểm ngay, chủ tài khoản nhận thông báo.
+- Thiết bị tin cậy hết sau 12 tháng không dùng; đặt lại mật khẩu bỏ tin cậy mọi thiết bị trừ thiết bị đang làm; chăm sóc khách hàng hủy Smart OTP bỏ tin cậy mọi thiết bị.
+- Ngoại lệ đặt lại mật khẩu bằng SMS sau khi chăm sóc khách hàng hủy Smart OTP chỉ dùng một lần trong 24 giờ.
+- Yêu cầu xác thực hai lớp của cổng xét theo ứng dụng đăng nhập; không làm ứng dụng VComm đòi mã ứng dụng xác thực.
+- Giới hạn đã biết: `expo-local-authentication` không báo máy vừa thêm vân tay, khuôn mặt mới nên ứng dụng không tự tắt sinh trắc học như QUYTAC_NGHIEPVU_563 dự kiến; bù lại hệ điều hành bắt nhập mật mã máy khi thêm, ứng dụng không cho dùng mật mã máy thay sinh trắc học. Người dùng chấp nhận 2026-11-17.
+- Thư viện mới ở ứng dụng VComm: `expo-local-authentication` 58.0.2 (MIT), `@noble/hashes` 2.4.0 (MIT), người dùng duyệt 2026-11-17.
+
+Kết quả rà soát bảo mật CONG_VIEC_72 (2026-11-17):
+- Không phát hiện lỗi mức Nghiêm trọng, Cao còn mở.
+- Đã sửa trong rà soát: sau thời hạn, thành viên cổng chưa thiết lập chỉ có mật khẩu hoặc Zalo tự đăng ký được ứng dụng xác thực qua API_07, API_08 và vào cổng mà không qua đặt lại xác thực, mã SMS kích hoạt; nay trả `409 merchantPortalSecurityBlocked` (KICHBAN_KIEMTHU_746, 747).
+- Không ghi mã Smart OTP, mã SMS, mã khóa, khóa TOTP vào log, nhật ký thao tác, thông báo lỗi; mã SMS chỉ in ra log trên máy phát triển khi chưa cài eSMS (đã có từ trước, chặn khi `NODE_ENV=production`).
+- Thư viện mới `expo-local-authentication` 58.0.2, `@noble/hashes` 2.4.0 (MIT, cố định phiên bản). `pnpm audit --prod`: không có mức Cao (1 Thấp, 5 Trung bình là phụ thuộc có từ trước).
+- Giới hạn đã biết, người dùng chấp nhận 2026-11-17: sinh trắc học không tự tắt khi thêm vân tay, khuôn mặt mới trên máy.

@@ -10,6 +10,8 @@ export const crmMenu = [
   { href: "/buyers", key: "buyers", permission: "marketplace.buyer.view" },
   { href: "/sales-team", key: "salesTeam", permission: "marketplace.buyer.view" },
   { href: "/sales-proposals", key: "salesProposals", permission: "marketplace.buyer.view" },
+  // CONG_VIEC_72: xác thực người mua (MAN_HINH_275).
+  { href: "/buyer-authentication", key: "buyerAuthentication", permission: "marketplace.buyer.view" },
   { href: "/store-settings", key: "storeSettings", permission: "marketplace.order.view" },
   { href: "/listings", key: "listings", permission: "marketplace.order.view" },
   { href: "/orders", key: "orders", permission: "marketplace.order.view" },

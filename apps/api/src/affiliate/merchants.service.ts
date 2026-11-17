@@ -23,6 +23,7 @@ import { AuditService } from "../common/audit.service";
 import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
+import { portalSetUpSql } from "./portal-set-up";
 import type { BuyerAdminActor } from "../marketplace/buyer-admin.service";
 
 type Executor = Pick<Database, "execute">;
@@ -59,6 +60,7 @@ type MemberRow = {
   status: "invited" | "active" | "locked";
   outlet_ids: string[] | null;
   invitation_expires_at: Date | null;
+  security_set_up: boolean | null;
   version: number;
 };
 
@@ -76,6 +78,7 @@ export const memberOf = (row: MemberRow): AffiliateMember => ({
   status: row.status,
   outletIds: row.outlet_ids ?? [],
   invitationExpiresAt: row.status === "invited" && row.invitation_expires_at ? new Date(row.invitation_expires_at).toISOString() : null,
+  securitySetUp: row.security_set_up,
   version: row.version,
 });
 export const termsOf = (row: MerchantRow) => ({
@@ -112,6 +115,7 @@ export async function outletsOf(executor: Executor, merchantId: string): Promise
 export async function membersOf(executor: Executor, merchantId: string): Promise<AffiliateMember[]> {
   const rows = await executor.execute<MemberRow>(sql`
     SELECT m.id, m.full_name, m.phone, m.role, m.status, m.invitation_expires_at, m.version,
+      CASE WHEN m.user_id IS NULL THEN NULL ELSE ${portalSetUpSql(sql`m.user_id`)} END AS security_set_up,
       (SELECT array_agg(mo.outlet_id ORDER BY mo.outlet_id) FROM affiliate.member_outlets mo WHERE mo.member_id = m.id) AS outlet_ids
     FROM affiliate.members m WHERE m.merchant_id = ${merchantId} ORDER BY m.role DESC, m.invited_at`);
   return rows.rows.map(memberOf);
@@ -352,6 +356,10 @@ export class AffiliateMerchantsService {
       await inviteMember(transaction, { merchantId, fullName: input.fullName, phone: input.phone, role: "owner", outletIds: [], invitedBy: actor.userId });
       await this.record(actor, "affiliate_member.invite_owner", merchantId, { fullName: input.fullName }, transaction);
     });
+    return membersOf(this.database, merchantId);
+  }
+
+  members(merchantId: string): Promise<AffiliateMember[]> {
     return membersOf(this.database, merchantId);
   }
 

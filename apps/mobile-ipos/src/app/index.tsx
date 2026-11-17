@@ -50,8 +50,10 @@ function PairScreen() {
   );
 }
 
-function OtpLogin({ onCancel }: { onCancel?: () => void }) {
+// Đăng nhập lần đầu: mã Smart OTP trên ứng dụng VComm (mặc định) hoặc mã SMS dự phòng khi chưa kích hoạt, còn thời hạn chuyển đổi (CONG_VIEC_72).
+function OtpLogin({ onCancel }: { onCancel?: (() => void) | undefined }) {
   const { loginOtp } = useSession();
+  const [method, setMethod] = useState<"smart_otp" | "sms">("smart_otp");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
@@ -64,24 +66,36 @@ function OtpLogin({ onCancel }: { onCancel?: () => void }) {
       .catch((failure: unknown) => setError(failureText(failure)))
       .finally(() => setBusy(false));
   };
+  const needsSend = method === "sms" && !sent;
   return (
     <View style={{ gap: space[3] }}>
       <Muted>{t("otpText")}</Muted>
+      <Choice
+        label=""
+        value={method}
+        options={[
+          { value: "smart_otp", label: t("methodSmartOtp") },
+          { value: "sms", label: t("methodSms") },
+        ]}
+        onChange={(value) => (setMethod(value), setCode(""), setSent(false), setError(null))}
+      />
       <Field label={t("phone")} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-      {sent ? <Field label={t("otpCode")} value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={6} /> : null}
+      {!needsSend ? <Field label={method === "smart_otp" ? t("smartOtpCode") : t("otpCode")} value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={6} /> : null}
       {error ? <Notice text={error} /> : null}
-      {sent ? (
-        <Button label={t("signIn")} busy={busy} disabled={code.length !== 6} onPress={() => run(() => loginOtp(phone, code))} />
-      ) : (
+      {needsSend ? (
         <Button
           label={t("sendOtp")}
           busy={busy}
           disabled={phone.trim().length < 10}
-          onPress={() => run(async () => {
-            await api("/ipos/pos/auth/otp", { method: "POST", json: { phone }, withSession: false });
-            setSent(true);
-          })}
+          onPress={() =>
+            run(async () => {
+              await api("/ipos/pos/auth/otp", { method: "POST", json: { phone }, withSession: false });
+              setSent(true);
+            })
+          }
         />
+      ) : (
+        <Button label={t("signIn")} busy={busy} disabled={code.length !== 6 || phone.trim().length < 10} onPress={() => run(() => loginOtp(phone, code, method))} />
       )}
       {onCancel ? <Button label={t("back")} kind="secondary" onPress={onCancel} /> : null}
     </View>

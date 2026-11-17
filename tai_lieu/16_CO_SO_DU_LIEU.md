@@ -3975,7 +3975,25 @@ Schema mới `ai`. 0136 làm ở L1; 0137 ở L2 (thêm bảng `ai.active_turns`
 
 Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (tác vụ `ai-conversation-retention` xóa dòng quá hạn không còn tin nhắn trỏ tới); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.
 
-## 45. Database migration 0165 đến 0170 – CONG_VIEC_74 (MODULE_17 iPOS, đợt 1)
+## 45. Database migration 0158 đến 0160 – CONG_VIEC_72 (ưu tiên Smart OTP thay tin nhắn SMS)
+
+Tệp `database/migrations/0158_core_smart_otp.sql`, `0159_core_authentication_settings.sql`, `0160_merchant_portal_authentication.sql` (lát L1). Phần xác thực ghi schema `core`; không lưu mã khóa, mã Smart OTP, khóa bí mật dạng rõ (khóa TOTP vẫn mã hóa bằng `secret-box`).
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0158 | `core.smart_otp_devices` | Chuyển từ `loyalty.smart_otp_devices` bằng `ALTER TABLE … SET SCHEMA core`, giữ nguyên dữ liệu và cột cũ (0119). Thêm `platform` text bắt buộc, ràng buộc `smart_otp_devices_platform_check` (`ios`, `android`, `web`); dữ liệu cũ suy theo tên máy (`iPhone` → `ios`, `Điện thoại Android` → `android`, `Trình duyệt` → `web`, khác → `android`). Thêm `device_hash` text (băm mã cài đặt ứng dụng; dữ liệu cũ trống) |
+| 0158 | `core.account_security` (mới) | `user_id` (khóa chính, khóa ngoại `core.users`), `smart_otp_first_activated_at`, `smart_otp_recovered_at`, `redeem_locked_until` (khóa mọi giao dịch dùng điểm sau khôi phục), `sms_password_reset_until` (ngoại lệ đặt lại mật khẩu bằng SMS một lần sau khi chăm sóc khách hàng hủy Smart OTP), `updated_at`. Một dòng mỗi tài khoản, sống qua các lần hủy, kích hoạt lại Smart OTP. Nạp `smart_otp_first_activated_at` từ `activated_at` của Smart OTP đang có |
+| 0158 | `core.trusted_devices` (mới) | `id` (uuid), `user_id` (khóa ngoại `core.users`), `device_hash` (bắt buộc), `device_name` (trống hoặc 1 đến 100 ký tự), `platform` (trống hoặc `ios`, `android`, `web`), `first_seen_at`, `last_seen_at`, `removed_at`; duy nhất (`user_id`, `device_hash`); chỉ mục `trusted_devices_user_idx` (`user_id`, `last_seen_at` giảm dần) khi `removed_at` trống. Nạp từ `loyalty.device_links` có `last_seen_at` trong 12 tháng (cùng cách băm của CONG_VIEC_60) |
+| 0158 | `core.sessions` | Thêm `device_hash` text; `device_verified` boolean bắt buộc, mặc định `true` (phiên chờ xác nhận thiết bị mới là `false`). Phiên có trước triển khai không có băm: thiết bị thành tin cậy ở lần làm mới phiên đầu tiên |
+| 0159 | `core.authentication_settings` (mới) | Một dòng (`id` smallint khóa chính, mặc định 1, ràng buộc `id = 1`): `transition_starts_on` date (mặc định ngày chạy theo giờ Việt Nam), `buyer_transition_days` (1 đến 180, mặc định 30), `portal_transition_days` (1 đến 180, mặc định 30), `recovery_redeem_lock_hours` (0 đến 168, mặc định 24), `support_hotline` (trống hoặc 8 đến 15 chữ số), `version` (mặc định 1), `updated_at`, `updated_by` (khóa ngoại `core.users`). Nạp sẵn dòng `id = 1` |
+| 0159 | `core.smart_otp_reminders` (mới) | `user_id` (khóa ngoại `core.users`), `kind` (`start`, `day_14`, `day_7`, `day_1`, `zns_7`), `sent_at`; khóa chính (`user_id`, `kind`) chống gửi trùng |
+| 0159 | `core.message_deliveries` | Thêm `otp_purpose` text (mục đích mã OTP của tin; tin cũ để trống); chỉ mục `message_deliveries_otp_purpose_idx` (`created_at`, `otp_purpose`) khi `otp_purpose` có giá trị |
+| 0160 | `core.permissions` | Quyền `marketplace.buyer.security` (mini app `crm`, nhạy cảm) "Hủy Smart OTP của người mua"; gán Quản trị tập đoàn, Quản trị công ty qua danh mục quyền trong mã nguồn (`apps/api/src/permissions/permission-catalog.ts`) |
+| 0160 | `affiliate.members` | Thêm `authentication_reset_at` timestamptz: thành viên bị đặt lại xác thực, lần vào tới phải nhận mã SMS một lần, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới |
+
+Quy tắc xóa và lưu giữ: thiết bị tin cậy đánh dấu `removed_at`, không xóa dòng; hết tin cậy sau 12 tháng không dùng tính theo `last_seen_at`. Smart OTP bị hủy (khách, chăm sóc khách hàng, sai mã khóa, hết hạn trên bản web) xóa dòng `core.smart_otp_devices`, giữ `core.account_security`. Không sửa tệp database migration đã chạy.
+
+## 46. Database migration 0165 đến 0170 – CONG_VIEC_74 (MODULE_17 iPOS, đợt 1)
 
 Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`, `affiliate`. Tiền `numeric(18,4)`. Chi tiết theo lát ở đặc tả `cong_viec/CONG_VIEC_74.md` mục 9; mục này ghi phần đã làm.
 

@@ -38,6 +38,7 @@ import {
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { ApiError } from "../common/api-error";
+import { MerchantPortalSecurityService } from "./portal-security.service";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
@@ -58,6 +59,7 @@ export class AffiliateController {
     private readonly reports: AffiliateReportsService,
     private readonly transactions: AffiliateTransactionsService,
     private readonly apiKeys: AffiliateApiKeysService,
+    private readonly portalSecurity: MerchantPortalSecurityService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -122,6 +124,22 @@ export class AffiliateController {
   @Post("merchants/:id/owner-invitations")
   async inviteOwner(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
     return this.merchants.inviteOwner(await this.manager(request), id, affiliateOwnerInviteSchema.parse(body));
+  }
+
+  // API_325 (CONG_VIEC_72): đặt lại xác thực cổng cho chủ, thu ngân (MAN_HINH_178).
+  @Post("merchants/:id/members/:memberId/reset-authentication")
+  async resetMemberAuthentication(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("memberId", UuidPipe) memberId: string,
+    @Body() body: unknown,
+  ): Promise<AffiliateMember[]> {
+    const actor = await this.manager(request);
+    await this.portalSecurity.resetAuthentication({ userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client }, memberId, affiliateMemberVersionSchema.parse(body).version, {
+      merchantId: id,
+      cashierOnly: false,
+    });
+    return this.merchants.members(id);
   }
 
   @Post("members/:id/lock")

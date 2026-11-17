@@ -189,7 +189,8 @@ export interface IposPairResult {
   device: IposDeviceInfo;
 }
 export const iposLoginOtpSchema = z.object({ phone }).strict();
-export const iposLoginSchema = z.object({ phone, code: otpCode }).strict();
+// Đăng nhập lần đầu: Smart OTP trên ứng dụng VComm (ưu tiên) hoặc mã SMS dự phòng trong thời hạn chuyển đổi (CONG_VIEC_72).
+export const iposLoginSchema = z.object({ phone, code: otpCode, method: z.enum(["smart_otp", "sms"]) }).strict();
 // Mã PIN 6 số; không nhận 6 số giống nhau hoặc dãy tăng, giảm (kiểm ở máy chủ, lỗi `iposPinWeak`).
 export const iposPinSchema = z.object({ pin: z.string().regex(/^\d{6}$/, "invalidValue") }).strict();
 export const iposPinLoginSchema = z.object({ memberId: z.string().uuid(), pin: z.string().regex(/^\d{6}$/, "invalidValue") }).strict();

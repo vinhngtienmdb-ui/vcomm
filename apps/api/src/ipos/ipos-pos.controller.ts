@@ -68,7 +68,7 @@ export class IposPosController {
   @Post("pos/auth/login")
   async login(@Req() request: Request, @Body() body: unknown): Promise<IposLoginResult> {
     const input = iposLoginSchema.parse(body);
-    return this.deviceAuth.loginWithOtp(deviceKeyOf(request), input.phone, input.code, clientInfo(request));
+    return this.deviceAuth.loginWithOtp(deviceKeyOf(request), input.phone, input.code, input.method, clientInfo(request));
   }
 
   @Public()

@@ -82,6 +82,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_23: tài khoản người mua VComm (xét tại công ty vận hành sàn).
   { code: "marketplace.buyer.view", appCode: "crm", nameVi: "Xem tài khoản người mua", nameEn: "View buyer accounts", isSensitive: false },
   { code: "marketplace.buyer.manage", appCode: "crm", nameVi: "Đổi người giới thiệu, đánh dấu nhân viên kinh doanh", nameEn: "Change referrers, flag sales staff", isSensitive: true },
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_567): chăm sóc khách hàng hủy Smart OTP khi khách mất máy và số điện thoại.
+  { code: "marketplace.buyer.security", appCode: "crm", nameVi: "Hủy Smart OTP của người mua", nameEn: "Revoke buyer Smart OTP", isSensitive: true },
   { code: "marketplace.order.view", appCode: "crm", nameVi: "Xem đơn VComm, yêu cầu trả hàng", nameEn: "View VComm orders and return requests", isSensitive: false },
   {
     code: "marketplace.order.manage",
@@ -285,6 +287,7 @@ const companyAdminPermissions = [
   "crm.visit.manage",
   "marketplace.buyer.view",
   "marketplace.buyer.manage",
+  "marketplace.buyer.security",
   "marketplace.order.view",
   "marketplace.order.manage",
   "marketplace.payment.manage",

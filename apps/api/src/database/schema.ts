@@ -59,6 +59,9 @@ export const sessions = core.table("sessions", {
   ip: inet("ip"),
   userAgent: text("user_agent"),
   mfaVerified: boolean("mfa_verified").notNull(),
+  // CONG_VIEC_72: băm mã cài đặt ứng dụng; phiên trên thiết bị chưa tin cậy chờ xác nhận (QUYTAC_NGHIEPVU_565).
+  deviceHash: text("device_hash"),
+  deviceVerified: boolean("device_verified").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   revokedAt: timestamp("revoked_at", { withTimezone: true }),

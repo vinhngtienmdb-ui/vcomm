@@ -4,9 +4,11 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SmartOtpCard } from "@/components/SmartOtpCard";
+import { SmartOtpReminder } from "@/components/SmartOtpReminder";
 import { Button, Card, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
+import { useSession } from "@/lib/session";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
@@ -23,6 +25,7 @@ export function entryLabel(item: LoyaltyEntryItem): string {
 }
 
 export default function LoyaltyScreen() {
+  const { me } = useSession();
   const [summary, setSummary] = useState<BuyerLoyaltyResponse | null>(null);
   const [entries, setEntries] = useState<PageResponse<LoyaltyEntryItem> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +86,8 @@ export default function LoyaltyScreen() {
             {summary.expiringPoints > 0 && summary.expiringOn ? (
               <Notice tone="warning" text={t("loyaltyExpiring", { points: points(summary.expiringPoints), date: date(summary.expiringOn) })} />
             ) : null}
-            <SmartOtpCard />
+            <SmartOtpReminder showActivate={false} />
+            <SmartOtpCard phone={me?.phone ?? null} />
             {/* CONG_VIEC_65: lối vào đối tác liên minh (MAN_HINH_264). */}
             <Card>
               <Text accessibilityRole="link" onPress={() => router.push("/doi-tac-lien-minh")} style={{ color: colors.primary, fontWeight: "700" }}>

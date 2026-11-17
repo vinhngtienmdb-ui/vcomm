@@ -767,3 +767,20 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | TIEUCHI_NGHIEMTHU_479 | Soạn nội dung: có đủ ba phần đúng giới hạn độ dài; thông số không có trong đầu vào thành "[cần bổ sung]" (theo bộ giả lập trả mẫu); người thiếu quyền sửa sản phẩm nhận `403`; sản phẩm của nhà bán nhận `404`; Dùng chỉ điền biểu mẫu, chưa lưu; lưu sau đó có ghi chú AI trong nhật ký thao tác | Bắt buộc | L3 |
 | TIEUCHI_NGHIEMTHU_480 | Thống kê: tổng chi phí, lượt, token, Đúng, Sai khớp dữ liệu nhật ký; người có `ai.usage.view` không đọc được nội dung hội thoại qua bất kỳ API nào; xuất Excel | Bắt buộc | L3 |
 | TIEUCHI_NGHIEMTHU_481 | MAN_HINH_242 đến 245 đủ trạng thái rỗng, đang tải, lỗi, không quyền, tắt, hết hạn mức; tiếng Việt và tiếng Anh; dùng được ở độ rộng 390 điểm ảnh | Bắt buộc | L1, L2, L3 |
+
+## MODULE_01, MODULE_09, MODULE_11, MODULE_12 (ưu tiên Smart OTP thay tin nhắn SMS, CONG_VIEC_72)
+
+Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); tham số chuyển đổi đặt trong từng kiểm thử (trong hạn, hết hạn) với đồng hồ giả; cửa hàng liên kết có chủ, thu ngân (CONG_VIEC_55).
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_536 | CHUC_NANG_242 | Kích hoạt Smart OTP: lần đầu bằng SMS; trong bước đăng ký không thêm SMS; bản web không kích hoạt được; chuyển máy bằng mã máy cũ không SMS | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_537 | CHUC_NANG_242 | Mã khóa 6 số (từ chối mã yếu), vân tay, khuôn mặt; sai 5 lần xóa Smart OTP và hủy trên máy chủ; khách cũ đặt mã khóa ở lần mở đầu | Gọi API (hủy khi sai mã khóa); thử tay trên máy thật | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_538 | CHUC_NANG_243 | Đăng nhập mật khẩu trên thiết bị mới cần mã Smart OTP; thiết bị tin cậy không hỏi; thiết bị đang đăng nhập khi triển khai không bị hỏi; gỡ thiết bị thu hồi phiên | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_539 | CHUC_NANG_243 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt không nhận SMS đăng nhập, quên mật khẩu; API không lộ số có tài khoản | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_540 | CHUC_NANG_244 | Khôi phục bằng mật khẩu và SMS: máy cũ mất hiệu lực, khóa mọi cách dùng điểm đúng số giờ, tích điểm vẫn được, thông báo gửi | Gọi API, truy vấn cơ sở dữ liệu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_541 | CHUC_NANG_245 | Thời hạn chuyển đổi: trong hạn SMS dự phòng đúng luồng; hết hạn Open API trả `409`, đổi ra đối tác bắt buộc Smart OTP, đăng nhập SMS bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_542 | CHUC_NANG_244 | Chăm sóc khách hàng hủy Smart OTP cần quyền mới, lý do, ghi nhật ký, thu hồi phiên và thiết bị | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_543 | CHUC_NANG_246 | Cổng cửa hàng: mật khẩu và mã ứng dụng xác thực (hoặc mã dự phòng), Zalo vẫn hỏi mã; kích hoạt lời mời có thiết lập; hết hạn bỏ SMS; đặt lại xác thực; quên mật khẩu; người mua là thành viên cổng không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_544 | CHUC_NANG_245 | Nhắc kích hoạt: thẻ nhắc, thông báo đúng ngày, một tin ZNS 7 ngày trước hạn khi có mẫu, không gửi trùng | Gọi dịch vụ việc nền | Mong muốn |
+| TIEUCHI_NGHIEMTHU_545 | CHUC_NANG_245 | Tham số chuyển đổi sửa được có nhật ký; thống kê kích hoạt, số tin SMS theo mục đích | Gọi API | Mong muốn |

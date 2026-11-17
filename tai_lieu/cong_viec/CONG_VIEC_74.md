@@ -3,7 +3,7 @@
 - Mô tả: iPOS là ứng dụng bán hàng tại quầy cho cửa hàng liên kết (CONG_VIEC_55). Cửa hàng thuê bao theo điểm bán. Thu ngân bán hàng trên máy tính bảng Android hoặc máy bán hàng Sunmi: quét mã, thu tiền mặt, VietQR hoặc qua ứng dụng VComm, in hóa đơn, mở ngăn kéo tiền, mở và đóng ca. Chủ cửa hàng quản lý hàng hóa, tồn kho đơn giản, thu ngân, quầy, báo cáo trên cổng cửa hàng. Công ty vận hành sàn cấp thuê bao, thu phí thuê bao theo cách cấu hình riêng cho từng cửa hàng, xem doanh thu và đối soát trong ERP.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Đang làm lát L1.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Đang làm lát L2.
 - Mức: Lớn (module mới, schema mới `ipos`, ứng dụng di động mới, sửa quy tắc đối soát đã duyệt, thu phí thuê bao).
 - Nhánh: `chuc-nang/CONG_VIEC_74-ipos`.
 - Nguồn: quyết định của người dùng ngày 2026-11-17 (mục 17); CONG_VIEC_55, 67 (cửa hàng liên kết, Open API điểm thưởng), CONG_VIEC_73 (đơn chờ thanh toán, thu hộ, hóa đơn ủy nhiệm), CONG_VIEC_72 (Smart OTP, mã động); ý tưởng từ nguồn riêng V-com-ERP (mục 12), không sao chép mã.
@@ -651,9 +651,9 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 |---|---|---|
 | L0 | Thuế suất gói lưu `tax_percent` (0, 5, 8, 10) | Schema `ipos` không được trỏ vào `catalog`; người dùng chấp nhận 2026-11-17 |
 | L0 | Thêm `locked_manually` để phân biệt khóa tay với tạm khóa do quá hạn | Mở khóa tay không được mở thuê bao đang quá hạn |
-| L1 | Đăng nhập lần đầu trên thiết bị chỉ bằng OTP SMS; Smart OTP thêm khi CONG_VIEC_72 vào `main` | Cách xác thực Smart OTP đang được CONG_VIEC_72 sửa |
-| L1 | Sai PIN báo "Mã PIN không đúng." không kèm số lần còn lại; lần thứ 5 trả `429` kèm thời gian chờ | Mô hình lỗi chung không có tham số trong câu thông báo |
-| L1 | Chưa gửi tin trong ứng dụng VComm cho người đăng ký khi được duyệt, từ chối | Làm cùng thông báo đẩy về sau; chủ cửa hàng báo trực tiếp |
+| L1 | Đăng nhập lần đầu: Smart OTP (dùng lại `SmartOtpService.verify`, chung bộ đếm sai, khóa 15 phút); mã SMS chỉ khi chưa kích hoạt Smart OTP và còn thời hạn chuyển đổi của cổng cửa hàng (QUYTAC_NGHIEPVU_560, 561 của CONG_VIEC_72) | Người dùng yêu cầu khi duyệt L1 (2026-11-17); hợp nhất nhánh CONG_VIEC_72 (commit `f776efc`) vào nhánh này |
+| L1 | Sai PIN báo "Mã PIN không đúng." không kèm số lần còn lại; lần thứ 5 trả `429` kèm thời gian chờ | Mô hình lỗi chung không có tham số trong câu thông báo; người dùng chấp nhận 2026-11-17 |
+| L1 | Chưa gửi tin trong ứng dụng VComm cho người đăng ký khi được duyệt, từ chối | Người dùng chấp nhận làm ở lát sau (2026-11-17) |
 | L1 | Phiên gắn thiết bị theo chuỗi phiên (`family_id`) vì token làm mới đổi mã phiên mỗi lần dùng | Giữ gắn thiết bị qua các lần làm mới |
 | L1 | Danh sách điểm bán để thu ngân chọn khi đăng ký lấy theo mã cửa hàng, không cần OTP | Tên, địa chỉ điểm bán là thông tin công khai của cửa hàng |
 

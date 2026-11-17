@@ -16,6 +16,8 @@ type Executor = Pick<Database, "execute">;
 export type MarketplacePermission =
   | "marketplace.buyer.view"
   | "marketplace.buyer.manage"
+  // CONG_VIEC_72: chăm sóc khách hàng hủy Smart OTP.
+  | "marketplace.buyer.security"
   | "marketplace.order.view"
   | "marketplace.order.manage"
   | "marketplace.payment.manage"

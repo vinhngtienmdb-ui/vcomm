@@ -50,6 +50,7 @@ import { JobOffersService } from "../hr/job-offers.service";
 import { ApiCallLogsService } from "../open-api/api-call-logs.service";
 import { CandidatesService } from "../hr/candidates.service";
 import { ReviewsService } from "../hr/reviews.service";
+import { SmartOtpRemindersService } from "../auth/smart-otp-reminders.service";
 import { AiChatService } from "../ai/ai-chat.service";
 
 const queueName = "nen-tang";
@@ -101,6 +102,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const officePosts = application.get(OfficePostsService);
   const officeSigning = application.get(OfficeSigningService);
   const officeContracts = application.get(OfficeContractsService);
+  const smartOtpReminders = application.get(SmartOtpRemindersService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -110,6 +112,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("inventory-stock-alerts", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "inventory-stock-alerts" });
   await queue.upsertJobScheduler("hr-work-events", { pattern: "5 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-work-events" });
   await queue.upsertJobScheduler("hr-contract-reminders", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-contract-reminders" });
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_571): nhắc kích hoạt Smart OTP 9 giờ hằng ngày; hết thời hạn thì Smart OTP trên bản web hết hiệu lực.
+  await queue.upsertJobScheduler("smart-otp-reminders", { pattern: "0 9 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "smart-otp-reminders" });
   await queue.upsertJobScheduler("marketplace-sales-follow-ups", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "marketplace-sales-follow-ups" });
   await queue.upsertJobScheduler("hr-timesheet-confirmation", { pattern: "30 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-timesheet-confirmation" });
   await queue.upsertJobScheduler("hr-leave-accrual", { pattern: "15 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-leave-accrual" });
@@ -181,6 +185,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "inventory-stock-alerts") return stockLevels.notifyAlerts();
       if (job.name === "hr-work-events") return workEvents.applyDue();
       if (job.name === "hr-contract-reminders") return contractReminders.sendDue();
+      if (job.name === "smart-otp-reminders") return smartOtpReminders.runDaily();
       if (job.name === "hr-attendance-recalculate") return attendanceDays.recalculateRecent();
       if (job.name === "hr-leave-accrual") return leave.accrueDue();
       if (job.name === "hr-timesheet-confirmation") return timesheets.autoConfirm();

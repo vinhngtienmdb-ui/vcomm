@@ -14,7 +14,7 @@ interface SessionValue {
   me: IposMe | null;
   notice: string | null;
   pair: (code: string) => Promise<void>;
-  loginOtp: (phone: string, code: string) => Promise<void>;
+  loginOtp: (phone: string, code: string, method: "smart_otp" | "sms") => Promise<void>;
   loginPin: (memberId: string, pin: string) => Promise<void>;
   setPin: (pin: string) => Promise<void>;
   lock: () => Promise<void>;
@@ -116,7 +116,7 @@ export function SessionProvider({ children, onNotice }: { children: ReactNode; o
       setNotice(null);
       setStage("signedOut");
     },
-    loginOtp: async (phone, code) => afterLogin(await api<IposLoginResult>("/ipos/pos/auth/login", { method: "POST", json: { phone, code }, withSession: false })),
+    loginOtp: async (phone, code, method) => afterLogin(await api<IposLoginResult>("/ipos/pos/auth/login", { method: "POST", json: { phone, code, method }, withSession: false })),
     loginPin: async (memberId, pin) => afterLogin(await api<IposLoginResult>("/ipos/pos/auth/pin-login", { method: "POST", json: { memberId, pin }, withSession: false })),
     setPin: async (pin) => {
       await api("/ipos/pos/auth/pin", { method: "POST", json: { pin } });

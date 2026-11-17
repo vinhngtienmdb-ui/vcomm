@@ -31,6 +31,10 @@ export const RateLimitGroup = (group: string) => SetMetadata(rateLimitGroupKey, 
 const mfaPendingKey = "allowMfaPending";
 export const AllowMfaPending = () => SetMetadata(mfaPendingKey, true);
 
+// Đường dẫn dùng được khi phiên trên thiết bị mới chưa xác nhận bằng Smart OTP (CONG_VIEC_72; QUYTAC_NGHIEPVU_565).
+const devicePendingKey = "allowDevicePending";
+export const AllowDevicePending = () => SetMetadata(devicePendingKey, true);
+
 export interface AuthContext {
   userId: string;
   sessionId: string;
@@ -79,7 +83,7 @@ export class AuthGuard implements CanActivate {
     }
 
     const rows = await this.database
-      .select({ userStatus: users.status, mfaVerified: sessions.mfaVerified })
+      .select({ userStatus: users.status, mfaVerified: sessions.mfaVerified, deviceVerified: sessions.deviceVerified })
       .from(sessions)
       .innerJoin(users, eq(users.id, sessions.userId))
       .where(and(eq(sessions.id, payload.sessionId), eq(sessions.userId, payload.userId), isNull(sessions.revokedAt)))
@@ -88,6 +92,9 @@ export class AuthGuard implements CanActivate {
     if (row?.userStatus !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     if (!row.mfaVerified && !this.reflector.getAllAndOverride<boolean>(mfaPendingKey, [context.getHandler(), context.getClass()])) {
       throw new ApiError("MFA_REQUIRED", "mfaRequired");
+    }
+    if (!row.deviceVerified && !this.reflector.getAllAndOverride<boolean>(devicePendingKey, [context.getHandler(), context.getClass()])) {
+      throw new ApiError("DEVICE_VERIFICATION_REQUIRED", "deviceVerificationRequired");
     }
 
     request.auth = { userId: payload.userId, sessionId: payload.sessionId, mfaVerified: row.mfaVerified };

@@ -11,6 +11,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
+import { MerchantPortalSecurityService } from "./portal-security.service";
 import { inviteMember, membersOf, merchantRow, outletOf, outletsOf, replaceMemberOutlets, setLocked, termsOf } from "./merchants.service";
 
 type Executor = Pick<Database, "execute">;
@@ -64,14 +65,18 @@ export function requireOwner(member: PortalMember): void {
 @Injectable()
 export class MerchantPortalService {
   constructor(
-    @Inject(DATABASE) private readonly database: Database,
+    @Inject(DATABASE) readonly database: Database,
     private readonly audit: AuditService,
     private readonly phoneOtp: PhoneOtpService,
     private readonly auth: AuthService,
+    private readonly security: MerchantPortalSecurityService,
   ) {}
 
-  member(userId: string, merchantId: string | undefined, client: ClientInfo): Promise<PortalMember> {
-    return resolvePortalMember(this.database, userId, merchantId, client);
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_570): tài khoản chưa thiết lập bảo mật chỉ vào cổng trong thời hạn chuyển đổi.
+  async member(userId: string, merchantId: string | undefined, client: ClientInfo): Promise<PortalMember> {
+    const member = await resolvePortalMember(this.database, userId, merchantId, client);
+    await this.security.assertAccess(userId);
+    return member;
   }
 
   private record(member: PortalMember, action: string, afterData: unknown, executor: Pick<Database, "insert">) {
@@ -94,6 +99,7 @@ export class MerchantPortalService {
 
   // API_207: mọi cửa hàng người đang đăng nhập là thành viên đã kích hoạt; thu ngân chỉ thấy điểm bán được gán, đang hoạt động.
   async me(userId: string): Promise<MerchantPortalMe> {
+    await this.security.assertAccess(userId);
     const user = (await this.database.execute<{ full_name: string }>(sql`SELECT full_name FROM core.users WHERE id = ${userId}`)).rows[0];
     const rows = await this.database.execute<{
       member_id: string;
@@ -194,9 +200,18 @@ export class MerchantPortalService {
     ).rows;
   }
 
-  // Gửi mã kích hoạt: luôn trả thành công để không lộ số nào được mời; chỉ gửi khi có lời mời còn hạn.
+  // Thành viên đã bị đặt lại xác thực (CONG_VIEC_72): kích hoạt lại bằng mã SMS một lần như lời mời.
+  private async resetMembers(executor: Executor, phone: string): Promise<string[]> {
+    return (
+      await executor.execute<{ id: string }>(sql`
+        SELECT mb.id FROM affiliate.members mb JOIN core.users u ON u.id = mb.user_id AND u.status = 'active'
+        WHERE u.phone = ${phone} AND mb.status = 'active' AND mb.authentication_reset_at IS NOT NULL`)
+    ).rows.map((row) => row.id);
+  }
+
+  // Gửi mã kích hoạt: luôn trả thành công để không lộ số nào được mời; chỉ gửi khi có lời mời còn hạn hoặc vừa bị đặt lại xác thực.
   async sendActivationOtp(phone: string): Promise<void> {
-    if ((await this.pendingInvitations(this.database, phone)).length === 0) return;
+    if ((await this.pendingInvitations(this.database, phone)).length === 0 && (await this.resetMembers(this.database, phone)).length === 0) return;
     await this.phoneOtp.send(phone, (await this.phoneOtp.activeUserByPhone(phone)) ? "login" : "register");
   }
 
@@ -204,9 +219,11 @@ export class MerchantPortalService {
   async activate(phone: string, code: string, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
     const existing = await this.phoneOtp.activeUserByPhone(phone);
     const invitations = await this.pendingInvitations(this.database, phone);
-    if (invitations.length === 0 || !(await this.phoneOtp.consume(phone, code, existing ? "login" : "register"))) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
+    const reset = existing ? await this.resetMembers(this.database, phone) : [];
+    if ((invitations.length === 0 && reset.length === 0) || !(await this.phoneOtp.consume(phone, code, existing ? "login" : "register"))) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
     const userId = await this.database.transaction(async (transaction) => {
       const locked = await this.pendingInvitations(transaction, phone);
+      if (locked.length === 0 && reset.length > 0) return existing!.id;
       if (locked.length === 0) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
       const id =
         existing?.id ??
@@ -225,6 +242,9 @@ export class MerchantPortalService {
     });
     const user = await this.phoneOtp.activeUserByPhone(phone);
     if (!user || user.id !== userId) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
-    return this.auth.completeLogin(user, "phone_otp", phone, client, "web");
+    // Chưa thiết lập mật khẩu và ứng dụng xác thực: phiên chỉ dùng cho các bước thiết lập (MAN_HINH_273).
+    const security = await this.security.state(user.id, false);
+    const setupPending = security.needsPassword || security.needsAuthenticator;
+    return this.auth.completeLogin(user, "phone_otp", phone, client, "web", { setupPending });
   }
 }

@@ -5,7 +5,9 @@ import { sql } from "drizzle-orm";
 import * as argon2 from "argon2";
 import { randomBytes } from "node:crypto";
 import { AuthService, type ClientInfo } from "../auth/auth.service";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
@@ -30,8 +32,17 @@ export class IposDeviceAuthService {
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly auth: AuthService,
     private readonly phoneOtp: PhoneOtpService,
+    private readonly smartOtp: SmartOtpService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
     private readonly audit: AuditService,
   ) {}
+
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_560, 561): đã kích hoạt Smart OTP thì chỉ nhận Smart OTP; chưa kích hoạt thì nhận mã SMS
+  // trong thời hạn chuyển đổi của cổng cửa hàng liên kết, hết hạn thì phải kích hoạt Smart OTP trên ứng dụng VComm.
+  private async smsAllowed(userId: string): Promise<boolean> {
+    if ((await this.smartOtp.state(this.database, userId)).active) return false;
+    return this.authenticationSettings.portalTransitionOpen();
+  }
 
   // Ghép thiết bị bằng mã 8 ký tự còn hạn, dùng một lần; ghép mới thì thiết bị cũ của quầy hết hiệu lực (QUYTAC_NGHIEPVU_606).
   async pair(input: { code: string; model?: string | null | undefined; appVersion?: string | null | undefined }, client: ClientInfo): Promise<IposPairResult> {
@@ -69,12 +80,14 @@ export class IposDeviceAuthService {
     return deviceInfo(this.database, await deviceByKey(this.database, deviceKey, now), now);
   }
 
-  // Gửi mã OTP đăng nhập lần đầu: chỉ gửi khi số là thành viên dùng được quầy của thiết bị; luôn trả thành công để không lộ số nào là thành viên.
+  // Gửi mã SMS đăng nhập lần đầu: chỉ gửi khi số là thành viên dùng được quầy của thiết bị, chưa kích hoạt Smart OTP, còn thời hạn chuyển đổi;
+  // luôn trả thành công để không lộ số nào là thành viên hay đã kích hoạt Smart OTP (QUYTAC_NGHIEPVU_560).
   async sendLoginOtp(deviceKey: string, phone: string): Promise<void> {
     const device = await deviceByKey(this.database, deviceKey, this.clock.now());
     const user = await this.phoneOtp.activeUserByPhone(phone);
-    if (!user || !(await memberForDevice(this.database, device, { userId: user.id }))) return;
-    await this.phoneOtp.send(phone, "ipos_login");
+    const member = user ? await memberForDevice(this.database, device, { userId: user.id }) : null;
+    // Vẫn ghi mã và tính giới hạn khi không gửi để bên ngoài không phân biệt được.
+    await this.phoneOtp.send(phone, "ipos_login", Boolean(user && member && (await this.smsAllowed(user.id))));
   }
 
   private allowSelling(device: IposDevice): void {
@@ -82,7 +95,7 @@ export class IposDeviceAuthService {
     if (!device.subscriptionStatus) throw new ApiError("FORBIDDEN", "iposNoSubscription");
   }
 
-  private async startSession(device: IposDevice, member: IposMemberRow, client: ClientInfo, provider: "phone_otp" | "ipos_pin"): Promise<IposLoginResult> {
+  private async startSession(device: IposDevice, member: IposMemberRow, client: ClientInfo, provider: "phone_otp" | "ipos_smart_otp" | "ipos_pin"): Promise<IposLoginResult> {
     const tokens = await this.database.transaction(async (transaction) => {
       const issued = await this.auth.issueTrustedSession(transaction, member.userId, client, "ipos_app", provider);
       await transaction.execute(sql`INSERT INTO ipos.device_sessions (family_id, device_id, member_id) VALUES (${issued.familyId}, ${device.deviceId}, ${member.memberId})`);
@@ -95,12 +108,22 @@ export class IposDeviceAuthService {
     };
   }
 
-  async loginWithOtp(deviceKey: string, phone: string, code: string, client: ClientInfo): Promise<IposLoginResult> {
+  // Đăng nhập lần đầu trên thiết bị: mã Smart OTP trên ứng dụng VComm (ưu tiên) hoặc mã SMS dự phòng (QUYTAC_NGHIEPVU_607; CONG_VIEC_72).
+  async loginWithOtp(deviceKey: string, phone: string, code: string, method: "smart_otp" | "sms", client: ClientInfo): Promise<IposLoginResult> {
     const device = await deviceByKey(this.database, deviceKey, this.clock.now());
     this.allowSelling(device);
     const user = await this.phoneOtp.activeUserByPhone(phone);
     const member = user ? await memberForDevice(this.database, device, { userId: user.id }) : null;
+    if (method === "smart_otp") {
+      if (!user || !member || !(await this.smartOtp.state(this.database, user.id)).active) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
+      // Dùng chung bộ đếm sai và khóa 15 phút của Smart OTP.
+      await this.smartOtp.verify(user.id, code, null);
+      return this.startSession(device, member, client, "ipos_smart_otp");
+    }
     if (!user || !member || !(await this.phoneOtp.consume(phone, code, "ipos_login"))) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
+    if (!(await this.smsAllowed(user.id))) {
+      throw new ApiError("BUSINESS_RULE", (await this.smartOtp.state(this.database, user.id)).active ? "iposUseSmartOtp" : "iposSmartOtpRequired");
+    }
     return this.startSession(device, member, client, "phone_otp");
   }
 
