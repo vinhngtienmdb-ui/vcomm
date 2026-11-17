@@ -183,6 +183,12 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 đợt 1 (trình nghiệm thu)
+- Phạm vi: lát L0 đến L7 iPOS đợt 1, nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit cuối `3a12751d`); lát L7 thu phí thuê bao (database migration 0173, API_353, 356, 357 phần phí, MAN_HINH_301, 305, thẻ Phí MAN_HINH_306, khoản G bảng đối soát tuần, khoản trừ N bảng chuyển tiền).
+- Kết quả: toàn bộ kiểm thử API một tiến trình 174 tệp, 971 đạt (trước khi sửa theo rà soát); sau sửa chạy lại c16, c55, c73, c74 19 tệp, 102 đạt; kiểm tra kiểu, lint toàn dự án đạt. Tự rà soát mã lát L5 đến L7: 13 điểm, đã sửa 10, còn 3 điểm mức thấp. Bảo mật phần B, C: không SQL ghép dữ liệu người dùng, mọi endpoint mới kiểm quyền và phạm vi cửa hàng; KICHBAN_KIEMTHU_802 không thấy PIN, mã ghép, OTP, khóa thiết bị trong nhật ký; pnpm audit không mức Cao (1 Thấp, 5 Trung bình trong @expo/cli, chỉ dùng khi dựng).
+- Chờ người dùng: KICHBAN_KIEMTHU_786, 787 (máy thật: in Sunmi T2, ngắt mạng), 788, 803 đến 805 (ảnh chụp); cổng VNPAY thật, máy in mạng LAN, Bluetooth.
+- Kết luận: Đạt phần tự động; chờ người dùng thử trên máy thật và nghiệm thu.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L6
 - Phạm vi: hóa đơn ủy nhiệm (dữ liệu ủy nhiệm, ký hiệu riêng theo năm, lập khi thu hộ hoàn tất, việc chờ lập, lập bù), hóa đơn phí sàn tháng (việc nền instore-fee-invoices-monthly), nơi xem hóa đơn (database migration 0171, API_334, MAN_HINH_54, 279); đỉnh nhánh `ff5ef24`.
 - Kết quả: c73-instore-einvoices 7/7; toàn bộ kiểm thử API 166 tệp đạt, 1 tệp lỗi do sửa trong lúc chạy, chạy lại cùng hai tệp liên quan 16/16 đạt; kiểm tra kiểu 19/19, lint 4/4; khóa dịch khớp. Với nhà cung cấp MISA, hóa đơn ủy nhiệm báo chưa hỗ trợ (chờ người dùng xác nhận với MISA). Chưa có ảnh ứng dụng mở PDF.

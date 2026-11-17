@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_74 trình nghiệm thu đợt 1 (pull request #188, commit `3a12751d`): lát L5 đến L7, nối thanh toán qua ứng dụng VComm (đã thử luồng thật trên máy phát triển), hợp nhất nhánh CONG_VIEC_73 ba lần bằng merge; tài liệu, rà soát mã (sửa 10/13 điểm), bảo mật; kiểm thử API 971 đạt. Còn thử trên Sunmi T2 và máy thật.
+- Người dùng duyệt lát L7 CONG_VIEC_74; CONG_VIEC_73 lát L7 người dùng chốt: công ty vận hành sàn chịu phí cổng khi hủy, bút toán qua 3388 (kế toán trưởng xác nhận trước khi triển khai), hóa đơn phí sàn tháng trừ phần ghi ngược, quyền hủy cho chủ cửa hàng và Open API.
 - Phát hành 0.13.1 (pull request #198, tag `v0.13.1`): sửa LOI_15. Kiểm thử API 875 đạt. Không database migration, không thư viện mới. Chưa triển khai.
 - CONG_VIEC_73 lát L4, CONG_VIEC_74 lát L5 xong, người dùng duyệt; cấp database migration 0171, 0172 cho CONG_VIEC_73.
 - CONG_VIEC_74 lát L1 xong, người dùng duyệt, yêu cầu thêm ngay Smart OTP cho đăng nhập lần đầu trên máy iPOS (đã làm trên nền nhánh CONG_VIEC_72); chuyển lát L2. Thứ tự hợp nhất vào main: CONG_VIEC_72 trước CONG_VIEC_73, 74.
