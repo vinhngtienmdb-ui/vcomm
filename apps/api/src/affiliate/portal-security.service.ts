@@ -74,6 +74,14 @@ export class MerchantPortalSecurityService {
     throw new ApiError("BUSINESS_RULE", status === "blocked" ? "merchantPortalSecurityBlocked" : "merchantPortalSecurityRequired");
   }
 
+  // API_07, API_08 với thành viên cổng: tài khoản bị chặn (hết hạn chưa thiết lập, hoặc bị đặt lại mà chưa kích hoạt lại bằng mã SMS)
+  // không tự đăng ký ứng dụng xác thực bằng phiên mật khẩu hay Zalo, để mật khẩu một mình không mở được cổng (rà soát bảo mật CONG_VIEC_72).
+  async assertMayEnroll(userId: string, sessionPending: boolean): Promise<void> {
+    const member = await this.database.execute(sql`SELECT 1 FROM affiliate.members WHERE user_id = ${userId} AND status = 'active' LIMIT 1`);
+    if (member.rows.length === 0) return;
+    if ((await this.state(userId, sessionPending)).status === "blocked") throw new ApiError("BUSINESS_RULE", "merchantPortalSecurityBlocked");
+  }
+
   // API_02, API_03 gọi từ cổng: hết thời hạn cổng thì không gửi, không nhận mã SMS đăng nhập.
   async assertSmsLogin(): Promise<void> {
     if (!(await this.settings.portalTransitionOpen())) throw new ApiError("BUSINESS_RULE", "merchantPortalSmsDisabled");

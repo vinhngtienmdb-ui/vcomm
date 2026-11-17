@@ -122,6 +122,8 @@ describe("CONG_VIEC_72 lát L6 cổng cửa hàng liên kết", () => {
     expect(blocked.status).toBe(409);
     expect((await legacySession.call("get", "/merchant-portal/security")).body.status).toBe("blocked");
     expect((await legacySession.call("post", "/merchant-portal/security/password", { body: { password: portalPassword } })).status).toBe(409);
+    // Không tự đăng ký ứng dụng xác thực bằng phiên không qua mã SMS kích hoạt (rà soát bảo mật).
+    expect((await legacySession.call("post", "/auth/mfa/enroll")).status).toBe(409);
     // Tài khoản đã thiết lập vẫn dùng cổng bình thường.
     expect((await affiliate.owner.call("get", "/merchant-portal/me")).status).toBe(200);
     await portalWindow(today());
@@ -151,6 +153,7 @@ describe("CONG_VIEC_72 lát L6 cổng cửa hàng liên kết", () => {
     const stale = await passwordLogin("0912333444");
     expect(stale.response.body.mfaRequired).toBe(false);
     expect((await stale.session.call("get", "/merchant-portal/me")).status).toBe(409);
+    expect((await stale.session.call("post", "/auth/mfa/enroll")).status).toBe(409);
     // Lần vào tới: mã SMS một lần ở thẻ Kích hoạt, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới.
     const reactivated = await activateOnly("0912333444");
     expect((await reactivated.session.call("get", "/merchant-portal/security")).body).toMatchObject({ status: "required", needsPassword: true, needsAuthenticator: true });

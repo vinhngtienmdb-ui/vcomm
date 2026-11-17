@@ -38,6 +38,7 @@ import { oauthProviders, OauthService, oauthStateCookieName } from "./oauth.serv
 import type { OauthProvider } from "./oauth-providers";
 import { PhoneOtpService } from "./phone-otp.service";
 import { AuthenticationSettingsService } from "./authentication-settings.service";
+import { MerchantPortalSecurityService } from "../affiliate/portal-security.service";
 import { PermissionService } from "../permissions/permission.service";
 import { verifyAccessToken } from "./tokens";
 
@@ -79,6 +80,7 @@ export class AuthController {
     private readonly messaging: MessagingService,
     private readonly permissionService: PermissionService,
     private readonly authenticationSettings: AuthenticationSettingsService,
+    private readonly portalSecurity: MerchantPortalSecurityService,
   ) {}
 
   // API_54: cách đăng nhập đã cài đặt, để MAN_HINH_01 chỉ hiện nút dùng được.
@@ -185,6 +187,7 @@ export class AuthController {
   @AllowMfaPending()
   @Post("mfa/enroll")
   async enrollMfa(@Req() request: AuthenticatedRequest): Promise<MfaEnrollResponse> {
+    await this.portalSecurity.assertMayEnroll(request.auth.userId, !request.auth.mfaVerified);
     return this.mfa.enroll(request.auth.userId);
   }
 
@@ -192,6 +195,7 @@ export class AuthController {
   @AllowMfaPending()
   @Post("mfa/enroll/confirm")
   async confirmMfa(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<MfaBackupCodesResponse> {
+    await this.portalSecurity.assertMayEnroll(request.auth.userId, !request.auth.mfaVerified);
     return this.mfa.confirm(request.auth.userId, request.auth.sessionId, mfaCodeSchema.parse(body).code, clientInfo(request));
   }
 
