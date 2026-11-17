@@ -2137,4 +2137,5 @@ Sửa API đã có:
 - Hoàn tiền (MAN_HINH_98): danh sách, ghi đã hoàn gồm việc hoàn tiền của đơn tại cửa hàng (`orderId` có thể trống, thêm `checkoutId`, `placeName`).
 - Hủy giao dịch `LK…` (cổng, Open API của CONG_VIEC_67): hủy được giao dịch đã thu hộ, lập hoàn tiền; thu ngân không hủy được giao dịch thu hộ.
 - Khóa API cửa hàng liên kết: thêm cờ `instoreCheckout`, thông tin webhook.
+- Mã thành viên cũ (cách 2 CONG_VIEC_55): hết thời hạn chuyển đổi của người mua thì `POST /buyer/affiliate/member-code`, lập giao dịch `buyer_qr` trên cổng, `member_code` qua Open API và tra điểm Open API bằng `memberCode` trả `409 affiliateMemberCodeRetired`.
 - Hóa đơn điện tử: danh sách thêm `sellerName`, `sourceKind`, `mandated`, bộ lọc `mandated`; việc chờ xử lý trả hàng nhận `affiliateTransactionId`.

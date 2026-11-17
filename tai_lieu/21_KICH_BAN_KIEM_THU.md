@@ -6213,7 +6213,7 @@ Dữ liệu chung: dữ liệu mẫu CONG_VIEC_24 (`apps/api/test/marketplace-fi
 | Mã | Tiêu chí | Kịch bản | Loại | Tệp |
 |---|---|---|---|---|
 | KICHBAN_KIEMTHU_750 | 546 | Cấp mã thanh toán; mã đúng, lệch một bước, dùng lại, quét sai vượt giới hạn, mã cũ sau cấp lại; khách đang khóa dùng điểm vẫn định danh được | Tích hợp | `apps/api/test/c73-instore-checkouts.test.ts` |
-| KICHBAN_KIEMTHU_751 | 546 | Mã thành viên cũ trong thời hạn chuyển đổi | Tích hợp | `apps/api/test/c55-transactions.test.ts` (trong thời hạn). Phần sau thời hạn chưa làm, chưa có kiểm thử (mục 20 đặc tả) |
+| KICHBAN_KIEMTHU_751 | 546 | Mã thành viên cũ trong thời hạn dùng được; hết thời hạn chuyển đổi của người mua thì không cấp mã, cổng và Open API (lập giao dịch, tra điểm) trả `409 affiliateMemberCodeRetired` | Tích hợp | `apps/api/test/c55-transactions.test.ts`, `c67-open-affiliate.test.ts` |
 | KICHBAN_KIEMTHU_752 | 547 | Tạo đơn quầy: tổng đổi so với lúc xem, giữ hàng, trùng khóa, hai yêu cầu cùng lúc, quầy đã có đơn chờ, đóng ca bị chặn | Tích hợp | `apps/api/test/c73-instore-retail.test.ts`, `c73-instore-checkouts.test.ts` |
 | KICHBAN_KIEMTHU_753 | 547 | Hết hạn, hủy, từ chối: nhả giữ hàng, hoàn điểm, trả voucher | Tích hợp | `c73-instore-checkouts.test.ts`, `c73-instore-retail.test.ts`, `c73-instore-affiliate.test.ts` |
 | KICHBAN_KIEMTHU_754 | 548 | Luồng 1: quét đúng, đơn đã có khách, quét sai vượt giới hạn; ba đơn mỗi thu ngân | Tích hợp | `c73-instore-checkouts.test.ts`, `c73-instore-affiliate.test.ts` |

@@ -639,6 +639,7 @@
     "affiliateMerchantInactive": "Cửa hàng chưa hoạt động hoặc hợp đồng hết hạn.",
     "affiliateBillOverCap": "Tiền hóa đơn vượt trần mỗi giao dịch.",
     "affiliateCodeInvalid": "Mã QR không hợp lệ hoặc đã hết hạn.",
+    "affiliateMemberCodeRetired": "Mã thành viên cũ không còn dùng. Khách mở Mã thanh toán trên ứng dụng VComm.",
     "affiliatePhoneNoAccount": "Số điện thoại chưa có tài khoản VComm.",
     "affiliatePhonePending": "Số điện thoại này đang có yêu cầu chờ xác nhận.",
     "affiliatePhoneLimited": "Quá nhiều yêu cầu theo số điện thoại bị từ chối hoặc hết hạn trong một giờ. Thử lại sau.",

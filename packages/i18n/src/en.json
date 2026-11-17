@@ -639,6 +639,7 @@
     "affiliateMerchantInactive": "The store is not active or its contract has expired.",
     "affiliateBillOverCap": "The bill amount exceeds the cap per transaction.",
     "affiliateCodeInvalid": "The QR code is invalid or has expired.",
+    "affiliateMemberCodeRetired": "The old member code is no longer accepted. Ask the customer to open the payment code in the VComm app.",
     "affiliatePhoneNoAccount": "This phone number has no VComm account.",
     "affiliatePhonePending": "This phone number already has a request awaiting confirmation.",
     "affiliatePhoneLimited": "Too many phone requests were declined or expired within an hour. Try again later.",

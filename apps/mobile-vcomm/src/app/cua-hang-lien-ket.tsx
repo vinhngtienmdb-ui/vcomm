@@ -1,7 +1,7 @@
 // MAN_HINH_181 Cửa hàng liên kết trên ứng dụng VComm (CONG_VIEC_55; CHUC_NANG_194; API_209; QUYTAC_NGHIEPVU_395 đến 397):
 // quét mã QR của cửa hàng rồi xác nhận, yêu cầu chờ xác nhận theo số điện thoại, mã thành viên cho thu ngân quét, lịch sử giao dịch.
 // Lát L2 (CHUC_NANG_195; API_211; QUYTAC_NGHIEPVU_401, 402): nhận voucher (đổi bằng điểm, miễn phí), voucher của tôi, chọn voucher khi xác nhận hoặc tạo mã thành viên.
-import type { BuyerAffiliateRequest, BuyerInstoreCheckout, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
+import type { BuyerAffiliateRequest, BuyerAuthenticationPolicy, BuyerInstoreCheckout, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Linking from "expo-linking";
 import { router, useFocusEffect } from "expo-router";
@@ -245,6 +245,13 @@ export default function AffiliateScreen() {
   const [mine, setMine] = useState<BuyerVoucherCode[]>([]);
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState<{ text: string; tone: "error" | "success" } | null>(null);
+  // Mã thành viên cũ chỉ còn trong thời hạn chuyển đổi của người mua (CONG_VIEC_73; QUYTAC_NGHIEPVU_574); sau đó khách dùng Mã thanh toán.
+  const [memberCodeOpen, setMemberCodeOpen] = useState(true);
+  useEffect(() => {
+    api<BuyerAuthenticationPolicy>("/buyer/authentication-policy")
+      .then((policy) => setMemberCodeOpen(policy.smsFallbackOpen))
+      .catch(() => undefined);
+  }, []);
   const fail = useCallback((failure: unknown) => setMessage({ text: failure instanceof ApiFailure ? failure.message : t("unknownError"), tone: "error" }), []);
   const reload = useCallback(() => {
     Promise.all([
@@ -286,7 +293,7 @@ export default function AffiliateScreen() {
         <Button label={t("affiliateScanStore")} onPress={() => (setMessage(null), setScanning(true))} />
         {/* CONG_VIEC_73: cửa hàng quét Mã thanh toán thay mã thành viên; mã thành viên cũ còn nhận trong thời hạn chuyển đổi. */}
         <Button label={t("affiliateOpenPayCode")} kind="secondary" onPress={() => router.push("/ma-thanh-toan")} />
-        <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />
+        {memberCodeOpen && <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />}
         <Vouchers offers={offers} mine={mine} onClaimed={(text) => (setMessage({ text, tone: "success" }), reload())} onError={fail} />
         <Card>
           <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateHistory")}</Text>
