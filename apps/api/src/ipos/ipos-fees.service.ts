@@ -3,7 +3,7 @@
 // hóa đơn điện tử phí (hạ tầng hóa đơn không gắn phiếu xuất của CONG_VIEC_73 lát L6). Bốn cách thu chụp lúc lập phiếu:
 // - VietQR: kế toán lập phiếu thu ngân hàng trừ công nợ của phiếu; công nợ hết thì phiếu đã thu.
 // - Trừ đối soát điểm tuần: phiếu chờ thu cộng vào bảng tuần kế tiếp thành khoản G; xác nhận bảng thì công nợ phiếu chuyển vào công nợ bảng; bảng thanh toán thì phiếu đã thu.
-// - Trừ thu hộ: dòng khoản trừ N trong bảng chuyển tiền của CONG_VIEC_73 (ghi khi lập phiếu).
+// - Trừ thu hộ: dòng khoản trừ N trong bảng chuyển tiền của CONG_VIEC_73 (ghi khi lập phiếu); vào bảng thì đã thu phần đó (móc khoản trừ).
 // - Miễn phí: không lập phiếu (việc nền thuê bao tự gia hạn).
 // Phiếu đã thu đủ thì thuê bao gia hạn đến hết kỳ của phiếu và về đang hoạt động (QUYTAC_NGHIEPVU_596 khoản 2).
 import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
@@ -31,6 +31,7 @@ import { settingsRow } from "../einvoice/einvoice-settings.service";
 import { EinvoicesService, type InvoiceItem, insertInvoice } from "../einvoice/einvoices.service";
 import { DebtsService } from "../finance/debts.service";
 import { PaymentsService } from "../finance/payments.service";
+import { InstorePayoutsService } from "../instore/payouts.service";
 import type { BuyerAdminActor } from "../marketplace/buyer-admin.service";
 import { bankTransferConfiguration, vietQrData } from "../marketplace/payments/gateways/bank-transfer-gateway";
 
@@ -96,9 +97,15 @@ export class IposFeesService implements OnModuleInit {
     private readonly settlements: AffiliateSettlementsService,
     private readonly einvoices: EinvoicesService,
     private readonly audit: AuditService,
+    private readonly payouts: InstorePayoutsService,
   ) {}
 
   onModuleInit(): void {
+    // Trừ thu hộ: khoản trừ N vào bảng chuyển tiền thì ghi ngay (móc của CONG_VIEC_73, chạy trong giao dịch lập bảng).
+    this.payouts.registerDeductionHook("ipos_subscription", async (transaction, payout, deductions) => {
+      for (const deduction of deductions) if (deduction.referenceId) await this.bookDeduction(transaction, payout, deduction);
+      await this.refreshPaid(transaction);
+    });
     // Phiếu thu ngân hàng trừ công nợ phiếu phí (VietQR): công nợ hết thì phiếu đã thu, gia hạn thuê bao.
     this.payments.postedHooks.push((transaction) => this.refreshPaid(transaction));
     // Khoản G trong bảng đối soát tuần (QUYTAC_NGHIEPVU_601).
@@ -146,7 +153,7 @@ export class IposFeesService implements OnModuleInit {
   // Kỳ chưa lập phiếu kế tiếp của thuê bao: kỳ đầu bắt đầu ngày hết dùng thử (hoặc ngày bắt đầu; thuê bao cấp trước khi có phiếu phí lấy kỳ hiện tại = ngày hết hạn trừ một kỳ),
   // kỳ sau nối tiếp phiếu gần nhất chưa hủy.
   // Kỳ đầu lập khi đến ngày bắt đầu kỳ; kỳ sau lập trước ngày bắt đầu kỳ 7 ngày (QUYTAC_NGHIEPVU_599 khoản 1).
-  async runDaily(): Promise<{ issued: number; switched: number; deducted: number; reminded: number }> {
+  async runDaily(): Promise<{ issued: number; reminded: number }> {
     const today = this.today();
     const candidates = await this.database.execute<{ id: string; period_start: string; first: boolean }>(sql`
       WITH last AS (
@@ -165,9 +172,8 @@ export class IposFeesService implements OnModuleInit {
       });
       if (created) issued += 1;
     }
-    const deducted = await this.database.transaction((transaction) => this.collectTransferred(transaction));
     const reminded = await this.remind(today);
-    return { issued, switched: 0, deducted, reminded };
+    return { issued, reminded };
   }
 
   // Lập một phiếu cho kỳ bắt đầu `periodStart`; trả null khi kỳ đã có phiếu chưa hủy hoặc cách thu là miễn phí.
@@ -312,31 +318,29 @@ export class IposFeesService implements OnModuleInit {
     for (const row of paid.rows as { id: string; status: string }[]) if (row.status === "paid") await this.extendSubscription(executor, row.id);
   }
 
-  // Trừ thu hộ (QUYTAC_NGHIEPVU_600): khoản trừ N nằm trong bảng chuyển tiền đã chuyển thì phần đó coi như đã thu: bút toán Nợ phải trả cửa hàng (331) /
-  // Có phải thu phí thuê bao (131), đóng công nợ phần đó bằng khoản ghi có, cộng đã thu. Bảng chuyển tiền thiếu tiền thì phần âm dồn sang bảng sau (cách của CONG_VIEC_73).
-  async collectTransferred(executor: Executor): Promise<number> {
-    const rows = await executor.execute<{ id: string; amount: string; fee_invoice_id: string; company_id: string; partner_id: string; document_no: string; payout_no: string; day: string }>(sql`
-      SELECT d.id, d.amount::text, f.id AS fee_invoice_id, f.company_id, m.partner_id, f.document_no, p.document_no AS payout_no, p.transferred_on::text AS day
-      FROM instore.payout_deductions d JOIN instore.payouts p ON p.id = d.payout_id JOIN ipos.fee_invoices f ON f.id = d.reference_id
-      JOIN affiliate.merchants m ON m.id = f.merchant_id
-      WHERE d.kind = 'ipos_subscription' AND p.status = 'transferred' AND f.status = 'awaiting'
-        AND NOT EXISTS (SELECT 1 FROM accounting.journals j WHERE j.source_type = 'ipos_fee_deduction' AND j.source_id = d.id)
-      ORDER BY p.transferred_on, d.created_at
-      FOR UPDATE OF f`);
-    for (const row of rows.rows) {
-      await this.ledger.record(executor, {
-        companyId: row.company_id,
-        sourceType: "ipos_fee_deduction",
-        sourceId: row.id,
-        journalNo: row.payout_no,
-        date: row.day,
-        description: `Trừ phí thuê bao iPOS ${row.document_no} vào bảng chuyển tiền ${row.payout_no}`,
-        lines: [debit("affiliate_payable", Number(row.amount), row.partner_id), credit("ipos_fee_receivable", Number(row.amount), row.partner_id)],
-      });
-      await this.reduceDebt(executor, row.fee_invoice_id, Number(row.amount), row.id, `Trừ vào bảng chuyển tiền ${row.payout_no}`);
-    }
-    if (rows.rows.length > 0) await this.refreshPaid(executor);
-    return rows.rows.length;
+  // Trừ thu hộ (QUYTAC_NGHIEPVU_600): khoản trừ N vào bảng chuyển tiền thì phần đó coi như đã thu. Công nợ phải trả của bảng đã trừ N nên phần N còn ở 331 của cửa hàng:
+  // bút toán Nợ phải trả cửa hàng (331) / Có phải thu phí thuê bao (131), ghi có công nợ phiếu, cộng đã thu. N luôn trừ đủ vào bảng; tiền chuyển âm thì số âm mang sang bảng sau (CONG_VIEC_73).
+  private async bookDeduction(
+    executor: Executor,
+    payout: { id: string; documentNo: string; businessDate: string },
+    deduction: { id: string; amount: string; referenceId: string | null },
+  ): Promise<void> {
+    const fee = (
+      await executor.execute<{ company_id: string; partner_id: string; document_no: string; status: string }>(sql`
+        SELECT f.company_id, m.partner_id, f.document_no, f.status FROM ipos.fee_invoices f JOIN affiliate.merchants m ON m.id = f.merchant_id
+        WHERE f.id = ${deduction.referenceId} FOR UPDATE OF f`)
+    ).rows[0];
+    if (!fee || fee.status !== "awaiting") return;
+    await this.ledger.record(executor, {
+      companyId: fee.company_id,
+      sourceType: "ipos_fee_deduction",
+      sourceId: deduction.id,
+      journalNo: payout.documentNo,
+      date: payout.businessDate,
+      description: `Trừ phí thuê bao iPOS ${fee.document_no} vào bảng chuyển tiền ${payout.documentNo}`,
+      lines: [debit("affiliate_payable", Number(deduction.amount), fee.partner_id), credit("ipos_fee_receivable", Number(deduction.amount), fee.partner_id)],
+    });
+    await this.reduceDebt(executor, deduction.referenceId!, Number(deduction.amount), deduction.id, `Trừ vào bảng chuyển tiền ${payout.documentNo}`);
   }
 
   // Ghi có một phần công nợ của phiếu (nguồn là dòng khoản trừ để mỗi lần trừ một khoản riêng).

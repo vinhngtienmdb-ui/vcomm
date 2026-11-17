@@ -4,7 +4,6 @@ import { messages } from "i18n";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AffiliateSettlementsService } from "../src/affiliate/settlements.service";
-import { DATABASE, type Database } from "../src/database/database.module";
 import { InstorePayoutsService } from "../src/instore/payouts.service";
 import { IposFeesService } from "../src/ipos/ipos-fees.service";
 import { operator, prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
@@ -197,7 +196,7 @@ describe("CONG_VIEC_74 L7 – phiếu phí thuê bao iPOS", () => {
 });
 
 describe("CONG_VIEC_74 L7 – trừ thu hộ", () => {
-  it("KICHBAN_KIEMTHU_800 phần trừ đủ: phiếu trừ thu hộ thành khoản trừ N của bảng chuyển tiền; bảng đã chuyển thì phiếu đã thu, bút toán Nợ 331 / Có 131", async () => {
+  it("KICHBAN_KIEMTHU_800: phiếu trừ thu hộ thành khoản trừ N; vào bảng chuyển tiền thì phiếu đã thu, bút toán Nợ 331 / Có 131", async () => {
     at(store.today);
     // Bật thu hộ cho cửa hàng (dữ liệu kiểm thử): tài khoản nhận tiền, xác nhận cảnh báo.
     const bank = (
@@ -215,12 +214,10 @@ describe("CONG_VIEC_74 L7 – trừ thu hộ", () => {
     expect(invoice).toMatchObject({ method: "collection_deduction", total: "328900" });
     const deduction = (await pool.query("SELECT amount::text, kind, payout_id FROM instore.payout_deductions WHERE reference_id = $1", [invoice.id])).rows;
     expect(deduction).toEqual([{ amount: "328900.0000", kind: "ipos_subscription", payout_id: null }]);
-    // Bảng chuyển tiền ngày lập phiếu: không có thu hộ nên tiền chuyển 0, bảng ghi đã chuyển ngay; phần thiếu dồn bảng sau (cách của CONG_VIEC_73).
+    // Bảng chuyển tiền ngày lập phiếu: N trừ đủ vào bảng (móc khoản trừ ghi ngay); không có thu hộ nên tiền chuyển 0, số âm mang sang bảng sau (cách của CONG_VIEC_73).
     const [payoutId] = await application.get(InstorePayoutsService).generateDaily(store.today);
-    const payout = (await pool.query("SELECT deduction_amount::text, amount::text, status FROM instore.payouts WHERE id = $1", [payoutId])).rows[0];
-    expect(payout).toEqual({ deduction_amount: "328900.0000", amount: "0.0000", status: "transferred" });
-    expect(await fees.collectTransferred(application.get<Database>(DATABASE))).toBe(1);
-    expect(await fees.collectTransferred(application.get<Database>(DATABASE))).toBe(0);
+    const payout = (await pool.query("SELECT deduction_amount::text, amount::text FROM instore.payouts WHERE id = $1", [payoutId])).rows[0];
+    expect(payout).toEqual({ deduction_amount: "328900.0000", amount: "0.0000" });
     const detail = (await store.call("get", `/ipos/fee-invoices/${invoice.id}`)).body;
     expect(detail).toMatchObject({ status: "paid", paidAmount: "328900", debtOpenAmount: "0", deductions: [expect.objectContaining({ amount: "328900", transferred: true })] });
     const journal = await pool.query<{ debit: string; credit: string }>(

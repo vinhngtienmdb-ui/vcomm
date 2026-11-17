@@ -3838,7 +3838,8 @@ export interface EinvoiceListItem {
   replaced: boolean;
   // Số phiếu xuất, số giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng).
   sourceDocumentNo: string | null;
-  sourceKind: "document" | "affiliate_transaction" | "fee_invoice";
+  // ipos_fee_invoice: phiếu phí thuê bao iPOS (CONG_VIEC_74 lát L7).
+  sourceKind: "document" | "affiliate_transaction" | "fee_invoice" | "ipos_fee_invoice";
   sellerName: string;
   mandated: boolean;
 }
