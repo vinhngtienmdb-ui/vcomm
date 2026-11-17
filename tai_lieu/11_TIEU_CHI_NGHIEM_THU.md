@@ -750,3 +750,20 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
 |---|---|---|---|---|
 | TIEUCHI_NGHIEMTHU_535 | CHUC_NANG_194, CHUC_NANG_196 | Dư nợ cộng phí tin OTP chưa vào bảng đối soát kèm thuế; vượt hạn mức thì không tích, vẫn dùng điểm; phí 0 đồng giữ nguyên dư nợ; lập bảng không tính trùng; báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo 80 % cùng dư nợ; vẫn gửi OTP khi vượt hạn mức | Gọi API | Bắt buộc |
+
+## MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+| Mã | Tiêu chí | Mức | Lát |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_470 | Công ty mới: hai tính năng tắt, hạn mức 0; người có quyền không thấy dùng được (`GET /ai/me` nêu lý do); quản trị bật và nhập hạn mức thì dùng được; sửa cài đặt có nhật ký thao tác, xung đột `version` báo lỗi | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_471 | Che dữ liệu: các mẫu điện thoại, email, CCCD, CMND, số tài khoản trong câu hỏi và trong trường kết quả công cụ đều thành nhãn che trước khi tới lớp kết nối; số tiền, số đơn, mã sản phẩm không bị che nhầm | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_472 | Chưa xác nhận thông báo thì gửi câu hỏi nhận `409 AI_NOTICE_REQUIRED`; xác nhận xong dùng được; tăng phiên bản thông báo thì phải xác nhận lại | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_473 | Tổng chi phí tháng đạt hạn mức thì lượt mới nhận `409 AI_QUOTA_EXCEEDED`, quản trị nhận đúng một thông báo trong tháng; sang tháng sau hoặc tăng hạn mức thì dùng lại được; người dùng hết lượt hôm nay nhận `409 AI_DAILY_LIMIT`, người khác vẫn dùng được | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_474 | Mỗi lượt (thành công, từ chối, lỗi) có một dòng nhật ký lượt đúng token, chi phí theo đơn giá cấu hình, không có nội dung; kiểm thử chạy bằng bộ giả lập, không gọi mạng | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_475 | Hỏi đáp: người chỉ có quyền báo cáo tồn kho hỏi doanh số thì mô hình không được cấp công cụ bán hàng và trả lời không có quyền; người có quyền nhận số đúng bằng màn hình báo cáo cùng tham số; công ty khác không lộ dữ liệu | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_476 | Câu trả lời chạy dòng chảy, hiện "Dữ liệu từ" với công cụ, tham số đã gọi; quá 8 lần gọi công cụ thì dừng đúng; kết quả công cụ quá 50 dòng bị cắt có ghi chú | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_477 | Hội thoại chỉ người tạo xem, xóa được (người khác `404`); hai câu hỏi cùng lúc của một người thì câu sau `409 AI_BUSY`; tác vụ nền xóa hội thoại có tin nhắn cuối 91 ngày, giữ hội thoại 89 ngày; nhật ký lượt vẫn còn | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_478 | Đánh giá Đúng, Sai lưu, đổi, bỏ được; Sai thiếu lý do báo lỗi; người khác không đánh giá được tin nhắn không phải của mình | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_479 | Soạn nội dung: có đủ ba phần đúng giới hạn độ dài; thông số không có trong đầu vào thành "[cần bổ sung]" (theo bộ giả lập trả mẫu); người thiếu quyền sửa sản phẩm nhận `403`; sản phẩm của nhà bán nhận `404`; Dùng chỉ điền biểu mẫu, chưa lưu; lưu sau đó có ghi chú AI trong nhật ký thao tác | Bắt buộc | L3 |
+| TIEUCHI_NGHIEMTHU_480 | Thống kê: tổng chi phí, lượt, token, Đúng, Sai khớp dữ liệu nhật ký; người có `ai.usage.view` không đọc được nội dung hội thoại qua bất kỳ API nào; xuất Excel | Bắt buộc | L3 |
+| TIEUCHI_NGHIEMTHU_481 | MAN_HINH_242 đến 245 đủ trạng thái rỗng, đang tải, lỗi, không quyền, tắt, hết hạn mức; tiếng Việt và tiếng Anh; dùng được ở độ rộng 390 điểm ảnh | Bắt buộc | L1, L2, L3 |

@@ -94,3 +94,38 @@ export async function apiDownload(path: string, fileName: string, open = false):
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
+
+// Gọi API trả dòng sự kiện (text/event-stream, CONG_VIEC_63 API_275): lỗi trước khi bắt đầu dòng ném ApiFailure như apiFetch.
+export async function apiStream(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
+  const init: RequestInit = { method: "POST", body: JSON.stringify(body), headers: { accept: "text/event-stream" }, ...(signal ? { signal } : {}) };
+  let response = await send(path, init);
+  if (response.status === 401) {
+    const refreshed = await send("/auth/refresh", { method: "POST" });
+    if (refreshed.ok) response = await send(path, init);
+  }
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as ErrorBody | null;
+    throw new ApiFailure(response.status, payload?.error ?? null);
+  }
+  return response;
+}
+
+// Đọc từng sự kiện `event: <loại>` / `data: <JSON>` của dòng trả lời.
+export async function readEvents(response: Response, onEvent: (type: string, data: Record<string, unknown>) => void): Promise<void> {
+  const reader = response.body!.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += value;
+    let end = buffer.indexOf("\n\n");
+    while (end >= 0) {
+      const block = buffer.slice(0, end);
+      buffer = buffer.slice(end + 2);
+      const type = /^event: (.+)$/m.exec(block)?.[1];
+      const data = /^data: (.+)$/m.exec(block)?.[1];
+      if (type && data) onEvent(type, JSON.parse(data) as Record<string, unknown>);
+      end = buffer.indexOf("\n\n");
+    }
+  }
+}
