@@ -538,3 +538,21 @@
 - Mức quy mô: Vừa (đổi quy tắc nghiệp vụ đã duyệt); làm trong CONG_VIEC_70.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-17. Đã làm trong CONG_VIEC_70, nghiệm thu 2026-11-17, chờ phát hành.
+
+### THAY_DOI_37: Ưu tiên Smart OTP thay tin nhắn SMS – 2026-11-17
+- Lý do: giảm chi phí tin SMS và rủi ro chiếm SIM; người dùng yêu cầu và chốt ngày 2026-11-17 (CONG_VIEC_72).
+- Nội dung thay đổi:
+  - Smart OTP (mã TOTP trong ứng dụng VComm, mở bằng mã khóa 6 số hoặc vân tay, khuôn mặt; sai mã khóa 5 lần thì xóa Smart OTP trên máy) là cách xác thực chính cho: giao dịch dùng điểm tại quầy, cửa hàng liên kết qua Open API, đổi ra đối tác liên minh; đăng nhập người mua trên thiết bị mới (mật khẩu và Smart OTP); quên mật khẩu.
+  - Khách đã kích hoạt không nhận SMS đăng nhập, quên mật khẩu. Khách chưa kích hoạt dùng SMS dự phòng trong thời hạn chuyển đổi 30 ngày tính cả ngày triển khai (tham số), sau đó bắt buộc; sau hạn Open API không gửi SMS (409), khách không có điện thoại thông minh chỉ tích điểm.
+  - Đăng ký mới kích hoạt Smart OTP luôn bằng mã SMS đăng ký. Chuyển máy bằng mã của máy cũ, không SMS. Không kích hoạt trên bản web; Smart OTP đang có trên bản web giữ đến hết thời hạn rồi tự hủy. Thiết bị tin cậy hết hạn sau 12 tháng không dùng.
+  - Khôi phục khi mất máy bằng mật khẩu và SMS (kể cả kích hoạt bằng SMS trên thiết bị chưa tin cậy khi tài khoản đã từng có Smart OTP): khóa mọi giao dịch dùng điểm 24 giờ (tham số, không ai mở sớm), thông báo trong ứng dụng và ZNS. Chăm sóc khách hàng hủy Smart OTP bằng quyền mới `marketplace.buyer.security` (ghi nhật ký); sau đó khách được đặt lại mật khẩu bằng SMS một lần trong 24 giờ.
+  - Cổng cửa hàng liên kết: mọi tài khoản đăng nhập bằng số điện thoại, mật khẩu và ứng dụng xác thực (TOTP, 10 mã dự phòng, dùng lại xác thực hai lớp nhân viên, chỉ áp khi đăng nhập cổng); đăng nhập Zalo vẫn hỏi mã; thời hạn 30 ngày; đặt lại bởi chủ cửa hàng và người có `affiliate.manage`, người được đặt lại kích hoạt lại bằng mã SMS một lần.
+  - Nhắc kích hoạt trong ứng dụng và một tin ZNS 7 ngày trước hạn. Ba mẫu ZNS mới (nhắc kích hoạt, chuyển máy, bị hủy) và số tổng đài chăm sóc khách hàng là cấu hình nhập sau; chưa có thì chỉ gửi thông báo trong ứng dụng.
+  - Giữ đăng nhập Zalo và thông báo ZNS hiện có.
+- Thành phần bị ảnh hưởng: CONG_VIEC_02, 03, 23 (đăng nhập, PhoneOtpService, quên mật khẩu; API_02, 03, 116, 117; MAN_HINH_73, 74, 75); CONG_VIEC_53 lát L6 (QUYTAC_NGHIEPVU_379, API_198, 199, MAN_HINH_151); CONG_VIEC_55 (QUYTAC_NGHIEPVU_393, MAN_HINH_177, 178, đăng nhập cổng); CONG_VIEC_65 (QUYTAC_NGHIEPVU_542, API_307, MAN_HINH_265); CONG_VIEC_67 (API_297) và THAY_DOI_31 (phí tin chỉ phát sinh trong thời hạn); CONG_VIEC_24 (MAN_HINH_80, 86; API_178).
+- Dữ liệu, API, giao diện, quyền: bảng Smart OTP chuyển từ schema loyalty sang core; bảng thiết bị tin cậy; tham số chuyển đổi ở thẻ "Xác thực" của MAN_HINH_86 (xem `marketplace.buyer.view`, sửa `marketplace.buyer.manage`); database migration 0158 đến 0160; API_318 đến 325, sửa API_02, 03, 116, 117, 178, 198, 199, 297, 307; MAN_HINH_269 đến 274; quyền mới `marketplace.buyer.security`; thư viện mới `expo-local-authentication` 58.0.2 (MIT).
+- Ảnh hưởng chức năng cũ: khách đã kích hoạt Smart OTP giữ nguyên, lần mở đầu sau cập nhật đặt mã khóa; thiết bị đang đăng nhập coi là tin cậy; khách chưa kích hoạt dùng như cũ đến hết thời hạn.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_734 đến 749; hồi quy đăng nhập, đăng ký, quên mật khẩu, c53 điểm tại quầy, c55, c65, c67; toàn bộ kiểm thử.
+- Mức quy mô: Lớn; làm trong CONG_VIEC_72.
+- Rủi ro: cao (đổi cách xác thực của người mua); giảm bằng thời hạn chuyển đổi, thiết bị tin cậy nạp sẵn, khóa dùng điểm khi khôi phục.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đang làm trong CONG_VIEC_72.
