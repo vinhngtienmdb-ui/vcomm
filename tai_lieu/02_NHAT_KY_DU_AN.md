@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_73: cập nhật tài liệu chung (06, 07, 08, 09, 10, 11, 12, 14, 16, 17, 21, 22, 27); bổ sung sau nghiệm thu QUYTAC_NGHIEPVU_574 (chặn mã thành viên cũ sau thời hạn chuyển đổi, đã có trong đặc tả duyệt nhưng chưa làm), kiểm thử API 945 đạt; Open API đơn chờ chạy ở `/api/v1/open/instore` (đặc tả ghi `/open/affiliate`). CONG_VIEC_74 sửa 3 điểm rà soát mức thấp.
 - CONG_VIEC_74 trình nghiệm thu đợt 1 (pull request #188, commit `3a12751d`): lát L5 đến L7, nối thanh toán qua ứng dụng VComm (đã thử luồng thật trên máy phát triển), hợp nhất nhánh CONG_VIEC_73 ba lần bằng merge; tài liệu, rà soát mã (sửa 10/13 điểm), bảo mật; kiểm thử API 971 đạt. Còn thử trên Sunmi T2 và máy thật.
 - Người dùng duyệt lát L7 CONG_VIEC_74; CONG_VIEC_73 lát L7 người dùng chốt: công ty vận hành sàn chịu phí cổng khi hủy, bút toán qua 3388 (kế toán trưởng xác nhận trước khi triển khai), hóa đơn phí sàn tháng trừ phần ghi ngược, quyền hủy cho chủ cửa hàng và Open API.
 - Phát hành 0.13.1 (pull request #198, tag `v0.13.1`): sửa LOI_15. Kiểm thử API 875 đạt. Không database migration, không thư viện mới. Chưa triển khai.
