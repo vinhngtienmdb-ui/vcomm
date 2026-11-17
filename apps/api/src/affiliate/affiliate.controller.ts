@@ -6,6 +6,9 @@ import {
   affiliateCollectionSchema,
   type AffiliateCollectionResponse,
   einvoiceMandateSchema,
+  affiliateWebhookSchema,
+  type AffiliateWebhookDelivery,
+  type AffiliateWebhookSecret,
   type EinvoiceMandateResponse,
   type TransactionEinvoice,
   affiliateApiKeyCreateSchema,
@@ -57,6 +60,7 @@ import { AffiliateSettlementsService, type SettlementActor } from "./settlements
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
 import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
+import { AffiliateWebhooksService } from "./webhooks.service";
 
 @Controller("affiliate")
 export class AffiliateController {
@@ -71,6 +75,7 @@ export class AffiliateController {
     private readonly portalSecurity: MerchantPortalSecurityService,
     private readonly checkouts: AffiliateCheckoutsService,
     private readonly mandatedEinvoices: InstoreEinvoicesService,
+    private readonly webhooks: AffiliateWebhooksService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -306,6 +311,36 @@ export class AffiliateController {
   @HttpCode(200)
   async rotateApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeySecret> {
     return this.apiKeys.rotate(await this.manager(request), id, rotateApiKeySchema.parse(body).version);
+  }
+
+  // API_331 (CONG_VIEC_73 lát L7; MAN_HINH_231): webhook của khóa — địa chỉ, khóa ký, gửi thử, nhật ký gửi, gửi lại.
+  @Put("api-keys/:id/webhook")
+  async webhook(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<{ url: string | null; version: number }> {
+    return this.webhooks.configure({ kind: "admin", actor: await this.manager(request) }, id, affiliateWebhookSchema.parse(body));
+  }
+
+  @Post("api-keys/:id/webhook/rotate-secret")
+  @HttpCode(200)
+  async webhookSecret(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookSecret> {
+    return this.webhooks.rotateSecret({ kind: "admin", actor: await this.manager(request) }, id);
+  }
+
+  @Post("api-keys/:id/webhook/test")
+  @HttpCode(200)
+  async webhookTest(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.test({ kind: "admin", actor: await this.manager(request) }, id);
+  }
+
+  @Get("api-keys/:id/webhook/deliveries")
+  async webhookDeliveries(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery[]> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.manage");
+    return this.webhooks.deliveries({ kind: "admin", actor }, id);
+  }
+
+  @Post("webhook-deliveries/:id/resend")
+  @HttpCode(200)
+  async webhookResend(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.resend({ kind: "admin", actor: await this.manager(request) }, id);
   }
 
   @Post("api-keys/:id/revoke")

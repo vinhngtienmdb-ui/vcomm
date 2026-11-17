@@ -542,7 +542,8 @@ export interface AffiliateCompanyReport {
   rows: (AffiliateReportMetrics & { merchantId: string; merchantCode: string; merchantName: string; feeAmount: string; exposure: AffiliateExposure })[];
 }
 
-export const affiliateAlertKinds = ["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage"] as const;
+// late_payments: khách thanh toán từ 3 lần sau khi đơn chờ đã hết hạn hoặc bị hủy (CONG_VIEC_73 lát L7; QUYTAC_NGHIEPVU_592).
+export const affiliateAlertKinds = ["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage", "late_payments"] as const;
 export type AffiliateAlertKind = (typeof affiliateAlertKinds)[number];
 export const affiliateAlertQuerySchema = z.object({ kind: z.enum(affiliateAlertKinds).optional(), merchantId: z.string().uuid().optional() });
 // Cảnh báo tính trong 7 ngày gần nhất; chỉ cảnh báo, không tự chặn.
@@ -593,6 +594,8 @@ const affiliateApiKeySettings = {
   smsDailyLimit: z.number().int().min(0).max(5000).default(200),
   expiresOn: isoDate.nullable().default(null),
   allowedIps: z.array(ipEntry).max(20).default([]),
+  // Phạm vi instore.checkout: tạo, tra, hủy đơn chờ thanh toán qua Open API (CONG_VIEC_73 lát L7).
+  instoreCheckout: z.boolean().default(false),
 };
 export const affiliateApiKeyCreateSchema = z.object(affiliateApiKeySettings).strict();
 export type AffiliateApiKeyCreateRequest = z.input<typeof affiliateApiKeyCreateSchema>;
@@ -615,6 +618,9 @@ export interface AffiliateApiKeyItem {
   smsToday: number;
   createdAt: string;
   version: number;
+  instoreCheckout: boolean;
+  // Webhook (CONG_VIEC_73 lát L7; API_331): địa chỉ nhận, đã cấp khóa ký chưa.
+  webhook: { url: string | null; secretSet: boolean; secretAt: string | null; version: number };
 }
 export interface AffiliateApiKeySecret {
   key: AffiliateApiKeyItem;

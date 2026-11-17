@@ -154,7 +154,8 @@ export class RetailCheckoutsService implements OnModuleInit {
     return {
       id: row.id,
       documentNo: row.document_no,
-      status: expired ? "expired" : row.status,
+      // Đơn quầy tập đoàn không có trạng thái "refunded" (chỉ đơn thu hộ cửa hàng liên kết, lát L7).
+      status: (expired ? "expired" : row.status) as Exclude<typeof row.status, "refunded">,
       totalAmount: row.bill_amount,
       expiresAt: new Date(row.expires_at).toISOString(),
       qrUrl: qrToken ? `${appWebBase()}/tt/${qrToken}` : null,

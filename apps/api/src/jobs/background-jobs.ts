@@ -39,6 +39,7 @@ import { MarketplacePaymentsService } from "../marketplace/payments/payments.ser
 import { InstoreCheckoutsService } from "../instore/checkouts.service";
 import { InstorePayoutsService } from "../instore/payouts.service";
 import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
+import { AffiliateWebhooksService } from "../affiliate/webhooks.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { StockLevelsService } from "../inventory/stock-levels.service";
 import { AuditEventsService } from "../settings/audit-events.service";
@@ -82,6 +83,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const instoreCheckouts = application.get(InstoreCheckoutsService);
   const instorePayouts = application.get(InstorePayoutsService);
   const instoreEinvoices = application.get(InstoreEinvoicesService);
+  const affiliateWebhooks = application.get(AffiliateWebhooksService);
   const loyalty = application.get(LoyaltyJobsService);
   const loyaltySettlements = application.get(LoyaltySettlementsService);
   const loyaltyFraud = application.get(LoyaltyFraudService);
@@ -138,6 +140,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   // CONG_VIEC_73 lát L5: bảng chuyển tiền thu hộ ngày (1 giờ sáng, cho ngày hôm trước); nhắc bảng chờ chuyển quá hạn mỗi sáng ngày làm việc.
   await queue.upsertJobScheduler("instore-payouts-daily", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "instore-payouts-daily" });
   await queue.upsertJobScheduler("instore-payouts-overdue", { pattern: "5 8 * * 1-5", tz: "Asia/Ho_Chi_Minh" }, { name: "instore-payouts-overdue" });
+  // Lát L7: gửi webhook cho phần mềm cửa hàng liên kết mỗi phút (thử lại theo lịch của nhật ký gửi).
+  await queue.upsertJobScheduler("affiliate-webhooks", { every: 60_000 }, { name: "affiliate-webhooks" });
   // Lát L6: hóa đơn phí sàn tháng trước lúc 2 giờ sáng ngày 1, sau bảng chuyển tiền của ngày cuối tháng.
   await queue.upsertJobScheduler("instore-fee-invoices-monthly", { pattern: "0 2 1 * *", tz: "Asia/Ho_Chi_Minh" }, { name: "instore-fee-invoices-monthly" });
   // Hết hạn, nhắc hạn điểm thưởng, chuyển năm chi tiêu và xét hạng (CONG_VIEC_51; QUYTAC_NGHIEPVU_350, 351).
@@ -210,6 +214,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "instore-payouts-daily") return instorePayouts.generateDaily();
       if (job.name === "instore-payouts-overdue") return instorePayouts.remindOverdue();
       if (job.name === "instore-fee-invoices-monthly") return instoreEinvoices.generateMonthlyFeeInvoices();
+      if (job.name === "affiliate-webhooks") return affiliateWebhooks.deliverDue();
       // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): xóa dữ liệu thiết bị quá 12 tháng cùng lượt.
       if (job.name === "loyalty-daily") return { ...(await loyalty.runDaily()), purgedDevices: await loyaltyFraud.purgeDevices() };
       if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();

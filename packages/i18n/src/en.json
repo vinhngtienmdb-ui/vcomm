@@ -849,7 +849,11 @@
     "einvoiceBacklog_mandate_missing": "Not issued: the store has no invoice mandate data.",
     "einvoiceBacklog_mandate_inactive": "Not issued: the mandate is not yet effective or has expired.",
     "einvoiceBacklog_series_missing": "Not issued: the store has no invoice series for the year.",
-    "einvoiceBacklog_einvoice_off": "Not issued: the platform operator has not enabled e-invoices."
+    "einvoiceBacklog_einvoice_off": "Not issued: the platform operator has not enabled e-invoices.",
+    "instorePartnerCodeTaken": "The software checkout code is already used by another checkout of the store.",
+    "instoreCheckoutPaidUseRefund": "The checkout is paid: use cancel and refund (refund).",
+    "instoreCheckoutNotPaid": "The checkout is not paid: use cancel.",
+    "webhookUrlHttps": "The receiving address must start with https://."
   },
   "login": {
     "title": "Sign in",
@@ -8979,7 +8983,8 @@
     "cancelCheckout": "Cancel pending order",
     "cancelCheckoutReason": "Cashier cancelled the pending order",
     "menu_payouts": "Collected money",
-    "payoutsHint": "VComm collects what customers pay in the app and transfers it to the store daily, after the collection fee, tax and gateway fee. The weekly points settlement is unchanged."
+    "payoutsHint": "VComm collects what customers pay in the app and transfers it to the store daily, after the collection fee, tax and gateway fee. The weekly points settlement is unchanged.",
+    "checkoutStatus_refunded": "Cancelled, refund pending"
   },
   "affiliateVoucher": {
     "merchantTitle": "Store vouchers",
@@ -9189,7 +9194,9 @@
     "column_merchantOutlet": "Store · outlet",
     "column_buyer": "Customer",
     "column_einvoice": "Invoice",
-    "einvoicePending": "Being issued"
+    "einvoicePending": "Being issued",
+    "kind_late_payments": "Payments after checkout closed",
+    "detail_late_payments": "Buyer {phone}: {count} payments after the checkout expired or was cancelled"
   },
   "apiKeys": {
     "title": "Partner API keys",

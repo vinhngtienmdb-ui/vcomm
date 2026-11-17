@@ -35,14 +35,23 @@ type KeyRow = {
   sms_today: number;
   created_at: Date;
   version: number;
+  scopes: string[];
+  webhook_url: string | null;
+  webhook_secret_set: boolean;
+  webhook_secret_at: Date | null;
+  webhook_version: number;
 };
+
+// Phạm vi của khóa cửa hàng liên kết: loyalty.member, kèm instore.checkout khi được gán (CONG_VIEC_73 lát L7).
+const scopesOf = (instoreCheckout: boolean) => (instoreCheckout ? sql`ARRAY['loyalty.member', 'instore.checkout']::text[]` : sql`ARRAY['loyalty.member']::text[]`);
 
 // Đầu ngày hôm nay theo giờ Việt Nam.
 const startOfVietnamDay = sql`(date_trunc('day', now() AT TIME ZONE 'Asia/Ho_Chi_Minh') AT TIME ZONE 'Asia/Ho_Chi_Minh')`;
 
 const selectKeys = sql`
-  SELECT k.id, k.name, k.key_prefix, k.rate_limit_per_minute, ak.sms_daily_limit, k.expires_on::text AS expires_on, k.allowed_ips::text[] AS allowed_ips, k.status,
-    k.revoked_reason, k.last_used_at, k.created_at, k.version,
+  SELECT k.id, ak.merchant_id, k.name, k.key_prefix, k.rate_limit_per_minute, ak.sms_daily_limit, k.expires_on::text AS expires_on, k.allowed_ips::text[] AS allowed_ips, k.status,
+    k.revoked_reason, k.last_used_at, k.created_at, k.version, k.scopes::text[] AS scopes, ak.webhook_url, ak.webhook_secret IS NOT NULL AS webhook_secret_set,
+    ak.webhook_secret_at, ak.webhook_version,
     coalesce((SELECT json_agg(json_build_object('id', o.id, 'name', o.name) ORDER BY o.name) FROM affiliate.api_key_outlets ko JOIN affiliate.outlets o ON o.id = ko.outlet_id
       WHERE ko.api_key_id = k.id), '[]'::json) AS outlets,
     (SELECT count(*)::int FROM core.api_call_logs l WHERE l.api_key_id = k.id AND l.called_at >= ${startOfVietnamDay}) AS calls_today,
@@ -79,6 +88,13 @@ export class AffiliateApiKeysService {
       smsToday: row.sms_today,
       createdAt: new Date(row.created_at).toISOString(),
       version: row.version,
+      instoreCheckout: row.scopes.includes("instore.checkout"),
+      webhook: {
+        url: row.webhook_url,
+        secretSet: row.webhook_secret_set,
+        secretAt: row.webhook_secret_at ? new Date(row.webhook_secret_at).toISOString() : null,
+        version: row.webhook_version,
+      },
     };
   }
 
@@ -136,6 +152,7 @@ export class AffiliateApiKeysService {
           ips,
         });
         await transaction.execute(sql`INSERT INTO affiliate.api_keys (api_key_id, merchant_id, sms_daily_limit) VALUES (${key.id}, ${merchantId}, ${input.smsDailyLimit})`);
+        if (input.instoreCheckout) await transaction.execute(sql`UPDATE core.api_keys SET scopes = ${scopesOf(true)} WHERE id = ${key.id}`);
         await this.saveOutlets(transaction, key.id, outletIds);
         return key;
       });
@@ -168,11 +185,13 @@ export class AffiliateApiKeysService {
               allowedIps: current.row.allowed_ips.map(displayIp),
               outletIds: current.row.outlets.map((outlet) => outlet.id),
               smsDailyLimit: current.row.sms_daily_limit,
+              instoreCheckout: current.row.scopes.includes("instore.checkout"),
             },
-            after: { outletIds, smsDailyLimit: input.smsDailyLimit },
+            after: { outletIds, smsDailyLimit: input.smsDailyLimit, instoreCheckout: input.instoreCheckout },
           },
         );
         await transaction.execute(sql`UPDATE affiliate.api_keys SET sms_daily_limit = ${input.smsDailyLimit} WHERE api_key_id = ${keyId}`);
+        await transaction.execute(sql`UPDATE core.api_keys SET scopes = ${scopesOf(input.instoreCheckout)} WHERE id = ${keyId}`);
         await this.saveOutlets(transaction, keyId, outletIds);
       });
     } catch (error) {

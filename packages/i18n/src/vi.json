@@ -849,7 +849,11 @@
     "einvoiceBacklog_mandate_missing": "Chưa lập được: cửa hàng chưa có dữ liệu ủy nhiệm hóa đơn.",
     "einvoiceBacklog_mandate_inactive": "Chưa lập được: văn bản ủy nhiệm chưa có hiệu lực hoặc đã hết hạn.",
     "einvoiceBacklog_series_missing": "Chưa lập được: cửa hàng chưa có ký hiệu hóa đơn của năm.",
-    "einvoiceBacklog_einvoice_off": "Chưa lập được: công ty vận hành sàn chưa bật hóa đơn điện tử."
+    "einvoiceBacklog_einvoice_off": "Chưa lập được: công ty vận hành sàn chưa bật hóa đơn điện tử.",
+    "instorePartnerCodeTaken": "Mã đơn của phần mềm đã dùng cho đơn khác của cửa hàng.",
+    "instoreCheckoutPaidUseRefund": "Đơn đã thanh toán: dùng hủy và hoàn tiền (refund).",
+    "instoreCheckoutNotPaid": "Đơn chưa thanh toán xong: dùng hủy đơn (cancel).",
+    "webhookUrlHttps": "Địa chỉ nhận phải bắt đầu bằng https://."
   },
   "login": {
     "title": "Đăng nhập",
@@ -8979,7 +8983,8 @@
     "cancelCheckout": "Hủy đơn chờ",
     "cancelCheckoutReason": "Thu ngân hủy đơn chờ",
     "menu_payouts": "Tiền thu hộ",
-    "payoutsHint": "VComm thu tiền khách trả qua ứng dụng rồi chuyển cho cửa hàng theo bảng mỗi ngày, sau phí thu hộ, thuế và phí cổng. Bảng đối soát điểm tuần giữ nguyên."
+    "payoutsHint": "VComm thu tiền khách trả qua ứng dụng rồi chuyển cho cửa hàng theo bảng mỗi ngày, sau phí thu hộ, thuế và phí cổng. Bảng đối soát điểm tuần giữ nguyên.",
+    "checkoutStatus_refunded": "Đã hủy, chờ hoàn tiền"
   },
   "affiliateVoucher": {
     "merchantTitle": "Voucher của cửa hàng",
@@ -9189,7 +9194,9 @@
     "column_merchantOutlet": "Cửa hàng · điểm bán",
     "column_buyer": "Khách",
     "column_einvoice": "Hóa đơn",
-    "einvoicePending": "Đang lập"
+    "einvoicePending": "Đang lập",
+    "kind_late_payments": "Thanh toán sau khi đơn đã đóng",
+    "detail_late_payments": "Khách {phone}: {count} lần thanh toán sau khi đơn chờ hết hạn hoặc bị hủy"
   },
   "apiKeys": {
     "title": "Khóa API đối tác",

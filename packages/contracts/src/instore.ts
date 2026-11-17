@@ -9,7 +9,8 @@ export const payCodeSchema = z
   .transform((value) => value.replace(/\s/g, ""))
   .pipe(z.string().regex(/^[0-9]{18}$/, "payCodeFormat"));
 
-export const instoreCheckoutStatuses = ["awaiting_buyer", "awaiting_payment", "paid_unposted", "completed", "expired", "cancelled", "declined"] as const;
+// refunded: đơn thu hộ đã hoàn tất rồi bị hủy kèm hoàn tiền (lát L7).
+export const instoreCheckoutStatuses = ["awaiting_buyer", "awaiting_payment", "paid_unposted", "completed", "expired", "cancelled", "declined", "refunded"] as const;
 export type InstoreCheckoutStatus = (typeof instoreCheckoutStatuses)[number];
 export type InstoreCheckoutKind = "retail" | "affiliate";
 export type InstoreCheckoutSource = "retail_counter" | "merchant_portal" | "open_api" | "ipos";
@@ -412,4 +413,115 @@ export interface EinvoiceMandateResponse {
   backlog: EinvoiceBacklogItem[];
   canManage: boolean;
   version: number;
+}
+
+// ---------------------------------------------------------------------------
+// Open API đơn chờ thanh toán (lát L7; QUYTAC_NGHIEPVU_590; API_330) và webhook (QUYTAC_NGHIEPVU_591; API_331).
+// ---------------------------------------------------------------------------
+
+export const partnerCheckoutCodePattern = /^[A-Za-z0-9._-]{1,64}$/;
+const lineVatRates = ["0", "5", "8", "10", "exempt", "not_declared"] as const;
+const lineMoney = z
+  .string()
+  .trim()
+  .regex(/^[0-9]{1,13}(\.[0-9]{1,4})?$/, "invalidValue");
+export const openInstoreCheckoutLineSchema = z
+  .object({
+    name: z.string().trim().min(1).max(300),
+    unit: z.string().trim().min(1).max(50).nullable().default(null),
+    quantity: lineMoney.refine((value) => Number(value) > 0, "invalidValue"),
+    unitPrice: lineMoney,
+    amount: lineMoney,
+    gift: z.boolean().default(false),
+    vatRate: z.enum(lineVatRates).nullable().default(null),
+  })
+  .strict();
+export const openInstoreCheckoutCreateSchema = z
+  .object({
+    partnerCheckoutCode: z.string().trim().regex(partnerCheckoutCodePattern, "invalidValue"),
+    outletId: z.uuid(),
+    billAmount: moneyText.refine((value) => Number(value) > 0, "invalidValue"),
+    lines: z.array(openInstoreCheckoutLineSchema).max(200).default([]),
+    // Trống: theo cài đặt thu hộ của cửa hàng.
+    collectInApp: z.boolean().optional(),
+    payCode: z.string().trim().max(40).optional(),
+  })
+  .strict();
+export type OpenInstoreCheckoutCreateRequest = z.input<typeof openInstoreCheckoutCreateSchema>;
+export const openInstorePayCodeSchema = z.object({ payCode: z.string().trim().min(1).max(40) }).strict();
+export const openInstoreReasonSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const openInstoreListQuerySchema = z
+  .object({
+    status: z.enum(instoreCheckoutStatuses).optional(),
+    outletId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+export interface OpenInstoreCheckout {
+  checkoutNo: string;
+  partnerCheckoutCode: string | null;
+  status: InstoreCheckoutStatus;
+  outletId: string;
+  billAmount: string;
+  lines: InstoreCheckoutLine[];
+  collectInApp: boolean;
+  // Đường dẫn QR khách quét (luồng 2), chỉ trả lúc tạo.
+  qrUrl: string | null;
+  expiresAt: string;
+  createdAt: string;
+  completedAt: string | null;
+  transactionNo: string | null;
+  points: number;
+  pointsAmount: string;
+  voucherAmount: string;
+  collectedAmount: string;
+  platformFee: string;
+  platformFeeTax: string;
+  gatewayFee: string;
+  cancelReason: string | null;
+  refund: { status: "none" | "pending" | "completed"; amount: string | null; refundedOn: string | null };
+  einvoice: { status: string; series: string | null; invoiceNo: string | null; invoiceDate: string } | null;
+}
+
+export const affiliateWebhookSchema = z
+  .object({
+    url: z
+      .string()
+      .trim()
+      .max(500)
+      .regex(/^https:\/\/[^\s/$.?#][^\s]*$/, "webhookUrlHttps")
+      .nullable(),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export type AffiliateWebhookRequest = z.input<typeof affiliateWebhookSchema>;
+export const webhookEventTypes = [
+  "checkout.completed",
+  "checkout.expired",
+  "checkout.cancelled",
+  "checkout.declined",
+  "transaction.cancelled",
+  "refund.completed",
+  "webhook.test",
+] as const;
+export type WebhookEventType = (typeof webhookEventTypes)[number];
+export interface AffiliateWebhookDelivery {
+  id: string;
+  eventId: string;
+  eventType: WebhookEventType;
+  status: "pending" | "succeeded" | "failed";
+  attemptCount: number;
+  nextAttemptAt: string | null;
+  lastStatusCode: number | null;
+  lastError: string | null;
+  deliveredAt: string | null;
+  createdAt: string;
+}
+export interface AffiliateWebhookSecret {
+  // Khóa ký chỉ hiện một lần.
+  secret: string;
+  secretAt: string;
 }
