@@ -881,7 +881,13 @@
     "instoreOpenCheckouts": "This shift still has orders waiting for VComm app payment. Cancel them or wait for them to complete before closing.",
     "instorePaymentAttemptLimit": "Payment was opened more than 10 times. Ask the cashier for a new order.",
     "instoreAmountDueRequired": "Choose a payment method for the remaining amount.",
-    "retailPayCodeOtherCustomer": "The scanned payment code does not belong to the selected customer. Check the customer or ask them to open their own payment code."
+    "retailPayCodeOtherCustomer": "The scanned payment code does not belong to the selected customer. Check the customer or ask them to open their own payment code.",
+    "iposLoyaltyNotUsable": "The points transaction is not completed or is already linked to another invoice.",
+    "iposLoyaltyAmountMismatch": "The invoice amount differs from the points transaction. Cancel the points transaction and try again.",
+    "iposVietqrAmountInvalid": "The VietQR amount must be above 0 and not exceed the amount due.",
+    "iposVietqrNotConfigured": "The store has not set a VietQR receiving account in Sales settings.",
+    "iposShiftOpenPayments": "There is a points transaction not linked to an invoice or a VComm app checkout still open. Complete or cancel it before closing the shift.",
+    "iposCheckoutZero": "The invoice amount must be above 0 to pay through the VComm app."
   },
   "login": {
     "title": "Sign in",

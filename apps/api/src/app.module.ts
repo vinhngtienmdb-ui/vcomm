@@ -148,6 +148,7 @@ import { IposStockService } from "./ipos/ipos-stock.service";
 import { IposSettingsService } from "./ipos/ipos-settings.service";
 import { IposShiftsService } from "./ipos/ipos-shifts.service";
 import { IposSalesService } from "./ipos/ipos-sales.service";
+import { IposCheckoutsService } from "./ipos/ipos-checkouts.service";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
@@ -401,6 +402,7 @@ import { UsersService } from "./users/users.service";
     IposSettingsService,
     IposShiftsService,
     IposSalesService,
+    IposCheckoutsService,
     IposSubscriptionsService,
     IposDeviceAuthService,
     IposRegistersService,

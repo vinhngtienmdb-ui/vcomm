@@ -28,6 +28,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "./ipos-catalog.service";
 import { hashSecret, memberForDevice, type IposPosActor } from "./ipos-device-context";
 import { overLimitRegisters } from "./ipos-registers.service";
+import { openLinks } from "./ipos-checkouts.service";
 import { loadSettings } from "./ipos-settings.service";
 
 const maxPinFailures = 5;
@@ -169,6 +170,7 @@ export class IposShiftsService {
         blockNegativeStock: settings.blockNegativeStock,
         receiptFooter: settings.receiptFooter,
         paperWidth: settings.paperWidth,
+        vietqr: settings.vietqrBankBin && settings.vietqrAccountNo && settings.vietqrAccountName ? { bankBin: settings.vietqrBankBin, accountNo: settings.vietqrAccountNo, accountName: settings.vietqrAccountName } : null,
       },
     };
   }
@@ -250,6 +252,7 @@ export class IposShiftsService {
   async close(actor: IposPosActor, shiftId: string, input: z.infer<typeof iposCloseShiftSchema>): Promise<IposShiftReport> {
     await this.database.transaction(async (transaction) => {
       await openShiftOf(transaction, actor, shiftId, true);
+      if ((await openLinks(transaction, shiftId)) > 0) throw new ApiError("BUSINESS_RULE", "iposShiftOpenPayments");
       const totals = await this.totals(transaction, shiftId);
       const difference = Number(input.countedCash) - Number(totals.systemCash);
       if (difference !== 0 && !input.differenceReason) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { differenceReason: "required" } });

@@ -1,6 +1,7 @@
 // CONG_VIEC_74: iPOS (MODULE_17). Tệp riêng để không sửa cùng chỗ với công việc khác.
 // Tiền là chuỗi số thập phân; ngày dạng YYYY-MM-DD.
 import { z } from "zod";
+import { payCodeSchema } from "./instore";
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "invalidValue");
 const nonNegativeMoney = z
@@ -597,6 +598,8 @@ export interface IposPosContext {
   blockNegativeStock: boolean;
   receiptFooter: string | null;
   paperWidth: 58 | 80;
+  // Tài khoản nhận VietQR của cửa hàng; trống thì máy bán ẩn VietQR.
+  vietqr: IposVietqrAccount | null;
 }
 export interface IposCatalog {
   serverTime: string;
@@ -681,6 +684,8 @@ export const iposHeldCartSchema = z
 
 // Hóa đơn.
 export const iposPaymentMethods = ["cash", "vietqr", "vcomm_app", "points", "voucher"] as const;
+// Nội dung chuyển khoản VietQR: chữ, số, khoảng trắng, tối đa 25 ký tự (máy bán tạo từ mã điểm bán và mã yêu cầu).
+export const iposVietqrReference = z.string().trim().regex(/^[A-Za-z0-9 ]{1,25}$/, "invalidValue");
 export type IposPaymentMethod = (typeof iposPaymentMethods)[number];
 const discountSchema = z
   .object({
@@ -716,8 +721,20 @@ export const iposSaleCreateSchema = z
       .min(1)
       .max(200),
     invoiceDiscount: discountSchema.nullable(),
-    payments: z.array(z.object({ method: z.literal("cash"), tendered: wholeMoney }).strict()).length(1),
+    // Tiền mặt (khách đưa) và VietQR (thu ngân đã kiểm tài khoản, bấm "Đã nhận tiền") kết hợp được; mỗi phương thức tối đa một dòng (QUYTAC_NGHIEPVU_615).
+    payments: z
+      .array(
+        z.discriminatedUnion("method", [
+          z.object({ method: z.literal("cash"), tendered: wholeMoney }).strict(),
+          z.object({ method: z.literal("vietqr"), amount: wholeMoney, reference: iposVietqrReference }).strict(),
+        ]),
+      )
+      .min(1)
+      .max(2)
+      .refine((items) => new Set(items.map((item) => item.method)).size === items.length, "invalidValue"),
     approvalCode: z.string().regex(/^\d{6}$/, "invalidValue").nullable(),
+    // Giao dịch điểm, voucher `LK…` của khách VComm đã hoàn tất cho đúng tiền hóa đơn (L4; QUYTAC_NGHIEPVU_616 khoản 4, 5).
+    affiliateTransactionId: z.string().uuid().nullable().default(null),
   })
   .strict();
 export type IposSaleCreateInput = z.infer<typeof iposSaleCreateSchema>;
@@ -740,6 +757,8 @@ export interface IposSalePayment {
   method: IposPaymentMethod;
   amount: string;
   tendered: string | null;
+  vietqrReference: string | null;
+  linkNumber: string | null;
 }
 export interface IposSale {
   id: string;
@@ -762,6 +781,11 @@ export interface IposSale {
   printCount: number;
   status: "completed" | "cancelled";
   receiptFooter: string | null;
+  // Khách VComm (tên đã che), điểm tích của hóa đơn, lý do không tích.
+  buyerName: string | null;
+  earnedPoints: number;
+  redeemedPoints: number;
+  loyaltySkipReason: string | null;
 }
 export interface IposSaleRow {
   id: string;
@@ -835,4 +859,79 @@ export function iposComputeTotals(lines: IposPricedLine[], invoiceDiscount: Ipos
     discountPercent: subtotal === 0 ? 0 : ((lineDiscount + invoice) * 100) / subtotal,
     error,
   };
+}
+
+// Lát L4: thông tin VietQR của điểm bán cho máy bán dựng mã (QUYTAC_NGHIEPVU_615 khoản 4).
+export interface IposVietqrAccount {
+  bankBin: string;
+  accountNo: string;
+  accountName: string;
+}
+
+// Giao dịch điểm, voucher tại quầy của khách VComm (dùng service của CONG_VIEC_55, 67): khách quét mã QR cửa hàng trên máy bán,
+// hoặc thu ngân quét mã thành viên trên ứng dụng VComm. Khách chọn điểm, voucher; phần còn lại thu tiền mặt, VietQR.
+export const iposLoyaltyCreateSchema = z
+  .object({
+    shiftId: z.string().uuid(),
+    billAmount: wholeMoney,
+    method: z.enum(["merchant_qr", "buyer_qr"]),
+    memberCode: z.string().trim().min(1).max(500).nullable(),
+  })
+  .strict()
+  .refine((value) => value.method !== "buyer_qr" || value.memberCode, { message: "required", path: ["memberCode"] });
+export interface IposLoyaltyTransaction {
+  id: string;
+  documentNo: string;
+  status: "pending" | "completed" | "declined" | "expired" | "cancelled";
+  qrCode: string | null;
+  expiresAt: string | null;
+  billAmount: string;
+  buyerName: string | null;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  voucherDiscount: string;
+  // Tiền còn phải thu tại quầy (tiền mặt, VietQR).
+  paidAmount: string;
+  earnedPoints: number;
+  skipReason: string | null;
+}
+
+// API_341: đơn chờ thanh toán qua ứng dụng VComm (InstoreCheckoutsService của CONG_VIEC_73).
+export const iposVcommCheckoutCreateSchema = z
+  .object({
+    idempotencyKey: z.string().uuid(),
+    shiftId: z.string().uuid(),
+    lines: iposSaleCreateSchema.shape.lines,
+    invoiceDiscount: iposSaleCreateSchema.shape.invoiceDiscount,
+    approvalCode: z.string().regex(/^\d{6}$/, "invalidValue").nullable(),
+  })
+  .strict();
+export const iposPayCodeSchema = z.object({ code: payCodeSchema }).strict();
+export interface IposVcommCheckout {
+  id: string;
+  documentNo: string;
+  status: string;
+  billAmount: string;
+  qrUrl: string | null;
+  expiresAt: string;
+  buyerName: string | null;
+  saleId: string | null;
+  // Đơn chưa trả, chưa hoàn tất được khi phần xử lý cửa hàng liên kết của CONG_VIEC_73 (lát L4) chưa có.
+  completionAvailable: boolean;
+}
+
+// Chuỗi mã VietQR động theo chuẩn EMVCo của NAPAS (chuyển nhanh tới tài khoản, có số tiền, nội dung); máy bán dựng để hiện mã cho khách quét.
+// Kiểm thử so khớp với hàm vietQrData của cổng chuyển khoản (KICHBAN_KIEMTHU_784).
+export function iposVietqrPayload(input: { bankBin: string; accountNo: string; amount: number; content: string }): string {
+  const field = (id: string, value: string) => `${id}${String(value.length).padStart(2, "0")}${value}`;
+  const beneficiary = field("00", input.bankBin) + field("01", input.accountNo);
+  const merchantAccount = field("00", "A000000727") + field("01", beneficiary) + field("02", "QRIBFTTA");
+  const payload =
+    field("00", "01") + field("01", "12") + field("38", merchantAccount) + field("53", "704") + field("54", String(input.amount)) + field("58", "VN") + field("62", field("08", input.content)) + "6304";
+  let crc = 0xffff;
+  for (const byte of new TextEncoder().encode(payload)) {
+    crc ^= byte << 8;
+    for (let bit = 0; bit < 8; bit += 1) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+  }
+  return payload + crc.toString(16).toUpperCase().padStart(4, "0");
 }

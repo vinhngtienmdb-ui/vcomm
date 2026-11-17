@@ -4,6 +4,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { iposComputeTotals, type IposDiscountInput, type IposPricedLine, type IposSale, type IposSaleCreateInput, type IposSaleRow, type IposTotals, type IposVatRate } from "contracts";
 import { sql } from "drizzle-orm";
+import { maskName } from "../affiliate/transactions.service";
 import { ApiError } from "../common/api-error";
 import { CLOCK, vietnamDate, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
@@ -26,6 +27,23 @@ export function taxesOf(lines: { vatRate: IposVatRate; amount: number }[]): { va
   return [...groups.entries()]
     .sort(([left], [right]) => (left === "exempt" ? 1 : right === "exempt" ? -1 : Number(left) - Number(right)))
     .map(([vatRate, amount]) => ({ vatRate, amount: String(amount), tax: String(vatRate === "exempt" ? 0 : Math.round((amount * Number(vatRate)) / (100 + Number(vatRate)))) }));
+}
+
+type LoyaltyRow = { id: string; buyer_user_id: string; paid_amount: string; redeemed_amount: string; voucher_discount: string; skip_reason: string | null };
+
+// Giao dịch điểm do máy bán này lập trong ca đang mở, đã hoàn tất, đúng tiền hóa đơn, chưa gắn hóa đơn khác.
+export async function linkableLoyalty(executor: Executor, actor: IposPosActor, id: string, total: number): Promise<LoyaltyRow> {
+  const row = (
+    await executor.execute<LoyaltyRow & { status: string; bill_amount: string; outlet_id: string; linked: boolean; shift_member: string | null }>(sql`
+      SELECT t.id, t.buyer_user_id, t.paid_amount::text, t.redeemed_amount::text, t.voucher_discount::text, t.skip_reason, t.status, t.bill_amount::text, t.outlet_id,
+        EXISTS (SELECT 1 FROM ipos.sale_payments p WHERE p.affiliate_transaction_id = t.id) AS linked,
+        (SELECT sh.member_id FROM ipos.shift_links l JOIN ipos.shifts sh ON sh.id = l.shift_id WHERE l.affiliate_transaction_id = t.id) AS shift_member
+      FROM affiliate.transactions t WHERE t.id = ${id} AND t.merchant_id = ${actor.device.merchantId} FOR UPDATE OF t`)
+  ).rows[0];
+  if (!row || row.outlet_id !== actor.device.outletId || row.shift_member !== actor.memberId) throw new ApiError("NOT_FOUND", "notFound");
+  if (row.status !== "completed" || row.linked) throw new ApiError("BUSINESS_RULE", "iposLoyaltyNotUsable");
+  if (Number(row.bill_amount) !== total) throw new ApiError("BUSINESS_RULE", "iposLoyaltyAmountMismatch");
+  return row;
 }
 
 @Injectable()
@@ -85,8 +103,16 @@ export class IposSalesService {
         if (!input.approvalCode) throw new ApiError("BUSINESS_RULE", "iposDiscountNeedsApproval");
         approvedBy = await consumeApproval(transaction, actor.device.deviceId, input.approvalCode, "discount", now);
       }
-      const tendered = Number(input.payments[0]!.tendered);
-      if (tendered < totals.total) throw new ApiError("BUSINESS_RULE", "iposTenderedTooLow");
+      // Điểm, voucher của khách VComm (giao dịch `LK…` đã hoàn tất cho đúng tiền hóa đơn); phần còn lại thu tiền mặt, VietQR.
+      const loyalty = input.affiliateTransactionId ? await linkableLoyalty(transaction, actor, input.affiliateTransactionId, totals.total) : null;
+      const due = loyalty ? Number(loyalty.paid_amount) : totals.total;
+      const cash = input.payments.find((payment) => payment.method === "cash");
+      const vietqr = input.payments.find((payment) => payment.method === "vietqr");
+      const vietqrAmount = vietqr ? Number(vietqr.amount) : 0;
+      if (vietqr && (vietqrAmount <= 0 || vietqrAmount > due)) throw new ApiError("BUSINESS_RULE", "iposVietqrAmountInvalid");
+      if (vietqr && !settings.vietqrAccountNo) throw new ApiError("BUSINESS_RULE", "iposVietqrNotConfigured");
+      const cashAmount = due - vietqrAmount;
+      if (cashAmount > 0 && (!cash || Number(cash.tendered) < cashAmount)) throw new ApiError("BUSINESS_RULE", "iposTenderedTooLow");
 
       // Số hóa đơn `<mã điểm bán>-<YYMMDD>-<4 số>`; khóa dòng đếm theo (điểm bán, ngày) nên nhiều quầy cùng lúc không trùng (QUYTAC_NGHIEPVU_619).
       const outlet = (await transaction.execute<{ code: string | null }>(sql`SELECT code FROM affiliate.outlets WHERE id = ${actor.device.outletId}`)).rows[0]!;
@@ -140,8 +166,31 @@ export class IposSalesService {
           VALUES (${actor.device.merchantId}, ${actor.device.outletId}, ${line.variantId}, ${`-${line.quantity}`}, ${balance.averageCost}, ${updated.rows[0]!.quantity}, 'sale',
             ${saleId}, ${documentNo}, ${actor.userId}, ${now})`);
       }
-      await transaction.execute(sql`
-        INSERT INTO ipos.sale_payments (sale_id, method, amount, tendered) VALUES (${saleId}, 'cash', ${totals.total}, ${input.payments[0]!.tendered})`);
+      if (cash || cashAmount > 0) {
+        await transaction.execute(sql`INSERT INTO ipos.sale_payments (sale_id, method, amount, tendered) VALUES (${saleId}, 'cash', ${cashAmount}, ${cash?.tendered ?? String(cashAmount)})`);
+      }
+      if (vietqr) {
+        // Thu ngân đã kiểm tài khoản ngân hàng của cửa hàng, bấm "Đã nhận tiền"; ghi người xác nhận (QUYTAC_NGHIEPVU_615 khoản 4).
+        await transaction.execute(sql`
+          INSERT INTO ipos.sale_payments (sale_id, method, amount, vietqr_reference, confirmed_by) VALUES (${saleId}, 'vietqr', ${vietqrAmount}, ${vietqr.reference}, ${actor.memberId})`);
+      }
+      if (loyalty) {
+        if (Number(loyalty.redeemed_amount) > 0) {
+          await transaction.execute(sql`
+            INSERT INTO ipos.sale_payments (sale_id, method, amount, affiliate_transaction_id) VALUES (${saleId}, 'points', ${loyalty.redeemed_amount}, ${loyalty.id})`);
+        }
+        if (Number(loyalty.voucher_discount) > 0) {
+          await transaction.execute(sql`
+            INSERT INTO ipos.sale_payments (sale_id, method, amount, affiliate_transaction_id) VALUES (${saleId}, 'voucher', ${loyalty.voucher_discount}, ${loyalty.id})`);
+        }
+        // Chỉ tích điểm (không dùng điểm, voucher) vẫn gắn giao dịch vào hóa đơn qua dòng tiền mặt, VietQR.
+        if (Number(loyalty.redeemed_amount) + Number(loyalty.voucher_discount) === 0) {
+          await transaction.execute(sql`
+            UPDATE ipos.sale_payments SET affiliate_transaction_id = ${loyalty.id} WHERE id = (SELECT id FROM ipos.sale_payments WHERE sale_id = ${saleId} ORDER BY created_at LIMIT 1)`);
+        }
+        await transaction.execute(sql`UPDATE ipos.sales SET buyer_user_id = ${loyalty.buyer_user_id}, loyalty_skip_reason = ${loyalty.skip_reason} WHERE id = ${saleId}`);
+        await transaction.execute(sql`UPDATE ipos.shift_links SET sale_id = ${saleId} WHERE affiliate_transaction_id = ${loyalty.id}`);
+      }
       return saleId;
     });
     return this.detail(actor, id);
@@ -185,9 +234,10 @@ export class IposSalesService {
         approved_by_name: string | null;
         print_count: number;
         status: "completed" | "cancelled";
+        loyalty_skip_reason: string | null;
       }>(sql`
         SELECT s.id, s.document_no, s.sold_at, p.name AS merchant_name, o.name AS outlet_name, o.address, r.name AS register_name, mb.full_name AS member_name,
-          s.subtotal::text, s.line_discount::text, s.invoice_discount::text, s.total::text, ap.full_name AS approved_by_name, s.print_count, s.status
+          s.subtotal::text, s.line_discount::text, s.invoice_discount::text, s.total::text, ap.full_name AS approved_by_name, s.print_count, s.status, s.loyalty_skip_reason
         FROM ipos.sales s JOIN affiliate.outlets o ON o.id = s.outlet_id JOIN affiliate.merchants m ON m.id = s.merchant_id JOIN crm.partners p ON p.id = m.partner_id
         JOIN ipos.registers r ON r.id = s.register_id JOIN affiliate.members mb ON mb.id = s.member_id LEFT JOIN affiliate.members ap ON ap.id = s.discount_approved_by
         WHERE s.id = ${id} AND s.outlet_id = ${actor.device.outletId}`)
@@ -211,8 +261,17 @@ export class IposSalesService {
       SELECT line_no, variant_id, item_code, variant_code, name, unit, trim_scale(quantity)::text AS quantity, unit_price::text, gross::text, discount::text,
         allocated_discount::text, amount::text, vat_rate
       FROM ipos.sale_lines WHERE sale_id = ${id} ORDER BY line_no`);
-    const payments = await this.database.execute<{ method: IposSale["payments"][number]["method"]; amount: string; tendered: string | null }>(sql`
-      SELECT method, amount::text, tendered::text FROM ipos.sale_payments WHERE sale_id = ${id} ORDER BY created_at, method`);
+    const payments = await this.database.execute<{ method: IposSale["payments"][number]["method"]; amount: string; tendered: string | null; vietqr_reference: string | null; link_number: string | null }>(sql`
+      SELECT p.method, p.amount::text, p.tendered::text, p.vietqr_reference, COALESCE(t.document_no, c.document_no) AS link_number
+      FROM ipos.sale_payments p LEFT JOIN affiliate.transactions t ON t.id = p.affiliate_transaction_id LEFT JOIN instore.checkouts c ON c.id = p.instore_checkout_id
+      WHERE p.sale_id = ${id} ORDER BY p.created_at, p.method`);
+    const loyalty = (
+      await this.database.execute<{ full_name: string | null; earned_points: number | null; redeemed_points: number | null }>(sql`
+        SELECT u.full_name, t.earned_points, t.redeemed_points
+        FROM ipos.sales s LEFT JOIN core.users u ON u.id = s.buyer_user_id
+        LEFT JOIN affiliate.transactions t ON t.id = (SELECT affiliate_transaction_id FROM ipos.sale_payments WHERE sale_id = s.id AND affiliate_transaction_id IS NOT NULL LIMIT 1)
+        WHERE s.id = ${id}`)
+    ).rows[0];
     const settings = await loadSettings(this.database, actor.device.merchantId);
     const change = payments.rows.reduce((sum, payment) => sum + (payment.tendered === null ? 0 : Number(payment.tendered) - Number(payment.amount)), 0);
     return {
@@ -244,12 +303,16 @@ export class IposSalesService {
       invoiceDiscount: row.invoice_discount,
       total: row.total,
       taxes: taxesOf(lines.rows.map((line) => ({ vatRate: line.vat_rate, amount: Number(line.amount) }))),
-      payments: payments.rows,
+      payments: payments.rows.map((payment) => ({ method: payment.method, amount: payment.amount, tendered: payment.tendered, vietqrReference: payment.vietqr_reference, linkNumber: payment.link_number })),
       change: String(change),
       discountApprovedByName: row.approved_by_name,
       printCount: row.print_count,
       status: row.status,
       receiptFooter: settings.receiptFooter,
+      buyerName: maskName(loyalty?.full_name ?? null),
+      earnedPoints: loyalty?.earned_points ?? 0,
+      redeemedPoints: loyalty?.redeemed_points ?? 0,
+      loyaltySkipReason: row.loyalty_skip_reason,
     };
   }
 

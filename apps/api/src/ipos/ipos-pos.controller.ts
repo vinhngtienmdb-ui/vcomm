@@ -1,8 +1,13 @@
-// API_335 đến 340, 342: ứng dụng iPOS – ghép thiết bị, đăng nhập trên thiết bị, thu ngân tự đăng ký, đồng bộ danh mục, ca, giỏ treo, hóa đơn, duyệt tại chỗ (CONG_VIEC_74).
+// API_335 đến 342: ứng dụng iPOS – ghép thiết bị, đăng nhập trên thiết bị, thu ngân tự đăng ký, đồng bộ danh mục, ca, giỏ treo, hóa đơn, duyệt tại chỗ (CONG_VIEC_74).
 // Thiết bị gửi khóa qua tiêu đề `x-ipos-device`; sau khi đăng nhập gửi thêm token truy cập qua tiêu đề Authorization.
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common";
 import {
   iposApprovalSchema,
+  iposLoyaltyCreateSchema,
+  iposPayCodeSchema,
+  iposVcommCheckoutCreateSchema,
+  type IposLoyaltyTransaction,
+  type IposVcommCheckout,
   iposCashMovementSchema,
   iposCloseShiftSchema,
   iposDrawerEventSchema,
@@ -40,6 +45,7 @@ import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
+import { IposCheckoutsService } from "./ipos-checkouts.service";
 import { IposSalesService } from "./ipos-sales.service";
 import { IposShiftsService } from "./ipos-shifts.service";
 import { IposDeviceAuthService } from "./ipos-device-auth.service";
@@ -63,6 +69,7 @@ export class IposPosController {
     private readonly registrations: IposRegistrationsService,
     private readonly shifts: IposShiftsService,
     private readonly sales: IposSalesService,
+    private readonly checkoutsService: IposCheckoutsService,
   ) {}
 
   private actor(request: AuthenticatedRequest) {
@@ -229,5 +236,42 @@ export class IposPosController {
   @Post("pos/approvals/pin")
   async approve(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IposApproval> {
     return this.shifts.approve(await this.actor(request), iposApprovalSchema.parse(body));
+  }
+
+  // API_341: khách VComm dùng điểm, voucher tại quầy (service CONG_VIEC_55, 67); đơn chờ thanh toán qua ứng dụng VComm (CONG_VIEC_73).
+  @Post("pos/loyalty-transactions")
+  async createLoyalty(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IposLoyaltyTransaction> {
+    return this.checkoutsService.createLoyalty(await this.actor(request), iposLoyaltyCreateSchema.parse(body));
+  }
+
+  @Get("pos/loyalty-transactions/:id")
+  async loyalty(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposLoyaltyTransaction> {
+    return this.checkoutsService.loyalty(await this.actor(request), id);
+  }
+
+  @Post("pos/loyalty-transactions/:id/cancel")
+  async cancelLoyalty(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposLoyaltyTransaction> {
+    return this.checkoutsService.cancelLoyalty(await this.actor(request), id);
+  }
+
+  @Post("pos/vcomm-checkouts")
+  async createCheckout(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IposVcommCheckout> {
+    return this.checkoutsService.createCheckout(await this.actor(request), iposVcommCheckoutCreateSchema.parse(body));
+  }
+
+  @Get("pos/vcomm-checkouts/:id")
+  async checkout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposVcommCheckout> {
+    return this.checkoutsService.checkout(await this.actor(request), id);
+  }
+
+  @RateLimitGroup("ipos-device")
+  @Post("pos/vcomm-checkouts/:id/pay-code")
+  async payCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposVcommCheckout> {
+    return this.checkoutsService.attachPayCode(await this.actor(request), id, iposPayCodeSchema.parse(body).code);
+  }
+
+  @Post("pos/vcomm-checkouts/:id/cancel")
+  async cancelCheckout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposVcommCheckout> {
+    return this.checkoutsService.cancelCheckout(await this.actor(request), id);
   }
 }

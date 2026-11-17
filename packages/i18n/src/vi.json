@@ -881,7 +881,13 @@
     "instoreOpenCheckouts": "Ca còn đơn chờ khách thanh toán qua ứng dụng. Hủy hoặc chờ đơn hoàn tất trước khi đóng ca.",
     "instorePaymentAttemptLimit": "Đơn đã mở thanh toán quá 10 lần. Nhờ thu ngân tạo đơn mới.",
     "instoreAmountDueRequired": "Chọn phương thức thanh toán cho phần còn lại.",
-    "retailPayCodeOtherCustomer": "Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình."
+    "retailPayCodeOtherCustomer": "Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình.",
+    "iposLoyaltyNotUsable": "Giao dịch điểm chưa hoàn tất hoặc đã gắn hóa đơn khác.",
+    "iposLoyaltyAmountMismatch": "Tiền hóa đơn khác tiền của giao dịch điểm. Hủy giao dịch điểm rồi làm lại.",
+    "iposVietqrAmountInvalid": "Tiền VietQR phải lớn hơn 0 và không vượt tiền phải thu.",
+    "iposVietqrNotConfigured": "Cửa hàng chưa khai tài khoản nhận VietQR trong Cài đặt bán hàng.",
+    "iposShiftOpenPayments": "Còn giao dịch điểm chưa gắn hóa đơn hoặc đơn chờ thanh toán qua ứng dụng VComm chưa xong. Hoàn tất hoặc hủy trước khi đóng ca.",
+    "iposCheckoutZero": "Tiền hóa đơn phải lớn hơn 0 để thanh toán qua ứng dụng VComm."
   },
   "login": {
     "title": "Đăng nhập",
