@@ -41,7 +41,14 @@ function FeeTaxRate() {
       }}
     >
       <Field id="thue-suat-phi" label={t("feeTaxRate")} hint={t("feeTaxRateHint")} error={fields.feeTaxRate}>
-        <input id="thue-suat-phi" className={inputClass("feeTaxRate")} inputMode="decimal" disabled={!data.canManage} value={rate} onChange={(event) => setRate(event.target.value)} style={{ maxWidth: "8rem" }} />
+        {/* Mức hóa đơn điện tử ghi được (lát L6). */}
+        <select id="thue-suat-phi" className={inputClass("feeTaxRate")} disabled={!data.canManage} value={rate} onChange={(event) => setRate(event.target.value)} style={{ maxWidth: "8rem" }}>
+          {["0", "5", "8", "10"].map((value) => (
+            <option key={value} value={value}>
+              {value} %
+            </option>
+          ))}
+        </select>
       </Field>
       <FormError text={formError} />
       {data.canManage && (

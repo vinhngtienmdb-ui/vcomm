@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_279 phần Thu hộ qua ứng dụng (CONG_VIEC_73 lát L4; QUYTAC_NGHIEPVU_573; API_332): công tắc, phí thu hộ, tài khoản nhận tiền.
-// Bật lần đầu phải đánh dấu đã đọc cảnh báo pháp lý. Phần ủy nhiệm lập hóa đơn điện tử làm ở lát L6.
+// Bật lần đầu phải đánh dấu đã đọc cảnh báo pháp lý. Phần ủy nhiệm lập hóa đơn điện tử ở AffiliateEinvoiceMandate (lát L6).
 import type { AffiliateCollectionRequest, AffiliateCollectionResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";

@@ -238,7 +238,10 @@ export class MerchantPortalController {
 
   @Get("transactions")
   async listTransactions(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateTransactionItem>> {
-    return this.transactions.list(await this.member(request), affiliateTransactionListQuerySchema.parse(query));
+    const page = await this.transactions.list(await this.member(request), affiliateTransactionListQuerySchema.parse(query));
+    // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+    const invoices = await this.mandatedEinvoices.invoicesOf(page.data.map((item) => item.id));
+    return { ...page, data: page.data.map((item) => ({ ...item, einvoice: invoices.get(item.id) ?? null })) };
   }
 
   @Get("transactions/:id")

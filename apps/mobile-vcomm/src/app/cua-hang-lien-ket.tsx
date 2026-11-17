@@ -3,12 +3,13 @@
 // Lát L2 (CHUC_NANG_195; API_211; QUYTAC_NGHIEPVU_401, 402): nhận voucher (đổi bằng điểm, miễn phí), voucher của tôi, chọn voucher khi xác nhận hoặc tạo mã thành viên.
 import type { BuyerAffiliateRequest, BuyerInstoreCheckout, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as Linking from "expo-linking";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { Button, Card, Field, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
-import { api, ApiFailure } from "@/lib/api";
+import { api, ApiFailure, assetUrl } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
 import { checkoutToken } from "@/lib/pay-code";
 import { colors, radius, space } from "@/lib/theme";
@@ -298,6 +299,22 @@ export default function AffiliateScreen() {
               </View>
               <Muted>{`${shortDate(item.createdAt)} · ${item.outletName} · ${money(item.billAmount)}`}</Muted>
               <Muted>{t("affiliateHistoryPoints", { used: points(item.redeemedPoints), earned: points(item.earnedPoints) })}</Muted>
+              {/* Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6): mở PDF bằng đường dẫn có hạn 10 phút. */}
+              {item.einvoice ? (
+                item.einvoice.hasPdf ? (
+                  <Button
+                    label={t("affiliateEinvoiceOpen", { no: `${item.einvoice.series ?? ""}-${item.einvoice.invoiceNo ?? ""}` })}
+                    kind="secondary"
+                    onPress={() =>
+                      void api<{ url: string }>(`/buyer/affiliate/transactions/${item.id}/einvoice-link`, { method: "POST" })
+                        .then((link) => Linking.openURL(assetUrl(link.url)!))
+                        .catch(fail)
+                    }
+                  />
+                ) : (
+                  <Muted>{t("affiliateEinvoicePending")}</Muted>
+                )
+              ) : null}
             </View>
           ))}
         </Card>

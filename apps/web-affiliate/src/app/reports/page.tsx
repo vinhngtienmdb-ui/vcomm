@@ -11,7 +11,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDate, formatDateTime, formatNumber, vietnamToday } from "ui/lib/format";
 import { usePortal } from "@/components/PortalShell";
-import { portalFetch, usePortalApi } from "@/lib/portal-api";
+import { portalDownload, portalFetch, usePortalApi } from "@/lib/portal-api";
 
 function SettlementDrawer({ id, onClose, onDone }: { id: string; onClose: () => void; onDone: (message: string) => void }) {
   const t = useTranslations("affiliateSettlement");
@@ -382,6 +382,7 @@ function TransactionsTab() {
                     <th className="so">{t("redeemedPoints")}</th>
                     <th className="so">{t("earnedPoints")}</th>
                     <th>{t("status")}</th>
+                    <th>{t("column_einvoice")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -409,6 +410,23 @@ function TransactionsTab() {
                         {formatNumber(item.earnedPoints, 0)}
                       </td>
                       <td data-nhan={t("status")}>{counter(`status_${item.status}`)}</td>
+                      <td data-nhan={t("column_einvoice")}>
+                        {item.einvoice ? (
+                          item.einvoice.hasPdf ? (
+                            <button
+                              type="button"
+                              className="nut phu"
+                              onClick={() => void portalDownload(`/merchant-portal/transactions/${item.id}/einvoice.pdf`, `${item.einvoice!.series}-${item.einvoice!.invoiceNo}.pdf`, true)}
+                            >
+                              {item.einvoice.series} · {item.einvoice.invoiceNo}
+                            </button>
+                          ) : (
+                            <span className="chu-thich">{t("einvoicePending")}</span>
+                          )
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
