@@ -577,4 +577,5 @@
 - Kiểm thử cần thực hiện: kiểm thử cô lập dữ liệu giữa các cửa hàng (điều kiện chặn mọi lát sau L0); hồi quy Open API CONG_VIEC_67; toàn bộ kiểm thử.
 - Mức quy mô: Lớn; làm trong CONG_VIEC_74.
 - Rủi ro: dữ liệu cửa hàng ngoài tập đoàn nằm chung cơ sở dữ liệu; giảm bằng schema riêng và kiểm thử cô lập.
-- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu đợt 1, 13 điểm đề xuất). Đang làm trong CONG_VIEC_74.
+- Điều chỉnh do người dùng chốt khi lập trình: QUYTAC_NGHIEPVU_600 bỏ quy tắc quá 7 ngày chuyển phần trừ thu hộ thiếu sang VietQR (phần thiếu mang sang bảng chuyển tiền sau); QUYTAC_NGHIEPVU_602 đối soát ngân hàng tự động theo nội dung phiếu phí để sau (cần mở rộng module ngân hàng CONG_VIEC_18, việc riêng).
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu đợt 1, 13 điểm đề xuất). Đợt 1 lập trình xong 2026-11-17, chờ nghiệm thu trong CONG_VIEC_74.
