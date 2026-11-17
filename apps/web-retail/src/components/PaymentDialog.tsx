@@ -36,6 +36,7 @@ export function PaymentDialog({
   onQuoteChanged,
   onPaid,
   onClose,
+  onApp,
 }: {
   shift: RetailShiftResponse;
   cart: CartItem[];
@@ -45,6 +46,8 @@ export function PaymentDialog({
   onQuoteChanged: () => void;
   onPaid: (sale: RetailSaleResponse) => void;
   onClose: () => void;
+  // CONG_VIEC_73: khách trả toàn bộ qua ứng dụng VComm (MAN_HINH_278).
+  onApp: () => void;
 }) {
   const t = useTranslations("retailCounter");
   const [clientKey] = useState(() => crypto.randomUUID());
@@ -129,6 +132,11 @@ export function PaymentDialog({
     <div className="man-che giua" onKeyDown={(event) => event.key === "Escape" && onClose()}>
       <form className="hop-thoai rong" role="dialog" aria-modal="true" aria-label={t("paymentTitle", { amount: money(payable) })} onSubmit={submit}>
         <h2>{t("paymentTitle", { amount: money(payable) })}</h2>
+        {shift.store.appPayment && (
+          <button type="button" className="nut phu" onClick={onApp}>
+            {t("appPayButton")}
+          </button>
+        )}
         {canRedeem && customer && (
           <label>
             <input type="checkbox" checked={pointsOn} onChange={(event) => togglePoints(event.target.checked)} /> {t("usePoints", { points: customer.balance.toLocaleString("vi-VN") })}

@@ -462,6 +462,20 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Kiểm thử: `apps/api/test/c73-instore-checkouts.test.ts` (KICHBAN_KIEMTHU_750; phần khung của 753 đến 755).
 - Chưa làm ở L1 (theo kế hoạch): thanh toán qua cổng, chọn điểm, voucher (L2); nút "Quét mã cửa hàng" và tăng độ sáng màn hình (cần thư viện `expo-brightness`, chưa đề xuất thêm); MAN_HINH_277.
 
+### Kết quả lát L2 (2026-11-17)
+
+- Database migration 0162: `retail.stores` thêm `app_payment_enabled`, `platform_fee_percent` (0 đến 10); `retail.sale_payments` nhận phương thức `vcomm_app` và `checkout_id`; `instore.checkouts` thêm `sale_input`, `reserved_sale_id`, `paid_amount`, `paid_at`, `posting_error`, trạng thái `paid_unposted`.
+- Máy chủ: `apps/api/src/retail/retail-checkouts.service.ts` (API_328: tạo đơn chờ từ giỏ và giữ hàng, gắn mã thanh toán, hủy, ghi lại hóa đơn; bộ xử lý loại `retail`); `InstoreCheckoutsService` thêm thanh toán (điểm, Smart OTP khi đơn mở từ mã QR, mở cổng), nhận kết quả cổng qua sổ thanh toán, hoàn tất trong điểm lưu giao dịch, hủy có hoàn tiền, chặn đóng ca khi còn đơn chờ; `RetailSalesService.recordWithin` ghi hóa đơn bán lẻ từ đơn chờ; API_327 thêm thanh toán.
+- Giao diện quầy: MAN_HINH_278 `apps/web-retail/src/components/AppPaymentDialog.tsx`; nút "Thanh toán qua ứng dụng VComm" ở MAN_HINH_161; cài đặt cửa hàng (MAN_HINH_166) bật nhận thanh toán qua ứng dụng và phần trăm phí sàn.
+- Ứng dụng: MAN_HINH_277 `apps/mobile-vcomm/src/app/thanh-toan-cua-hang/[id].tsx`; nút "Quét mã cửa hàng" (`quet-ma-cua-hang.tsx`, dùng `expo-camera` đã có); đường dẫn mã QR `tt/[token].tsx`; MAN_HINH_276 tự mở đơn khi thu ngân quét xong.
+- Kiểm thử: `apps/api/test/c73-instore-retail.test.ts` (KICHBAN_KIEMTHU_752, 753, 756 đến 758; hai yêu cầu tạo đơn cùng lúc).
+- Lệch so với đặc tả, cần người dùng biết:
+  - Điểm bị trừ khi khách bấm thanh toán (gắn với số hóa đơn dành sẵn), hoàn lại khi đơn hết hạn, bị hủy hoặc cổng không thành công đến hết hạn.
+  - Hạch toán phần tiền khách trả qua ứng dụng (phải thu nội bộ, bút toán nhận tiền cổng của công ty vận hành) làm ở L5; đến lúc đó khoản phải thu phần này còn treo chưa đối trừ.
+  - Trả hàng hóa đơn có phần trả qua ứng dụng: hoàn phần tiền này vẫn làm tay; báo cáo ca chưa tách dòng "Qua ứng dụng VComm".
+  - Voucher trên MAN_HINH_277 chưa làm (dời sang L3 cùng việc dùng điểm tại quầy bằng quét mã).
+  - Nút tăng độ sáng màn hình ở MAN_HINH_276: người dùng đã duyệt thư viện `expo-brightness` (bản theo Expo SDK 58) nhưng lệnh cài bị hệ thống kiểm soát quyền của phiên chặn; chưa cài, chưa ghi vào tài liệu 13. Cần người dùng tự cài hoặc cho phép cài.
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.

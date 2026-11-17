@@ -1,7 +1,7 @@
 // API_327: mua hàng tại cửa hàng trên ứng dụng VComm (CONG_VIEC_73). Người mua chỉ xem, thao tác đơn chờ đã gắn với chính mình.
-// Lát L1: mã thanh toán của thiết bị, đơn đang chờ, mở đơn từ mã QR, xem, từ chối. Thanh toán (`/pay`) làm ở lát L2.
+// Lát L1: mã thanh toán của thiết bị, đơn đang chờ, mở đơn từ mã QR, xem, từ chối. Lát L2: chọn điểm, thanh toán.
 import { Body, Controller, Get, HttpCode, Param, Post, Req } from "@nestjs/common";
-import { claimInstoreCheckoutSchema, type BuyerInstoreCheckout, type PayCodePrefixResponse } from "contracts";
+import { claimInstoreCheckoutSchema, payInstoreCheckoutSchema, type BuyerInstoreCheckout, type PayCodePrefixResponse, type PayInstoreCheckoutResponse } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
@@ -36,6 +36,12 @@ export class BuyerInstoreController {
   @Get("checkouts/:id")
   async get(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerInstoreCheckout> {
     return this.checkouts.getForBuyer(request.auth.userId, id);
+  }
+
+  @Post("checkouts/:id/pay")
+  @HttpCode(200)
+  async pay(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<PayInstoreCheckoutResponse> {
+    return this.checkouts.pay(request.auth.userId, id, payInstoreCheckoutSchema.parse(body), clientInfo(request));
   }
 
   @Post("checkouts/:id/decline")

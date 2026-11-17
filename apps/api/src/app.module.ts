@@ -145,6 +145,7 @@ import { AffiliateReportsService } from "./affiliate/reports.service";
 import { BuyerAffiliateController } from "./affiliate/buyer-affiliate.controller";
 import { BuyerInstoreController } from "./instore/buyer-instore.controller";
 import { InstoreCheckoutsService } from "./instore/checkouts.service";
+import { RetailCheckoutsService } from "./retail/retail-checkouts.service";
 import { PayCodeService } from "./instore/pay-code.service";
 import { AffiliateApiKeysService } from "./affiliate/api-keys.service";
 import { OpenAffiliateController } from "./affiliate/open-affiliate.controller";
@@ -384,6 +385,7 @@ import { UsersService } from "./users/users.service";
     AffiliateTransactionsService,
     PayCodeService,
     InstoreCheckoutsService,
+    RetailCheckoutsService,
     AffiliateVouchersService,
     AffiliateSettlementsService,
     AffiliateReportsService,

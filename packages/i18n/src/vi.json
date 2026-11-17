@@ -822,7 +822,14 @@
     "instoreCheckoutHasBuyer": "Đơn đã có khách.",
     "instoreCheckoutClosed": "Đơn đã hoàn tất, hết hạn hoặc bị hủy.",
     "instoreClaimLocked": "Mở mã thanh toán sai quá nhiều lần. Tạm khóa, thử lại sau.",
-    "instoreRegisterBusy": "Quầy đang có đơn chờ khách thanh toán. Hủy đơn đó hoặc chờ hết hạn rồi tạo đơn mới."
+    "instoreRegisterBusy": "Quầy đang có đơn chờ khách thanh toán. Hủy đơn đó hoặc chờ hết hạn rồi tạo đơn mới.",
+    "instoreNoGateway": "Công ty vận hành sàn chưa bật cổng thanh toán trực tuyến nào. Bật cổng trước khi nhận thanh toán qua ứng dụng VComm.",
+    "instoreAppPaymentDisabled": "Cửa hàng chưa bật nhận thanh toán qua ứng dụng VComm.",
+    "instoreMethodUnavailable": "Phương thức thanh toán không còn mở. Chọn phương thức khác.",
+    "instoreSmartOtpRequired": "Mở Smart OTP để dùng điểm.",
+    "instoreOpenCheckouts": "Ca còn đơn chờ khách thanh toán qua ứng dụng. Hủy hoặc chờ đơn hoàn tất trước khi đóng ca.",
+    "instorePaymentAttemptLimit": "Đơn đã mở thanh toán quá 10 lần. Nhờ thu ngân tạo đơn mới.",
+    "instoreAmountDueRequired": "Chọn phương thức thanh toán cho phần còn lại."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4554,7 +4561,41 @@
     "payCodeHint": "Sau khi thu ngân quét, đơn hiện ngay trên màn hình này để bạn chọn điểm và thanh toán.",
     "payCodeRedeemLocked": "Dùng điểm tạm khóa đến {time} do vừa khôi phục Smart OTP. Bạn vẫn tích điểm và thanh toán được.",
     "payCodeCheckoutWaiting": "{store} · {place} đang chờ bạn thanh toán",
-    "payCodeCheckoutExpires": "Hết hạn lúc {time}"
+    "payCodeCheckoutExpires": "Hết hạn lúc {time}",
+    "payCodeOpenCheckout": "Mở đơn",
+    "instoreScanTitle": "Quét mã cửa hàng",
+    "instoreNotStoreCode": "Đây không phải mã thanh toán của cửa hàng.",
+    "instoreGift": "tặng",
+    "instoreBillAmount": "Tiền hóa đơn",
+    "instorePaid": "Đã thanh toán {amount}.",
+    "instorePointsUsed": "Dùng {points} điểm",
+    "instoreReceipt": "Hóa đơn {documentNo}",
+    "instoreHome": "Về trang chủ",
+    "instoreUnposted": "Bạn đã thanh toán. Cửa hàng đang hoàn tất hóa đơn; bạn sẽ nhận thông báo khi xong.",
+    "instoreDeclined": "Bạn đã từ chối đơn này.",
+    "instoreClosed": "Đơn đã hết hạn hoặc bị hủy. Điểm đã dùng được hoàn lại.",
+    "instoreExpires": "Đơn giữ đến {time}",
+    "instoreYouPay": "Bạn trả",
+    "instoreWaitingGateway": "Đang chờ cổng thanh toán xác nhận. Nếu chưa trả được, chọn phương thức rồi mở lại.",
+    "instorePayAgain": "Mở lại thanh toán",
+    "instoreUnlockForPoints": "Mở Smart OTP để dùng điểm.",
+    "instoreUsePoints": "Dùng điểm",
+    "instorePointsHint": "Số dư {balance} điểm · tối thiểu {min}, tối đa {max}",
+    "instorePoints": "Số điểm dùng",
+    "instorePointsInvalid": "Số điểm dưới mức tối thiểu.",
+    "instorePointsMax": "Dùng tối đa",
+    "instoreNoPoints": "Đơn này chưa dùng được điểm.",
+    "instoreNoMethod": "Chưa có phương thức thanh toán trực tuyến nào đang mở.",
+    "instorePointsAmount": "Tiền điểm",
+    "instorePayAtCounter": "Bạn trả tại quầy",
+    "instoreInvoiceShow": "Cần hóa đơn có tên, mã số thuế",
+    "instoreInvoiceHide": "Không cần thông tin hóa đơn",
+    "instoreInvoiceName": "Tên người mua hoặc công ty",
+    "instoreInvoiceTaxCode": "Mã số thuế",
+    "instoreInvoiceAddress": "Địa chỉ",
+    "instorePay": "Thanh toán {amount}",
+    "instoreConfirm": "Xác nhận",
+    "instoreDecline": "Từ chối"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -7875,7 +7916,10 @@
     "chooseProvinceFirst": "Chọn tỉnh trước.",
     "stationSaved": "Đã lưu cài đặt trạm.",
     "stationNotOperator": "Công ty này không vận hành sàn VComm nên không bật được trạm giao hàng.",
-    "stationWarning": "Tắt trạm khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý, chỉ chặn đơn mới."
+    "stationWarning": "Tắt trạm khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý, chỉ chặn đơn mới.",
+    "appPaymentEnabled": "Nhận thanh toán qua ứng dụng VComm",
+    "platformFeePercent": "Phí sàn (%)",
+    "platformFeeHint": "Từ 0 đến 10 %, tính trên tiền khách trả qua ứng dụng; công ty vận hành sàn giữ lại khi chuyển tiền thu hộ."
   },
   "retailShifts": {
     "title": "Ca thu ngân",
@@ -7935,7 +7979,8 @@
     "fund": "Quỹ",
     "documentNo": "Số chứng từ",
     "documentKind": "Loại chứng từ",
-    "onlineCollected": "Thu đơn trực tuyến (đã gồm trong bảng theo phương thức)"
+    "onlineCollected": "Thu đơn trực tuyến (đã gồm trong bảng theo phương thức)",
+    "method_vcomm_app": "Ứng dụng VComm"
   },
   "retailCounter": {
     "scanPlaceholder": "Quét mã vạch, serial hoặc gõ mã, tên hàng rồi nhấn Enter",
@@ -8012,7 +8057,28 @@
     "pointsRange": "= {amount} · tối thiểu {min}, tối đa {max} điểm",
     "smartOtp": "Mã Smart OTP của khách",
     "smartOtpHint": "Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)",
-    "redeemLocked": "Khách vừa khôi phục Smart OTP: dùng điểm tạm khóa đến {time}. Vẫn tích điểm bình thường."
+    "redeemLocked": "Khách vừa khôi phục Smart OTP: dùng điểm tạm khóa đến {time}. Vẫn tích điểm bình thường.",
+    "appPayButton": "Thanh toán qua ứng dụng VComm",
+    "appTitle": "Thanh toán qua ứng dụng VComm · {amount}",
+    "appCheckoutNo": "Đơn {documentNo}",
+    "appExpiresIn": "còn {minutes}:{seconds}",
+    "appScanTitle": "Cách 1 · Quét mã thanh toán của khách",
+    "appScanLabel": "Mã thanh toán",
+    "appScanHint": "Dùng máy quét hoặc nhập 18 số trên ứng dụng của khách rồi nhấn Enter.",
+    "appScanSubmit": "Ghi nhận mã",
+    "appQrTitle": "Cách 2 · Khách quét mã này bằng ứng dụng VComm",
+    "appQrLabel": "Mã QR thanh toán đơn {documentNo}",
+    "appWaitingBuyer": "Khách {name} đang chọn điểm và thanh toán trên ứng dụng…",
+    "appWaitingPayment": "Khách {name} đang trả {amount} qua cổng thanh toán (dùng {points} điểm)…",
+    "appCompleted": "Khách đã thanh toán. Đang mở hóa đơn bán lẻ…",
+    "appUnposted": "Đã thu tiền nhưng chưa ghi được hóa đơn ({reason}). Báo Cửa hàng trưởng ghi lại hoặc hủy và hoàn tiền.",
+    "appDeclined": "Khách từ chối đơn.",
+    "appExpired": "Đơn đã hết hạn.",
+    "appCancelled": "Đã hủy đơn chờ.",
+    "appCancel": "Hủy đơn chờ",
+    "appNewCode": "Tạo mã mới",
+    "appClose": "Đóng",
+    "appCancelReason": "Thu ngân hủy tại quầy"
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",
@@ -8038,7 +8104,8 @@
     "bankReference": "Mã giao dịch",
     "walkIn": "Khách lẻ",
     "returnAction": "Trả hàng",
-    "returns": "Các lần trả hàng"
+    "returns": "Các lần trả hàng",
+    "method_vcomm_app": "Ứng dụng VComm"
   },
   "retailReceipt": {
     "taxCode": "MST",

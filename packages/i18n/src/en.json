@@ -822,7 +822,14 @@
     "instoreCheckoutHasBuyer": "This order already has a customer.",
     "instoreCheckoutClosed": "This order is completed, expired or cancelled.",
     "instoreClaimLocked": "Too many wrong payment codes opened. Paused, try again later.",
-    "instoreRegisterBusy": "This register already has an order waiting for payment. Cancel it or wait until it expires."
+    "instoreRegisterBusy": "This register already has an order waiting for payment. Cancel it or wait until it expires.",
+    "instoreNoGateway": "The marketplace operator has no online payment gateway enabled. Enable one before accepting VComm app payments.",
+    "instoreAppPaymentDisabled": "This store does not accept VComm app payments.",
+    "instoreMethodUnavailable": "This payment method is no longer available. Choose another.",
+    "instoreSmartOtpRequired": "Unlock Smart OTP to use points.",
+    "instoreOpenCheckouts": "This shift still has orders waiting for VComm app payment. Cancel them or wait for them to complete before closing.",
+    "instorePaymentAttemptLimit": "Payment was opened more than 10 times. Ask the cashier for a new order.",
+    "instoreAmountDueRequired": "Choose a payment method for the remaining amount."
   },
   "login": {
     "title": "Sign in",
@@ -4554,7 +4561,41 @@
     "payCodeHint": "After the cashier scans, the order appears on this screen so you can choose points and pay.",
     "payCodeRedeemLocked": "Using points is paused until {time} after Smart OTP recovery. You can still earn points and pay.",
     "payCodeCheckoutWaiting": "{store} · {place} is waiting for your payment",
-    "payCodeCheckoutExpires": "Expires at {time}"
+    "payCodeCheckoutExpires": "Expires at {time}",
+    "payCodeOpenCheckout": "Open order",
+    "instoreScanTitle": "Scan store code",
+    "instoreNotStoreCode": "This is not a store payment code.",
+    "instoreGift": "gift",
+    "instoreBillAmount": "Bill amount",
+    "instorePaid": "Paid {amount}.",
+    "instorePointsUsed": "Used {points} points",
+    "instoreReceipt": "Receipt {documentNo}",
+    "instoreHome": "Back to home",
+    "instoreUnposted": "You have paid. The store is finishing the receipt; you will be notified when it is done.",
+    "instoreDeclined": "You declined this order.",
+    "instoreClosed": "The order expired or was cancelled. Used points were returned.",
+    "instoreExpires": "Order held until {time}",
+    "instoreYouPay": "You pay",
+    "instoreWaitingGateway": "Waiting for the payment gateway to confirm. If you could not pay, choose a method and open payment again.",
+    "instorePayAgain": "Open payment again",
+    "instoreUnlockForPoints": "Unlock Smart OTP to use points.",
+    "instoreUsePoints": "Use points",
+    "instorePointsHint": "Balance {balance} points · minimum {min}, maximum {max}",
+    "instorePoints": "Points to use",
+    "instorePointsInvalid": "Below the minimum points.",
+    "instorePointsMax": "Use maximum",
+    "instoreNoPoints": "Points cannot be used for this order.",
+    "instoreNoMethod": "No online payment method is open.",
+    "instorePointsAmount": "Points value",
+    "instorePayAtCounter": "You pay at the counter",
+    "instoreInvoiceShow": "I need an invoice with name and tax code",
+    "instoreInvoiceHide": "No invoice details",
+    "instoreInvoiceName": "Buyer or company name",
+    "instoreInvoiceTaxCode": "Tax code",
+    "instoreInvoiceAddress": "Address",
+    "instorePay": "Pay {amount}",
+    "instoreConfirm": "Confirm",
+    "instoreDecline": "Decline"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -7875,7 +7916,10 @@
     "chooseProvinceFirst": "Choose a province first.",
     "stationSaved": "Station settings saved.",
     "stationNotOperator": "This company does not operate the VComm marketplace, so it cannot have delivery stations.",
-    "stationWarning": "Turning a station off while orders are open: existing orders continue, only new orders are blocked."
+    "stationWarning": "Turning a station off while orders are open: existing orders continue, only new orders are blocked.",
+    "appPaymentEnabled": "Accept VComm app payments",
+    "platformFeePercent": "Platform fee (%)",
+    "platformFeeHint": "0 to 10 %, on the amount paid in the app; kept by the marketplace operator when transferring collected money."
   },
   "retailShifts": {
     "title": "Cashier shifts",
@@ -7935,7 +7979,8 @@
     "fund": "Fund",
     "documentNo": "Document number",
     "documentKind": "Document type",
-    "onlineCollected": "Online order collections (included in the table by method)"
+    "onlineCollected": "Online order collections (included in the table by method)",
+    "method_vcomm_app": "VComm app"
   },
   "retailCounter": {
     "scanPlaceholder": "Scan a barcode or serial, or type a code or name, then press Enter",
@@ -8012,7 +8057,28 @@
     "pointsRange": "= {amount} · min {min}, max {max} points",
     "smartOtp": "Customer's Smart OTP code",
     "smartOtpHint": "The customer reads the 6-digit code in the VComm app (changes every 30 seconds)",
-    "redeemLocked": "The customer just recovered Smart OTP: point use is paused until {time}. Points can still be earned."
+    "redeemLocked": "The customer just recovered Smart OTP: point use is paused until {time}. Points can still be earned.",
+    "appPayButton": "Pay with VComm app",
+    "appTitle": "Pay with VComm app · {amount}",
+    "appCheckoutNo": "Order {documentNo}",
+    "appExpiresIn": "{minutes}:{seconds} left",
+    "appScanTitle": "Option 1 · Scan the customer's payment code",
+    "appScanLabel": "Payment code",
+    "appScanHint": "Use the scanner or type the 18 digits shown in the customer's app, then press Enter.",
+    "appScanSubmit": "Record code",
+    "appQrTitle": "Option 2 · The customer scans this code with the VComm app",
+    "appQrLabel": "Payment QR code for order {documentNo}",
+    "appWaitingBuyer": "{name} is choosing points and paying in the app…",
+    "appWaitingPayment": "{name} is paying {amount} through the payment gateway (using {points} points)…",
+    "appCompleted": "The customer has paid. Opening the retail receipt…",
+    "appUnposted": "Payment received but the receipt could not be recorded ({reason}). Ask the store manager to retry or cancel and refund.",
+    "appDeclined": "The customer declined the order.",
+    "appExpired": "The order has expired.",
+    "appCancelled": "The waiting order was cancelled.",
+    "appCancel": "Cancel waiting order",
+    "appNewCode": "Create new code",
+    "appClose": "Close",
+    "appCancelReason": "Cancelled by cashier at the counter"
   },
   "retailSales": {
     "title": "Retail sales",
@@ -8038,7 +8104,8 @@
     "bankReference": "Transaction reference",
     "walkIn": "Walk-in customer",
     "returnAction": "Return",
-    "returns": "Returns"
+    "returns": "Returns",
+    "method_vcomm_app": "VComm app"
   },
   "retailReceipt": {
     "taxCode": "Tax code",

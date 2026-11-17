@@ -68,6 +68,7 @@ const newCheckout = async (at = place, collectInApp = true) =>
       billAmount: "262150",
       lines: [{ name: "Gạo ST25 túi 5kg", unit: "Túi", quantity: "1", unitPrice: "262150", amount: "262150", gift: false }],
       collectInApp,
+      saleInput: { lines: [] },
     }),
   );
 const scanner = () => ({ subject: `user:${cashierId}`, companyId: retail });
@@ -183,6 +184,7 @@ describe("Đơn chờ thanh toán (KICHBAN_KIEMTHU_753 đến 755, phần khung)
       billAmount: "50000",
       lines: [],
       collectInApp: true,
+      saleInput: { lines: [] },
     };
     const database = application.get<Database>(DATABASE);
     const first = await database.transaction((transaction) => checkouts.create(transaction, input));
