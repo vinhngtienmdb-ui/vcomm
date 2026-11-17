@@ -3961,7 +3961,7 @@ Chỉ thêm cột. Database migration 0155 không dùng, trả phiên điều ph
 
 ## 44. Database migration 0136, 0137 – CONG_VIEC_63 (trợ lý AI)
 
-Schema mới `ai`. 0136 làm ở L1; 0137 ở L2. 0138, 0139 không dùng, đã trả phiên điều phối.
+Schema mới `ai`. 0136 làm ở L1; 0137 ở L2 (thêm bảng `ai.active_turns`: `user_id` khóa chính, `started_at`; khóa một lượt mỗi người, dòng quá 3 phút được ghi đè). 0138, 0139 không dùng, đã trả phiên điều phối.
 
 | Database migration | Bảng, cột | Nội dung |
 |---|---|---|
@@ -3973,4 +3973,4 @@ Schema mới `ai`. 0136 làm ở L1; 0137 ở L2. 0138, 0139 không dùng, đã 
 | 0137 (L2) | `ai.messages` | `id`, `conversation_id` (xóa theo hội thoại), `role` (`user`, `assistant`), `content` (đã che, ≤ 20.000 ký tự), `tool_calls` (`jsonb`: tên, tham số; không kết quả), `status` (`ok`, `refusal`, `error`, `max_tokens`), `usage_event_id`, `created_at` |
 | 0137 (L2) | `ai.feedback` | `message_id` (khóa chính, xóa theo tin nhắn), `user_id`, `rating` (`up`, `down`), `reason` (`wrong_figures`, `not_relevant`, `missing_data`, `other`; bắt buộc khi `down`), `note` (≤ 500), `updated_at` |
 
-Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (chưa có tác vụ xóa tự động, thêm cùng tác vụ dọn của L2); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.
+Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (tác vụ `ai-conversation-retention` xóa dòng quá hạn không còn tin nhắn trỏ tới); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.

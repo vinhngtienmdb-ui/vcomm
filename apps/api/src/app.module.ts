@@ -21,7 +21,9 @@ import { LogOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messag
 import { DatabaseModule } from "./database/database.module";
 import { AiAccessService } from "./ai/ai-access.service";
 import { AI_CONFIG, readAiConfig, type AiConfig } from "./ai/ai-config";
+import { AiChatService } from "./ai/ai-chat.service";
 import { AiController } from "./ai/ai.controller";
+import { AiToolsService } from "./ai/ai-tools";
 import { AiSettingsService } from "./ai/ai-settings.service";
 import { AnthropicModelClient } from "./ai/anthropic-model-client";
 import { FakeModelClient } from "./ai/fake-model-client";
@@ -458,6 +460,8 @@ import { UsersService } from "./users/users.service";
     { provide: AI_MODEL_CLIENT, useFactory: (config: AiConfig) => (config.provider === "anthropic" ? new AnthropicModelClient(config) : new FakeModelClient()), inject: [AI_CONFIG] },
     AiAccessService,
     AiSettingsService,
+    AiToolsService,
+    AiChatService,
     RateLimiter,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: ApiErrorFilter },

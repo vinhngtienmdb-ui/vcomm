@@ -2048,3 +2048,5 @@ Gốc `/api/v1`, đăng nhập như hiện có, theo công ty đang chọn (`X-C
 Mã lỗi thêm vào tài liệu `17` mục 1: `409 AI_QUOTA_EXCEEDED`, `409 AI_DAILY_LIMIT`, `409 AI_BUSY`, `409 AI_NOTICE_REQUIRED`, `403 AI_FEATURE_DISABLED`, `503 AI_NOT_CONFIGURED`, `502 AI_PROVIDER_ERROR`.
 
 L1 có API_273, API_278. Mã lỗi `AI_*` đã thêm vào danh sách mã lỗi chung (`packages/contracts`, mục 1).
+
+L2 có API_274, API_275, API_276. API_275 trả `text/event-stream`, mỗi sự kiện hai dòng `event: <loại>` và `data: <JSON>` (kiểu `AiStreamEvent` trong `packages/contracts`). Lỗi trước khi mở dòng dùng mô hình lỗi chung; hội thoại đủ 40 tin nhắn trả `409 BUSINESS_RULE` (`aiConversationFull`). Lỗi nhà cung cấp trong lúc trả lời là sự kiện `error` (`AI_PROVIDER_ERROR`), lượt vẫn ghi nhật ký.

@@ -473,4 +473,7 @@ Biến môi trường mới: `LOYALTY_PARTNER_SIMULATOR` (`on` chỉ ở máy ph
 | Che dữ liệu | `apps/api/src/ai/redact.ts` | Một chỗ duy nhất cho mọi chuỗi đi ra mô hình |
 | Điều kiện dùng, hạn mức, nhật ký lượt | `ai-access.service.ts`, schema `ai` | Hạn mức tính từ `ai.usage_events` theo tháng giờ Việt Nam |
 | Cấu hình | Biến môi trường `AI_PROVIDER`, `ANTHROPIC_API_KEY`, `AI_MODEL` (mặc định `claude-sonnet-5-5`), `AI_CHAT_EFFORT`, `AI_CONTENT_EFFORT`, `AI_PRICE_*`, `AI_NOTICE_VERSION` (`.env.example`) | Khóa môi trường thật trong AWS Secrets Manager |
-| Kết nối ra ngoài | `api.anthropic.com` qua HTTPS | Mạng của máy chủ API cần cho phép đi ra địa chỉ này |
+| Hỏi đáp số liệu (L2) | `ai-tools.ts` (10 công cụ chỉ đọc gọi dịch vụ báo cáo, đơn bán, sản phẩm, tồn kho bằng tác nhân người hỏi), `ai-chat.service.ts` (vòng gọi mô hình – công cụ, tối đa 8 lần gọi công cụ), API_275 trả `text/event-stream` | Khóa một lượt mỗi người bằng bảng `ai.active_turns` (dùng được khi chạy nhiều tiến trình API) |
+| Tác vụ nền | `ai-conversation-retention` (`30 1 * * *`, giờ Việt Nam): xóa hội thoại quá 90 ngày, nhật ký lượt quá 24 tháng, khóa lượt treo | QUYTAC_NGHIEPVU_520 |
+| Giao diện | `packages/ui`: `TopBar` (nút), `AiPanel` (ngăn, tải riêng bằng `next/dynamic`), `apiStream`, `readEvents` | Mọi mini app web dùng AppShell có ngăn trợ lý |
+| Kết nối ra ngoài | `api.anthropic.com` qua HTTPS | Mạng của máy chủ API cần cho phép đi ra địa chỉ này; máy chủ đứng trước API (proxy) không được gom đệm dòng sự kiện (`X-Accel-Buffering: no`) |

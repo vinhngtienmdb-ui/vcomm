@@ -42,8 +42,7 @@ export class AnthropicModelClient implements AiModelClient {
       name: tool.name,
       description: tool.description,
       input_schema: tool.inputSchema as BetaTool["input_schema"],
-      strict: true,
-      // Đầu vào công cụ đến ngay khi sinh; máy chủ kiểm lại bằng zod trước khi chạy nên không cần API kiểm hộ.
+      // Đầu vào công cụ đến ngay khi sinh; máy chủ kiểm lại bằng zod trước khi chạy (lược đồ có trường tùy chọn nên không bật `strict`).
       eager_input_streaming: true,
     }));
   }

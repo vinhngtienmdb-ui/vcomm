@@ -880,3 +880,9 @@ Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút c
 | YCAU_NGHIEPVU_177, 178, 181 | CHUC_NANG_227 đến 229 | TIEUCHI_NGHIEMTHU_475 đến 480 | KICHBAN_KIEMTHU_656, 660 đến 666 | Lát L2, L3 (chưa làm) |
 
 Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 đến 245 (246 đến 249 không dùng). API_273 đến 279 (280 không dùng).
+
+## 45. Kiểm tra bao phủ CONG_VIEC_63 lát L2 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_177, 180, 181, 182 | CHUC_NANG_227, 229 | TIEUCHI_NGHIEMTHU_471, 475 đến 478, 481 (MAN_HINH_242) | KICHBAN_KIEMTHU_656, 660 đến 663 | `database/migrations/0137_ai_conversations.sql`; `apps/api/src/ai/ai-tools.ts`, `ai-chat.service.ts`, `ai.controller.ts`; `apps/api/src/jobs/background-jobs.ts` (`ai-conversation-retention`); `packages/contracts/src/ai.ts`; `packages/ui/src/components/AiPanel.tsx`, `TopBar.tsx`, `lib/api.ts` (`apiStream`, `readEvents`), `styles.css` |

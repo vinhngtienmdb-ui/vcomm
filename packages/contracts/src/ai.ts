@@ -77,3 +77,95 @@ export interface AiSettingsResponse {
   usdToVnd: { rate: string; date: string } | null;
   notice: { version: number; acknowledgedUsers: number };
 }
+
+// ---------- L2: hỏi đáp số liệu (API_274 đến API_276; QUYTAC_NGHIEPVU_516 đến 521) ----------
+
+// Công cụ đọc dữ liệu của trợ lý; giao diện dùng tên để hiện nguồn và liên kết màn hình.
+export const aiToolNames = [
+  "sales_report",
+  "inventory_report",
+  "debt_report",
+  "commission_report",
+  "overview_report",
+  "sales_orders",
+  "sales_order_detail",
+  "products",
+  "product_detail",
+  "stock",
+] as const;
+export type AiToolName = (typeof aiToolNames)[number];
+
+export interface AiToolCall {
+  name: AiToolName;
+  // Tham số đã gửi công cụ (đã kiểm).
+  input: Record<string, unknown>;
+  ok: boolean;
+}
+
+export type AiMessageStatus = "ok" | "refusal" | "error" | "max_tokens";
+export const aiFeedbackReasons = ["wrong_figures", "not_relevant", "missing_data", "other"] as const;
+export type AiFeedbackReason = (typeof aiFeedbackReasons)[number];
+
+export interface AiFeedback {
+  rating: "up" | "down";
+  reason: AiFeedbackReason | null;
+  note: string | null;
+}
+
+export interface AiMessageItem {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  toolCalls: AiToolCall[];
+  status: AiMessageStatus;
+  createdAt: string;
+  feedback: AiFeedback | null;
+}
+
+export interface AiConversationItem {
+  id: string;
+  title: string;
+  messageCount: number;
+  lastMessageAt: string;
+}
+
+export interface AiConversationDetail extends AiConversationItem {
+  messages: AiMessageItem[];
+}
+
+export const aiMaxMessagesPerConversation = 40;
+
+// API_275 POST /ai/conversations/messages
+export const askAiSchema = z
+  .object({
+    conversationId: z.uuid().nullable().default(null),
+    content: z.string().trim().min(1).max(2000),
+  })
+  .strict();
+export type AskAiRequest = z.input<typeof askAiSchema>;
+
+// Sự kiện của dòng trả lời (text/event-stream): mỗi sự kiện `event: <type>` và `data: <JSON>`.
+export type AiStreamEvent =
+  | { type: "conversation"; id: string; title: string; userMessageId: string }
+  | { type: "tool"; name: AiToolName }
+  | { type: "delta"; text: string }
+  | { type: "done"; messageId: string; status: AiMessageStatus; toolCalls: AiToolCall[]; remainingTurnsToday: number }
+  | { type: "error"; code: string; message: string };
+
+// API_276 PUT /ai/messages/{id}/feedback
+export const aiFeedbackSchema = z
+  .object({
+    rating: z.enum(["up", "down"]),
+    reason: z.enum(aiFeedbackReasons).nullable().default(null),
+    note: z.string().trim().max(500).nullable().default(null),
+  })
+  .strict()
+  .refine((value) => (value.rating === "down") === (value.reason !== null), { path: ["reason"] });
+export type AiFeedbackRequest = z.input<typeof aiFeedbackSchema>;
+
+export const aiConversationListQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
