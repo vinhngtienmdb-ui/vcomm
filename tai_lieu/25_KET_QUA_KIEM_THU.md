@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_75
+- Phạm vi: kiểu tham số hàm `api()` của `apps/mobile-vcomm`, `apps/mobile-warehouse` (body chỉ nhận FormData, Blob, URLSearchParams; JSON qua `json:`); nhánh `chuc-nang/CONG_VIEC_75-chan-kieu-goi-api` (pull request #200, commit `602cd95`).
+- Kết quả: kiểm tra kiểu có chủ đích bằng tệp tạm truyền body chuỗi: kiểu cũ qua (mã thoát 0), kiểu mới báo TS2322 ở cả hai ứng dụng (mã thoát 2), lời gọi `json:` qua; tệp tạm đã xóa. Hồi quy: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt.
+- Kết luận: Đạt; người dùng nghiệm thu 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – Phát hành 0.13.1
 - Phạm vi: nhánh `phat-hanh/v0.13.1` từ main `56bbc8f`, gộp LOI_15 (pull request #198).
 - Kết quả: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt; CI trên main đạt, tag `v0.13.1`.
