@@ -20,6 +20,7 @@
 
 ### Quyết định
 
+- CONG_VIEC_73 (người dùng chốt 2026-11-17): khách chọn điểm trên ứng dụng; thu một nơi rồi chia hai luồng tiền, phí phần trăm theo cửa hàng, chuyển tiền theo ngày trừ phí sàn và phí cổng; VComm thu hộ, lập hóa đơn thay cửa hàng liên kết theo ủy nhiệm; cổng VNPAY trước; các điểm khác theo đề xuất. Kho V-com-ERP không có mã ứng dụng iPOS (phiên điều phối đọc kho công khai): người dùng chọn xây mới iPOS dạng ứng dụng riêng, mở CONG_VIEC_74 (chưa bắt đầu, làm sau CONG_VIEC_73).
 - Người dùng yêu cầu quy trình mua hàng tại cửa hàng bằng ứng dụng VComm (2026-11-17): cửa hàng quét mã động của khách hoặc khách quét QR thanh toán do iPOS sinh ra; chọn điểm dùng; thanh toán trong ứng dụng; áp cho cửa hàng tập đoàn, cửa hàng liên kết dùng iPOS, cửa hàng liên kết dùng cổng VComm; iPOS do VComm viết; mã động thay nhập mã Smart OTP. Mở CONG_VIEC_73. CONG_VIEC_72: người dùng duyệt lát L3, chọn tự ẩn thẻ đăng nhập SMS sau hạn (cấp API_326).
 - CONG_VIEC_72 (người dùng chốt 2026-11-17): thời hạn chuyển đổi 30 ngày cho mọi khách; Smart OTP mở bằng mã khóa 6 số và vân tay, khuôn mặt (thư viện expo-local-authentication 58.0.2); mất máy khôi phục bằng mật khẩu và SMS kèm khóa dùng điểm 24 giờ; các điểm còn lại theo đề xuất; mẫu ZNS và số tổng đài cấu hình sau. Duyệt đặc tả, bản mẫu (pull request #177). Cấp THAY_DOI_37 và dải mã. Người dùng duyệt lát L1 CONG_VIEC_63.
 - Người dùng đồng ý hợp nhất ngay bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) và phát hành 0.12.0 gồm CONG_VIEC_69, 70.
