@@ -2359,7 +2359,8 @@
     "loyaltyPartners": "Alliance partners",
     "loyaltyPartnerExchanges": "Partner point conversions",
     "loyaltyPartnerGifts": "Partner gifted points",
-    "loyaltyPartnerSettlements": "Loyalty partner settlements"
+    "loyaltyPartnerSettlements": "Loyalty partner settlements",
+    "buyerAuthentication": "Buyer authentication"
   },
   "partners": {
     "title": "Partners",
@@ -4492,7 +4493,19 @@
     "devicesSeen": "First {first} · last {last}",
     "devicesRemove": "Remove",
     "devicesRemoveConfirm": "Remove {device}? It will be signed out; next sign-in there needs Smart OTP confirmation.",
-    "devicesHint": "Devices unused for 12 months stop being trusted. See a device you don't know: remove it and change your password."
+    "devicesHint": "Devices unused for 12 months stop being trusted. See a device you don't know: remove it and change your password.",
+    "recoveryTitle": "Recover Smart OTP",
+    "recoveryWebOnly": "Smart OTP can only be recovered in the VComm phone app. Install the app and sign in again.",
+    "recoveryWarning": "After recovery: the old phone stops working; all point use is paused (24 hours by default) to protect you. Points can still be earned.",
+    "recoverySendCode": "Send a code to the account phone number",
+    "recoveryCodeSent": "A 6-digit code was texted to the account phone number.",
+    "recoveryActivate": "Recover on this phone",
+    "recoveryNoPhone": "Forgot your password too, or lost your phone number? Contact VComm customer care.",
+    "recoveryDone": "Smart OTP was recovered on this phone.",
+    "deviceVerifyLostPhone": "No longer have the phone holding Smart OTP?",
+    "smartOtpNoOldDeviceHint": "Activating again with a text code counts as recovery: the old phone stops working and point use is paused (24 hours by default).",
+    "usePointsBlocked_redeem_locked": "Point use is paused because Smart OTP was just recovered.",
+    "affiliateNoRedeem_redeem_locked": "Point use is paused because Smart OTP was just recovered."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -4727,7 +4740,8 @@
     "smsPurpose_smart_otp": "Smart OTP activation, recovery",
     "smsPurpose_login": "Sign-in (fallback)",
     "smsPurpose_password_reset": "Forgot password (fallback)",
-    "smsPurpose_affiliate_redeem": "Affiliate stores via Open API (fallback)"
+    "smsPurpose_affiliate_redeem": "Affiliate stores via Open API (fallback)",
+    "authenticationPageTitle": "Buyer authentication"
   },
   "listings": {
     "title": "Listings",
@@ -7947,7 +7961,8 @@
     "pointsToUse": "Points to use",
     "pointsRange": "= {amount} · min {min}, max {max} points",
     "smartOtp": "Customer's Smart OTP code",
-    "smartOtpHint": "The customer reads the 6-digit code in the VComm app (changes every 30 seconds)"
+    "smartOtpHint": "The customer reads the 6-digit code in the VComm app (changes every 30 seconds)",
+    "redeemLocked": "The customer just recovered Smart OTP: point use is paused until {time}. Points can still be earned."
   },
   "retailSales": {
     "title": "Retail sales",
@@ -10614,5 +10629,33 @@
     "referralHint": "Signing up from this link records {code} as your referrer.",
     "unavailable": "This product is no longer for sale.",
     "viewStore": "Visit the VComm store"
+  },
+  "buyerSecurity": {
+    "title": "Sign-in security",
+    "smartOtp": "Smart OTP",
+    "active": "Active",
+    "inactive": "Not activated",
+    "device": "{device} ({platform}) · activated {date}",
+    "platform_ios": "iOS",
+    "platform_android": "Android",
+    "platform_web": "web version",
+    "redeemLock": "Point use lock",
+    "lockedUntil": "Until {time}",
+    "recoveredAt": "(recovered {time})",
+    "notLocked": "Not locked",
+    "wrongCodes": "Wrong codes",
+    "codeLockedUntil": "Locked until {time}",
+    "codeNotLocked": "Not locked",
+    "trustedDevices": "Trusted devices",
+    "trustedCount": "{count} (last {time})",
+    "trustedNone": "None",
+    "transition": "Transition period",
+    "transitionUntil": "Until the end of {date}",
+    "revoke": "Revoke Smart OTP",
+    "revokeTitle": "Revoke Smart OTP for {name}?",
+    "revokeWarning": "The customer is signed out everywhere and loses all trusted devices. Activating again counts as recovery: point use is paused per settings (24 hours by default). The customer may reset the password by text code once within 24 hours.",
+    "reason": "Reason (required)",
+    "reasonHint": "10 to 500 characters; written to the audit log",
+    "revoked": "The customer's Smart OTP was revoked."
   }
 }

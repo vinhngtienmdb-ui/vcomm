@@ -1,7 +1,7 @@
 "use client";
 
-// Thẻ "Xác thực" của MAN_HINH_86 (CONG_VIEC_72; QUYTAC_NGHIEPVU_561, 572; API_323): tham số chuyển đổi sang Smart OTP, thống kê kích hoạt, số tin SMS.
-// Hiện khi có quyền xem tài khoản người mua; không có quyền thì ẩn cả thẻ.
+// MAN_HINH_275 Xác thực người mua (CONG_VIEC_72; QUYTAC_NGHIEPVU_561, 572; API_323): tham số chuyển đổi sang Smart OTP, thống kê kích hoạt, số tin SMS.
+// Người dùng yêu cầu 2026-11-17 chuyển từ thẻ của MAN_HINH_86 thành mục menu riêng, mở bằng quyền xem tài khoản người mua.
 import type { AuthenticationSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { useAdmin } from "ui/components/AppShell";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch } from "ui/lib/api";
 import { formatDate, formatNumber } from "ui/lib/format";
+import { Loaded } from "ui/components/StatusViews";
 import { useApi } from "ui/lib/use-api";
 
 type Form = { transitionStartsOn: string; buyerTransitionDays: string; portalTransitionDays: string; recoveryRedeemLockHours: string; supportHotline: string };
@@ -147,7 +148,10 @@ function AuthenticationForm({ initial }: { initial: AuthenticationSettingsRespon
 }
 
 export function AuthenticationCard() {
-  const { state } = useApi<AuthenticationSettingsResponse>("/marketplace/authentication-settings");
-  if (state.kind !== "ready") return null;
-  return <AuthenticationForm initial={state.data} />;
+  const { state, reload } = useApi<AuthenticationSettingsResponse>("/marketplace/authentication-settings");
+  return (
+    <Loaded state={state} onRetry={() => void reload()}>
+      {(data) => <AuthenticationForm initial={data} />}
+    </Loaded>
+  );
 }

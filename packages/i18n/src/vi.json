@@ -2359,7 +2359,8 @@
     "loyaltyPartners": "Đối tác liên minh",
     "loyaltyPartnerExchanges": "Giao dịch đổi điểm đối tác",
     "loyaltyPartnerGifts": "Điểm đối tác tặng",
-    "loyaltyPartnerSettlements": "Đối soát đối tác liên minh"
+    "loyaltyPartnerSettlements": "Đối soát đối tác liên minh",
+    "buyerAuthentication": "Xác thực người mua"
   },
   "partners": {
     "title": "Đối tác",
@@ -4492,7 +4493,19 @@
     "devicesSeen": "Lần đầu {first} · gần nhất {last}",
     "devicesRemove": "Gỡ",
     "devicesRemoveConfirm": "Gỡ {device}? Thiết bị đó bị đăng xuất; lần sau đăng nhập phải xác nhận bằng Smart OTP.",
-    "devicesHint": "Thiết bị không dùng 12 tháng tự hết tin cậy. Thấy thiết bị lạ: gỡ ngay và đổi mật khẩu."
+    "devicesHint": "Thiết bị không dùng 12 tháng tự hết tin cậy. Thấy thiết bị lạ: gỡ ngay và đổi mật khẩu.",
+    "recoveryTitle": "Khôi phục Smart OTP",
+    "recoveryWebOnly": "Khôi phục Smart OTP chỉ làm được trên ứng dụng VComm cho điện thoại. Cài ứng dụng rồi đăng nhập lại.",
+    "recoveryWarning": "Sau khi khôi phục: máy cũ hết hiệu lực; mọi giao dịch dùng điểm tạm khóa (mặc định 24 giờ) để bảo vệ bạn. Tích điểm vẫn bình thường.",
+    "recoverySendCode": "Gửi mã về số điện thoại của tài khoản",
+    "recoveryCodeSent": "Đã gửi mã 6 số qua tin nhắn về số điện thoại của tài khoản.",
+    "recoveryActivate": "Khôi phục trên máy này",
+    "recoveryNoPhone": "Quên cả mật khẩu hoặc mất số điện thoại? Liên hệ chăm sóc khách hàng VComm.",
+    "recoveryDone": "Đã khôi phục Smart OTP trên máy này.",
+    "deviceVerifyLostPhone": "Không còn máy giữ Smart OTP?",
+    "smartOtpNoOldDeviceHint": "Kích hoạt lại bằng mã SMS tính là khôi phục: máy cũ hết hiệu lực, dùng điểm tạm khóa (mặc định 24 giờ).",
+    "usePointsBlocked_redeem_locked": "Dùng điểm đang tạm khóa do vừa khôi phục Smart OTP.",
+    "affiliateNoRedeem_redeem_locked": "Dùng điểm đang tạm khóa do vừa khôi phục Smart OTP."
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -4727,7 +4740,8 @@
     "smsPurpose_smart_otp": "Kích hoạt Smart OTP, khôi phục",
     "smsPurpose_login": "Đăng nhập (dự phòng)",
     "smsPurpose_password_reset": "Quên mật khẩu (dự phòng)",
-    "smsPurpose_affiliate_redeem": "Cửa hàng liên kết qua Open API (dự phòng)"
+    "smsPurpose_affiliate_redeem": "Cửa hàng liên kết qua Open API (dự phòng)",
+    "authenticationPageTitle": "Xác thực người mua"
   },
   "listings": {
     "title": "Đăng bán",
@@ -7947,7 +7961,8 @@
     "pointsToUse": "Số điểm dùng",
     "pointsRange": "= {amount} · tối thiểu {min}, tối đa {max} điểm",
     "smartOtp": "Mã Smart OTP của khách",
-    "smartOtpHint": "Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)"
+    "smartOtpHint": "Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)",
+    "redeemLocked": "Khách vừa khôi phục Smart OTP: dùng điểm tạm khóa đến {time}. Vẫn tích điểm bình thường."
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",
@@ -10614,5 +10629,33 @@
     "referralHint": "Đăng ký từ đường dẫn này sẽ ghi người giới thiệu {code}.",
     "unavailable": "Sản phẩm không còn bán.",
     "viewStore": "Xem cửa hàng VComm"
+  },
+  "buyerSecurity": {
+    "title": "Bảo mật đăng nhập",
+    "smartOtp": "Smart OTP",
+    "active": "Đang hoạt động",
+    "inactive": "Chưa kích hoạt",
+    "device": "{device} ({platform}) · kích hoạt {date}",
+    "platform_ios": "iOS",
+    "platform_android": "Android",
+    "platform_web": "bản web",
+    "redeemLock": "Khóa dùng điểm",
+    "lockedUntil": "Đến {time}",
+    "recoveredAt": "(khôi phục {time})",
+    "notLocked": "Không khóa",
+    "wrongCodes": "Nhập sai mã",
+    "codeLockedUntil": "Tạm khóa đến {time}",
+    "codeNotLocked": "Không khóa",
+    "trustedDevices": "Thiết bị tin cậy",
+    "trustedCount": "{count} (gần nhất {time})",
+    "trustedNone": "Không có",
+    "transition": "Thời hạn chuyển đổi",
+    "transitionUntil": "Đến hết {date}",
+    "revoke": "Hủy Smart OTP",
+    "revokeTitle": "Hủy Smart OTP của {name}?",
+    "revokeWarning": "Khách bị đăng xuất mọi thiết bị, mất mọi thiết bị tin cậy. Kích hoạt lại tính là khôi phục: dùng điểm tạm khóa theo cài đặt (mặc định 24 giờ). Khách được đặt lại mật khẩu bằng SMS một lần trong 24 giờ.",
+    "reason": "Lý do (bắt buộc)",
+    "reasonHint": "10 đến 500 ký tự; ghi vào nhật ký thao tác",
+    "revoked": "Đã hủy Smart OTP của khách."
   }
 }

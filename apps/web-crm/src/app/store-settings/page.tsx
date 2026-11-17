@@ -14,7 +14,6 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
-import { AuthenticationCard } from "./AuthenticationCard";
 
 type Form = {
   channelId: string;
@@ -535,7 +534,6 @@ export default function StoreSettingsPage() {
               <CommissionSettingsCard key={settings.commissionSettings.version} settings={settings} onSaved={setSaved} />
               <Carriers settings={settings} onSaved={setSaved} />
               <ProductFeedCard key={settings.version} onChanged={async () => setSaved(await apiFetch<StoreSettingsResponse>("/marketplace/store-settings"))} />
-              <AuthenticationCard />
             </div>
           );
         }}

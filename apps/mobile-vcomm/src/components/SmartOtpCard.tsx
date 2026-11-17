@@ -181,6 +181,7 @@ export function SmartOtpCard({ phone }: { phone: string | null }) {
           <Muted>{t("smartOtpTransferHint")}</Muted>
           <Field label={t("smartOtpOldDeviceCode")} keyboardType="number-pad" maxLength={6} value={code} onChangeText={(value) => setCode(value.replace(/[^0-9]/g, ""))} />
           <Button label={t("smartOtpTransfer")} busy={busy} disabled={code.length !== 6} onPress={() => void transfer()} />
+          <Muted>{t("smartOtpNoOldDeviceHint")}</Muted>
           <Button label={t("smartOtpNoOldDevice")} kind="secondary" busy={busy} onPress={() => void sendCode()} />
         </View>
       ) : (

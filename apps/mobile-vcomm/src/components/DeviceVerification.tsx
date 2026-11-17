@@ -4,12 +4,14 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { translator } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
-import { AuthLayout, useAction, useResendTimer } from "./auth";
+import { AuthLayout, TextLink, useAction, useResendTimer } from "./auth";
+import { SmartOtpRecovery } from "./SmartOtpRecovery";
 import { Button, Card, Field, Muted, Notice } from "./ui";
 
 export function DeviceVerification() {
   const t = translator("vcommApp");
-  const { deviceMethod, verifyDevice, logout } = useSession();
+  const { deviceMethod, verifyDevice, logout, reload } = useSession();
+  const [recovering, setRecovering] = useState(false);
   const [code, setCode] = useState("");
   const [smsSent, setSmsSent] = useState(false);
   const { busy, error, fields, run } = useAction(["smartOtp", "smsCode"]);
@@ -22,6 +24,17 @@ export function DeviceVerification() {
       timer.start();
     });
 
+  // MAN_HINH_271: không còn máy giữ Smart OTP, hoặc hết thời hạn mà chưa kích hoạt: khôi phục, kích hoạt trên máy này.
+  if (recovering || deviceMethod === "smart_otp_activation")
+    return (
+      <AuthLayout title={t("recoveryTitle")}>
+        <Card>
+          {deviceMethod === "smart_otp_activation" ? <Notice tone="info" text={t("deviceVerifyActivationRequired")} /> : null}
+          <SmartOtpRecovery phone={null} onDone={() => void reload()} onCancel={() => (deviceMethod === "smart_otp_activation" ? void logout() : setRecovering(false))} />
+        </Card>
+      </AuthLayout>
+    );
+
   return (
     <AuthLayout title={t("deviceVerifyTitle")}>
       <Card>
@@ -31,6 +44,7 @@ export function DeviceVerification() {
             <Muted>{t("deviceVerifySmartOtpHint")}</Muted>
             <Field label={t("deviceVerifySmartOtp")} value={code} onChangeText={(value) => setCode(value.replace(/[^0-9]/g, ""))} keyboardType="number-pad" maxLength={6} error={fields.smartOtp} />
             <Button label={t("verify")} busy={busy} disabled={code.length !== 6} onPress={() => void run(() => verifyDevice({ smartOtp: code }))} />
+            <TextLink label={t("deviceVerifyLostPhone")} onPress={() => setRecovering(true)} />
           </>
         ) : deviceMethod === "sms" ? (
           <>
@@ -48,10 +62,7 @@ export function DeviceVerification() {
               onPress={() => void sendSms()}
             />
           </>
-        ) : (
-          // Hết thời hạn chuyển đổi mà chưa kích hoạt: kích hoạt Smart OTP trên máy này theo luồng khôi phục (lát L4).
-          <Notice tone="warning" text={t("deviceVerifyActivationRequired")} />
-        )}
+        ) : null}
         <Button label={t("backToLogin")} kind="secondary" onPress={() => void logout()} />
       </Card>
     </AuthLayout>

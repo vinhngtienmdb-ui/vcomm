@@ -282,6 +282,7 @@ Bản mẫu: `tai_lieu/ban_mau/CONG_VIEC_72_SMART_OTP_UNG_DUNG.html` (ứng dụ
 | MAN_HINH_272 | Thiết bị đã đăng nhập | Ứng dụng VComm | Từ MAN_HINH_76 Tài khoản |
 | MAN_HINH_273 | Thiết lập bảo mật và nhập mã ứng dụng xác thực | Cổng cửa hàng | Sau đăng nhập, kích hoạt lời mời |
 | MAN_HINH_274 | Quên mật khẩu cổng cửa hàng | Cổng cửa hàng | Từ trang đăng nhập cổng |
+| MAN_HINH_275 | Xác thực người mua (mục menu riêng web-crm: tham số chuyển đổi, thống kê) | web-crm `/buyer-authentication` | Người dùng yêu cầu 2026-11-17 (duyệt L1), quyền `marketplace.buyer.view`; thay thẻ "Xác thực" của MAN_HINH_86 |
 
 Sửa màn hình đã có:
 - MAN_HINH_151, thẻ Smart OTP:
