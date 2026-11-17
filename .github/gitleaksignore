@@ -10,3 +10,5 @@ d05926f83252c0e72278b24003ed7fcb44e3b4a8:apps/api/test/c49-group-buys-wallets.te
 2e093a279d672be10f8d65dc865bc3f0c29ee44d:apps/api/test/c73-instore-retail.test.ts:generic-api-key:21
 # Khóa ký VNPAY giả dùng trong kiểm thử tự động CONG_VIEC_73 lát L4 (máy chủ VNPAY giả lập), không phải khóa bí mật thật.
 10852e5c1ae9ea448ce14ab0b6ebf5f20270bf6c:apps/api/test/c73-instore-affiliate.test.ts:generic-api-key:20
+# Khóa ký VNPAY giả dùng trong kiểm thử tự động CONG_VIEC_73 lát L5 (máy chủ VNPAY giả lập), không phải khóa bí mật thật.
+39b37a8ee6740f009b3ba6795d4bb234a5ce07fc:apps/api/test/c73-instore-payouts.test.ts:generic-api-key:17
