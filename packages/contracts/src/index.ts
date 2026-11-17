@@ -1119,6 +1119,8 @@ export const saveProductSchema = z
       .min(1)
       .max(productLimits.variants),
     version: z.number().int().positive().optional(),
+    // CONG_VIEC_63 (QUYTAC_NGHIEPVU_523): có dùng nội dung do AI soạn; chỉ ghi vào nhật ký thao tác.
+    aiAssisted: z.boolean().optional(),
   })
   .strict();
 export type SaveProductRequest = z.input<typeof saveProductSchema>;

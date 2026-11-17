@@ -886,3 +886,12 @@ Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 �
 | Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
 |---|---|---|---|---|
 | YCAU_NGHIEPVU_177, 180, 181, 182 | CHUC_NANG_227, 229 | TIEUCHI_NGHIEMTHU_471, 475 đến 478, 481 (MAN_HINH_242) | KICHBAN_KIEMTHU_656, 660 đến 663 | `database/migrations/0137_ai_conversations.sql`; `apps/api/src/ai/ai-tools.ts`, `ai-chat.service.ts`, `ai.controller.ts`; `apps/api/src/jobs/background-jobs.ts` (`ai-conversation-retention`); `packages/contracts/src/ai.ts`; `packages/ui/src/components/AiPanel.tsx`, `TopBar.tsx`, `lib/api.ts` (`apiStream`, `readEvents`), `styles.css` |
+
+## 46. Kiểm tra bao phủ CONG_VIEC_63 lát L3 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_178 | CHUC_NANG_228 | TIEUCHI_NGHIEMTHU_479, 481 (MAN_HINH_243) | KICHBAN_KIEMTHU_664, 666 | `apps/api/src/ai/ai-content.service.ts`, `ai.controller.ts`; `packages/contracts` (`productContentRequestSchema`, `saveProductSchema.aiAssisted`); `apps/web-catalog/src/components/AiContentDrawer.tsx`, `src/app/products/[id]/page.tsx` |
+| YCAU_NGHIEPVU_181, 182 | CHUC_NANG_229 | TIEUCHI_NGHIEMTHU_480, 481 (MAN_HINH_245) | KICHBAN_KIEMTHU_665, 666 | `apps/api/src/ai/ai-usage.service.ts`, `ai.controller.ts`; `apps/web-platform/src/app/platform/ai-usage/page.tsx`, `src/components/AdminShell.tsx` |
+
+Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229, TIEUCHI_NGHIEMTHU_470 đến 481, KICHBAN_KIEMTHU_653 đến 666 đều có mã nguồn và kiểm thử; không có mã nguồn không truy được về yêu cầu.

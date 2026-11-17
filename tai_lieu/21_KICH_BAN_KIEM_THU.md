@@ -6170,3 +6170,5 @@ Dữ liệu chung: `apps/api/test/c65-fixture.ts` trên dữ liệu mẫu CONG_V
 L1: KICHBAN_KIEMTHU_653, 654, 655, 657, 658, 659 trong `apps/api/test/c63-ai-access.test.ts`, `c63-ai-redact.test.ts`. KICHBAN_KIEMTHU_656 (kết quả công cụ đã che khi tới mô hình) cần công cụ đọc dữ liệu, làm ở L2.
 
 L2: KICHBAN_KIEMTHU_656, 660 đến 663 trong `apps/api/test/c63-ai-chat.test.ts` (11 kiểm thử, bộ giả lập theo kịch bản). KICHBAN_KIEMTHU_666 phần MAN_HINH_242: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh) – hội thoại có nguồn, đánh giá, hỏi trực tiếp với bộ giả lập, thông báo lần đầu.
+
+L3: KICHBAN_KIEMTHU_664, 665 trong `apps/api/test/c63-ai-content.test.ts` (6 kiểm thử). KICHBAN_KIEMTHU_666 phần MAN_HINH_243, 245: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh, không lỗi trang, không cuộn ngang).

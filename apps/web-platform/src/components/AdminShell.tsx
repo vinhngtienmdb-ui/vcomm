@@ -24,6 +24,7 @@ export const adminMenu = [
   { href: "/platform/api-call-logs", key: "apiCallLogs", permission: "platform.api_log.view" },
   // CONG_VIEC_63: trợ lý AI (MAN_HINH_244).
   { href: "/platform/ai-settings", key: "aiSettings", permission: "ai.settings.manage" },
+  { href: "/platform/ai-usage", key: "aiUsage", permission: "ai.usage.view" },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

@@ -55,6 +55,9 @@ export interface UsageRecord {
   durationMs: number;
 }
 
+// Khóa một lượt mỗi người: dòng quá 3 phút coi như lượt đã dừng bất thường (QUYTAC_NGHIEPVU_519).
+export const turnLockSeconds = 180;
+
 // Mốc thời gian theo giờ Việt Nam (UTC+7, không đổi giờ theo mùa).
 const vietnamStart = (day: string) => `${day}T00:00:00+07:00`;
 function nextDay(day: string): string {
@@ -166,6 +169,21 @@ export class AiAccessService {
       throw new ApiError(code, key);
     }
     return status;
+  }
+
+  // Một lượt đang chạy mỗi người cho mọi tính năng (hỏi đáp, soạn nội dung); dùng được khi chạy nhiều tiến trình API.
+  async lockTurn(userId: string): Promise<void> {
+    const now = this.clock.now().toISOString();
+    const locked = await this.database.execute(sql`
+      INSERT INTO ai.active_turns (user_id, started_at) VALUES (${userId}, ${now}::timestamptz)
+      ON CONFLICT (user_id) DO UPDATE SET started_at = EXCLUDED.started_at
+      WHERE ai.active_turns.started_at < ${now}::timestamptz - make_interval(secs => ${turnLockSeconds})
+      RETURNING user_id`);
+    if (locked.rows.length === 0) throw new ApiError("AI_BUSY", "aiBusy");
+  }
+
+  async unlockTurn(userId: string): Promise<void> {
+    await this.database.execute(sql`DELETE FROM ai.active_turns WHERE user_id = ${userId}`);
   }
 
   // Ghi nhật ký lượt; lần đầu trong tháng tổng chi phí đạt hạn mức thì báo người có quyền cài đặt (QUYTAC_NGHIEPVU_513).

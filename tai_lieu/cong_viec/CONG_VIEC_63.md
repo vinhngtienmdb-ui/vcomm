@@ -3,7 +3,7 @@
 - Mô tả: Trợ lý AI cho nhân viên nội bộ: hỏi đáp số liệu kinh doanh bằng lời (chỉ đọc, qua các dịch vụ đã có, đúng quyền của người hỏi) và soạn nháp nội dung sản phẩm để nhân viên sửa, tự lưu. Quản trị công ty bật từng tính năng, đặt hạn mức chi phí tháng và số lượt mỗi người mỗi ngày. Che dữ liệu cá nhân trước khi gửi ra mô hình; lưu hội thoại 90 ngày; đánh giá đúng, sai; nhật ký token, chi phí từng lượt.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Đặc tả, bản mẫu, chia lát đã duyệt (người dùng, 2026-11-17); L1 đã duyệt xem trước (2026-11-17); L2 chờ xem trước.
+- Trạng thái: Đặc tả, bản mẫu, chia lát đã duyệt (người dùng, 2026-11-17); L1, L2 đã duyệt xem trước (2026-11-17); L3 xong, chờ xem trước và nghiệm thu.
 - Mức: Lớn (chức năng mới, dịch vụ ngoài mới, thư viện mới, dữ liệu cá nhân ra nước ngoài, thêm quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_63-tro-ly-ai`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 1 (MODULE_16), `24` THAY_DOI_04 (nguồn tham khảo `vcomm_ai_integration_guide.md` của V-com-ERP, chưa đọc được – mục 16); quyết định của người dùng ngày 2026-11-17 (mục 17).
@@ -270,6 +270,7 @@ Người dùng đã chốt ngày 2026-11-17 (mục 17): mô hình mặc định 
 | Điều khoản nhà cung cấp | Người dùng xác nhận khi đăng ký khóa |
 | Xem trước | Bằng bộ giả lập, không chặn tiến độ |
 | Xem trước L1 | Đạt; chấp nhận chuyển hộp xác nhận thông báo và KICHBAN_KIEMTHU_656 sang L2; làm L2 (2026-11-17) |
+| Xem trước L2 | Đạt; làm L3, lát cuối thì trình nghiệm thu (2026-11-17) |
 
 ## 18. Thành phần không được thay đổi
 
@@ -287,4 +288,22 @@ Người dùng đã chốt ngày 2026-11-17 (mục 17): mô hình mặc định 
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa thực hiện.
+Lệch so với đặc tả (ghi nhận khi làm):
+
+- Hộp xác nhận thông báo xử lý dữ liệu cá nhân, KICHBAN_KIEMTHU_656 chuyển từ L1 sang L2 (người dùng chấp nhận 2026-11-17).
+- MAN_HINH_243: biểu mẫu sản phẩm không có ô mô tả đăng bán và ô điểm nổi bật, nên "Điểm nổi bật" thêm vào cuối ô Mô tả, "Mô tả đăng bán" có nút Sao chép để dán ở màn hình đăng bán VComm (thay cho "Dùng tất cả").
+- Bộ giả lập trả bản nháp mẫu dạng JSON khi yêu cầu có lược đồ kết quả (để xem trước, phát triển soạn nội dung không cần khóa).
+- Thêm bảng `ai.active_turns` vào database migration 0137 để khóa một lượt mỗi người dùng chung cho mọi tiến trình API (đặc tả ban đầu ghi dùng Redis).
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: YCAU_NGHIEPVU_177 đến 183, QUYTAC_NGHIEPVU_510 đến 523 có mã nguồn, kiểm thử (tài liệu `27` mục 44 đến 46); quyền `ai.*` gán sẵn Quản trị tập đoàn, Quản trị công ty |
+| Đúng giao diện | Đạt: MAN_HINH_242 đến 245 chụp trên ứng dụng chạy thật ở 1360 và 390 điểm ảnh, không lỗi trang, không cuộn ngang; chuỗi tiếng Việt, tiếng Anh khớp khóa (`check-keys`); trạng thái rỗng, đang tải, lỗi, không quyền, tắt, hết hạn mức, hết lượt, chưa xác nhận thông báo đều có |
+| Đã xử lý lỗi | Đạt: nhà cung cấp lỗi, từ chối, quá trần token, kết quả sai cấu trúc, tham số công cụ sai, lỗi quyền của công cụ, người dùng rời trang giữa lượt, lượt treo (khóa hết hạn sau 3 phút) |
+| Kiểm thử | `c63-ai-redact` (32), `c63-ai-access` (9), `c63-ai-chat` (11), `c63-ai-content` (6); toàn bộ kiểm thử API một tiến trình (xem tin trình nghiệm thu); kiểm thử không gọi nhà cung cấp thật. Kết quả gửi phiên điều phối ghi tài liệu `25` |
+| Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử API đạt; thay đổi chung chỉ thêm (nút trên thanh trên ẩn khi không có quyền, trường tùy chọn `aiAssisted`, mã lỗi `AI_*`) |
+| Tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_470 đến 481 đạt (470 đến 480 bằng kiểm thử tự động, 481 bằng ảnh chụp ứng dụng chạy thật) |
+| Cổng bảo mật | Đạt: không lỗ hổng Nghiêm trọng, Cao; `pnpm audit --audit-level=high` không có mức Cao; CI quét khóa bí mật (gitleaks) đạt trên các commit; khóa API chỉ ở biến môi trường; rà soát ở tài liệu `22` mục Trợ lý AI |
+| Tự rà soát mã, dọn dẹp | Đạt: `pnpm typecheck`, `pnpm lint` đạt; không để lại mã thử, tệp tạm; thư viện mới duy nhất `@anthropic-ai/sdk` 1.4.0 (đã duyệt) |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `12`, `13`, `14`, `16`, `17`, `21`, `22`, `27`, `28`, `.env.example` đã cập nhật; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
+| Chưa làm, ngoài phạm vi | Chưa thử với mô hình thật (chờ khóa Anthropic); thông báo xử lý dữ liệu cá nhân, hồ sơ chuyển dữ liệu ra nước ngoài là bản nháp, cần người dùng hoặc tư vấn pháp lý rà trước khi bật cho người dùng thật |

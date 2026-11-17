@@ -22,6 +22,8 @@ import { DatabaseModule } from "./database/database.module";
 import { AiAccessService } from "./ai/ai-access.service";
 import { AI_CONFIG, readAiConfig, type AiConfig } from "./ai/ai-config";
 import { AiChatService } from "./ai/ai-chat.service";
+import { AiContentService } from "./ai/ai-content.service";
+import { AiUsageService } from "./ai/ai-usage.service";
 import { AiController } from "./ai/ai.controller";
 import { AiToolsService } from "./ai/ai-tools";
 import { AiSettingsService } from "./ai/ai-settings.service";
@@ -462,6 +464,8 @@ import { UsersService } from "./users/users.service";
     AiSettingsService,
     AiToolsService,
     AiChatService,
+    AiContentService,
+    AiUsageService,
     RateLimiter,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: ApiErrorFilter },

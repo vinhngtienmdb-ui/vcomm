@@ -12,6 +12,13 @@ export interface FakeReply {
   fail?: boolean;
 }
 
+export const fakeProductDraft = {
+  description: "Nội dung giả lập: sản phẩm chất lượng, phù hợp nhu cầu hằng ngày của gia đình. Chất liệu [cần bổ sung: chất liệu], bảo hành theo chính sách của cửa hàng.",
+  listingDescription: "Nội dung giả lập cho trang bán hàng: sản phẩm tiện dụng, dễ dùng, phù hợp làm quà tặng.\nĐặt hàng ngay hôm nay để nhận hàng nhanh.",
+  highlights: ["Thiết kế gọn, dễ dùng", "Phù hợp gia đình", "Bảo hành theo chính sách cửa hàng"],
+  missing: ["chất liệu"],
+};
+
 export const fakeDefaultUsage: AiUsage = { inputTokens: 1_000, outputTokens: 200, cacheReadTokens: 0, cacheWriteTokens: 0 };
 
 export class FakeModelClient implements AiModelClient {
@@ -30,7 +37,8 @@ export class FakeModelClient implements AiModelClient {
   async send(request: AiRequest): Promise<AiResponse> {
     // Chép sâu để kiểm thử thấy đúng nội dung lúc gửi.
     this.requests.push(structuredClone({ ...request, onText: undefined }));
-    const reply = this.script.shift() ?? { text: "Đây là câu trả lời giả lập của trợ lý AI." };
+    // Hết kịch bản: yêu cầu kết quả có cấu trúc (soạn nội dung sản phẩm) thì trả bản nháp mẫu dạng JSON, còn lại trả câu mặc định.
+    const reply = this.script.shift() ?? { text: request.outputSchema ? JSON.stringify(fakeProductDraft) : "Đây là câu trả lời giả lập của trợ lý AI." };
     const usage: AiUsage = { ...fakeDefaultUsage, ...reply.usage };
     if (reply.fail) throw new AiProviderError("Nhà cung cấp giả lập lỗi", usage);
     const text = reply.text ?? "";

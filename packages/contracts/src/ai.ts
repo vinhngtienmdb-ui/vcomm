@@ -169,3 +169,81 @@ export const aiConversationListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(50).default(20),
   })
   .strict();
+
+// ---------- L3: soạn nội dung sản phẩm (API_277; QUYTAC_NGHIEPVU_522, 523) ----------
+
+export const aiContentTones = ["professional", "friendly", "concise"] as const;
+export type AiContentTone = (typeof aiContentTones)[number];
+export const aiContentLengths = ["short", "medium", "long"] as const;
+export type AiContentLength = (typeof aiContentLengths)[number];
+
+const contentText = (max: number) => z.string().trim().max(max).nullable().default(null);
+
+// API_277 POST /ai/product-content: dữ liệu đang có trên biểu mẫu sản phẩm (kể cả chưa lưu).
+export const productContentRequestSchema = z
+  .object({
+    productId: z.uuid().nullable().default(null),
+    product: z
+      .object({
+        name: z.string().trim().min(1).max(255),
+        categoryName: contentText(200),
+        brand: contentText(100),
+        origin: contentText(100),
+        description: contentText(5000),
+        units: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
+        options: z
+          .array(z.object({ name: z.string().trim().min(1).max(50), values: z.array(z.string().trim().min(1).max(50)).max(50) }).strict())
+          .max(5)
+          .default([]),
+        specifications: z
+          .array(z.object({ name: z.string().trim().min(1).max(100), value: z.string().trim().min(1).max(500) }).strict())
+          .max(50)
+          .default([]),
+      })
+      .strict(),
+    tone: z.enum(aiContentTones).default("professional"),
+    length: z.enum(aiContentLengths).default("medium"),
+    keywords: z.array(z.string().trim().min(1).max(50)).max(10).default([]),
+  })
+  .strict();
+export type ProductContentRequest = z.input<typeof productContentRequestSchema>;
+
+export interface ProductContentResponse {
+  description: string;
+  // Mô tả trên cửa hàng VComm, tối đa 5.000 ký tự.
+  listingDescription: string;
+  highlights: string[];
+  // Thông số trợ lý ghi "[cần bổ sung]" vì không có trong dữ liệu.
+  missing: string[];
+  remainingTurnsToday: number;
+}
+
+// ---------- L3: thống kê sử dụng (API_279) ----------
+
+export const aiUsageQuerySchema = z
+  .object({
+    month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    feature: z.enum(aiFeatures).optional(),
+    format: z.enum(["json", "xlsx"]).default("json"),
+  })
+  .strict();
+
+export interface AiUsageFigures {
+  turns: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  costUsd: string;
+}
+
+export interface AiUsageResponse {
+  month: string;
+  budgetUsd: string;
+  totals: AiUsageFigures & { errors: number; refusals: number; users: number };
+  byDay: (AiUsageFigures & { day: string })[];
+  byFeature: (AiUsageFigures & { feature: AiFeature })[];
+  byUser: (AiUsageFigures & { userId: string; fullName: string; up: number; down: number })[];
+  // Đánh giá còn giữ (90 ngày) của câu trả lời trong tháng.
+  feedback: { up: number; down: number; byReason: Record<AiFeedbackReason, number> };
+  usdToVnd: { rate: string; date: string } | null;
+}

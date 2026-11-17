@@ -794,7 +794,8 @@
     "aiNoticeRequired": "Bạn cần đọc và đồng ý thông báo xử lý dữ liệu cá nhân trước khi dùng trợ lý AI.",
     "aiProviderError": "Trợ lý tạm thời không phản hồi. Thử lại sau ít phút.",
     "aiNotConfigured": "Hệ thống chưa cấu hình nhà cung cấp mô hình AI. Liên hệ quản trị hệ thống.",
-    "aiConversationFull": "Hội thoại đã đủ 40 tin nhắn. Mở hội thoại mới để hỏi tiếp."
+    "aiConversationFull": "Hội thoại đã đủ 40 tin nhắn. Mở hội thoại mới để hỏi tiếp.",
+    "aiContentRefused": "Trợ lý không soạn được nội dung cho sản phẩm này. Kiểm tra lại tên, thông tin sản phẩm rồi thử lại."
   },
   "login": {
     "title": "Đăng nhập",
@@ -873,7 +874,8 @@
     "proposalTemplates": "Mẫu đề xuất",
     "apiKeys": "Khóa API đối tác",
     "apiCallLogs": "Nhật ký gọi API",
-    "aiSettings": "Trợ lý AI"
+    "aiSettings": "Trợ lý AI",
+    "aiUsage": "Thống kê trợ lý AI"
   },
   "users": {
     "title": "Nhân viên",
@@ -1820,7 +1822,9 @@
     "kind": "Loại",
     "kindHint": "Dịch vụ không theo dõi tồn kho, lô, số serial.",
     "kind_goods": "Hàng hóa",
-    "kind_service": "Dịch vụ"
+    "kind_service": "Dịch vụ",
+    "aiCompose": "Soạn bằng AI",
+    "aiUsed": "Đã điền nội dung AI vào mô tả. Bấm Lưu để lưu."
   },
   "productImport": {
     "title": "Nhập sản phẩm từ Excel",
@@ -10641,5 +10645,60 @@
     "group_partner": "đối tác",
     "group_share": "phần chia",
     "group_beneficiary": "người nhận"
+  },
+  "aiContent": {
+    "title": "Soạn nội dung bằng AI",
+    "tone": "Giọng văn",
+    "tone_professional": "Chuyên nghiệp",
+    "tone_friendly": "Thân thiện",
+    "tone_concise": "Ngắn gọn",
+    "length": "Độ dài",
+    "length_short": "Ngắn (khoảng 80 từ)",
+    "length_medium": "Vừa (khoảng 200 từ)",
+    "length_long": "Dài (khoảng 400 từ)",
+    "keywords": "Từ khóa muốn nhắc (cách nhau dấu phẩy, tối đa 10)",
+    "compose": "Soạn",
+    "rewrite": "Viết lại",
+    "composing": "Trợ lý đang soạn nội dung…",
+    "hint": "Trợ lý chỉ dùng thông tin đang có trên biểu mẫu (tên, ngành hàng, thương hiệu, xuất xứ, đơn vị, phân loại, thông số, mô tả). Thông số thiếu sẽ ghi “[cần bổ sung]”.",
+    "description": "Mô tả sản phẩm",
+    "use": "Dùng",
+    "highlights": "Điểm nổi bật",
+    "appendHighlights": "Thêm vào mô tả",
+    "listing": "Mô tả đăng bán trên VComm",
+    "characters": "{count}/5.000 ký tự",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "listingHint": "Dán vào ô mô tả ở màn hình đăng bán sản phẩm trên cửa hàng VComm.",
+    "missing": "Trợ lý ghi “[cần bổ sung]” cho: {list}. Sửa trước khi lưu. Khi lưu, nhật ký thao tác ghi sản phẩm có dùng nội dung do AI soạn.",
+    "review": "Đọc lại nội dung trước khi lưu. Khi lưu, nhật ký thao tác ghi sản phẩm có dùng nội dung do AI soạn.",
+    "noticeRequired": "Mở Trợ lý AI trên thanh trên, đọc và đồng ý thông báo xử lý dữ liệu cá nhân trước khi dùng."
+  },
+  "aiUsage": {
+    "title": "Thống kê sử dụng trợ lý AI",
+    "export": "Xuất Excel",
+    "month": "Tháng",
+    "feature": "Tính năng",
+    "allFeatures": "Mọi tính năng",
+    "feature_chat": "Hỏi đáp số liệu",
+    "feature_product_content": "Soạn nội dung sản phẩm",
+    "privacy": "Màn hình chỉ có số lượt, token, chi phí, đánh giá. Không ai ngoài người hỏi xem được nội dung hội thoại.",
+    "empty": "Tháng {month} chưa có lượt dùng trợ lý AI.",
+    "costVsBudget": "Chi phí tháng / hạn mức",
+    "vnd": "≈ {amount} theo tỷ giá bán USD ngày {date} (tham khảo)",
+    "turns": "Số lượt",
+    "errors": "lỗi {count}",
+    "refusals": "từ chối {count}",
+    "users": "Người dùng",
+    "feedback": "Đánh giá",
+    "correctPercent": "{percent}% Đúng",
+    "upDown": "{up} Đúng · {down} Sai",
+    "byDay": "Chi phí theo ngày (USD)",
+    "byDayLabel": "Chi phí theo ngày tháng {month}",
+    "byUser": "Theo người dùng",
+    "user": "Người dùng",
+    "inputTokens": "Token vào",
+    "outputTokens": "Token ra",
+    "cost": "Chi phí (USD)"
   }
 }

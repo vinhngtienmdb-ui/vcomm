@@ -24,7 +24,7 @@ import { CLOCK, type Clock, vietnamDate } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { AiAccessService } from "./ai-access.service";
+import { AiAccessService, turnLockSeconds } from "./ai-access.service";
 import type { AiUsage } from "./ai-config";
 import { AiToolsService, toolCallLimit } from "./ai-tools";
 import { AI_MODEL_CLIENT, AiProviderError, emptyUsage, type AiMessage, type AiModelClient, type AiToolResultBlock } from "./model-client";
@@ -45,7 +45,6 @@ Cách làm việc:
 - Khoảng ngày không nói rõ thì hiểu theo hôm nay trong phần Ngữ cảnh (ví dụ "tháng này" là từ ngày 1 tháng này đến hôm nay) và nói rõ khoảng ngày đã dùng.`;
 
 const maxModelCalls = toolCallLimit + 2;
-const turnLockSeconds = 180;
 export const retentionDays = 90;
 export const usageRetentionMonths = 24;
 
@@ -169,13 +168,7 @@ export class AiChatService {
     await this.access.begin(actor, "chat");
     const conversation = input.conversationId ? await this.ownConversation(actor, input.conversationId) : null;
     if (conversation && conversation.message_count + 2 > aiMaxMessagesPerConversation) throw new ApiError("BUSINESS_RULE", "aiConversationFull");
-    // Một lượt mỗi người; dòng quá 3 phút coi như lượt đã dừng bất thường (QUYTAC_NGHIEPVU_519).
-    const locked = await this.database.execute(sql`
-      INSERT INTO ai.active_turns (user_id, started_at) VALUES (${actor.userId}, ${this.now()}::timestamptz)
-      ON CONFLICT (user_id) DO UPDATE SET started_at = EXCLUDED.started_at
-      WHERE ai.active_turns.started_at < ${this.now()}::timestamptz - make_interval(secs => ${turnLockSeconds})
-      RETURNING user_id`);
-    if (locked.rows.length === 0) throw new ApiError("AI_BUSY", "aiBusy");
+    await this.access.lockTurn(actor.userId);
     try {
       const question = redactText(input.content);
       const history: AiMessage[] = [];
@@ -206,7 +199,7 @@ export class AiChatService {
   }
 
   private async release(userId: string): Promise<void> {
-    await this.database.execute(sql`DELETE FROM ai.active_turns WHERE user_id = ${userId}`);
+    await this.access.unlockTurn(userId);
   }
 
   private async companyName(companyId: string): Promise<string> {

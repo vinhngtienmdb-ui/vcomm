@@ -1,12 +1,14 @@
-// API_273 đến API_276, API_278: trạng thái trợ lý AI của người dùng, xác nhận thông báo xử lý dữ liệu cá nhân, hỏi đáp số liệu,
-// hội thoại, đánh giá, cài đặt công ty (CHUC_NANG_226, 227, 229).
-import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
+// API_273 đến API_279: trạng thái trợ lý AI của người dùng, xác nhận thông báo xử lý dữ liệu cá nhân, hỏi đáp số liệu,
+// hội thoại, đánh giá, soạn nội dung sản phẩm, cài đặt công ty, thống kê sử dụng (CHUC_NANG_226 đến 229).
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
   acknowledgeAiNoticeSchema,
   aiConversationListQuerySchema,
   aiFeedbackSchema,
   aiPermissions,
+  aiUsageQuerySchema,
   askAiSchema,
+  productContentRequestSchema,
   updateAiSettingsSchema,
   type AiConversationDetail,
   type AiConversationItem,
@@ -14,17 +16,23 @@ import {
   type AiMeResponse,
   type AiSettingsResponse,
   type AiStreamEvent,
+  type AiUsageResponse,
   type PageResponse,
+  type ProductContentResponse,
 } from "contracts";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
+import { reportXlsx, xlsxContentType } from "../analytics/analytics-export";
 import { localeOf } from "../common/api-error";
+import { AuditService } from "../common/audit.service";
 import { UuidPipe } from "../common/uuid.pipe";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { AiAccessService } from "./ai-access.service";
 import { AiChatService } from "./ai-chat.service";
+import { AiContentService } from "./ai-content.service";
+import { AiUsageService } from "./ai-usage.service";
 import { AiSettingsService } from "./ai-settings.service";
 
 @Controller("ai")
@@ -34,6 +42,9 @@ export class AiController {
     private readonly access: AiAccessService,
     private readonly settings: AiSettingsService,
     private readonly chat: AiChatService,
+    private readonly content: AiContentService,
+    private readonly usage: AiUsageService,
+    private readonly audit: AuditService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, ...anyOf: string[]): Promise<Actor> {
@@ -116,5 +127,42 @@ export class AiController {
   @HttpCode(204)
   async removeFeedback(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
     await this.chat.setFeedback(await this.actor(request, companyId, aiPermissions.chat), id, null);
+  }
+
+  @Post("product-content")
+  @HttpCode(200)
+  async productContent(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ProductContentResponse> {
+    const actor = await this.actor(request, companyId, aiPermissions.productContent);
+    return this.content.draft(actor, productContentRequestSchema.parse(body));
+  }
+
+  // API_279: thống kê tháng; xuất Excel cùng số liệu, ghi nhật ký thao tác.
+  @Get("usage")
+  async usageReport(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<AiUsageResponse | StreamableFile> {
+    const actor = await this.actor(request, companyId, aiPermissions.usage, aiPermissions.settings);
+    const parsed = aiUsageQuerySchema.parse(query);
+    const report = await this.usage.report(actor, parsed);
+    if (parsed.format === "json") return report;
+    const tables = this.usage.exportTables(report);
+    const content = await reportXlsx(tables);
+    await this.audit.record({
+      actorUserId: actor.userId,
+      companyId: actor.companyId,
+      appCode: "platform",
+      action: "ai.usage.export",
+      entityType: "ai_usage",
+      afterData: { month: parsed.month, feature: parsed.feature ?? null },
+      ip: actor.client.ip,
+      userAgent: actor.client.userAgent,
+      requestId: actor.client.requestId,
+    });
+    response.setHeader("content-type", xlsxContentType);
+    response.setHeader("content-disposition", `attachment; filename="thong-ke-tro-ly-ai-${parsed.month}.xlsx"`);
+    return new StreamableFile(content);
   }
 }
