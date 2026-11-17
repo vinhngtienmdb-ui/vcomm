@@ -276,8 +276,8 @@ export interface InstorePayoutItem {
   bankTransactionNo: string | null;
   paymentNo: string | null;
   receiptNo: string | null;
-  // Người nhận là công ty tập đoàn mà cửa hàng chưa cài quỹ ngân hàng: chưa lập phiếu thu.
-  receiptMissing: boolean;
+  // Người nhận là công ty tập đoàn mà cửa hàng chưa cài quỹ ngân hàng: phiếu thu đang nháp, chờ kế toán công ty đó chọn quỹ ngân hàng và ghi sổ.
+  receiptDraft: boolean;
   createdAt: string;
   version: number;
 }
@@ -297,6 +297,8 @@ export interface InstorePayoutDetail extends InstorePayoutItem {
   deductions: { id: string; kind: string; businessDate: string; amount: string; note: string | null }[];
   // Công ty vận hành sàn, người có quyền finance.instore.manage, bảng chờ chuyển.
   canTransfer: boolean;
+  // Công ty nhận (công ty tập đoàn), người có quyền finance.instore.manage, phiếu thu đang nháp.
+  canPostReceipt: boolean;
 }
 export interface InstorePayoutListResponse {
   data: InstorePayoutItem[];
@@ -316,6 +318,10 @@ export const instoreTransferredSchema = z
   })
   .strict();
 export type InstoreTransferredRequest = z.input<typeof instoreTransferredSchema>;
+
+// Ghi sổ phiếu thu nháp của bảng chuyển tiền ở công ty nhận: quỹ ngân hàng nhận tiền.
+export const instorePostReceiptSchema = z.object({ fundId: z.uuid(), version: z.number().int().min(1) }).strict();
+export type InstorePostReceiptRequest = z.input<typeof instorePostReceiptSchema>;
 
 // Thuế suất phí sàn, phí thu hộ (mặc định 10 %).
 export const instoreSettingsSchema = z

@@ -7,6 +7,7 @@ import type {
   InstorePayoutItem,
   instorePayoutListQuerySchema,
   InstoreSettingsResponse,
+  instorePostReceiptSchema,
   instoreTransferredSchema,
   PageResponse,
 } from "contracts";
@@ -69,6 +70,8 @@ type PayoutRow = {
   bank_transaction_no: string | null;
   payment_no: string | null;
   receipt_no: string | null;
+  receipt_id: string | null;
+  receipt_status: string | null;
   created_at: Date;
   version: number;
 };
@@ -77,7 +80,7 @@ const payoutColumns = sql`
   p.id, p.document_no, p.operator_company_id, p.recipient_kind, p.recipient_company_id, p.merchant_id,
   coalesce(rc.short_name, rc.legal_name, mp.name) AS recipient_name, coalesce(rc.code, m.code) AS recipient_code, p.business_date::text,
   p.collected_amount::text, p.platform_fee::text, p.platform_fee_tax::text, p.gateway_fee::text, p.reversal_amount::text, p.carried_amount::text, p.deduction_amount::text,
-  p.amount::text, p.fee_tax_rate::text, p.status, p.transferred_on::text, p.bank_transaction_no, pay.document_no AS payment_no, rec.document_no AS receipt_no,
+  p.amount::text, p.fee_tax_rate::text, p.status, p.transferred_on::text, p.bank_transaction_no, pay.document_no AS payment_no, rec.document_no AS receipt_no, p.receipt_id, rec.status AS receipt_status,
   p.created_at, p.version`;
 const payoutFrom = sql`
   instore.payouts p
@@ -339,7 +342,7 @@ export class InstorePayoutsService {
       bankTransactionNo: row.bank_transaction_no,
       paymentNo: row.payment_no,
       receiptNo: row.receipt_no,
-      receiptMissing: row.recipient_kind === "retail_company" && row.status === "transferred" && row.receipt_no === null,
+      receiptDraft: row.receipt_status === "draft",
       createdAt: iso(row.created_at)!,
       version: row.version,
     };
@@ -379,7 +382,7 @@ export class InstorePayoutsService {
     return row;
   }
 
-  private async detailOf(row: PayoutRow, canTransfer = false): Promise<InstorePayoutDetail> {
+  private async detailOf(row: PayoutRow, canTransfer = false, canPostReceipt = false): Promise<InstorePayoutDetail> {
     const today = await vietnamToday(this.database);
     const lines = await this.database.execute<{
       id: string;
@@ -414,12 +417,13 @@ export class InstorePayoutsService {
       })),
       deductions: deductions.rows.map((line) => ({ id: line.id, kind: line.kind, businessDate: line.business_date, amount: String(Number(line.amount)), note: line.note })),
       canTransfer: canTransfer && row.status === "pending",
+      canPostReceipt: canPostReceipt && row.receipt_status === "draft",
     };
   }
 
   async detail(actor: Actor, id: string, canManage = false): Promise<InstorePayoutDetail> {
     const scope = await this.scopeOf(actor.companyId);
-    return this.detailOf(await this.row(id, scope.where), scope.isOperator && canManage);
+    return this.detailOf(await this.row(id, scope.where), scope.isOperator && canManage, !scope.isOperator && canManage);
   }
 
   // Cổng cửa hàng (MAN_HINH_282): chủ cửa hàng xem bảng của cửa hàng mình.
@@ -439,7 +443,7 @@ export class InstorePayoutsService {
 
   // Ghi đã chuyển (QUYTAC_NGHIEPVU_585, 587): ngày chuyển, số giao dịch ngân hàng, quỹ chi của công ty vận hành sàn. Hệ thống lập, ghi sổ phiếu chi trừ công nợ phải trả;
   // người nhận là công ty tập đoàn thì lập cùng lúc phiếu thu ở công ty đó vào quỹ ngân hàng của cửa hàng có tiền thu hộ lớn nhất trong bảng
-// (cửa hàng chưa cài quỹ ngân hàng: chưa lập phiếu thu, màn hình báo để công ty đó lập tay trừ công nợ phải thu nội bộ).
+  // (cửa hàng chưa cài quỹ ngân hàng: phiếu thu để nháp, quỹ tạm là quỹ tiền mặt của cửa hàng; kế toán công ty đó chọn quỹ ngân hàng, ghi sổ ở postReceipt).
   async markTransferred(actor: Actor, id: string, input: z.infer<typeof instoreTransferredSchema>): Promise<InstorePayoutDetail> {
     const scope = await this.scopeOf(actor.companyId);
     if (!scope.isOperator) throw new ApiError("FORBIDDEN", "forbidden");
@@ -447,14 +451,15 @@ export class InstorePayoutsService {
     if (current.status !== "pending") throw new ApiError("BUSINESS_RULE", "instorePayoutNotPending");
     if (input.transferredOn < current.business_date) throw new ApiError("VALIDATION_FAILED", "invalidValue", { fields: { transferredOn: "instoreTransferBeforeDate" } });
     await this.payments.prepareInstorePayoutNumbering(actor);
-    const ownerFund =
+    // Cửa hàng có tiền thu hộ lớn nhất trong bảng: quỹ ngân hàng (nếu đã cài) và quỹ tiền mặt (quỹ tạm của phiếu thu nháp).
+    const ownerStore =
       current.recipient_kind === "retail_company"
         ? (
-            await this.database.execute<{ fund_id: string }>(sql`
-              SELECT s.bank_fund_id AS fund_id FROM instore.checkouts c JOIN retail.stores s ON s.id = c.store_id
-              WHERE c.payout_id = ${id} AND s.bank_fund_id IS NOT NULL GROUP BY s.bank_fund_id ORDER BY sum(c.paid_amount) DESC LIMIT 1`)
-          ).rows[0]?.fund_id ?? null
-        : null;
+            await this.database.execute<{ bank_fund_id: string | null; cash_fund_id: string }>(sql`
+              SELECT s.bank_fund_id, s.cash_fund_id FROM instore.checkouts c JOIN retail.stores s ON s.id = c.store_id
+              WHERE c.payout_id = ${id} GROUP BY s.id ORDER BY sum(c.paid_amount) DESC, s.id LIMIT 1`)
+          ).rows[0]
+        : undefined;
     const ownerActor: Actor | null = current.recipient_kind === "retail_company" ? { ...actor, companyId: current.recipient_company_id! } : null;
     if (ownerActor) await this.payments.prepareInstorePayoutNumbering(ownerActor);
     await this.database.transaction(async (transaction) => {
@@ -482,18 +487,19 @@ export class InstorePayoutsService {
       if (ownerActor && locked.receivable_debt_item_id) {
         const operatorPartner = (await transaction.execute<{ partner_id: string }>(sql`SELECT partner_id FROM finance.debt_items WHERE id = ${locked.receivable_debt_item_id}`)).rows[0]!
           .partner_id;
-        if (ownerFund) {
-          receiptId = await this.payments.recordInstorePayoutWithin(transaction, ownerActor, {
-            kind: "instore_payout_receipt",
-            partnerId: operatorPartner,
-            fundId: ownerFund,
-            paymentDate: input.transferredOn,
-            amount: locked.amount,
-            referenceNo: input.bankTransactionNo,
-            note,
-            payoutId: id,
-            debtItemId: locked.receivable_debt_item_id,
-          });
+        const receipt = {
+          partnerId: operatorPartner,
+          paymentDate: input.transferredOn,
+          amount: locked.amount,
+          referenceNo: input.bankTransactionNo,
+          note,
+          payoutId: id,
+          debtItemId: locked.receivable_debt_item_id,
+        };
+        if (ownerStore?.bank_fund_id) {
+          receiptId = await this.payments.recordInstorePayoutWithin(transaction, ownerActor, { ...receipt, kind: "instore_payout_receipt", fundId: ownerStore.bank_fund_id });
+        } else if (ownerStore) {
+          receiptId = await this.payments.draftInstorePayoutReceiptWithin(transaction, ownerActor, { ...receipt, fundId: ownerStore.cash_fund_id });
         }
       }
       await transaction.execute(sql`
@@ -509,6 +515,37 @@ export class InstorePayoutsService {
           entityType: "instore_payout",
           entityId: id,
           afterData: { ...input, paymentId, receiptId },
+          ip: actor.client.ip,
+          userAgent: actor.client.userAgent,
+          requestId: actor.client.requestId,
+        },
+        transaction,
+      );
+    });
+    return this.detail(actor, id, true);
+  }
+
+  // Ghi sổ phiếu thu nháp ở công ty nhận (công ty tập đoàn): quỹ ngân hàng kế toán chọn; trừ công nợ phải thu nội bộ của bảng.
+  async postReceipt(actor: Actor, id: string, input: z.infer<typeof instorePostReceiptSchema>): Promise<InstorePayoutDetail> {
+    const scope = await this.scopeOf(actor.companyId);
+    if (scope.isOperator) throw new ApiError("FORBIDDEN", "forbidden");
+    const current = await this.row(id, scope.where);
+    if (current.receipt_status !== "draft" || !current.receipt_id) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    await this.payments.prepareInstorePayoutNumbering(actor);
+    await this.database.transaction(async (transaction) => {
+      const locked = (await transaction.execute<{ version: number }>(sql`SELECT version FROM instore.payouts WHERE id = ${id} FOR UPDATE`)).rows[0]!;
+      if (locked.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.payments.postInstorePayoutDraftWithin(transaction, actor, current.receipt_id!, input.fundId);
+      await transaction.execute(sql`UPDATE instore.payouts SET updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      await this.audit.record(
+        {
+          actorUserId: actor.userId,
+          companyId: actor.companyId,
+          appCode: "finance",
+          action: "instore_payout.receipt_posted",
+          entityType: "instore_payout",
+          entityId: id,
+          afterData: { ...input, receiptId: current.receipt_id },
           ip: actor.client.ip,
           userAgent: actor.client.userAgent,
           requestId: actor.client.requestId,

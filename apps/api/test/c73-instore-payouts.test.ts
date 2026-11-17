@@ -182,7 +182,7 @@ describe("Hạch toán và bảng chuyển tiền thu hộ (QUYTAC_NGHIEPVU_585,
     expect(early.status).toBe(400);
     const done = await fixture.admin.call("post", `/finance/instore/payouts/${pending.id}/transferred`, { companyId: operator, body: body() });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
-    expect(done.body).toMatchObject({ status: "transferred", bankTransactionNo: "FT2632104455", paymentNo: expect.stringMatching(/^PC/), receiptMissing: false });
+    expect(done.body).toMatchObject({ status: "transferred", bankTransactionNo: "FT2632104455", paymentNo: expect.stringMatching(/^PC/), receiptDraft: false });
     const payment = (await pool.query("SELECT id, kind, status, amount::text FROM finance.payments WHERE instore_payout_id = $1", [pending.id])).rows[0];
     expect(payment).toMatchObject({ kind: "instore_payout_payment", status: "posted", amount: "131420.0000" });
     expect(await journal("payment", payment.id)).toEqual([

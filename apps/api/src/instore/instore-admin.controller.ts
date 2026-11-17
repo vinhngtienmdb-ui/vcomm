@@ -1,9 +1,11 @@
 // API_332 phần biểu phí cổng tại cửa hàng (CONG_VIEC_73 lát L4; MAN_HINH_280): công ty vận hành sàn xem, sửa.
-// API_333 bảng chuyển tiền thu hộ (lát L5; MAN_HINH_281): công ty vận hành sàn xem, ghi đã chuyển; công ty sở hữu cửa hàng tập đoàn xem bảng của mình.
+// API_333 bảng chuyển tiền thu hộ (lát L5; MAN_HINH_281): công ty vận hành sàn xem, ghi đã chuyển; công ty sở hữu cửa hàng tập đoàn xem bảng của mình,
+// ghi sổ phiếu thu nháp (cửa hàng chưa cài quỹ ngân hàng).
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
   instoreGatewayFeesSchema,
   instorePayoutListQuerySchema,
+  instorePostReceiptSchema,
   instoreSettingsSchema,
   instoreTransferredSchema,
   type InstoreGatewayFeesResponse,
@@ -47,6 +49,12 @@ export class InstoreAdminController {
   @HttpCode(200)
   async transferred(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") requested?: string): Promise<InstorePayoutDetail> {
     return this.payouts.markTransferred(await this.actor(request, requested, "finance.instore.manage"), id, instoreTransferredSchema.parse(body));
+  }
+
+  @Post("payouts/:id/receipt")
+  @HttpCode(200)
+  async postReceipt(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") requested?: string): Promise<InstorePayoutDetail> {
+    return this.payouts.postReceipt(await this.actor(request, requested, "finance.instore.manage"), id, instorePostReceiptSchema.parse(body));
   }
 
   @Get("settings")

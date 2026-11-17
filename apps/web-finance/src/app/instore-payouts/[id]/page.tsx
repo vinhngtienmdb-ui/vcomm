@@ -1,8 +1,9 @@
 "use client";
 
 // MAN_HINH_281 chi tiết bảng chuyển tiền thu hộ (CONG_VIEC_73 lát L5; API_333): G, H, I, K, L, M, N, tiền chuyển; đơn thu hộ; khoản trừ khác; ghi đã chuyển
-// (công ty vận hành sàn): ngày chuyển, quỹ chi, số giao dịch ngân hàng. Lưu thì lập phiếu chi (và phiếu thu ở công ty sở hữu cửa hàng tập đoàn).
-import type { FundResponse, InstorePayoutDetail, InstoreTransferredRequest } from "contracts";
+// (công ty vận hành sàn): ngày chuyển, quỹ chi, số giao dịch ngân hàng. Lưu thì lập phiếu chi (và phiếu thu ở công ty sở hữu cửa hàng tập đoàn);
+// phiếu thu nháp (cửa hàng chưa cài quỹ ngân hàng): công ty nhận chọn quỹ ngân hàng rồi ghi sổ.
+import type { FundResponse, InstorePayoutDetail, InstorePostReceiptRequest, InstoreTransferredRequest } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -69,6 +70,55 @@ function Transfer({ payout, onDone }: { payout: InstorePayoutDetail; onDone: () 
   );
 }
 
+function PostReceipt({ payout, onDone }: { payout: InstorePayoutDetail; onDone: () => void }) {
+  const t = useTranslations("instorePayouts");
+  const { notify } = useAdmin();
+  const funds = useApi<FundResponse[]>("/finance/funds");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const [fundId, setFundId] = useState("");
+  const banks = funds.state.kind === "ready" ? funds.state.data.filter((fund) => fund.kind === "bank" && fund.status === "active" && !fund.foreign) : [];
+  useEffect(() => {
+    if (!fundId && banks[0]) setFundId(banks[0].id);
+  }, [banks, fundId]);
+  return (
+    <form
+      className="the"
+      style={{ display: "grid", gap: "var(--khoang-3)" }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void run(async () => {
+          const body: InstorePostReceiptRequest = { fundId, version: payout.version };
+          await apiFetch(`/finance/instore/payouts/${payout.id}/receipt`, { method: "POST", body: JSON.stringify(body) });
+          notify(t("receiptPosted"));
+          onDone();
+        });
+      }}
+    >
+      <h2>{t("postReceiptTitle")}</h2>
+      {funds.state.kind === "ready" && banks.length === 0 ? (
+        <p className="chu-thich">{t("noBankFund")}</p>
+      ) : (
+        <Field id="quy-thu" label={t("receiptFund")} error={fields.fundId}>
+          <select id="quy-thu" className={inputClass("fundId")} value={fundId} onChange={(event) => setFundId(event.target.value)}>
+            {banks.map((fund) => (
+              <option key={fund.id} value={fund.id}>
+                {fund.name}
+                {fund.accountNo ? ` · ${fund.accountNo}` : ""}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+      <FormError text={formError} />
+      <div className="nhom-nut">
+        <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || !fundId}>
+          {t("postReceipt", { amount: formatNumber(payout.amount, 0) })}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function InstorePayoutPage() {
   const t = useTranslations("instorePayouts");
   const { id } = useParams<{ id: string }>();
@@ -92,7 +142,7 @@ export default function InstorePayoutPage() {
             {payout.paymentNo && ` · ${t("paymentNo", { no: payout.paymentNo })}`}
             {payout.receiptNo && ` · ${t("receiptNo", { no: payout.receiptNo })}`}
           </p>
-          {payout.receiptMissing && <div className="khoi-canh-bao canh-bao">{t("receiptMissing")}</div>}
+          {payout.receiptDraft && <div className="khoi-canh-bao canh-bao">{t("receiptDraft")}</div>}
           <section className="the" style={{ display: "grid", gap: "var(--khoang-2)", maxWidth: 560 }}>
             {[
               ["G", t("collected"), money(payout.collectedAmount)],
@@ -117,6 +167,7 @@ export default function InstorePayoutPage() {
             {Number(payout.amount) === 0 && <p className="chu-thich">{t("nothingHint")}</p>}
           </section>
           {payout.canTransfer && <Transfer payout={payout} onDone={() => void reload()} />}
+          {payout.canPostReceipt && <PostReceipt payout={payout} onDone={() => void reload()} />}
           <h2>{t("linesTitle")}</h2>
           {payout.lines.length === 0 ? (
             <MessageView text={t("noLines")} />

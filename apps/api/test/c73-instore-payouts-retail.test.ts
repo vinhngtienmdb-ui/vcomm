@@ -1,6 +1,7 @@
 // CONG_VIEC_73 lát L5: cửa hàng tập đoàn của công ty khác công ty vận hành sàn (QUYTAC_NGHIEPVU_587).
 // Công ty vận hành sàn (công ty mẹ) ghi Nợ 112 / Có 336; công ty sở hữu cửa hàng ghi dòng "Ứng dụng VComm" Nợ 136 / Có 131; lập bảng ghi phí ở hai công ty;
-// ghi đã chuyển lập phiếu chi ở công ty vận hành sàn và phiếu thu ở công ty sở hữu (quỹ ngân hàng của cửa hàng), trừ công nợ hai bên.
+// ghi đã chuyển lập phiếu chi ở công ty vận hành sàn; cửa hàng chưa cài quỹ ngân hàng thì phiếu thu ở công ty sở hữu để nháp, công ty đó chọn quỹ ngân hàng rồi ghi sổ.
+// (Phiếu thu ghi sổ ngay vào quỹ ngân hàng của cửa hàng dùng chung hàm ghi sổ với phiếu chi.)
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { randomUUID } from "node:crypto";
 import type { Pool } from "pg";
@@ -148,29 +149,57 @@ describe("Hạch toán hai công ty khi cửa hàng tập đoàn khác công ty 
     expect((await fixture.admin.call("post", `/finance/instore/payouts/${payoutId}/transferred`, { companyId: retail, body: { transferredOn: "2026-12-01", bankTransactionNo: "X", fundId: operatorFund, version: 1 } })).status).toBe(403);
   });
 
-  it("ghi đã chuyển: phiếu chi ở công ty mẹ, phiếu thu ở công ty bán lẻ vào quỹ ngân hàng của cửa hàng; công nợ hai bên hết", async () => {
+  it("ghi đã chuyển khi cửa hàng chưa cài quỹ ngân hàng: phiếu chi ở công ty mẹ ghi sổ ngay, phiếu thu ở công ty bán lẻ để nháp", async () => {
+    await pool.query("UPDATE retail.stores SET bank_fund_id = NULL WHERE company_id = $1", [retail]);
     const current = (await groupAdmin.call("get", `/finance/instore/payouts/${payoutId}`, { companyId: group })).body;
     const done = await groupAdmin.call("post", `/finance/instore/payouts/${payoutId}/transferred`, {
       companyId: group,
       body: { transferredOn: current.businessDate, bankTransactionNo: "FT0001", fundId: operatorFund, version: current.version },
     });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
-    expect(done.body).toMatchObject({ status: "transferred", paymentNo: expect.stringMatching(/^PC/), receiptNo: expect.stringMatching(/^PT/), receiptMissing: false });
-    const vouchers = (await pool.query("SELECT id, company_id, kind, fund_id FROM finance.payments WHERE instore_payout_id = $1 ORDER BY kind", [payoutId])).rows;
-    expect(vouchers.map((row) => [row.company_id === group ? "mẹ" : "bán lẻ", row.kind])).toEqual([
-      ["mẹ", "instore_payout_payment"],
-      ["bán lẻ", "instore_payout_receipt"],
+    expect(done.body).toMatchObject({ status: "transferred", paymentNo: expect.stringMatching(/^PC/), receiptNo: null, receiptDraft: true, canPostReceipt: false });
+    const vouchers = (await pool.query("SELECT id, company_id, kind, fund_id, status, document_no FROM finance.payments WHERE instore_payout_id = $1 ORDER BY kind", [payoutId])).rows;
+    expect(vouchers.map((row) => [row.company_id === group ? "mẹ" : "bán lẻ", row.kind, row.status])).toEqual([
+      ["mẹ", "instore_payout_payment", "posted"],
+      ["bán lẻ", "instore_payout_receipt", "draft"],
     ]);
-    expect(vouchers[1].fund_id).toBe(fixture.bankFund);
+    // Quỹ tạm của phiếu nháp là quỹ tiền mặt của cửa hàng; chưa cấp số, chưa bút toán, công nợ phải thu nội bộ còn nguyên.
+    expect(vouchers[1]).toMatchObject({ fund_id: fixture.cashFund, document_no: null });
     expect(await journal("payment", vouchers[0].id)).toEqual([
       ["mẹ", "3368", 106700, 0],
       ["mẹ", "112", 0, 106700],
     ]);
-    expect(await journal("payment", vouchers[1].id)).toEqual([
+    expect(await journal("payment", vouchers[1].id)).toEqual([]);
+    // Phiếu nháp không sửa, không gửi ở màn hình phiếu thu chi thường.
+    expect((await fixture.admin.call("post", `/finance/payments/${vouchers[1].id}/submit`, { companyId: retail, body: { version: 1 } })).body.error.code).toBe("BUSINESS_RULE");
+    const debts = async () =>
+      (await pool.query("SELECT source_type, open_amount::text FROM finance.debt_items WHERE source_type IN ('instore_payout', 'instore_payout_owner') AND source_id = $1 ORDER BY source_type", [payoutId]))
+        .rows.map((row) => [row.source_type, row.open_amount]);
+    expect(await debts()).toEqual([
+      ["instore_payout", "0.0000"],
+      ["instore_payout_owner", "106700.0000"],
+    ]);
+  });
+
+  it("công ty bán lẻ chọn quỹ ngân hàng, ghi sổ phiếu thu nháp: Nợ 112 / Có 1368, công nợ phải thu nội bộ hết", async () => {
+    const own = (await fixture.admin.call("get", `/finance/instore/payouts/${payoutId}`, { companyId: retail })).body;
+    expect(own).toMatchObject({ receiptDraft: true, canPostReceipt: true, canTransfer: false });
+    // Công ty mẹ không ghi sổ phiếu của công ty bán lẻ; quỹ tiền mặt không nhận được tiền chuyển khoản.
+    expect((await groupAdmin.call("post", `/finance/instore/payouts/${payoutId}/receipt`, { companyId: group, body: { fundId: fixture.bankFund, version: own.version } })).status).toBe(403);
+    const cash = await fixture.admin.call("post", `/finance/instore/payouts/${payoutId}/receipt`, { companyId: retail, body: { fundId: fixture.cashFund, version: own.version } });
+    expect(cash.body.error.code, JSON.stringify(cash.body)).toBe("VALIDATION_FAILED");
+    const posted = await fixture.admin.call("post", `/finance/instore/payouts/${payoutId}/receipt`, { companyId: retail, body: { fundId: fixture.bankFund, version: own.version } });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(200);
+    expect(posted.body).toMatchObject({ receiptNo: expect.stringMatching(/^PT/), receiptDraft: false, canPostReceipt: false });
+    const receipt = (await pool.query("SELECT id, fund_id, status FROM finance.payments WHERE instore_payout_id = $1 AND kind = 'instore_payout_receipt'", [payoutId])).rows[0];
+    expect(receipt).toMatchObject({ fund_id: fixture.bankFund, status: "posted" });
+    expect(await journal("payment", receipt.id)).toEqual([
       ["bán lẻ", "112", 106700, 0],
       ["bán lẻ", "1368", 0, 106700],
     ]);
     const open = await pool.query("SELECT open_amount::text FROM finance.debt_items WHERE source_type IN ('instore_payout', 'instore_payout_owner') AND source_id = $1", [payoutId]);
     expect(open.rows.map((row) => row.open_amount)).toEqual(["0.0000", "0.0000"]);
+    // Ghi sổ lần hai bị từ chối.
+    expect((await fixture.admin.call("post", `/finance/instore/payouts/${payoutId}/receipt`, { companyId: retail, body: { fundId: fixture.bankFund, version: posted.body.version } })).status).toBe(409);
   });
 });
