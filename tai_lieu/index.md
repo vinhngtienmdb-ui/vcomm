@@ -70,5 +70,6 @@
 | CONG_VIEC_59 | [cong_viec/CONG_VIEC_59.md](cong_viec/CONG_VIEC_59.md) | Đã nghiệm thu, gộp vào bản phát hành 0.9.0 |
 | CONG_VIEC_66 | [cong_viec/CONG_VIEC_66.md](cong_viec/CONG_VIEC_66.md) | Đã nghiệm thu, gộp vào bản phát hành 0.9.0 |
 | CONG_VIEC_68 | [cong_viec/CONG_VIEC_68.md](cong_viec/CONG_VIEC_68.md) | Đã nghiệm thu, chờ phát hành |
+| CONG_VIEC_63 | [cong_viec/CONG_VIEC_63.md](cong_viec/CONG_VIEC_63.md) | Bản nháp, chờ duyệt |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.
