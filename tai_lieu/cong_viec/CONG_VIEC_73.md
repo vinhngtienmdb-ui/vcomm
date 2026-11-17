@@ -560,6 +560,38 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Khoản ghi ngược L luôn bằng 0 cho đến L7 (hủy, hoàn tiền đơn đã thu).
 - Hợp nhất `main` v0.13.1 (LOI_15) vào nhánh; gỡ xung đột ở `cua-hang-lien-ket.tsx`: giữ cách gọi `json:` của LOI_15 và phần nhận mã QR thanh toán, nút mở mã thanh toán của CONG_VIEC_73.
 
+### Kết quả lát L6 (2026-11-17)
+
+- Database migration 0171:
+  - `affiliate.einvoice_mandates`: dữ liệu ủy nhiệm, tệp PDF tối đa 10 MB.
+  - `affiliate.einvoice_series`: ký hiệu riêng theo năm.
+  - `affiliate.einvoice_backlog`: việc chờ lập.
+  - `instore.fee_invoices`: hóa đơn phí sàn tháng.
+  - `finance.einvoices` thêm nguồn giao dịch cửa hàng liên kết, nguồn hóa đơn phí sàn tháng và cửa hàng ủy nhiệm; số hóa đơn duy nhất theo người bán.
+- Máy chủ:
+  - Hóa đơn ủy nhiệm lập trong giao dịch hoàn tất của đơn thu hộ: người bán là cửa hàng, mẫu 1 hoặc 2 theo phương pháp tính thuế, có dòng ủy nhiệm.
+  - Dòng hàng lấy theo đơn, không có thì một dòng mặc định. Voucher cửa hàng là chiết khấu thương mại chia theo thuế suất.
+  - Người mua lấy theo thông tin khách nhập trên MAN_HINH_277.
+  - API_334; lập bù gửi ngay.
+  - Nhà cung cấp MISA: hóa đơn ở "Lỗi cài đặt", không gửi; gửi lại cũng báo lỗi cài đặt.
+  - Hóa đơn phí sàn tháng do việc nền `instore-fee-invoices-monthly` lập lúc 2 giờ sáng ngày 1, không sinh bút toán.
+  - Bộ giả lập đánh số theo người bán; PDF in dòng ủy nhiệm.
+- Giao diện:
+  - MAN_HINH_279: phần ủy nhiệm, ký hiệu, văn bản, việc chờ lập, "Lập bù".
+  - MAN_HINH_54: cột Người bán, bộ lọc "Chỉ hóa đơn lập theo ủy nhiệm"; nhãn "Phiếu kho" đổi thành "Chứng từ nguồn".
+  - Cổng cửa hàng: cột Hóa đơn ở bảng giao dịch (mở PDF).
+  - Ứng dụng: lịch sử giao dịch có nút "Xem hóa đơn".
+- Kiểm thử: `apps/api/test/c73-instore-einvoices.test.ts` (KICHBAN_KIEMTHU_763 trừ phần hủy, làm ở L7).
+- Lệch so với đặc tả, cần người dùng biết:
+  - Thuế suất phí sàn, phí thu hộ (MAN_HINH_280) chỉ còn 0, 5, 8, 10 %, ô nhập đổi thành ô chọn. Lý do: hóa đơn điện tử chỉ ghi được các mức này.
+  - Phương pháp trực tiếp (hóa đơn bán hàng): dòng hóa đơn không tách thuế, ghi thuế suất "không kê khai, nộp thuế".
+  - Tệp văn bản ủy nhiệm không bắt buộc để lập hóa đơn. Điều kiện lập: có dữ liệu ủy nhiệm, ủy nhiệm còn hiệu lực ở ngày hóa đơn, có ký hiệu của năm, công ty vận hành sàn đã bật hóa đơn điện tử.
+  - Lập bù ghi ngày hóa đơn là ngày lập bù.
+  - Lý do trong việc chờ lập là lý do lúc ghi; khi đủ dữ liệu, người dùng bấm "Lập bù" (không tự lập lại).
+  - Thuế suất riêng từng dòng chỉ có khi đơn gửi `vatRate` trên dòng (Open API ở L7). Tổng các dòng khác tiền hóa đơn thì lập một dòng mặc định.
+  - Công ty vận hành sàn chưa bật hóa đơn điện tử lúc chạy việc nền tháng: không lập hóa đơn phí sàn của tháng đó, chỉ ghi nhật ký; bật sau phải chạy lại việc nền cho tháng đó.
+  - Ứng dụng mở PDF bằng trình duyệt qua đường dẫn có hạn 10 phút (không thêm thư viện tải tệp).
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
