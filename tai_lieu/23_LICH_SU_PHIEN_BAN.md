@@ -24,7 +24,7 @@
 - Khả năng tương thích: tương thích ngược với 0.11.0; không đổi cấu trúc dữ liệu, API, quyền.
 - Công việc gộp trong phiên bản: CONG_VIEC_69 (pull request #173, đầu nhánh `4f132d86`), CONG_VIEC_70 (#174, THAY_DOI_36, đầu nhánh `a4f96123`). Nhánh phát hành tạo từ `main` sau khi hợp nhất LOI_14 (pull request #176, sửa cấu hình kiểm thử).
 - Đánh lại số mục tài liệu trùng khi gộp: không cần (CONG_VIEC_69 không thêm mục tài liệu; mã định danh của CONG_VIEC_70 không trùng).
-- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10207 khóa; kiểm thử API toàn bộ một tiến trình đang chạy (ghi kết quả ở commit sau).
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10207 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER, đã có LOI_14 chờ qua 0 giờ) 150 tệp, 817 kiểm thử đạt (CONG_VIEC_70 thêm `c70-sms-exposure.test.ts`, 3 kiểm thử). Lần chạy đầu bị lỗi khóa chết (`deadlock detected`) khi chạy database migration do một lần chạy thử cũ còn chạy song song trên cùng cơ sở dữ liệu kiểm thử; dừng hết rồi chạy lại một lần duy nhất thì đạt toàn bộ, không phải lỗi mã.
 - Tag: `v0.12.0` trên commit hợp nhất nhánh `phat-hanh/v0.12.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.11.0`.
