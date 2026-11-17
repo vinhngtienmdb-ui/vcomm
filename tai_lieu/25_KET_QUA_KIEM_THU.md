@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L0
+- Phạm vi: schema `ipos` (gói, thông tin thu phí, thuê bao; trigger chặn điểm bán của cửa hàng khác), quyền `ipos.plan.manage`, `ipos.subscription.manage`, API_354, 355, việc nền `ipos-subscriptions-daily`, MAN_HINH_303, 304; nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `de76af95`).
+- Kết quả: c74-subscriptions 5/5 đạt; toàn bộ kiểm thử API 155 tệp, 880 đạt; CI đạt (kiểm tra kiểu, lint, kiểm thử; quét bảo mật).
+- Kết luận: Đạt lát L0; người dùng duyệt điểm xem trước 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_72
 - Phạm vi: ưu tiên Smart OTP (THAY_DOI_37) lát L1 đến L6, nhánh `chuc-nang/CONG_VIEC_72-uu-tien-smart-otp` (pull request #177, commit `f776efc`; mã cuối `1fc0904`), đã hợp nhất main v0.13.0.
 - Kết quả: c72-authentication-settings (KICHBAN_KIEMTHU_749), c72-smart-otp-activation (734, 735, 736), c72-new-device (739, 740, 741, 743 phần đăng nhập), c72-recovery (742, 744), c72-transition (743 Open API, 748), c72-transition-partner (743 đối tác), c72-merchant-portal (745, 746, 747) đạt; toàn bộ kiểm thử API 161 tệp, 894 đạt trên `1fc0904`; kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform, web-retail đạt; khóa dịch khớp; CI đạt. KICHBAN_KIEMTHU_737, 738 (sinh trắc học, mã khóa trên máy thật) chờ người dùng thử theo đặc tả mục 21.
