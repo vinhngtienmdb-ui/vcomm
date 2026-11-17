@@ -935,3 +935,146 @@ export function iposVietqrPayload(input: { bankBin: string; accountNo: string; a
   }
   return payload + crc.toString(16).toUpperCase().padStart(4, "0");
 }
+
+// Lát L5: trả hàng, hủy hóa đơn (API_343; QUYTAC_NGHIEPVU_624).
+export type IposReturnKind = "partial" | "full_cancel";
+export interface IposReturnLookupLine {
+  saleLineId: string;
+  lineNo: number;
+  name: string;
+  unit: string;
+  quantity: string;
+  returnedQuantity: string;
+  amount: string;
+  returnedAmount: string;
+}
+export interface IposReturnLookup {
+  sale: IposSale;
+  lines: IposReturnLookupLine[];
+  // Hóa đơn chỉ tiền mặt, VietQR: trả một phần; có điểm, voucher, ứng dụng VComm: chỉ hủy toàn bộ.
+  mode: IposReturnKind;
+  deadline: string;
+  // Lý do không trả được (quá hạn, đã hủy, đã trả hết); trống thì trả được.
+  blockedReason: string | null;
+  needsApproval: boolean;
+}
+export const iposReturnCreateSchema = z
+  .object({
+    idempotencyKey: z.string().uuid(),
+    shiftId: z.string().uuid(),
+    saleId: z.string().uuid(),
+    kind: z.enum(["partial", "full_cancel"]),
+    lines: z
+      .array(
+        z
+          .object({
+            saleLineId: z.string().uuid(),
+            quantity: z
+              .union([z.string(), z.number()])
+              .transform((value) => String(value).trim().replace(",", "."))
+              .pipe(z.string().regex(/^\d{1,4}(\.\d{1,3})?$/, "invalidValue"))
+              .refine((value) => Number(value) > 0, "invalidValue"),
+          })
+          .strict(),
+      )
+      .max(200),
+    reason: z.string().trim().min(1).max(200),
+    approvalCode: z.string().regex(/^\d{6}$/, "invalidValue").nullable(),
+  })
+  .strict()
+  .refine((value) => value.kind === "full_cancel" || value.lines.length > 0, { message: "required", path: ["lines"] });
+export interface IposReturn {
+  id: string;
+  documentNo: string;
+  kind: IposReturnKind;
+  saleId: string;
+  saleDocumentNo: string;
+  outletName: string;
+  outletAddress: string;
+  merchantName: string;
+  registerName: string;
+  memberName: string;
+  amount: string;
+  refundCash: string;
+  reason: string;
+  approvedByName: string | null;
+  createdAt: string;
+  lines: { name: string; unit: string; quantity: string; amount: string }[];
+}
+
+// Cổng cửa hàng: tổng quan (API_344), ca, hóa đơn, phiếu trả (API_350), báo cáo (API_351).
+export interface IposPortalShiftRow {
+  id: string;
+  outletName: string;
+  registerName: string;
+  memberName: string;
+  openedAt: string;
+  closedAt: string | null;
+  closedByName: string | null;
+  salesCount: number;
+  revenue: string;
+  systemCash: string | null;
+  countedCash: string | null;
+  difference: string | null;
+  // Ca mở quá 24 giờ (QUYTAC_NGHIEPVU_623 khoản 5).
+  overdue: boolean;
+}
+export interface IposOverview {
+  todayRevenue: string;
+  todaySales: number;
+  weekRevenue: string;
+  openShifts: IposPortalShiftRow[];
+  lowStock: { variantId: string; outletName: string; name: string; quantity: string; minQuantity: string }[];
+  lowStockTotal: number;
+  outlets: IposPortalOutlet[];
+  pendingRegistrations: number;
+}
+export interface IposPortalSaleRow {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  outletName: string;
+  registerName: string;
+  memberName: string;
+  total: string;
+  returnedAmount: string;
+  methods: IposPaymentMethod[];
+  status: "completed" | "cancelled";
+}
+export interface IposPortalReturnRow {
+  id: string;
+  documentNo: string;
+  kind: IposReturnKind;
+  saleDocumentNo: string;
+  createdAt: string;
+  outletName: string;
+  memberName: string;
+  amount: string;
+  refundCash: string;
+  reason: string;
+}
+export const iposPortalPeriodQuery = z.object({
+  from: isoDate,
+  to: isoDate,
+  outletId: z.string().uuid().optional(),
+  registerId: z.string().uuid().optional(),
+  memberId: z.string().uuid().optional(),
+});
+export interface IposReport {
+  from: string;
+  to: string;
+  grossSales: string;
+  returns: string;
+  netRevenue: string;
+  salesCount: number;
+  returnsCount: number;
+  averageSale: string;
+  grossProfit: string;
+  byDay: { day: string; net: string; sales: number }[];
+  byMethod: { method: IposPaymentMethod; amount: string }[];
+  cashRefunds: string;
+  byHour: { hour: number; net: string; sales: number }[];
+  topItems: { variantId: string; itemCode: string; name: string; quantity: string; revenue: string; cost: string | null; grossProfit: string | null }[];
+  shifts: IposPortalShiftRow[];
+  stock: { outletName: string; items: number; value: string; negative: number; belowMin: number }[];
+}

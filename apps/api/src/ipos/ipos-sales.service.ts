@@ -217,6 +217,13 @@ export class IposSalesService {
 
   // Chi tiết hóa đơn của điểm bán của thiết bị (để in, in lại).
   async detail(actor: IposPosActor, id: string): Promise<IposSale> {
+    const found = await this.database.execute(sql`SELECT 1 FROM ipos.sales WHERE id = ${id} AND outlet_id = ${actor.device.outletId}`);
+    if (found.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+    return this.detailForMerchant(actor.device.merchantId, id);
+  }
+
+  // Chi tiết hóa đơn trong phạm vi cửa hàng (trả hàng ở điểm bán khác của cửa hàng, cổng cửa hàng).
+  async detailForMerchant(merchantId: string, id: string): Promise<IposSale> {
     const row = (
       await this.database.execute<{
         id: string;
@@ -240,7 +247,7 @@ export class IposSalesService {
           s.subtotal::text, s.line_discount::text, s.invoice_discount::text, s.total::text, ap.full_name AS approved_by_name, s.print_count, s.status, s.loyalty_skip_reason
         FROM ipos.sales s JOIN affiliate.outlets o ON o.id = s.outlet_id JOIN affiliate.merchants m ON m.id = s.merchant_id JOIN crm.partners p ON p.id = m.partner_id
         JOIN ipos.registers r ON r.id = s.register_id JOIN affiliate.members mb ON mb.id = s.member_id LEFT JOIN affiliate.members ap ON ap.id = s.discount_approved_by
-        WHERE s.id = ${id} AND s.outlet_id = ${actor.device.outletId}`)
+        WHERE s.id = ${id} AND s.merchant_id = ${merchantId}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const lines = await this.database.execute<{
@@ -272,7 +279,7 @@ export class IposSalesService {
         LEFT JOIN affiliate.transactions t ON t.id = (SELECT affiliate_transaction_id FROM ipos.sale_payments WHERE sale_id = s.id AND affiliate_transaction_id IS NOT NULL LIMIT 1)
         WHERE s.id = ${id}`)
     ).rows[0];
-    const settings = await loadSettings(this.database, actor.device.merchantId);
+    const settings = await loadSettings(this.database, merchantId);
     const change = payments.rows.reduce((sum, payment) => sum + (payment.tendered === null ? 0 : Number(payment.tendered) - Number(payment.amount)), 0);
     return {
       id: row.id,

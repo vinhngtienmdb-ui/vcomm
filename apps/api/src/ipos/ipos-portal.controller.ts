@@ -1,4 +1,4 @@
-// API_345 đến 349, 352: cổng cửa hàng nhóm iPOS – danh mục hàng, nhập Excel, tồn kho, quyền vào, quầy, mã ghép, thiết bị, duyệt thu ngân tự đăng ký (CONG_VIEC_74).
+// API_344 đến 352: cổng cửa hàng nhóm iPOS – danh mục hàng, nhập Excel, tồn kho, quyền vào, quầy, mã ghép, thiết bị, duyệt thu ngân tự đăng ký (CONG_VIEC_74).
 // Danh mục, tồn kho, quầy, thiết bị, duyệt thu ngân chỉ chủ cửa hàng; thu ngân xem được quyền vào nhóm iPOS của điểm bán được gán.
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -11,6 +11,17 @@ import {
   iposOutletPricesSchema,
   iposStockDocumentSchema,
   iposOutletCodeSchema,
+  iposCloseShiftSchema,
+  iposPortalPeriodQuery,
+  iposPaymentMethods,
+  type IposOverview,
+  type IposPortalReturnRow,
+  type IposPortalSaleRow,
+  type IposPortalShiftRow,
+  type IposReport,
+  type IposReturn,
+  type IposSale,
+  type IposShiftReport,
   iposSettingsSchema,
   type IposSettingsPage,
   type IposCategory,
@@ -43,6 +54,11 @@ import { IposCatalogService } from "./ipos-catalog.service";
 import { IposImportService } from "./ipos-import.service";
 import { IposStockService } from "./ipos-stock.service";
 import { IposSettingsService } from "./ipos-settings.service";
+import { IposReportsService } from "./ipos-reports.service";
+import { IposReturnsService } from "./ipos-returns.service";
+import { IposSalesService } from "./ipos-sales.service";
+import { IposShiftsService } from "./ipos-shifts.service";
+import { messages } from "i18n";
 import { IposRegistersService } from "./ipos-registers.service";
 import { IposRegistrationsService } from "./ipos-registrations.service";
 
@@ -58,6 +74,7 @@ const stockQuery = z.object({ outletId: z.string().uuid(), search: z.string().tr
 const documentsQuery = z.object({ outletId: z.string().uuid().optional() });
 const movesQuery = z.object({ outletId: z.string().uuid(), variantId: z.string().uuid().optional() });
 const importBody = z.object({ outletId: z.string().uuid().optional().or(z.literal("").transform(() => undefined)) });
+const salesQuery = iposPortalPeriodQuery.extend({ method: z.enum(iposPaymentMethods).optional(), search: z.string().trim().max(30).optional() });
 const upload = FileInterceptor("file", { limits: { fileSize: iposImportMaximumBytes * 2, files: 1 } });
 type UploadedExcel = { buffer: Buffer; size: number } | undefined;
 
@@ -71,6 +88,10 @@ export class IposPortalController {
     private readonly imports: IposImportService,
     private readonly stockService: IposStockService,
     private readonly settings: IposSettingsService,
+    private readonly reports: IposReportsService,
+    private readonly shiftsService: IposShiftsService,
+    private readonly salesService: IposSalesService,
+    private readonly returnsService: IposReturnsService,
   ) {}
 
   private member(request: AuthenticatedRequest) {
@@ -235,5 +256,64 @@ export class IposPortalController {
   @Put("outlets/:id/code")
   async outletCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposSettingsPage> {
     return this.settings.saveOutletCode(await this.owner(request), id, iposOutletCodeSchema.parse(body).code);
+  }
+
+  // API_344: tổng quan.
+  @Get("overview")
+  async overview(@Req() request: AuthenticatedRequest): Promise<IposOverview> {
+    return this.reports.overview(await this.owner(request));
+  }
+
+  // API_350: ca (đóng hộ), hóa đơn, phiếu trả.
+  @Get("shifts")
+  async shifts(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposPortalShiftRow[]> {
+    return this.reports.shifts(await this.owner(request), iposPortalPeriodQuery.parse(query));
+  }
+
+  @Get("shifts/:id")
+  async shift(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposShiftReport> {
+    return this.shiftsService.reportFor((await this.owner(request)).merchantId, id);
+  }
+
+  @Post("shifts/:id/close")
+  async closeShift(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposShiftReport> {
+    const member = await this.owner(request);
+    return this.shiftsService.closeOnBehalf(member.merchantId, member.memberId, id, iposCloseShiftSchema.parse(body));
+  }
+
+  @Get("sales")
+  async sales(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposPortalSaleRow[]> {
+    return this.reports.sales(await this.owner(request), salesQuery.parse(query));
+  }
+
+  @Get("sales/:id")
+  async sale(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposSale> {
+    return this.salesService.detailForMerchant((await this.owner(request)).merchantId, id);
+  }
+
+  @Get("returns")
+  async returnsList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposPortalReturnRow[]> {
+    return this.reports.returns(await this.owner(request), iposPortalPeriodQuery.parse(query));
+  }
+
+  @Get("returns/:id")
+  async returnDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposReturn> {
+    return this.returnsService.detail((await this.owner(request)).merchantId, id);
+  }
+
+  // API_351: báo cáo cửa hàng, xuất Excel.
+  @Get("reports")
+  async report(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposReport> {
+    return this.reports.report(await this.owner(request), iposPortalPeriodQuery.parse(query));
+  }
+
+  @Get("reports/export")
+  async exportReport(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Res() response: Response): Promise<void> {
+    const period = iposPortalPeriodQuery.parse(query);
+    const words = messages[localeOf(request as unknown as Request)].iposReport as Record<string, string>;
+    const file = await this.reports.export(await this.owner(request), period, words);
+    response.setHeader("content-type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("content-disposition", `attachment; filename="bao-cao-ipos-${period.from}-${period.to}.xlsx"`);
+    response.send(file);
   }
 }

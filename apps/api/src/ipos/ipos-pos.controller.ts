@@ -1,8 +1,11 @@
-// API_335 đến 342: ứng dụng iPOS – ghép thiết bị, đăng nhập trên thiết bị, thu ngân tự đăng ký, đồng bộ danh mục, ca, giỏ treo, hóa đơn, duyệt tại chỗ (CONG_VIEC_74).
+// API_335 đến 343: ứng dụng iPOS – ghép thiết bị, đăng nhập trên thiết bị, thu ngân tự đăng ký, đồng bộ danh mục, ca, giỏ treo, hóa đơn, duyệt tại chỗ (CONG_VIEC_74).
 // Thiết bị gửi khóa qua tiêu đề `x-ipos-device`; sau khi đăng nhập gửi thêm token truy cập qua tiêu đề Authorization.
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common";
 import {
   iposApprovalSchema,
+  iposReturnCreateSchema,
+  type IposReturn,
+  type IposReturnLookup,
   iposLoyaltyCreateSchema,
   iposPayCodeSchema,
   iposVcommCheckoutCreateSchema,
@@ -46,6 +49,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { IposCheckoutsService } from "./ipos-checkouts.service";
+import { IposReturnsService } from "./ipos-returns.service";
 import { IposSalesService } from "./ipos-sales.service";
 import { IposShiftsService } from "./ipos-shifts.service";
 import { IposDeviceAuthService } from "./ipos-device-auth.service";
@@ -53,6 +57,7 @@ import { deviceKeyOf, posActor } from "./ipos-device-context";
 import { IposRegistrationsService } from "./ipos-registrations.service";
 
 const catalogQuery = z.object({ since: z.string().datetime({ offset: true }).optional() });
+const lookupQuery = z.object({ documentNo: z.string().trim().min(1).max(40) });
 const salesQuery = z.object({ shiftId: z.string().uuid(), search: z.string().trim().max(30).optional() });
 const slotOf = (slot: number) => {
   if (slot < 1 || slot > 5) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { slot: "invalidValue" } });
@@ -70,6 +75,7 @@ export class IposPosController {
     private readonly shifts: IposShiftsService,
     private readonly sales: IposSalesService,
     private readonly checkoutsService: IposCheckoutsService,
+    private readonly returnsService: IposReturnsService,
   ) {}
 
   private actor(request: AuthenticatedRequest) {
@@ -273,5 +279,16 @@ export class IposPosController {
   @Post("pos/vcomm-checkouts/:id/cancel")
   async cancelCheckout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposVcommCheckout> {
     return this.checkoutsService.cancelCheckout(await this.actor(request), id);
+  }
+
+  // API_343: trả hàng, hủy hóa đơn.
+  @Get("pos/returns/lookup")
+  async returnLookup(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposReturnLookup> {
+    return this.returnsService.lookup(await this.actor(request), lookupQuery.parse(query).documentNo);
+  }
+
+  @Post("pos/returns")
+  async createReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IposReturn> {
+    return this.returnsService.create(await this.actor(request), iposReturnCreateSchema.parse(body));
   }
 }

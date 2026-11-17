@@ -228,14 +228,14 @@ export class IposShiftsService {
     return this.report(actor, shiftId);
   }
 
-  // Tiền hệ thống = đầu ca + tiền mặt bán − tiền mặt hoàn trả + thu − chi (QUYTAC_NGHIEPVU_623 khoản 2). Hoàn trả tiền mặt có từ L5.
+  // Tiền hệ thống = đầu ca + tiền mặt bán − tiền mặt hoàn trả + thu − chi (QUYTAC_NGHIEPVU_623 khoản 2).
   private async totals(executor: Executor, shiftId: string) {
     const row = (
       await executor.execute<{ sales_count: number; revenue: string; cash_sales: string; cash_in: string; cash_out: string; opening_cash: string }>(sql`
         SELECT
-          (SELECT count(*)::int FROM ipos.sales WHERE shift_id = s.id AND status = 'completed') AS sales_count,
-          (SELECT COALESCE(sum(total), 0)::text FROM ipos.sales WHERE shift_id = s.id AND status = 'completed') AS revenue,
-          (SELECT COALESCE(sum(p.amount), 0)::text FROM ipos.sale_payments p JOIN ipos.sales x ON x.id = p.sale_id WHERE x.shift_id = s.id AND x.status = 'completed' AND p.method = 'cash') AS cash_sales,
+          (SELECT count(*)::int FROM ipos.sales WHERE shift_id = s.id) AS sales_count,
+          (SELECT COALESCE(sum(total), 0)::text FROM ipos.sales WHERE shift_id = s.id) AS revenue,
+          (SELECT COALESCE(sum(p.amount), 0)::text FROM ipos.sale_payments p JOIN ipos.sales x ON x.id = p.sale_id WHERE x.shift_id = s.id AND p.method = 'cash') AS cash_sales,
           (SELECT COALESCE(sum(amount), 0)::text FROM ipos.cash_movements WHERE shift_id = s.id AND direction = 'in') AS cash_in,
           (SELECT COALESCE(sum(amount), 0)::text FROM ipos.cash_movements WHERE shift_id = s.id AND direction = 'out') AS cash_out,
           s.opening_cash::text
@@ -243,8 +243,9 @@ export class IposShiftsService {
     ).rows[0]!;
     const byMethod = await executor.execute<{ method: IposPaymentMethod; amount: string }>(sql`
       SELECT p.method, sum(p.amount)::text AS amount FROM ipos.sale_payments p JOIN ipos.sales x ON x.id = p.sale_id
-      WHERE x.shift_id = ${shiftId} AND x.status = 'completed' GROUP BY p.method ORDER BY p.method`);
-    const cashRefunds = "0";
+      WHERE x.shift_id = ${shiftId} GROUP BY p.method ORDER BY p.method`);
+    // Tiền mặt hoàn trả khi trả hàng, hủy hóa đơn trong ca (L5).
+    const cashRefunds = (await executor.execute<{ total: string }>(sql`SELECT COALESCE(sum(refund_cash), 0)::text AS total FROM ipos.returns WHERE shift_id = ${shiftId}`)).rows[0]!.total;
     const systemCash = String(Number(row.opening_cash) + Number(row.cash_sales) - Number(cashRefunds) + Number(row.cash_in) - Number(row.cash_out));
     return { ...row, byMethod: byMethod.rows, cashRefunds, systemCash };
   }
@@ -252,28 +253,52 @@ export class IposShiftsService {
   async close(actor: IposPosActor, shiftId: string, input: z.infer<typeof iposCloseShiftSchema>): Promise<IposShiftReport> {
     await this.database.transaction(async (transaction) => {
       await openShiftOf(transaction, actor, shiftId, true);
-      if ((await openLinks(transaction, shiftId)) > 0) throw new ApiError("BUSINESS_RULE", "iposShiftOpenPayments");
-      const totals = await this.totals(transaction, shiftId);
-      const difference = Number(input.countedCash) - Number(totals.systemCash);
-      if (difference !== 0 && !input.differenceReason) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { differenceReason: "required" } });
-      if (Number(input.leftCash) > Number(input.countedCash)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { leftCash: "iposLeftCashTooHigh" } });
-      await transaction.execute(sql`
-        UPDATE ipos.shifts SET closed_at = now(), closed_by = ${actor.memberId}, system_cash = ${totals.systemCash}, counted_cash = ${input.countedCash},
-          difference = ${String(difference)}, difference_reason = ${difference === 0 ? null : input.differenceReason}, left_cash = ${input.leftCash},
-          denominations = ${input.denominations ? JSON.stringify(input.denominations) : null}::jsonb
-        WHERE id = ${shiftId}`);
-      // Giỏ treo xóa khi đóng ca (QUYTAC_NGHIEPVU_613 khoản 5).
-      await transaction.execute(sql`DELETE FROM ipos.held_carts WHERE register_id = ${actor.device.registerId}`);
+      await this.closeWithin(transaction, shiftId, actor.memberId, input);
     });
     return this.report(actor, shiftId);
   }
 
+  // Chủ cửa hàng đóng hộ ca của thu ngân quên đóng trên cổng, ghi người đóng (QUYTAC_NGHIEPVU_623 khoản 5).
+  async closeOnBehalf(merchantId: string, ownerMemberId: string, shiftId: string, input: z.infer<typeof iposCloseShiftSchema>): Promise<IposShiftReport> {
+    await this.database.transaction(async (transaction) => {
+      const open = await transaction.execute(sql`SELECT 1 FROM ipos.shifts WHERE id = ${shiftId} AND merchant_id = ${merchantId} AND closed_at IS NULL FOR UPDATE`);
+      if (open.rows.length === 0) throw new ApiError("BUSINESS_RULE", "iposShiftNotOpen");
+      await this.closeWithin(transaction, shiftId, ownerMemberId, input);
+    });
+    return this.reportFor(merchantId, shiftId);
+  }
+
+  private async closeWithin(transaction: Executor, shiftId: string, closedBy: string, input: z.infer<typeof iposCloseShiftSchema>): Promise<void> {
+    if ((await openLinks(transaction, shiftId)) > 0) throw new ApiError("BUSINESS_RULE", "iposShiftOpenPayments");
+    const totals = await this.totals(transaction, shiftId);
+    const difference = Number(input.countedCash) - Number(totals.systemCash);
+    if (difference !== 0 && !input.differenceReason) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { differenceReason: "required" } });
+    if (Number(input.leftCash) > Number(input.countedCash)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { leftCash: "iposLeftCashTooHigh" } });
+    const register = (
+      await transaction.execute<{ register_id: string }>(sql`
+        UPDATE ipos.shifts SET closed_at = now(), closed_by = ${closedBy}, system_cash = ${totals.systemCash}, counted_cash = ${input.countedCash},
+          difference = ${String(difference)}, difference_reason = ${difference === 0 ? null : input.differenceReason}, left_cash = ${input.leftCash},
+          denominations = ${input.denominations ? JSON.stringify(input.denominations) : null}::jsonb
+        WHERE id = ${shiftId} RETURNING register_id`)
+    ).rows[0]!;
+    // Giỏ treo xóa khi đóng ca (QUYTAC_NGHIEPVU_613 khoản 5).
+    await transaction.execute(sql`DELETE FROM ipos.held_carts WHERE register_id = ${register.register_id}`);
+  }
+
   // Biên bản ca: người bán xem ca của mình tại quầy của thiết bị (QUYTAC_NGHIEPVU_623 khoản 4).
   async report(actor: IposPosActor, shiftId: string): Promise<IposShiftReport> {
+    const found = await this.database.execute(sql`
+      SELECT 1 FROM ipos.shifts s WHERE s.id = ${shiftId} AND s.register_id = ${actor.device.registerId} AND (s.member_id = ${actor.memberId} OR ${actor.role === "owner"})`);
+    if (found.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+    return this.reportFor(actor.device.merchantId, shiftId);
+  }
+
+  // Biên bản ca trong phạm vi cửa hàng (cổng cửa hàng, API_350).
+  async reportFor(merchantId: string, shiftId: string): Promise<IposShiftReport> {
     const row = (
       await this.database.execute<ShiftRow & { counted_cash: string | null; difference: string | null; difference_reason: string | null; left_cash: string | null }>(sql`
         SELECT ${shiftColumns}, s.counted_cash::text, s.difference::text, s.difference_reason, s.left_cash::text
-        FROM ${shiftFrom} WHERE s.id = ${shiftId} AND s.register_id = ${actor.device.registerId} AND (s.member_id = ${actor.memberId} OR ${actor.role === "owner"})`)
+        FROM ${shiftFrom} WHERE s.id = ${shiftId} AND s.merchant_id = ${merchantId}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const totals = await this.totals(this.database, shiftId);
