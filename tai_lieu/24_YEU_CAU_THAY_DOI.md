@@ -537,7 +537,7 @@
 - Kiểm thử cần thực hiện: c55-transactions, c55-reports, c55-settlements (KICHBAN_KIEMTHU_539, 540, 544, 546), c67-open-affiliate (KICHBAN_KIEMTHU_697, 700, 701); KICHBAN_KIEMTHU_731 đến 733 mới; hồi quy toàn bộ.
 - Mức quy mô: Vừa (đổi quy tắc nghiệp vụ đã duyệt); làm trong CONG_VIEC_70.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-17. Đã làm trong CONG_VIEC_70, nghiệm thu 2026-11-17, chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-17. Đã làm trong CONG_VIEC_70, nghiệm thu 2026-11-17; đã phát hành v0.12.0 2026-11-17, chờ triển khai.
 
 ### THAY_DOI_37: Ưu tiên Smart OTP thay tin nhắn SMS – 2026-11-17
 - Lý do: giảm chi phí tin SMS và rủi ro chiếm SIM; người dùng yêu cầu và chốt ngày 2026-11-17 (CONG_VIEC_72).

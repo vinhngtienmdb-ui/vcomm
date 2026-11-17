@@ -183,6 +183,20 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – Phát hành 0.12.0
+
+- Phạm vi: nhánh `phat-hanh/v0.12.0` từ main sau bản sửa LOI_14, gộp CONG_VIEC_69 (`4f132d8`), CONG_VIEC_70 (`a4f9612`) (pull request #179, commit hợp nhất `2c36bb9`). Không xung đột; không database migration mới.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 10207 khóa; toàn bộ kiểm thử API 150 tệp, 817 đạt (lần chạy đầu lỗi khóa chéo khi chạy database migration do một lần chạy thử cũ song song trên cùng cơ sở dữ liệu, chạy lại đạt); CI pull request #179 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.12.0` đã gắn tự động.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_63
+
+- Phạm vi: trợ lý AI (MODULE_16 phần 3) lát L1 đến L3, nhánh `chuc-nang/CONG_VIEC_63-tro-ly-ai` (pull request #172, commit `fb28075`).
+- Kết quả: c63-ai-redact 32 (KICHBAN_KIEMTHU_655), c63-ai-access 9 (653, 654, 657, 658, 659), c63-ai-chat 11 (656, 660 đến 663), c63-ai-content 6 (664, 665) đạt; toàn bộ kiểm thử API 153 tệp, 872 đạt (lần chạy bắt đầu 02:16 UTC trên `3bda0ab`); KICHBAN_KIEMTHU_666 đạt qua ảnh ứng dụng chạy thật MAN_HINH_242 đến 245 ở 1360 và 390 điểm ảnh; kiểm tra kiểu 19/19, lint 4/4; CI đạt. Không kiểm thử nào gọi nhà cung cấp mô hình thật (dùng bộ giả lập).
+- Bảo mật phần B, C: không lỗ hổng Nghiêm trọng, Cao; gitleaks đạt; khóa API chỉ ở biến môi trường; pnpm audit mức Cao không có (1 Thấp, 5 Trung bình là phụ thuộc có từ trước). Thư viện mới @anthropic-ai/sdk 1.4.0 (Apache-2.0).
+- Còn mở (không chặn): chưa thử với mô hình thật; bản nháp thông báo xử lý dữ liệu cá nhân, hồ sơ chuyển dữ liệu ra nước ngoài chờ rà.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_69
 
 - Phạm vi: liên kết "Nhật ký gọi" ở khóa API cửa hàng liên kết, đối tác liên minh điểm mở MAN_HINH_226 lọc sẵn theo khóa; AffiliateApiKeys.tsx, LoyaltyPartnerApiKeys.tsx (web-crm), MAN_HINH_226, ApiCallLogTable.tsx (web-platform); nhánh `sua-loi/CONG_VIEC_69-nhat-ky-goi-loc-khoa` (pull request #173, commit `4f132d8`).
@@ -761,4 +775,4 @@
 | LOI_11 | Phát hành công văn đi lỗi 500 khi dùng lưu trữ tệp cục bộ: khóa lưu trữ chứa "outgoing_signed" có dấu gạch dưới, `LocalFileStorage` từ chối (CONG_VIEC_52, có từ bản 0.8.0, chưa triển khai). Kiểm thử dùng kho bộ nhớ nên không phát hiện | Cao | Kiểm thử của CONG_VIEC_59 lát L3 | Sửa trong CONG_VIEC_59: đổi dấu gạch dưới thành gạch ngang trong khóa lưu trữ | Đã sửa, phát hành v0.9.0 |
 | LOI_12 | CONG_VIEC_59: `office/signing/pdf-verification.ts` cắt mọi cặp "00" cuối chuỗi hex /Contents trước khi đọc CMS; chữ ký RSA kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký) bị mất byte nên kiểm tra chữ ký báo sai và lần ký bị đánh thất bại, người dùng phải ký lại. Phát hiện khi dựng phát hành 0.9.0 (3 ca c59-phien-ky lỗi khi chạy toàn bộ) | Trung bình | KICHBAN_KIEMTHU_598, 599, 603 | Sửa trên nhánh phát hành 0.9.0: bỏ việc cắt, bộ đọc DER đã bỏ qua phần đệm; thêm kiểm thử hồi quy | Đã sửa (commit `753f465`, kiểm thử hồi quy trong c59-ky-so-pdf), phát hành v0.9.0 |
 | LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đã sửa (pull request #155, chỉ sửa kiểm thử, hợp nhất vào main 2026-11-12) |
-| LOI_14 | Kiểm thử c57-station-orders, c57-station-delivery, c55-settlements lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam: dữ liệu dựng sẵn lấy "hôm nay" một lần rồi gửi phiếu điều chỉnh giá, giai đoạn điểm thưởng sau khi ngày đã đổi nên bị từ chối ngày hiệu lực đã qua (400). Làm CI đỏ ngẫu nhiên (pull request #165, phát hành 0.11.0). Mã nguồn sản phẩm chạy đúng | Thấp | Kiểm thử của CONG_VIEC_55, 57 | Người dùng chọn 2026-11-17: sửa ngay; kiểm thử không phụ thuộc thời điểm chạy, chỉ sửa kiểm thử; kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example | Đang sửa |
+| LOI_14 | Kiểm thử c57-station-orders, c57-station-delivery, c55-settlements lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam: dữ liệu dựng sẵn lấy "hôm nay" một lần rồi gửi phiếu điều chỉnh giá, giai đoạn điểm thưởng sau khi ngày đã đổi nên bị từ chối ngày hiệu lực đã qua (400). Làm CI đỏ ngẫu nhiên (pull request #165, phát hành 0.11.0). Mã nguồn sản phẩm chạy đúng | Thấp | Kiểm thử của CONG_VIEC_55, 57 | Người dùng chọn 2026-11-17: sửa ngay; kiểm thử không phụ thuộc thời điểm chạy, chỉ sửa kiểm thử; kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example | Đã sửa (pull request #176, chỉ sửa cấu hình kiểm thử: chờ qua 0 giờ giờ Việt Nam trước mỗi tệp; kèm LOYALTY_PARTNER_SIMULATOR trong .env.example; hợp nhất vào main 2026-11-17, có trong v0.12.0) |

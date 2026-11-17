@@ -9,6 +9,10 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.12.0 (pull request #179, commit hợp nhất `2c36bb9`): CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ, THAY_DOI_36). Kiểm thử API 817 đạt. Không database migration mới, không thư viện mới. Chưa triển khai; khi triển khai báo trước các cửa hàng có phí mỗi tin OTP lớn hơn 0.
+- Hợp nhất bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) vào main trước phát hành 0.12.0.
+- Người dùng nghiệm thu CONG_VIEC_63 (trợ lý AI, MODULE_16 phần 3) lát L1 đến L3, pull request #172 (commit `fb28075`; kiểm thử 872/872): ngăn trợ lý trên mọi mini app web, hỏi đáp số liệu chỉ đọc qua 10 công cụ theo quyền người hỏi, soạn nội dung sản phẩm, cài đặt và hạn mức theo công ty, thống kê sử dụng; database migration 0136, 0137; thư viện @anthropic-ai/sdk 1.4.0. Không dùng MAN_HINH_246 đến 249, API_280, database migration 0138, 0139.
+- CONG_VIEC_72: người dùng duyệt lát L1, L2; thêm thư viện @noble/hashes 2.4.0; cấp thêm MAN_HINH_275.
 - CONG_VIEC_69, 70 trình nghiệm thu (pull request #173, #174); CONG_VIEC_71 dọn tài liệu (pull request #170; commit đầu lệch mẫu commit, giữ nguyên; quy ước Git ghi loại `tai-lieu` trong khi lịch sử dùng `docs`, cần thống nhất sau); CONG_VIEC_63 lập đặc tả, bản mẫu (pull request #172).
 - Cấp LOI_14 (kiểm thử lỗi khi chạy qua 0 giờ giờ Việt Nam), mở phiên sửa.
 - Người dùng yêu cầu mở thêm phiên: cấp CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ xét hạn mức), CONG_VIEC_71 (dọn tài liệu quản lý sản xuất, cập nhật tài liệu 01); mở lại CONG_VIEC_63 (trợ lý AI). Xóa hai dòng trùng cũ của CONG_VIEC_57, 58 trong tài liệu 03 (bản ghi "chờ phát hành"; dòng đúng là đã phát hành v0.6.0).
@@ -26,8 +30,8 @@
 
 ### Vấn đề tồn đọng
 
-- Kiểm thử lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam (c57-station-orders, c57-station-delivery, c55-settlements: dữ liệu dựng sẵn lấy "hôm nay" một lần); đề xuất cấp LOI riêng, chờ người dùng quyết định.
-- LOYALTY_PARTNER_SIMULATOR (CONG_VIEC_65) chưa có trong .env.example.
+- CONG_VIEC_63: thử với mô hình thật khi có khóa Anthropic (tài liệu 28 mục 8); rà bản nháp thông báo xử lý dữ liệu cá nhân, hồ sơ chuyển dữ liệu ra nước ngoài trước khi bật; mạng môi trường thật cần cho phép đi ra api.anthropic.com.
+- CONG_VIEC_72: người dùng thử vân tay, khuôn mặt, mã khóa trên điện thoại thật bằng Expo Go trước khi nghiệm thu; đăng ký ba mẫu ZNS mới với eSMS và nhập số tổng đài chăm sóc khách hàng trước khi triển khai.
 
 ## 2026-11-16
 

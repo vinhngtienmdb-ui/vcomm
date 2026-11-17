@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.12.0 – 2026-11-17 – Chờ phát hành
+## Phiên bản 0.12.0 – 2026-11-17 – Đã phát hành
 
 - Chức năng mới:
   - Phí tin nhắn OTP chưa chốt tính vào dư nợ của cửa hàng liên kết (MODULE_12, CONG_VIEC_70, THAY_DOI_36): dư nợ xét hạn mức nợ cộng phí tin nhắn OTP SMS đã gửi nhưng chưa vào bảng đối soát tuần, kèm thuế giá trị gia tăng (F + làm tròn (F × 10 %)); tin gửi trước khi triển khai mà chưa vào bảng cũng tính; khi lập bảng tuần, phí tin chuyển vào số còn lại của bảng, không tính hai lần. Dư nợ mới dùng chung cho xét tích điểm tại quầy và qua Open API, báo cáo cổng cửa hàng (MAN_HINH_176), báo cáo công ty (MAN_HINH_180), cảnh báo và thông báo dư nợ từ 80 % hạn mức (QUYTAC_NGHIEPVU_398, 405). Phí dịch vụ, thuế của giao dịch chưa chốt vẫn chỉ tính khi lập bảng; gửi OTP SMS vẫn không xét hạn mức, quá hạn (QUYTAC_NGHIEPVU_495 giữ nguyên). Không đổi giao diện.
