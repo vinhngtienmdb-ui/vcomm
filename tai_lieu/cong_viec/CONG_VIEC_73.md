@@ -3,7 +3,7 @@
 - Mô tả: Khách mua tại cửa hàng tập đoàn hoặc cửa hàng liên kết chọn điểm và trả tiền ngay trong ứng dụng VComm qua cổng thanh toán. Hai cách: cửa hàng quét mã thanh toán động trên ứng dụng khách, hoặc khách quét mã QR thanh toán của cửa hàng. Công ty vận hành sàn thu tiền một nơi, chuyển hằng ngày cho công ty sở hữu cửa hàng hoặc cửa hàng liên kết sau khi trừ phí sàn và phí cổng. VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm. Mở Open API đơn chờ thanh toán và webhook để phần mềm bán hàng (iPOS sau này) dùng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu và 16 điểm AI đề xuất (mục 19) ngày 2026-11-17. Bổ sung API hoàn tiền, tra trạng thái cho iPOS (CONG_VIEC_74) ngày 2026-11-17, chờ người dùng xem. Viết mã sau khi CONG_VIEC_72 vào `main`.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu và 16 điểm AI đề xuất (mục 19) ngày 2026-11-17. Người dùng duyệt phần bổ sung API hoàn tiền, tra trạng thái cho iPOS (CONG_VIEC_74) ngày 2026-11-17. Viết mã sau khi CONG_VIEC_72 vào `main`.
 - Nhánh: `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang`.
 - Nguồn: yêu cầu người dùng 2026-11-17; quyết định người dùng 2026-11-17 (mục 17); CONG_VIEC_53 (bán tại quầy, điểm tại quầy), CONG_VIEC_55 (cửa hàng liên kết), CONG_VIEC_67 (Open API cửa hàng liên kết), CONG_VIEC_25, 32, 33 đến 42 (cổng thanh toán), CONG_VIEC_16 (hóa đơn điện tử), CONG_VIEC_19 (đối soát thu hộ cổng), CONG_VIEC_51 (sổ cái điểm, nợ nội bộ), CONG_VIEC_72 (Smart OTP).
 - Mức: Lớn (nhiều module; đổi quy trình, cấu trúc dữ liệu, API đã duyệt; nghiệp vụ tài chính mới).
@@ -433,6 +433,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | Quy tắc điểm, tích điểm | Giữ như hiện có |
 | Trả hàng tập đoàn | Hoàn tiền mặt hoặc chuyển khoản tay |
 | Mất mạng, khách chưa có ứng dụng | Giữ như hiện nay |
+| Open API cho iPOS | Tra trạng thái, hủy đơn chưa thanh toán, hủy toàn bộ đơn đã thanh toán kèm hoàn tiền; trả một phần hàng cho đơn trả bằng ứng dụng để sau, ngoài phạm vi |
 
 ## 18. Các lát và điểm xem trước
 
