@@ -32,7 +32,7 @@
 - Khả năng tương thích: tương thích ngược với 0.12.0; chỉ thêm lược đồ, bảng, API, quyền mới; không đổi cấu trúc dữ liệu, API có sẵn. Không đặt biến `AI_*` thì hệ thống chạy như 0.12.0 (trợ lý báo chưa cấu hình).
 - Công việc gộp trong phiên bản: CONG_VIEC_63 (pull request #172, đầu nhánh `fb280750`). Nhánh phát hành tạo từ `main` `6142e104` (sau khi hợp nhất pull request #181).
 - Đánh lại số mục tài liệu trùng khi gộp: tài liệu `27` mục kiểm tra bao phủ của CONG_VIEC_63 thành 45, 46, 47 (trùng mục 44 của CONG_VIEC_70). Mã định danh của CONG_VIEC_63 không trùng.
-- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10382 khóa; kiểm thử API toàn bộ một tiến trình: đang chạy, ghi kết quả ở commit sau.
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10382 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER) 154 tệp, 875 kiểm thử đạt (CONG_VIEC_63 thêm 4 tệp `c63-ai-access`, `c63-ai-chat`, `c63-ai-content`, `c63-ai-redact`); kiểm thử chỉ dùng bộ giả lập mô hình, không gọi Anthropic.
 - Tag: `v0.13.0` trên commit hợp nhất nhánh `phat-hanh/v0.13.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.12.0`.
