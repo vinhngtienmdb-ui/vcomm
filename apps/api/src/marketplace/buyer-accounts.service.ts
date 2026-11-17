@@ -1,7 +1,7 @@
 // Tài khoản người mua VComm: đăng ký bằng số điện thoại và OTP, đăng nhập, quên mật khẩu, giới thiệu
 // (CONG_VIEC_23; CHUC_NANG_104 đến 106; QUYTAC_NGHIEPVU_141 đến 147; API_116 đến 118).
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerDetail, BuyerSalesCustomerItem, MarketplaceOrderStatus, MySalesTeamResponse } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, BuyerRegisterResponse, SmartOtpPlatform, BuyerReferralItem, BuyerSalesCustomerDetail, BuyerSalesCustomerItem, MarketplaceOrderStatus, MySalesTeamResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -13,6 +13,7 @@ import { minimumPasswordLength } from "../auth/activation.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "../auth/auth.service";
 import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
 import { users } from "../database/schema";
 import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesCareService } from "./sales-care.service";
@@ -50,6 +51,7 @@ export class BuyerAccountsService {
     private readonly salesTeam: SalesTeamService,
     private readonly commissions: MarketplaceCommissionsService,
     private readonly care: SalesCareService,
+    private readonly smartOtp: SmartOtpService,
   ) {}
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
@@ -59,13 +61,25 @@ export class BuyerAccountsService {
   }
 
   // API_116: kiểm tra mã giới thiệu trước khi dùng mã OTP để khách sửa mã mà không phải xin mã OTP mới.
-  async register(input: { phone: string; code: string; fullName: string; password: string; referralCode?: string | null }, client: ClientInfo): Promise<AppLoginResponse> {
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_562): kèm `smartOtp` thì kích hoạt Smart OTP luôn trong cùng giao dịch bằng chính mã SMS đăng ký, không gửi thêm tin.
+  async register(
+    input: {
+      phone: string;
+      code: string;
+      fullName: string;
+      password: string;
+      referralCode?: string | null;
+      smartOtp?: { deviceName: string; platform: Extract<SmartOtpPlatform, "ios" | "android"> } | undefined;
+    },
+    client: ClientInfo,
+  ): Promise<BuyerRegisterResponse> {
     await this.requirePhoneFree(input.phone);
     if (input.password.length < minimumPasswordLength) throw invalidField("password", "passwordTooShort");
     const referrerId = input.referralCode ? await this.resolveReferrer(this.database, input.referralCode, null) : null;
     if (!(await this.phoneOtp.consume(input.phone, input.code, "register"))) throw invalidField("code", "otpInvalid");
     const now = this.clock.now();
     let userId: string;
+    let smartOtpSecret: { secret: string } | null = null;
     try {
       userId = await this.database.transaction(async (transaction) => {
         const created = await transaction.execute<{ id: string }>(sql`
@@ -93,6 +107,7 @@ export class BuyerAccountsService {
           },
           transaction,
         );
+        if (input.smartOtp) smartOtpSecret = await this.smartOtp.install(transaction, id, { ...input.smartOtp, deviceId: client.deviceId ?? null }, "smart_otp.activate");
         return id;
       });
     } catch (error) {
@@ -107,7 +122,8 @@ export class BuyerAccountsService {
         .where(sql`${users.id} = ${userId}`)
     )[0]!;
     const { response, session } = await this.auth.completeLogin(user, "password", input.phone, client, "vcomm_app");
-    return { ...response, tokens: appTokens(session) };
+    const smartOtpActivation = smartOtpSecret ? await this.smartOtp.activationResponse(userId, smartOtpSecret, client.deviceId ?? null) : null;
+    return { ...response, tokens: appTokens(session), smartOtpActivation };
   }
 
   // API_117: đăng nhập bằng mật khẩu, khóa 15 phút sau 5 lần sai như web (QUYTAC_NGHIEPVU_147).

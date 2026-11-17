@@ -787,7 +787,11 @@
     "partnerSettlementClosed": "The settlement has been confirmed and cannot be rebuilt.",
     "partnerSettlementNotMatched": "The settlement does not match yet and cannot be confirmed.",
     "partnerSettlementChanged": "The month's transactions have changed since the settlement was built. Please rebuild it, then confirm.",
-    "transitionStartFuture": "The transition start date cannot be after today."
+    "transitionStartFuture": "The transition start date cannot be after today.",
+    "smartOtpWebNotAllowed": "Smart OTP can only be activated in the VComm phone app (iOS, Android).",
+    "smartOtpNotActive": "This account has not activated Smart OTP.",
+    "smartOtpCodeInvalid": "The Smart OTP code is wrong or already used. Open Smart OTP on the old phone and enter the new code.",
+    "smartOtpLocked": "Smart OTP is locked for 15 minutes after too many wrong codes."
   },
   "login": {
     "title": "Sign in",

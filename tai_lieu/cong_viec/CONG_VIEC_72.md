@@ -200,7 +200,7 @@ Ngoài phạm vi:
   - API_297 gửi mã:
     - Khách đã kích hoạt: `409 affiliateSmartOtpActive`, như cũ.
     - Khách chưa kích hoạt, hết thời hạn: `409 affiliateSmartOtpRequired`.
-  - Tạo giao dịch dùng điểm khi đang khóa: `422 loyaltyRedeemLocked` kèm thời điểm hết khóa.
+  - Tạo giao dịch dùng điểm khi đang khóa: `409 loyaltyRedeemLocked` kèm thời điểm hết khóa.
   - Phí tin OTP (THAY_DOI_31) giữ cách tính; chỉ còn phát sinh trong thời hạn.
 - Đổi ra đối tác liên minh (sửa QUYTAC_NGHIEPVU_542): hết thời hạn mà khách chưa kích hoạt thì báo "Kích hoạt Smart OTP để đổi điểm", nút "Kích hoạt".
 - Mọi cách dùng điểm xét khóa dùng điểm (QUYTAC_NGHIEPVU_566) trước giới hạn và chống gian lận.
@@ -339,17 +339,17 @@ Sửa:
 - API_116 `POST /buyer/register`: nhận thêm `smartOtp: { deviceName, platform }` (tùy chọn); trả thêm `smartOtpActivation` (khóa một lần) khi kích hoạt.
 - API_117:
   - `POST /buyer/login` trả thêm `deviceVerificationRequired`, `verificationMethods`.
-  - `/buyer/login/otp`: `422 smartOtpPreferred` với khách đã kích hoạt, hoặc khi hết thời hạn.
+  - `/buyer/login/otp`: `409 smartOtpPreferred` với khách đã kích hoạt, hoặc khi hết thời hạn.
   - `/buyer/password-reset` nhận `smartOtp` hoặc `code`.
 - API_199:
   - Trạng thái trả thêm `platform`, `redeemLockedUntil`, `transitionEndsAt`, `webActivationExpiresAt`.
-  - `activate` từ bản web: `422 smartOtpWebNotAllowed`; trên thiết bị chưa tin cậy hoặc tài khoản đã từng có Smart OTP thì tính khôi phục.
+  - `activate` từ bản web: `409 smartOtpWebNotAllowed`; trên thiết bị chưa tin cậy hoặc tài khoản đã từng có Smart OTP thì tính khôi phục.
   - Thêm `POST /buyer/loyalty/smart-otp/lockout`: ứng dụng báo sai mã khóa 5 lần, máy chủ hủy Smart OTP.
 - API_198 tra khách tại quầy: thêm `redeemLockedUntil`; lý do không dùng điểm `redeem_locked`.
 - API_297, tra điểm Open API: như QUYTAC_NGHIEPVU_569.
 - API_307 đổi điểm đối tác: báo giá trả `smartOtpRequired` theo thời hạn; `redeemLockedUntil`.
 - API_178 đặt hàng dùng điểm; API cửa hàng liên kết cách 2, 3: lỗi `loyaltyRedeemLocked` khi đang khóa.
-- API_02, API_03 `/auth/otp/*` gọi từ cổng cửa hàng sau hạn cổng: `422 merchantPortalSmsDisabled`, không gửi SMS.
+- API_02, API_03 `/auth/otp/*` gọi từ cổng cửa hàng sau hạn cổng: `409 merchantPortalSmsDisabled`, không gửi SMS.
 
 ## 11. Dùng lại mã đã có
 
@@ -411,7 +411,7 @@ Sửa:
 | KICHBAN_KIEMTHU_741 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt yêu cầu SMS: trả `204`, không tạo mã | 539 | Tự động |
 | KICHBAN_KIEMTHU_742 | Khôi phục: mật khẩu sai, mã SMS sai; đúng thì máy cũ hết hiệu lực, khóa 24 giờ ở quầy, Open API, đổi ra đối tác, đặt hàng dùng điểm, cửa hàng liên kết cách 2, 3; tích điểm vẫn được; hết giờ dùng lại được | 540 | Tự động |
 | KICHBAN_KIEMTHU_743 | Trong và sau thời hạn: đăng nhập SMS, quên mật khẩu SMS, Open API gửi mã, đổi ra đối tác chưa kích hoạt; tham số số ngày đổi thì hạn đổi | 541 | Tự động |
-| KICHBAN_KIEMTHU_744 | Hủy Smart OTP thiếu quyền `403`, thiếu lý do `422`, đủ thì thu hồi phiên, thiết bị, ghi nhật ký; đặt lại mật khẩu ngoại lệ một lần | 542 | Tự động |
+| KICHBAN_KIEMTHU_744 | Hủy Smart OTP thiếu quyền `403`, thiếu lý do `400`, đủ thì thu hồi phiên, thiết bị, ghi nhật ký; đặt lại mật khẩu ngoại lệ một lần | 542 | Tự động |
 | KICHBAN_KIEMTHU_745 | Cổng: đăng nhập mật khẩu và mã ứng dụng xác thực, mã dự phòng, Zalo hỏi mã; tài khoản người mua cùng người không bị hỏi mã ứng dụng xác thực trên ứng dụng | 543 | Tự động |
 | KICHBAN_KIEMTHU_746 | Cổng: kích hoạt lời mời có thiết lập; trong hạn "Để sau"; hết hạn `/auth/otp/send` từ cổng bị từ chối | 543 | Tự động |
 | KICHBAN_KIEMTHU_747 | Cổng: đặt lại xác thực (chủ cho thu ngân, quản trị cho chủ, chủ không đặt được cho cửa hàng khác); quên mật khẩu cổng | 543 | Tự động |

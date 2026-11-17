@@ -787,7 +787,11 @@
     "partnerSettlementClosed": "Bảng đối soát đã xác nhận, không lập lại được.",
     "partnerSettlementNotMatched": "Bảng chưa khớp, chưa xác nhận được.",
     "partnerSettlementChanged": "Giao dịch của tháng đã thay đổi từ lúc lập bảng. Vui lòng lập lại rồi xác nhận.",
-    "transitionStartFuture": "Ngày bắt đầu chuyển đổi không được sau hôm nay."
+    "transitionStartFuture": "Ngày bắt đầu chuyển đổi không được sau hôm nay.",
+    "smartOtpWebNotAllowed": "Smart OTP chỉ kích hoạt được trên ứng dụng VComm cho điện thoại (iOS, Android).",
+    "smartOtpNotActive": "Tài khoản chưa kích hoạt Smart OTP.",
+    "smartOtpCodeInvalid": "Mã Smart OTP không đúng hoặc đã dùng. Mở Smart OTP trên máy cũ và nhập mã mới.",
+    "smartOtpLocked": "Smart OTP đang tạm khóa 15 phút do nhập sai mã nhiều lần."
   },
   "login": {
     "title": "Đăng nhập",

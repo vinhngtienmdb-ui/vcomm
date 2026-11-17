@@ -11,6 +11,7 @@ import {
   buyerRegisterSchema,
   buyerSetReferrerSchema,
   type AppLoginResponse,
+  type BuyerRegisterResponse,
   type BuyerMeResponse,
   type BuyerReferralItem,
   type BuyerSalesCustomerDetail,
@@ -63,7 +64,7 @@ export class BuyerController {
   @RateLimitGroup("otp-verify")
   @Post("register")
   @HttpCode(200)
-  async register(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
+  async register(@Body() body: unknown, @Req() request: Request): Promise<BuyerRegisterResponse> {
     return this.buyers.register(buyerRegisterSchema.parse(body), clientInfo(request));
   }
 

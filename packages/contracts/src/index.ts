@@ -4308,7 +4308,15 @@ const referralCode = z.string().trim().max(20);
 
 export const buyerPhoneSchema = z.object({ phone: vietnamPhone }).strict();
 export const buyerRegisterSchema = z
-  .object({ phone: vietnamPhone, code: otpCode, fullName: z.string().trim().min(1).max(100), password: z.string().max(256), referralCode: referralCode.nullable().optional() })
+  .object({
+    phone: vietnamPhone,
+    code: otpCode,
+    fullName: z.string().trim().min(1).max(100),
+    password: z.string().max(256),
+    referralCode: referralCode.nullable().optional(),
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_562): kích hoạt Smart OTP luôn trong bước đăng ký bằng chính mã SMS đăng ký; chỉ trên ứng dụng điện thoại.
+    smartOtp: z.object({ deviceName: z.string().trim().min(1).max(100), platform: z.enum(["ios", "android"]) }).strict().optional(),
+  })
   .strict();
 export const buyerLoginSchema = z.object({ phone: vietnamPhone, password: z.string().min(1).max(256) }).strict();
 export const buyerOtpVerifySchema = z.object({ phone: vietnamPhone, code: otpCode }).strict();
@@ -8049,10 +8057,22 @@ export interface LoyaltyTierProgress {
   remainingToNext: string | null;
 }
 // API_199: Smart OTP dùng điểm tại quầy (CONG_VIEC_53 lát L6). Khóa TOTP chỉ trả một lần khi kích hoạt.
+// CONG_VIEC_72: nền tảng máy; bản web không kích hoạt được (QUYTAC_NGHIEPVU_562). Ứng dụng cũ chưa gửi thì suy theo tên máy.
+export const smartOtpPlatforms = ["ios", "android", "web"] as const;
+export type SmartOtpPlatform = (typeof smartOtpPlatforms)[number];
 export const activateSmartOtpSchema = z
   .object({
     code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
     deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms).optional(),
+  })
+  .strict();
+// API_319: chuyển Smart OTP sang máy đang dùng bằng mã của máy cũ (CONG_VIEC_72; QUYTAC_NGHIEPVU_562).
+export const transferSmartOtpSchema = z
+  .object({
+    code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
+    deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms),
   })
   .strict();
 export interface SmartOtpStatusResponse {
@@ -8061,12 +8081,20 @@ export interface SmartOtpStatusResponse {
   activatedAt: string | null;
   lockedUntil: string | null;
   maskedPhone: string | null;
+  // CONG_VIEC_72.
+  platform: SmartOtpPlatform | null;
+  // Smart OTP đang ở máy này (so băm mã cài đặt ứng dụng); null khi chưa kích hoạt.
+  onThisDevice: boolean | null;
+  redeemLockedUntil: string | null;
+  transitionEndsOn: string;
 }
 export interface SmartOtpActivationResponse extends SmartOtpStatusResponse {
   secret: string;
   digits: 6;
   period: 30;
 }
+// API_116 (sửa, CONG_VIEC_72): đăng ký kèm kích hoạt Smart OTP trả khóa một lần.
+export type BuyerRegisterResponse = AppLoginResponse & { smartOtpActivation: SmartOtpActivationResponse | null };
 export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
   balance: number;
   locked: boolean;

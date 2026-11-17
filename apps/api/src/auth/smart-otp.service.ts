@@ -2,7 +2,14 @@
 // máy chủ tạo khóa TOTP, lưu mã hóa, trả một lần cho ứng dụng lưu trong bộ nhớ an toàn của máy. Mỗi tài khoản một thiết bị.
 // Mã 6 số, bước 30 giây, chấp nhận lệch một bước, mỗi bước dùng một lần; sai 5 lần liên tiếp thì khóa 15 phút.
 import { Inject, Injectable } from "@nestjs/common";
-import { normalizePhone, type activateSmartOtpSchema, type SmartOtpActivationResponse, type SmartOtpStatusResponse } from "contracts";
+import {
+  normalizePhone,
+  type activateSmartOtpSchema,
+  type SmartOtpActivationResponse,
+  type SmartOtpPlatform,
+  type SmartOtpStatusResponse,
+  type transferSmartOtpSchema,
+} from "contracts";
 import { sql } from "drizzle-orm";
 import { Secret, TOTP } from "otpauth";
 import type { z } from "zod";
@@ -13,6 +20,8 @@ import { CLOCK, type Clock } from "../common/clock";
 import { notify } from "../common/notifications";
 import { decryptSecret, encryptSecret } from "../common/secret-box";
 import { DATABASE, type Database } from "../database/database.module";
+import { deviceHashOf } from "../common/device-hash";
+import { AuthenticationSettingsService, transitionEndsOn } from "./authentication-settings.service";
 
 type Executor = Pick<Database, "execute">;
 export const smartOtpPeriodSeconds = 30;
@@ -34,9 +43,20 @@ export function maskName(name: string): string {
 }
 
 // Nền tảng suy từ tên máy ứng dụng gửi (CONG_VIEC_53); lát L2 nhận nền tảng trực tiếp từ ứng dụng.
-const platformOf = (deviceName: string): "ios" | "android" | "web" => (deviceName === "iPhone" ? "ios" : deviceName === "Trình duyệt" ? "web" : "android");
+const platformOf = (deviceName: string): SmartOtpPlatform => (deviceName === "iPhone" ? "ios" : deviceName === "Trình duyệt" ? "web" : "android");
 
-type DeviceRow = { device_name: string; secret_encrypted: Buffer; activated_at: Date; last_used_step: string; failed_count: number; locked_until: Date | null };
+type DeviceRow = {
+  device_name: string;
+  platform: SmartOtpPlatform;
+  device_hash: string | null;
+  secret_encrypted: Buffer;
+  activated_at: Date;
+  last_used_step: string;
+  failed_count: number;
+  locked_until: Date | null;
+};
+
+type Installed = { secret: string };
 
 @Injectable()
 export class SmartOtpService {
@@ -45,6 +65,7 @@ export class SmartOtpService {
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly phoneOtp: PhoneOtpService,
     private readonly audit: AuditService,
+    private readonly settings: AuthenticationSettingsService,
   ) {}
 
   // Chỉ người mua VComm đang hoạt động có số điện thoại.
@@ -60,7 +81,7 @@ export class SmartOtpService {
   private device(executor: Executor, userId: string, lock = false): Promise<DeviceRow | undefined> {
     return executor
       .execute<DeviceRow>(
-        sql`SELECT device_name, secret_encrypted, activated_at, last_used_step::text, failed_count, locked_until FROM core.smart_otp_devices WHERE user_id = ${userId} ${lock ? sql`FOR UPDATE` : sql``}`,
+        sql`SELECT device_name, platform, device_hash, secret_encrypted, activated_at, last_used_step::text, failed_count, locked_until FROM core.smart_otp_devices WHERE user_id = ${userId} ${lock ? sql`FOR UPDATE` : sql``}`,
       )
       .then((result) => result.rows[0]);
   }
@@ -77,15 +98,26 @@ export class SmartOtpService {
     return { active: Boolean(row), lockedUntil: this.lockedUntil(row) };
   }
 
-  async status(userId: string): Promise<SmartOtpStatusResponse> {
+  async status(userId: string, deviceId: string | null = null): Promise<SmartOtpStatusResponse> {
     const { phone } = await this.buyer(userId);
     const row = await this.device(this.database, userId);
+    const settings = await this.settings.current();
+    const security = (
+      await this.database.execute<{ redeem_locked_until: Date | null }>(sql`SELECT redeem_locked_until FROM core.account_security WHERE user_id = ${userId}`)
+    ).rows[0];
+    const redeemLockedUntil = security?.redeem_locked_until && new Date(security.redeem_locked_until).getTime() > this.clock.now().getTime() ? new Date(security.redeem_locked_until).toISOString() : null;
+    const deviceHash = deviceHashOf(deviceId);
     return {
       active: Boolean(row),
       deviceName: row?.device_name ?? null,
       activatedAt: row ? new Date(row.activated_at).toISOString() : null,
       lockedUntil: this.lockedUntil(row),
       maskedPhone: maskPhone(phone),
+      platform: row?.platform ?? null,
+      // Smart OTP kích hoạt trước CONG_VIEC_72 chưa có băm thiết bị: ứng dụng tự so khóa đang giữ (như CONG_VIEC_53).
+      onThisDevice: row ? (row.device_hash && deviceHash ? row.device_hash === deviceHash : null) : null,
+      redeemLockedUntil,
+      transitionEndsOn: transitionEndsOn(settings.transitionStartsOn, settings.buyerTransitionDays),
     };
   }
 
@@ -95,42 +127,94 @@ export class SmartOtpService {
     await this.phoneOtp.send(phone, "smart_otp");
   }
 
-  // Kích hoạt trên máy đang dùng: máy cũ (nếu có) hết hiệu lực vì khóa bị thay.
-  async activate(userId: string, input: z.output<typeof activateSmartOtpSchema>): Promise<SmartOtpActivationResponse> {
-    const { phone } = await this.buyer(userId);
-    if (!(await this.phoneOtp.consume(normalizePhone(phone), input.code, "smart_otp"))) throw new ApiError("BUSINESS_RULE", "otpInvalid");
-    const secret = new Secret({ size: 20 }).base32;
-    await this.database.transaction(async (transaction) => {
-      const now = this.clock.now();
-      await transaction.execute(sql`
-        INSERT INTO core.smart_otp_devices (user_id, device_name, platform, secret_encrypted, activated_at)
-        VALUES (${userId}, ${input.deviceName}, ${platformOf(input.deviceName)}, ${encryptSecret(secret)}, ${now})
-        ON CONFLICT (user_id) DO UPDATE SET device_name = EXCLUDED.device_name, platform = EXCLUDED.platform, secret_encrypted = EXCLUDED.secret_encrypted,
-          activated_at = EXCLUDED.activated_at, device_hash = NULL, last_used_step = 0, failed_count = 0, locked_until = NULL, version = core.smart_otp_devices.version + 1`);
-      // Ghi lần kích hoạt đầu tiên của tài khoản: kích hoạt lại bằng SMS sau này tính là khôi phục (QUYTAC_NGHIEPVU_562).
-      await transaction.execute(sql`
-        INSERT INTO core.account_security (user_id, smart_otp_first_activated_at) VALUES (${userId}, ${now})
-        ON CONFLICT (user_id) DO UPDATE SET smart_otp_first_activated_at = coalesce(core.account_security.smart_otp_first_activated_at, EXCLUDED.smart_otp_first_activated_at), updated_at = now()`);
-      await this.audit.record(
-        { actorUserId: userId, companyId: null, appCode: "crm", action: "smart_otp.activate", entityType: "smart_otp", entityId: userId, afterData: { deviceName: input.deviceName } },
-        transaction,
-      );
-    });
-    return { ...(await this.status(userId)), secret, digits: 6, period: smartOtpPeriodSeconds };
+  // Bản web không giữ được khóa an toàn: chỉ kích hoạt trên ứng dụng điện thoại (QUYTAC_NGHIEPVU_562).
+  private platformAllowed(platform: SmartOtpPlatform): void {
+    if (platform === "web") throw new ApiError("BUSINESS_RULE", "smartOtpWebNotAllowed");
   }
 
-  async revoke(userId: string): Promise<SmartOtpStatusResponse> {
+  // Ghi khóa mới cho máy đang dùng; máy cũ (nếu có) hết hiệu lực vì khóa bị thay. Dùng chung cho kích hoạt, đăng ký, chuyển máy.
+  async install(
+    transaction: Pick<Database, "execute" | "insert">,
+    userId: string,
+    device: { deviceName: string; platform: SmartOtpPlatform; deviceId: string | null },
+    action: "smart_otp.activate" | "smart_otp.transfer",
+  ): Promise<Installed> {
+    const secret = new Secret({ size: 20 }).base32;
+    const now = this.clock.now();
+    await transaction.execute(sql`
+      INSERT INTO core.smart_otp_devices (user_id, device_name, platform, device_hash, secret_encrypted, activated_at)
+      VALUES (${userId}, ${device.deviceName}, ${device.platform}, ${deviceHashOf(device.deviceId)}, ${encryptSecret(secret)}, ${now})
+      ON CONFLICT (user_id) DO UPDATE SET device_name = EXCLUDED.device_name, platform = EXCLUDED.platform, device_hash = EXCLUDED.device_hash,
+        secret_encrypted = EXCLUDED.secret_encrypted, activated_at = EXCLUDED.activated_at, last_used_step = 0, failed_count = 0, locked_until = NULL,
+        version = core.smart_otp_devices.version + 1`);
+    // Ghi lần kích hoạt đầu tiên của tài khoản: kích hoạt lại bằng SMS sau này tính là khôi phục (QUYTAC_NGHIEPVU_562).
+    await transaction.execute(sql`
+      INSERT INTO core.account_security (user_id, smart_otp_first_activated_at) VALUES (${userId}, ${now})
+      ON CONFLICT (user_id) DO UPDATE SET smart_otp_first_activated_at = coalesce(core.account_security.smart_otp_first_activated_at, EXCLUDED.smart_otp_first_activated_at), updated_at = now()`);
+    await this.audit.record(
+      {
+        actorUserId: userId,
+        companyId: null,
+        appCode: "crm",
+        action,
+        entityType: "smart_otp",
+        entityId: userId,
+        afterData: { deviceName: device.deviceName, platform: device.platform },
+      },
+      transaction,
+    );
+    return { secret };
+  }
+
+  async activationResponse(userId: string, installed: Installed, deviceId: string | null): Promise<SmartOtpActivationResponse> {
+    return { ...(await this.status(userId, deviceId)), secret: installed.secret, digits: 6, period: smartOtpPeriodSeconds };
+  }
+
+  // Kích hoạt bằng mã SMS trên máy đang dùng.
+  async activate(userId: string, input: z.output<typeof activateSmartOtpSchema>, deviceId: string | null = null): Promise<SmartOtpActivationResponse> {
+    const platform = input.platform ?? platformOf(input.deviceName);
+    this.platformAllowed(platform);
+    const { phone } = await this.buyer(userId);
+    if (!(await this.phoneOtp.consume(normalizePhone(phone), input.code, "smart_otp"))) throw new ApiError("BUSINESS_RULE", "otpInvalid");
+    const installed = await this.database.transaction((transaction) => this.install(transaction, userId, { deviceName: input.deviceName, platform, deviceId }, "smart_otp.activate"));
+    return this.activationResponse(userId, installed, deviceId);
+  }
+
+  // API_319: chuyển Smart OTP sang máy đang dùng bằng mã đang hiện trên máy cũ; không SMS, không khóa dùng điểm (QUYTAC_NGHIEPVU_562).
+  // Mã kiểm như giao dịch: mỗi bước dùng một lần, dùng chung bộ đếm sai và khóa 15 phút.
+  async transfer(userId: string, input: z.output<typeof transferSmartOtpSchema>, deviceId: string | null): Promise<SmartOtpActivationResponse> {
+    this.platformAllowed(input.platform);
+    await this.buyer(userId);
+    try {
+      await this.verify(userId, input.code, null);
+    } catch (error) {
+      if (error instanceof ApiError && error.message === "retailSmartOtpInactive") throw new ApiError("BUSINESS_RULE", "smartOtpNotActive");
+      if (error instanceof ApiError && error.message === "retailSmartOtpLocked") throw new ApiError("BUSINESS_RULE", "smartOtpLocked");
+      if (error instanceof ApiError && error.message === "retailSmartOtpInvalid") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { code: "smartOtpCodeInvalid" } });
+      throw error;
+    }
+    const installed = await this.database.transaction((transaction) =>
+      this.install(transaction, userId, { deviceName: input.deviceName, platform: input.platform, deviceId }, "smart_otp.transfer"),
+    );
+    return this.activationResponse(userId, installed, deviceId);
+  }
+
+  // Khách tự hủy, hoặc ứng dụng báo sai mã khóa 5 lần liên tiếp (QUYTAC_NGHIEPVU_563).
+  async revoke(userId: string, reason: "buyer" | "pin_lockout" = "buyer"): Promise<SmartOtpStatusResponse> {
     await this.buyer(userId);
     await this.database.transaction(async (transaction) => {
       const removed = await transaction.execute(sql`DELETE FROM core.smart_otp_devices WHERE user_id = ${userId} RETURNING user_id`);
       if (removed.rows.length > 0)
-        await this.audit.record({ actorUserId: userId, companyId: null, appCode: "crm", action: "smart_otp.revoke", entityType: "smart_otp", entityId: userId }, transaction);
+        await this.audit.record(
+          { actorUserId: userId, companyId: null, appCode: "crm", action: "smart_otp.revoke", entityType: "smart_otp", entityId: userId, afterData: { reason } },
+          transaction,
+        );
     });
     return this.status(userId);
   }
 
   // Kiểm mã tại quầy trong giao dịch riêng (lần sai được ghi kể cả khi bán không thành): mã đúng thì đánh dấu bước đã dùng.
-  async verify(userId: string, code: string, companyId: string): Promise<void> {
+  async verify(userId: string, code: string, companyId: string | null): Promise<void> {
     const failure = await this.database.transaction(async (transaction): Promise<"retailSmartOtpInactive" | "retailSmartOtpLocked" | "retailSmartOtpInvalid" | null> => {
       const row = await this.device(transaction, userId, true);
       if (!row) return "retailSmartOtpInactive";
@@ -151,7 +235,7 @@ export class SmartOtpService {
             userId,
             companyId,
             kind: "loyalty.smart_otp_locked",
-            title: "Dùng điểm tại quầy tạm khóa 15 phút do nhập sai mã Smart OTP nhiều lần",
+            title: "Smart OTP tạm khóa 15 phút do nhập sai mã nhiều lần",
             payload: { lockedUntil: until.toISOString() },
           },
         ]);
