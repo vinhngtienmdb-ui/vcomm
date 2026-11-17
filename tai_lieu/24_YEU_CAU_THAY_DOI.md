@@ -83,7 +83,7 @@
 | MODULE_13 Văn phòng số (mới) | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ | MOD-20 đến MOD-24 |
 | MODULE_14 Bán lẻ tại quầy và trạm giao hàng (mới) | Bán hàng tại quầy (POS) cho cửa hàng, siêu thị tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách (Open-to-Buy) | MOD-12, MOD-16; `specs/018-o2o-tach-hai-san-pham` |
 | MODULE_15 Phân tích dữ liệu (mới) | Báo cáo quản trị toàn tập đoàn | MOD-01 |
-| MODULE_16 Mở rộng kinh doanh (mới) | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất | MOD-07 (Dropship); `vcomm_ai_integration_guide.md` |
+| MODULE_16 Mở rộng kinh doanh (mới) | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất (đã bỏ theo THAY_DOI_30, 2026-11-12) | MOD-07 (Dropship); `vcomm_ai_integration_guide.md` |
 
 - Thành phần bị ảnh hưởng:
   - Tài liệu `04` mục 8 (yêu cầu cấp cao), `05` mục 1, 2, 3, 4, 5 (phạm vi, phạm vi ngoài, phiên bản, ưu tiên), `01` mục 4, 5, 6 (danh sách module, mốc, rủi ro), `13` mục 5 (chi phí hạ tầng tăng khi thêm module).
@@ -537,4 +537,4 @@
 - Kiểm thử cần thực hiện: c55-transactions, c55-reports, c55-settlements (KICHBAN_KIEMTHU_539, 540, 544, 546), c67-open-affiliate (KICHBAN_KIEMTHU_697, 700, 701); KICHBAN_KIEMTHU_731 đến 733 mới; hồi quy toàn bộ.
 - Mức quy mô: Vừa (đổi quy tắc nghiệp vụ đã duyệt); làm trong CONG_VIEC_70.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-17. Đang làm trong CONG_VIEC_70.
+- Trạng thái: Đã phê duyệt 2026-11-17. Đã làm trong CONG_VIEC_70, nghiệm thu 2026-11-17, chờ phát hành.
