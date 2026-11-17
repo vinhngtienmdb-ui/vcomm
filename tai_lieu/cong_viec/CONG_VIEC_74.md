@@ -3,7 +3,7 @@
 - Mô tả: iPOS là ứng dụng bán hàng tại quầy cho cửa hàng liên kết (CONG_VIEC_55). Cửa hàng thuê bao theo điểm bán. Thu ngân bán hàng trên máy tính bảng Android hoặc máy bán hàng Sunmi: quét mã, thu tiền mặt, VietQR hoặc qua ứng dụng VComm, in hóa đơn, mở ngăn kéo tiền, mở và đóng ca. Chủ cửa hàng quản lý hàng hóa, tồn kho đơn giản, thu ngân, quầy, báo cáo trên cổng cửa hàng. Công ty vận hành sàn cấp thuê bao, thu phí thuê bao theo cách cấu hình riêng cho từng cửa hàng, xem doanh thu và đối soát trong ERP.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Lát L2 người dùng duyệt 2026-11-17 (chấp nhận 5 điều chỉnh mục 19a). Đang làm lát L3.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Lát L2 người dùng duyệt 2026-11-17 (chấp nhận 5 điều chỉnh mục 19a). Lát L3 người dùng duyệt 2026-11-17 (chấp nhận 4 điều chỉnh mục 19a; in thật trên Sunmi T2, Bluetooth, ngắt mạng thử trên máy thật khi nghiệm thu). Đang làm lát L4.
 - Mức: Lớn (module mới, schema mới `ipos`, ứng dụng di động mới, sửa quy tắc đối soát đã duyệt, thu phí thuê bao).
 - Nhánh: `chuc-nang/CONG_VIEC_74-ipos`.
 - Nguồn: quyết định của người dùng ngày 2026-11-17 (mục 17); CONG_VIEC_55, 67 (cửa hàng liên kết, Open API điểm thưởng), CONG_VIEC_73 (đơn chờ thanh toán, thu hộ, hóa đơn ủy nhiệm), CONG_VIEC_72 (Smart OTP, mã động); ý tưởng từ nguồn riêng V-com-ERP (mục 12), không sao chép mã.
@@ -669,6 +669,11 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | L3 | Thêm API mở ngăn kéo `POST /ipos/pos/drawer-events` vào nhóm API_338; nhật ký in lại và mở ngăn kéo chung bảng `ipos.device_events` | QUYTAC_NGHIEPVU_620 khoản 3, 4 cần ghi nhật ký |
 | L3 | Đóng ca xong ứng dụng khóa màn hình (phiên kết thúc), người sau đăng nhập lại bằng PIN | QUYTAC_NGHIEPVU_607 khoản 3: phiên hết khi đóng ca |
 | L3 | Mẫu in 58 mm, 80 mm kiểm bằng bản xem trước chữ trên bản web (KICHBAN_KIEMTHU_788); in thật trên Sunmi T2 (KICHBAN_KIEMTHU_787) chờ máy thử | Môi trường phát triển không có máy in, không có bộ công cụ dựng Android |
+| L4 | Nội dung chuyển khoản VietQR là "<mã điểm bán> <8 ký tự mã yêu cầu>" (không phải số hóa đơn); lưu vào dòng thanh toán, in trên hóa đơn, hiện ở báo cáo (điều chỉnh QUYTAC_NGHIEPVU_615 khoản 4, TIEUCHI_NGHIEMTHU_574) | Số hóa đơn chỉ có khi đã ghi; giữ chỗ số làm hổng dãy số liên tục. Người dùng chọn 2026-11-17, giống quầy bán lẻ CONG_VIEC_53 |
+| L4 | Khách VComm dùng điểm, voucher khi cửa hàng không thu hộ (QUYTAC_NGHIEPVU_616 khoản 4, 5) làm qua service giao dịch tại quầy của CONG_VIEC_55, 67 (mã thành viên, mã QR cửa hàng), chưa qua đơn chờ của CONG_VIEC_73 | Phần xử lý cửa hàng liên kết của CONG_VIEC_73 (lát L4) chưa có; phiên điều phối đồng ý 2026-11-17. Chuyển sang đơn chờ khi CONG_VIEC_73 xong lát đó |
+| L4 | Thanh toán qua ứng dụng VComm có thu hộ (luồng 1, 2): đã làm tạo đơn chờ, gắn mã động, mã QR, xem, hủy (API_341); khách trả, hoàn tất ghi hóa đơn chờ CONG_VIEC_73 lát L4 (móc hoàn tất `registerCompletionHook` đã thống nhất với phiên CONG_VIEC_73). Ứng dụng hiện thông báo "chưa trả được qua ứng dụng" | Phụ thuộc CONG_VIEC_73 |
+| L4 | Giao dịch điểm, đơn chờ của máy bán gắn theo ca (`ipos.shift_links`); đóng ca bị chặn khi còn dở. Bỏ giỏ sau khi khách đã dùng điểm thì hủy giao dịch, hoàn điểm | QUYTAC_NGHIEPVU_623 khoản 1 |
+| L4 | Thêm thư viện `qrcode-generator` 2.0.4 cho ứng dụng iPOS | Vẽ mã QR; người dùng duyệt 2026-11-17 |
 
 ## 20. Rủi ro và điểm chưa xác định
 

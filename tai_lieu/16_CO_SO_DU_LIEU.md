@@ -4029,6 +4029,10 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 | 0168 (L3) | `ipos.held_carts` | (`register_id`, `slot` 1 đến 5) khóa chính, `label`, `payload` (giỏ dạng JSON), `member_id`; xóa khi đóng ca |
 | 0168 (L3) | `ipos.approval_codes` | `device_id`, `approver_id` (chủ cửa hàng), `purpose` (`discount`, `return`), `code_hash` (băm, duy nhất), `expires_at` (2 phút), `used_at` |
 | 0168 (L3) | `ipos.device_events` | Nhật ký `reprint` (in lại hóa đơn, có `sale_id`) và `drawer_open` (chủ cửa hàng mở ngăn kéo): `device_id`, `member_id`, `reason`, `occurred_at` |
+| 0169 (L4) | `ipos.sale_payments` | Thêm `vietqr_reference` (nội dung chuyển khoản "<mã điểm bán> <8 ký tự mã yêu cầu>", bắt buộc cùng `confirmed_by` với dòng `vietqr`), `affiliate_transaction_id` (giao dịch điểm `LK…`, bắt buộc với dòng `points`, `voucher` khi không có đơn chờ), `instore_checkout_id` (đơn chờ `TT…`, bắt buộc với dòng `vcomm_app`). Chỉ mục duy nhất (giao dịch, phương thức) và (đơn chờ, phương thức) |
+| 0169 (L4) | `ipos.sales` | Thêm `loyalty_skip_reason` (lý do không tích điểm: hạn mức, quá hạn đối soát) |
+| 0169 (L4) | `ipos.shift_links` | Giao dịch điểm, đơn chờ do máy bán lập trong ca: `shift_id`, `affiliate_transaction_id` hoặc `instore_checkout_id` (đúng một, duy nhất), `sale_id` khi đã gắn hóa đơn; dùng để chặn đóng ca khi còn dở |
+| 0169 (L4) | `instore.checkouts` | Thêm khóa ngoại `ipos_invoice_id` → `ipos.sales` (cột do CONG_VIEC_73 chừa sẵn) |
 
 Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
 

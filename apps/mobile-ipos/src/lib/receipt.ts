@@ -81,9 +81,17 @@ export function buildReceipt(sale: IposSale, options: { reprintNumber: number | 
   lines.push({ kind: "rule" });
   for (const payment of sale.payments) {
     lines.push({ kind: "columns", left: t(`payment_${payment.method}`), right: money(payment.amount) });
-    if (payment.tendered !== null) lines.push({ kind: "columns", left: t("receiptTendered"), right: money(payment.tendered) });
+    if (payment.method === "cash" && payment.tendered !== null) lines.push({ kind: "columns", left: t("receiptTendered"), right: money(payment.tendered) });
+    if (payment.vietqrReference) lines.push({ kind: "columns", left: `  ${t("receiptTransferContent")}`, right: payment.vietqrReference });
+    if (payment.linkNumber && (payment.method === "points" || payment.method === "voucher" || payment.method === "vcomm_app")) lines.push({ kind: "columns", left: `  ${t("receiptLink")}`, right: payment.linkNumber });
   }
   if (Number(sale.change) > 0) lines.push({ kind: "columns", left: t("receiptChange"), right: money(sale.change) });
+  // Khách VComm: tên đã che, điểm dùng, điểm tích (QUYTAC_NGHIEPVU_620 khoản 1).
+  if (sale.buyerName) {
+    lines.push({ kind: "rule" }, { kind: "columns", left: t("receiptBuyer"), right: sale.buyerName });
+    if (sale.redeemedPoints > 0) lines.push({ kind: "columns", left: t("receiptPointsUsed"), right: String(sale.redeemedPoints) });
+    lines.push({ kind: "columns", left: t("receiptPointsEarned"), right: String(sale.earnedPoints) });
+  }
   if (sale.receiptFooter) lines.push({ kind: "feed" }, { kind: "text", text: sale.receiptFooter, align: "center" });
   lines.push({ kind: "feed" });
   return lines;

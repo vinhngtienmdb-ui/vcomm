@@ -1,11 +1,12 @@
 // MAN_HINH_286 Bán hàng, MAN_HINH_287 Thanh toán (tiền mặt), MAN_HINH_288 Kết quả thanh toán (QUYTAC_NGHIEPVU_609, 612, 613, 615, 617, 620).
 // Giỏ giữ trên máy khi mất mạng; thanh toán mang khóa yêu cầu, gửi lại cùng khóa khi chưa nhận kết quả. Giảm vượt mức của thu ngân cần chủ nhập PIN.
-import type { IposApproval, IposCatalogVariant, IposDiscountInput, IposHeldCart, IposSale } from "contracts";
+import type { IposApproval, IposCatalogVariant, IposDiscountInput, IposHeldCart, IposSale, IposVcommCheckout } from "contracts";
 import { iposComputeTotals } from "contracts";
 import { messages } from "i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from "react-native";
 import { PinPad } from "@/components/PinPad";
+import { PaymentDialog, type PaymentRequest } from "./Payment";
 import { Button, Choice, Field, Muted, Notice, Overlay } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { t } from "@/lib/i18n";
@@ -82,44 +83,6 @@ function ApprovalDialog({ onApproved, onClose }: { onApproved: (approval: IposAp
   );
 }
 
-function PaymentDialog({ total, onPaid, onClose, submit }: { total: number; onPaid: (sale: IposSale) => void; onClose: () => void; submit: (tendered: string) => Promise<IposSale> }) {
-  const [tendered, setTendered] = useState(String(total));
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const given = Number(tendered || 0);
-  // Mệnh giá nhanh: đúng tiền, làm tròn lên các mệnh giá thường gặp.
-  const quick = useMemo(() => [...new Set([total, ...[10_000, 20_000, 50_000, 100_000, 200_000, 500_000].map((note) => Math.ceil(total / note) * note)])].filter((value) => value >= total).slice(0, 6), [total]);
-  return (
-    <Overlay title={t("paymentTitle")} onClose={busy ? undefined : onClose} width={560}>
-      <Text style={styles.payTotal}>{t("amountDue", { amount: money(total) })}</Text>
-      <Field label={t("cashGiven")} keyboardType="number-pad" value={tendered ? money(tendered) : ""} onChangeText={(text) => setTendered(text.replace(/\D/g, ""))} />
-      <View style={[styles.row, { flexWrap: "wrap" }]}>
-        {quick.map((value) => (
-          <Pressable key={value} accessibilityRole="button" onPress={() => setTendered(String(value))} style={styles.quick}>
-            <Text style={styles.quickText}>{money(value)}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <Text style={styles.change}>{given >= total ? t("changeDue", { amount: money(given - total) }) : t("cashShort", { amount: money(total - given) })}</Text>
-      {error ? <Notice text={error} /> : null}
-      <Button
-        label={t("confirmPayment")}
-        busy={busy}
-        disabled={given < total}
-        onPress={() => {
-          setBusy(true);
-          setError(null);
-          submit(tendered)
-            .then(onPaid)
-            .catch((failure: unknown) => setError(failure instanceof Error ? failure.message : String(failure)))
-            .finally(() => setBusy(false));
-        }}
-      />
-      <Muted>{t("paymentRetryHint")}</Muted>
-    </Overlay>
-  );
-}
-
 function ResultView({ sale, printing, onReprint, onNew }: { sale: IposSale; printing: PrintOutcome | null; onReprint: () => void; onNew: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.resultWrap}>
@@ -130,10 +93,16 @@ function ResultView({ sale, printing, onReprint, onNew }: { sale: IposSale; prin
           <Text style={styles.resultLabel}>{t("total")}</Text>
           <Text style={styles.resultValue}>{money(sale.total)}</Text>
         </View>
-        <View style={styles.resultRow}>
-          <Text style={styles.resultLabel}>{t("payment_cash")}</Text>
-          <Text style={styles.resultValue}>{money(sale.payments[0]?.tendered ?? sale.total)}</Text>
-        </View>
+        {sale.payments.map((payment) => (
+          <View key={payment.method} style={styles.resultRow}>
+            <Text style={styles.resultLabel}>
+              {t(`payment_${payment.method}`)}
+              {payment.vietqrReference ? ` · ${payment.vietqrReference}` : ""}
+            </Text>
+            <Text style={styles.resultValue}>{money(payment.method === "cash" && payment.tendered !== null ? payment.tendered : payment.amount)}</Text>
+          </View>
+        ))}
+        {sale.buyerName ? <Muted>{t("resultBuyer", { name: sale.buyerName, earned: sale.earnedPoints, redeemed: sale.redeemedPoints })}</Muted> : null}
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>{t("changeLabel")}</Text>
           <Text style={[styles.resultValue, { color: colors.primary }]}>{money(sale.change)}</Text>
@@ -233,7 +202,7 @@ export function Sell() {
     }, 0);
   };
 
-  const submit = async (tendered: string): Promise<IposSale> => {
+  const submit = async (request: PaymentRequest): Promise<IposSale> => {
     if (!shift) throw new Error(t("noShift"));
     try {
       const sale = await api<IposSale>("/ipos/pos/sales", {
@@ -243,8 +212,9 @@ export function Sell() {
           shiftId: shift.id,
           lines: cart.lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity, unitPrice: line.unitPrice, discount: line.discount })),
           invoiceDiscount: cart.invoiceDiscount,
-          payments: [{ method: "cash", tendered }],
+          payments: request.payments,
           approvalCode: approvalCode.current,
+          affiliateTransactionId: request.affiliateTransactionId,
         },
       });
       markOnline(true);
@@ -262,6 +232,22 @@ export function Sell() {
       throw failure;
     }
   };
+
+  // Đơn chờ thanh toán qua ứng dụng VComm (API_341); tạo một lần mỗi lần mở, gửi lại cùng khóa không tạo đơn mới.
+  const createCheckout = useMemo(
+    () => () =>
+      api<IposVcommCheckout>("/ipos/pos/vcomm-checkouts", {
+        method: "POST",
+        json: {
+          idempotencyKey: requestKey.current,
+          shiftId: shift?.id,
+          lines: cart.lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity, unitPrice: line.unitPrice, discount: line.discount })),
+          invoiceDiscount: cart.invoiceDiscount,
+          approvalCode: approvalCode.current,
+        },
+      }),
+    [cart, shift],
+  );
 
   const finish = (sale: IposSale) => {
     setPaying(false);
@@ -463,7 +449,18 @@ export function Sell() {
         />
       ) : null}
       {approving ? <ApprovalDialog onApproved={approving} onClose={() => setApproving(null)} /> : null}
-      {paying ? <PaymentDialog total={totals.total} submit={submit} onPaid={finish} onClose={() => setPaying(false)} /> : null}
+      {paying && shift ? (
+        <PaymentDialog
+          total={totals.total}
+          context={context}
+          shiftId={shift.id}
+          requestKey={requestKey.current}
+          submit={submit}
+          createCheckout={createCheckout}
+          onPaid={finish}
+          onClose={() => setPaying(false)}
+        />
+      ) : null}
       {held ? (
         <Overlay title={t("heldCarts")} onClose={() => setHeld(null)}>
           {held.length === 0 ? <Muted>{t("heldEmpty")}</Muted> : null}
