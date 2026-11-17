@@ -35,6 +35,10 @@ import {
   type MerchantPortalSecurity,
   merchantPortalPasswordResetSchema,
   merchantPortalPasswordSchema,
+  createMerchantCheckoutSchema,
+  merchantCheckoutCancelSchema,
+  merchantCheckoutPayCodeSchema,
+  type MerchantCheckoutResponse,
 } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
@@ -49,6 +53,7 @@ import { AffiliateApiKeysService } from "./api-keys.service";
 import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
+import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -65,7 +70,31 @@ export class MerchantPortalController {
     private readonly reports: AffiliateReportsService,
     private readonly apiKeys: AffiliateApiKeysService,
     private readonly security: MerchantPortalSecurityService,
+    private readonly checkouts: AffiliateCheckoutsService,
   ) {}
+
+  // API_329 (CONG_VIEC_73 lát L4; MAN_HINH_174): đơn chờ khách thanh toán qua ứng dụng VComm.
+  @Post("checkouts")
+  async createCheckout(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.create(await this.member(request), createMerchantCheckoutSchema.parse(body));
+  }
+
+  @Get("checkouts/:id")
+  async checkout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.get(await this.member(request), id);
+  }
+
+  @Post("checkouts/:id/pay-code")
+  @HttpCode(200)
+  async checkoutPayCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.payCode(await this.member(request), id, merchantCheckoutPayCodeSchema.parse(body).code);
+  }
+
+  @Post("checkouts/:id/cancel")
+  @HttpCode(200)
+  async cancelCheckout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.cancel(await this.member(request), id, merchantCheckoutCancelSchema.parse(body).reason);
+  }
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
   private async voucherActor(request: AuthenticatedRequest): Promise<VoucherActor> {

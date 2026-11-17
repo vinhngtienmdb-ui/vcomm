@@ -10,7 +10,7 @@ import { redeemLockedUntil } from "../auth/account-security";
 import { maskName } from "../auth/smart-otp.service";
 import { ApiError } from "../common/api-error";
 import { DATABASE, type Database } from "../database/database.module";
-import { InstoreCheckoutsService, type CheckoutKindHandler, type CheckoutRow, type DatabaseTransaction } from "../instore/checkouts.service";
+import { InstoreCheckoutsService, type CheckoutKindHandler, type RedeemResult, type CheckoutRow, type DatabaseTransaction } from "../instore/checkouts.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { LoyaltyLedgerService, releaseSalePoints } from "../loyalty/ledger.service";
 import { PermissionService } from "../permissions/permission.service";
@@ -41,7 +41,10 @@ export class RetailCheckoutsService implements OnModuleInit {
   onModuleInit(): void {
     const handler: CheckoutKindHandler = {
       loyalty: (executor, row, userId) => this.loyaltyFor(executor, row, userId),
-      redeem: (transaction, row, userId, points) => this.redeem(transaction, row, userId, points),
+      vouchers: async () => [],
+      redeem: (transaction, row, userId, input) => this.redeem(transaction, row, userId, input),
+      platformFeePercent: async (executor, row) =>
+        Number((await executor.execute<{ percent: string }>(sql`SELECT platform_fee_percent::text AS percent FROM retail.stores WHERE id = ${row.store_id}`)).rows[0]!.percent),
       release: (transaction, row) => this.release(transaction, row),
       complete: (transaction, row, appAmount) => this.complete(transaction, row, appAmount),
     };
@@ -176,8 +179,11 @@ export class RetailCheckoutsService implements OnModuleInit {
     };
   }
 
-  // Trừ điểm khi khách bấm thanh toán, theo mã hóa đơn bán lẻ dành trước; sổ cái điểm tự ghi bút toán.
-  private async redeem(transaction: DatabaseTransaction, row: CheckoutRow, userId: string, points: number) {
+  // Trừ điểm khi khách bấm thanh toán, theo mã hóa đơn bán lẻ dành trước; sổ cái điểm tự ghi bút toán. Quầy tập đoàn không có voucher.
+  private async redeem(transaction: DatabaseTransaction, row: CheckoutRow, userId: string, input: { points: number; voucherCodeId: string | null }): Promise<RedeemResult> {
+    if (input.voucherCodeId) throw new ApiError("BUSINESS_RULE", "instoreVoucherUnavailable");
+    const points = input.points;
+    if (points <= 0) return { points: 0, amount: 0, voucherAmount: 0, reservedSaleId: null, affiliateTransactionId: null };
     const reservedSaleId = randomUUID();
     const redeemed = await this.loyalty.redeemWithin(transaction, {
       userId,
@@ -188,7 +194,7 @@ export class RetailCheckoutsService implements OnModuleInit {
       goodsAmount: Number(row.bill_amount),
       points,
     });
-    return { points: redeemed.points, amount: redeemed.amount, reservedSaleId };
+    return { points: redeemed.points, amount: redeemed.amount, voucherAmount: 0, reservedSaleId, affiliateTransactionId: null };
   }
 
   private async release(transaction: DatabaseTransaction, row: CheckoutRow): Promise<void> {

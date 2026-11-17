@@ -118,7 +118,7 @@ Ngoài phạm vi:
 - Giới hạn điểm giữ như hiện nay: cửa hàng tập đoàn theo `quoteRedemption` (QUYTAC_NGHIEPVU_379); cửa hàng liên kết theo QUYTAC_NGHIEPVU_399 (sau voucher). Không thêm giới hạn theo cửa hàng.
 - Dùng điểm lớn hơn 0 phải mở Smart OTP trên máy (luồng 1 đã mở khi hiện mã; luồng 2 hỏi mở khi bấm thanh toán). Khách chưa kích hoạt: trong thời hạn chuyển đổi được dùng điểm như cách 1 hiện nay; hết hạn phải kích hoạt.
 - Tiền còn lại = tiền hóa đơn − voucher − tiền điểm. Bằng 0: bấm "Xác nhận", hoàn tất ngay, không qua cổng.
-- Đơn cách thu "tại quầy" hoặc cửa hàng tắt thu hộ: chỉ chọn điểm, voucher, bấm "Xác nhận"; khách trả phần còn lại tại quầy.
+- Đơn cách thu "tại quầy" hoặc cửa hàng tắt thu hộ: chỉ chọn điểm, voucher, bấm "Xác nhận"; khách trả phần còn lại tại quầy. Đơn hoàn tất ngay khi khách bấm "Xác nhận" (ghi giao dịch `LK…` với điểm, voucher như cách 1 của CONG_VIEC_55); cửa hàng tự thu phần còn lại; khách không trả thì cửa hàng hủy đơn để hoàn điểm, voucher (người dùng quyết định 2026-11-17).
 - Khách bấm "Từ chối": đơn chuyển khách từ chối, nhả giữ hàng.
 
 ### QUYTAC_NGHIEPVU_579 – Thanh toán qua cổng
@@ -473,8 +473,8 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - Điểm bị trừ khi khách bấm thanh toán (gắn với số hóa đơn dành sẵn), hoàn lại khi đơn hết hạn, bị hủy hoặc cổng không thành công đến hết hạn.
   - Hạch toán phần tiền khách trả qua ứng dụng (phải thu nội bộ, bút toán nhận tiền cổng của công ty vận hành) làm ở L5; đến lúc đó khoản phải thu phần này còn treo chưa đối trừ.
   - Trả hàng hóa đơn có phần trả qua ứng dụng: hoàn phần tiền này vẫn làm tay; báo cáo ca chưa tách dòng "Qua ứng dụng VComm".
-  - Voucher trên MAN_HINH_277 chưa làm (dời sang L3 cùng việc dùng điểm tại quầy bằng quét mã).
-  - Nút tăng độ sáng màn hình ở MAN_HINH_276: người dùng đã duyệt thư viện `expo-brightness` (bản theo Expo SDK 58) nhưng lệnh cài bị hệ thống kiểm soát quyền của phiên chặn; chưa cài, chưa ghi vào tài liệu 13. Cần người dùng tự cài hoặc cho phép cài.
+  - Voucher trên MAN_HINH_277 chưa làm (người dùng dời sang L4 cùng cửa hàng liên kết).
+  - Nút tăng độ sáng màn hình ở MAN_HINH_276: lệnh cài `expo-brightness` bị hệ thống kiểm soát quyền của phiên con chặn; phiên điều phối cài theo yêu cầu người dùng, nút làm ở L3.
 
 ### Kết quả lát L3 (2026-11-17)
 
@@ -482,7 +482,8 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - MAN_HINH_161: dòng điểm mặc định là ô "Mã thanh toán của khách" cho máy quét (Enter của máy quét không gửi hộp thoại); nút "Khách không quét được mã: nhập mã Smart OTP 6 số" chuyển sang ô 6 số dự phòng và ngược lại.
 - Khách vẫn được chọn bằng số điện thoại (F3) như trước. Không định danh khách bằng mã quét ở ô F3: mã chỉ dùng được một lần mỗi bước 30 giây, định danh xong thì khách phải đổi mã mới mới dùng được điểm.
 - Kiểm thử: thêm vào `apps/api/test/c73-instore-retail.test.ts` (mã đúng, mã dùng lại, mã của khách khác, mã sai, gửi cả hai loại mã, ô 6 số dự phòng).
-- Chưa làm: voucher trên MAN_HINH_277 (quầy tập đoàn chưa có voucher; đã hỏi người dùng có dời sang L4 không); nút tăng độ sáng (chờ người dùng cài `expo-brightness`).
+- Nút "Tăng độ sáng" trên MAN_HINH_276 (thư viện `expo-brightness` 58.0.2, người dùng duyệt, ghi tài liệu 13 mục 13): đặt độ sáng tối đa cho riêng màn hình ứng dụng, bấm lại hoặc rời màn hình thì trả độ sáng cũ; bản web không có nút.
+- Người dùng chọn (2026-11-17): voucher trên MAN_HINH_277 làm ở L4 cùng cửa hàng liên kết, vì quầy tập đoàn chưa có voucher.
 
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 

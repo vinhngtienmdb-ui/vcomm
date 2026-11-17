@@ -897,7 +897,15 @@
     "iposReturnNeedsApproval": "Thu ngân trả hàng cần chủ cửa hàng nhập mã PIN để duyệt.",
     "iposReturnQuantityInvalid": "Số lượng trả vượt số còn trả được hoặc bị lặp dòng.",
     "iposReturnWeekSettled": "Tuần đối soát đã chốt, không hủy được; liên hệ công ty vận hành sàn để khiếu nại",
-    "iposPeriodTooLong": "Khoảng ngày tối đa 366 ngày."
+    "iposPeriodTooLong": "Khoảng ngày tối đa 366 ngày.",
+    "instoreVoucherUnavailable": "Đơn này không dùng được voucher.",
+    "instoreCollectionDisabled": "Cửa hàng chưa bật thu hộ qua ứng dụng VComm. Chọn \"Khách trả tại quầy\".",
+    "instoreCashierCheckoutLimit": "Bạn đang có 3 đơn chờ khách thanh toán. Hủy bớt hoặc chờ đơn hoàn tất rồi tạo đơn mới.",
+    "instoreOperatorOnly": "Chỉ công ty vận hành sàn cài biểu phí cổng tại cửa hàng.",
+    "instoreFeeDatePast": "Ngày áp dụng không được trước hôm nay.",
+    "affiliateCollectionAccountRequired": "Chọn tài khoản nhận tiền trước khi bật thu hộ.",
+    "affiliateCollectionAcknowledge": "Bật thu hộ lần đầu cần xác nhận đã đọc cảnh báo: thu hộ tiền của cửa hàng có thể là hoạt động trung gian thanh toán.",
+    "affiliateCollectedNotCancellable": "Giao dịch có tiền VComm thu hộ chưa hủy được ở đây; hủy và hoàn tiền cho khách sẽ có ở bản sau."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4665,7 +4673,9 @@
     "instoreInvoiceAddress": "Địa chỉ",
     "instorePay": "Thanh toán {amount}",
     "instoreConfirm": "Xác nhận",
-    "instoreDecline": "Từ chối"
+    "instoreDecline": "Từ chối",
+    "payCodeBrighten": "Tăng độ sáng",
+    "payCodeBrightnessRestore": "Trả độ sáng cũ"
   },
   "buyers": {
     "title": "Tài khoản người mua",

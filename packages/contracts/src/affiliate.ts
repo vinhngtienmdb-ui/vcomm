@@ -165,7 +165,8 @@ export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] 
 // Cách `otp` chỉ có qua Open API (CONG_VIEC_67).
 export const affiliateAllTransactionMethods = [...affiliateTransactionMethods, "otp"] as const;
 export type AffiliateTransactionMethod = (typeof affiliateAllTransactionMethods)[number];
-export type AffiliateTransactionSource = "portal" | "open_api";
+// "ipos": giao dịch từ đơn chờ do ứng dụng iPOS tạo (CONG_VIEC_74, qua CONG_VIEC_73).
+export type AffiliateTransactionSource = "portal" | "open_api" | "ipos";
 export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
 // CONG_VIEC_60: fraud_rule – quy tắc chống gian lận chặn tích.
 export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue" | "fraud_rule";

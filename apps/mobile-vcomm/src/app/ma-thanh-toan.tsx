@@ -1,7 +1,9 @@
 // MAN_HINH_276 Mã thanh toán (CONG_VIEC_73; QUYTAC_NGHIEPVU_574, 576; API_327).
 // Mở Smart OTP (vân tay, khuôn mặt hoặc mã khóa) rồi hiện mã QR và mã vạch Code 128 của 18 chữ số, đổi mỗi 30 giây, không cần mạng.
 // Trong lúc mở, ứng dụng hỏi máy chủ mỗi 2 giây: thu ngân quét xong thì mở MAN_HINH_277 của đơn đó. Nút "Quét mã cửa hàng" cho luồng 2.
+// Nút "Tăng độ sáng" đặt độ sáng tối đa cho riêng màn hình ứng dụng (không đổi cài đặt máy, không cần quyền), trả lại khi bấm lại hoặc rời màn hình.
 import type { BuyerInstoreCheckout, SmartOtpStatusResponse } from "contracts";
+import * as Brightness from "expo-brightness";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
@@ -48,6 +50,8 @@ export default function PayCodeScreen() {
   const [now, setNow] = useState(Date.now());
   const [error, setError] = useState<string | null>(null);
   const opened = useRef(new Set<string>());
+  const [brightnessAvailable, setBrightnessAvailable] = useState(false);
+  const previousBrightness = useRef<number | null>(null);
   const fail = (failure: unknown) => setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
 
   useEffect(() => {
@@ -58,6 +62,32 @@ export default function PayCodeScreen() {
       })
       .catch(fail);
   }, []);
+  // Độ sáng: chỉ hiện nút khi máy hỗ trợ (bản web không có); rời màn hình thì trả độ sáng cũ.
+  useEffect(() => {
+    Brightness.isAvailableAsync()
+      .then(setBrightnessAvailable)
+      .catch(() => setBrightnessAvailable(false));
+    return () => {
+      if (previousBrightness.current !== null) void Brightness.setBrightnessAsync(previousBrightness.current).catch(() => undefined);
+    };
+  }, []);
+  const [bright, setBright] = useState(false);
+  async function toggleBrightness() {
+    try {
+      if (previousBrightness.current === null) {
+        previousBrightness.current = await Brightness.getBrightnessAsync();
+        await Brightness.setBrightnessAsync(1);
+        setBright(true);
+      } else {
+        await Brightness.setBrightnessAsync(previousBrightness.current);
+        previousBrightness.current = null;
+        setBright(false);
+      }
+    } catch {
+      setBrightnessAvailable(false);
+    }
+  }
+
   // Mã đổi theo bước 30 giây; đồng hồ chạy mỗi giây để thanh đếm ngược cập nhật.
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -149,6 +179,7 @@ export default function PayCodeScreen() {
             </Card>
             <Notice tone="info" text={t("payCodeHint")} />
             <Button label={t("instoreScanTitle")} kind="secondary" onPress={() => router.push("/quet-ma-cua-hang")} />
+            {brightnessAvailable ? <Button label={bright ? t("payCodeBrightnessRestore") : t("payCodeBrighten")} onPress={() => void toggleBrightness()} /> : null}
             {status?.redeemLockedUntil ? <Notice tone="warning" text={t("payCodeRedeemLocked", { time: time(status.redeemLockedUntil) })} /> : null}
           </>
         )}
