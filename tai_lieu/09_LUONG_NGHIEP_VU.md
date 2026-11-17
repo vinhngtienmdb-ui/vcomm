@@ -1381,3 +1381,22 @@ flowchart LR
 Soạn nội dung: Biểu mẫu sản phẩm → Soạn bằng AI (MAN_HINH_243) → chọn giọng, độ dài, từ khóa → kiểm hạn mức (như trên) → kết quả ba phần → Dùng (điền biểu mẫu) hoặc Viết lại → người dùng bấm Lưu của biểu mẫu.
 
 Ngoại lệ: nhà cung cấp lỗi, quá tải, hết thời gian → báo "Trợ lý tạm thời không phản hồi, thử lại sau", ghi nhật ký lượt trạng thái lỗi (chi phí theo token đã báo, nếu có); người dùng rời trang giữa lượt → máy chủ vẫn hoàn tất, lưu câu trả lời để xem lại.
+
+## MODULE_01, MODULE_09, MODULE_11, MODULE_12 (ưu tiên Smart OTP thay tin nhắn SMS, CONG_VIEC_72)
+
+### Luồng 66. Chuyển xác thực người mua sang Smart OTP, cổng cửa hàng sang ứng dụng xác thực
+
+- Bắt đầu: ngày triển khai, database migration 0158 đến 0160 chuyển Smart OTP sang schema `core`, ghi ngày bắt đầu chuyển đổi, nạp thiết bị tin cậy (thiết bị đã ghi nhận 12 tháng; thiết bị đang đăng nhập thành tin cậy ở lần làm mới phiên đầu); việc nền nhắc kích hoạt bắt đầu chạy 9 giờ hằng ngày (QUYTAC_NGHIEPVU_561, 564, 571).
+- Các bước:
+  1. Khách mới: đăng ký trên ứng dụng điện thoại → nhập mã SMS đăng ký → "Kích hoạt Smart OTP trên máy này" (mặc định chọn) → đặt mã khóa (vân tay, khuôn mặt nếu có); không gửi thêm SMS; thiết bị thành tin cậy (MAN_HINH_74, 269; QUYTAC_NGHIEPVU_562, 563).
+  2. Khách cũ chưa kích hoạt: thấy thẻ nhắc, thông báo, tin ZNS 7 ngày trước hạn → "Kích hoạt" → mã SMS `smart_otp` → đặt mã khóa (MAN_HINH_151, 269; QUYTAC_NGHIEPVU_562, 571).
+  3. Đăng nhập trên máy mới: mật khẩu → phiên chờ xác nhận (10 phút) → mã Smart OTP đọc từ máy giữ Smart OTP (chưa kích hoạt trong hạn: mã SMS) → thiết bị thành tin cậy, thông báo trong ứng dụng (MAN_HINH_73, 270; QUYTAC_NGHIEPVU_565). Muốn dời Smart OTP sang máy mới: "Chuyển Smart OTP sang máy này" → nhập mã máy cũ → máy cũ mất hiệu lực, không SMS, không khóa dùng điểm (QUYTAC_NGHIEPVU_562).
+  4. Quên mật khẩu: số điện thoại → mã Smart OTP (chưa kích hoạt trong hạn: mã SMS) → mật khẩu mới → thu hồi mọi phiên, hết tin cậy thiết bị khác (MAN_HINH_75; QUYTAC_NGHIEPVU_568).
+  5. Mất máy: máy mới → mật khẩu → phiên chờ xác nhận → "Không còn máy giữ Smart OTP" → mã SMS `smart_otp` → kích hoạt, đặt mã khóa → máy cũ mất hiệu lực, khóa mọi cách dùng điểm theo số giờ tham số (mặc định 24), thông báo trong ứng dụng và ZNS (MAN_HINH_271; QUYTAC_NGHIEPVU_566).
+  6. Mất cả số điện thoại hoặc quên cả mật khẩu và mất máy: khách gọi chăm sóc khách hàng → nhân viên có `marketplace.buyer.security` hủy Smart OTP kèm lý do → thu hồi phiên, thiết bị; khách đăng nhập lại bằng mật khẩu và mã SMS, hoặc đặt lại mật khẩu bằng SMS một lần trong 24 giờ; kích hoạt lại tính là khôi phục (MAN_HINH_80; QUYTAC_NGHIEPVU_567).
+  7. Hết thời hạn chuyển đổi của người mua: SMS dự phòng tắt; Smart OTP trên bản web tự hủy; khách chưa kích hoạt phải kích hoạt khi cần dùng điểm (Open API cách mã OTP, đổi ra đối tác) hoặc đăng nhập máy mới (QUYTAC_NGHIEPVU_560, 569).
+  8. Cổng cửa hàng: kích hoạt lời mời (mã SMS → mật khẩu → ứng dụng xác thực → 10 mã dự phòng) hoặc tài khoản có sẵn thiết lập trong thời hạn ("Để sau") → đăng nhập bằng mật khẩu và mã ứng dụng xác thực → hết thời hạn cổng bỏ đăng nhập bằng mã SMS; tài khoản chưa thiết lập nhờ người mời đặt lại xác thực rồi kích hoạt lại (MAN_HINH_273, 274, 177, 178; QUYTAC_NGHIEPVU_570).
+- Ngoại lệ: kích hoạt trên bản web bị từ chối; mã Smart OTP sai 5 lần khóa 15 phút (chung đăng nhập, quên mật khẩu, giao dịch); sai mã khóa 5 lần thì xóa Smart OTP trên máy và hủy trên máy chủ; phiên chờ xác nhận quá 10 phút phải đăng nhập lại; đang khóa dùng điểm thì mọi cách dùng điểm báo `409 loyaltyRedeemLocked`, tích điểm vẫn được, không ai mở sớm; quên mật khẩu cổng sai mã 5 lần trong 15 phút thì tạm khóa 15 phút; tài khoản nhân viên bắt buộc xác thực hai lớp không đặt lại xác thực được từ cổng.
+- Kết thúc: khách dùng Smart OTP có mã khóa trên điện thoại cho dùng điểm, đăng nhập máy mới, quên mật khẩu; tài khoản cổng đăng nhập bằng mật khẩu và ứng dụng xác thực; thống kê kích hoạt, số tin SMS theo mục đích trên MAN_HINH_275 (QUYTAC_NGHIEPVU_572).
+
+Chi tiết: đặc tả `cong_viec/CONG_VIEC_72.md` mục 7.

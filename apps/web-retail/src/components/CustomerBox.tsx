@@ -65,6 +65,9 @@ export function CustomerBox({
         </div>
         {data.expectedPoints > 0 && <div className="khoi-canh-bao thong-tin">{t("expectedPoints", { points: points(data.expectedPoints) })}</div>}
         {data.redeemBlockedReason === "smart_otp_inactive" && <div className="khoi-canh-bao">{t("smartOtpInactive")}</div>}
+        {data.redeemBlockedReason === "redeem_locked" && data.redeemLockedUntil && (
+          <div className="khoi-canh-bao loi">{t("redeemLocked", { time: formatDateTime(data.redeemLockedUntil) })}</div>
+        )}
         {data.redeemBlockedReason === "smart_otp_locked" && data.smartOtpLockedUntil && (
           <div className="khoi-canh-bao loi">{t("smartOtpLocked", { time: formatDateTime(data.smartOtpLockedUntil) })}</div>
         )}

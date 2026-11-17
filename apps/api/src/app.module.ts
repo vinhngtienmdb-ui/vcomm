@@ -107,7 +107,11 @@ import { MarketplaceCommissionsService } from "./marketplace/commissions.service
 import { LoyaltyController } from "./loyalty/loyalty.controller";
 import { LoyaltyProgramService } from "./loyalty/program.service";
 import { LoyaltyLedgerService } from "./loyalty/ledger.service";
-import { SmartOtpService } from "./loyalty/smart-otp.service";
+import { SmartOtpService } from "./auth/smart-otp.service";
+import { AuthenticationSettingsService } from "./auth/authentication-settings.service";
+import { DeviceTrustService } from "./auth/device-trust.service";
+import { BuyerSecurityService } from "./auth/buyer-security.service";
+import { SmartOtpRemindersService } from "./auth/smart-otp-reminders.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -133,6 +137,7 @@ import { AffiliateController } from "./affiliate/affiliate.controller";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
+import { MerchantPortalSecurityService } from "./affiliate/portal-security.service";
 import { AffiliateTransactionsService } from "./affiliate/transactions.service";
 import { AffiliateVouchersService } from "./affiliate/vouchers.service";
 import { AffiliateSettlementsService } from "./affiliate/settlements.service";
@@ -351,6 +356,10 @@ import { UsersService } from "./users/users.service";
     LoyaltyProgramService,
     LoyaltyLedgerService,
     SmartOtpService,
+    AuthenticationSettingsService,
+    DeviceTrustService,
+    BuyerSecurityService,
+    SmartOtpRemindersService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,
@@ -368,6 +377,7 @@ import { UsersService } from "./users/users.service";
     PartnerSettlementsService,
     AffiliateMerchantsService,
     MerchantPortalService,
+    MerchantPortalSecurityService,
     AffiliateTransactionsService,
     AffiliateVouchersService,
     AffiliateSettlementsService,

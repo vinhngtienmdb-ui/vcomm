@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_72 Smart OTP – ứng dụng VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<style>
+  /* Bản mẫu CONG_VIEC_72 (ứng dụng VComm). Chỉ dùng biến của tài liệu 15. */
+  body { background: var(--mau-nen); }
+  .trang-mau { padding: var(--khoang-5) var(--khoang-4); display: grid; gap: var(--khoang-5); max-width: 1500px; margin: 0 auto; }
+  .chu-phu { color: var(--mau-chu-phu); font-size: 12px; line-height: 16px; }
+  .hang-mau { display: flex; flex-wrap: wrap; gap: var(--khoang-5); align-items: flex-start; }
+  .o-mau { display: grid; gap: var(--khoang-2); width: min(340px, 100%); }
+  .o-mau > h3 { margin: 0; font-size: 14px; }
+  .dien-thoai { width: min(340px, 100%); box-sizing: border-box; border: 8px solid var(--mau-chu); border-radius: 28px; background: var(--mau-nen); overflow: hidden; }
+  .dien-thoai .dau { background: var(--mau-chinh); color: #fff; padding: var(--khoang-3) var(--khoang-4); font-weight: 800; display: flex; gap: var(--khoang-2); align-items: center; }
+  .dien-thoai .than { padding: var(--khoang-4); display: grid; gap: var(--khoang-3); align-content: start; min-height: 420px; }
+  .the-ud { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-4); display: grid; gap: var(--khoang-2); }
+  .the-ud h4 { margin: 0; font-size: 15px; }
+  .o-nhap-ud { border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); padding: 10px 12px; font: inherit; background: var(--mau-be-mat); width: 100%; box-sizing: border-box; }
+  .nhan-o { font-weight: 700; font-size: 13px; }
+  .nut-rong { width: 100%; justify-content: center; padding: 11px 14px; }
+  .ma-otp { font-size: 40px; line-height: 48px; font-weight: 800; letter-spacing: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+  .dem-nguoc { height: 6px; border-radius: var(--bo-tron); background: var(--mau-vien); overflow: hidden; }
+  .dem-nguoc span { display: block; height: 100%; width: 60%; background: var(--mau-chinh); }
+  .cham-ma { display: flex; justify-content: center; gap: var(--khoang-3); margin: var(--khoang-2) 0; }
+  .cham-ma i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--mau-chu); }
+  .cham-ma i.day { background: var(--mau-chu); }
+  .ban-phim { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--khoang-2); }
+  .ban-phim button { font: inherit; font-size: 22px; font-weight: 700; padding: 10px 0; border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); background: var(--mau-be-mat); color: var(--mau-chu); }
+  .ban-phim button.trong { visibility: hidden; }
+  .o-ma { display: flex; gap: var(--khoang-2); justify-content: center; }
+  .o-ma input { width: 38px; height: 48px; text-align: center; font: inherit; font-size: 22px; font-weight: 800; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); }
+  .dong { display: flex; justify-content: space-between; align-items: center; gap: var(--khoang-2); }
+  .hop-he-thong { background: var(--mau-be-mat); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); border: 1px solid var(--mau-vien); padding: var(--khoang-4); text-align: center; display: grid; gap: var(--khoang-2); }
+  .hinh-van-tay { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto; border: 3px solid var(--mau-chinh); display: grid; place-items: center; color: var(--mau-chinh); font-weight: 800; }
+  .danh-sach { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--khoang-2); }
+  .danh-sach li { border-bottom: 1px solid var(--mau-vien); padding-bottom: var(--khoang-2); display: grid; gap: 2px; }
+  .lien-ket { color: var(--mau-chinh); font-weight: 700; text-decoration: underline; }
+  .dien-thoai .than > *, .the-ud > * { min-width: 0; }
+  .dien-thoai .than, .the-ud { grid-template-columns: minmax(0, 1fr); }
+  .dien-thoai .nut { white-space: normal; text-align: center; justify-content: center; }
+  .chuyen-doi { display: flex; align-items: center; gap: var(--khoang-2); }
+  .cong-tac { width: 40px; height: 22px; border-radius: var(--bo-tron); background: var(--mau-chinh); position: relative; flex: none; }
+  .cong-tac::after { content: ""; position: absolute; right: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+</style>
+</head>
+<body>
+<div class="trang-mau">
+  <header>
+    <h1>CONG_VIEC_72 – Ưu tiên Smart OTP (ứng dụng VComm)</h1>
+    <p class="chu-phu">MAN_HINH_269 đến 272 (mới), sửa MAN_HINH_73, 74, 75, 151, 265, trang chủ. Bản mẫu tĩnh, số liệu giả.</p>
+  </header>
+
+  <h2>1. Kích hoạt và mở khóa Smart OTP</h2>
+  <section class="hang-mau">
+    <div class="o-mau">
+      <h3>1a. Đăng ký (MAN_HINH_74 sửa) – sau mã SMS đúng</h3>
+      <div class="dien-thoai"><div class="dau">Đăng ký</div><div class="than">
+        <div class="the-ud">
+          <h4>Bước 3/3 · Bảo vệ tài khoản</h4>
+          <label class="chuyen-doi"><input type="checkbox" checked> <strong>Kích hoạt Smart OTP trên máy này</strong></label>
+          <span class="chu-phu">Mã xác thực 6 số tạo ngay trong ứng dụng, dùng khi dùng điểm, đăng nhập máy mới, quên mật khẩu. Không cần chờ tin nhắn. Không tốn thêm tin nhắn: dùng luôn mã bạn vừa nhập.</span>
+        </div>
+        <button class="nut chinh nut-rong" type="button">Tạo tài khoản</button>
+        <span class="chu-phu">Bỏ chọn: bạn kích hoạt sau ở Điểm thưởng → Smart OTP (cần một mã SMS).</span>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>1b. Đặt mã khóa Smart OTP (MAN_HINH_269)</h3>
+      <div class="dien-thoai"><div class="dau">Đặt mã khóa Smart OTP</div><div class="than">
+        <p style="margin:0;text-align:center"><strong>Nhập lại mã khóa 6 số</strong><br><span class="chu-phu">Mã khóa chỉ lưu trên máy này, VComm không biết mã của bạn.</span></p>
+        <div class="cham-ma" aria-label="Đã nhập 4 trên 6 số"><i class="day"></i><i class="day"></i><i class="day"></i><i class="day"></i><i></i><i></i></div>
+        <div class="khoi-canh-bao loi">Mã khóa dễ đoán (6 số giống nhau, dãy liên tiếp hoặc trùng số điện thoại). Chọn mã khác.</div>
+        <div class="ban-phim"><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="trong">.</button><button type="button">0</button><button type="button" aria-label="Xóa">⌫</button></div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>1c. Bật vân tay, khuôn mặt (sau khi đặt mã khóa)</h3>
+      <div class="dien-thoai"><div class="dau">Smart OTP</div><div class="than">
+        <div class="hop-he-thong">
+          <div class="hinh-van-tay">◎</div>
+          <strong>Dùng vân tay hoặc khuôn mặt để mở Smart OTP?</strong>
+          <span class="chu-phu">Mã khóa 6 số vẫn dùng được bất cứ lúc nào.</span>
+          <button class="nut chinh nut-rong" type="button">Bật</button>
+          <button class="nut chu" type="button">Để sau</button>
+        </div>
+        <div class="khoi-canh-bao thong-tin">Máy không có hoặc chưa cài vân tay, khuôn mặt: không hỏi bước này, chỉ dùng mã khóa.</div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>1d. Mở Smart OTP (MAN_HINH_269)</h3>
+      <div class="dien-thoai"><div class="dau">Mở Smart OTP</div><div class="than">
+        <div class="hop-he-thong">
+          <div class="hinh-van-tay">◎</div>
+          <strong>Chạm cảm biến vân tay</strong>
+          <span class="chu-phu">Hộp của hệ điều hành</span>
+          <button class="nut chu" type="button">Dùng mã khóa</button>
+        </div>
+        <div class="khoi-canh-bao canh-bao">Sai mã khóa 2 lần. Sai 5 lần liên tiếp, Smart OTP trên máy này bị xóa và phải khôi phục (khóa dùng điểm 24 giờ).</div>
+        <span class="chu-phu">Khách đã kích hoạt trước bản cập nhật: lần mở đầu tiên hiện màn hình đặt mã khóa (1b), không phải kích hoạt lại.</span>
+      </div></div>
+    </div>
+  </section>
+
+  <h2>2. Thẻ Smart OTP (MAN_HINH_151 sửa)</h2>
+  <section class="hang-mau">
+    <div class="o-mau">
+      <h3>2a. Máy giữ Smart OTP, đã mở khóa</h3>
+      <div class="dien-thoai"><div class="dau">Điểm thưởng</div><div class="than">
+        <div class="the-ud">
+          <h4>Smart OTP</h4>
+          <div class="ma-otp">482 917</div>
+          <div class="dem-nguoc"><span></span></div>
+          <span class="chu-phu">Đọc mã cho thu ngân hoặc nhập vào máy khác. Mã đổi sau 18 giây. Tự ẩn sau 60 giây.</span>
+          <span class="chu-phu">iPhone · kích hoạt 17/11/2026 09:12</span>
+          <div class="dong"><span>Mở bằng vân tay, khuôn mặt</span><span class="cong-tac" role="switch" aria-checked="true" aria-label="Mở bằng vân tay, khuôn mặt"></span></div>
+          <div class="nhom-nut"><button class="nut phu" type="button">Đổi mã khóa</button><button class="nut nguy-hiem" type="button">Hủy Smart OTP</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>2b. Đang khóa dùng điểm sau khôi phục</h3>
+      <div class="dien-thoai"><div class="dau">Điểm thưởng</div><div class="than">
+        <div class="khoi-canh-bao canh-bao"><strong>Dùng điểm tạm khóa đến 10:05 18/11/2026</strong><br>Do vừa khôi phục Smart OTP trên máy này. Bạn vẫn tích điểm bình thường. Không phải bạn? Gọi tổng đài chăm sóc khách hàng.</div>
+        <div class="the-ud"><h4>Smart OTP</h4><div class="ma-otp">•••&nbsp;•••</div><button class="nut chinh nut-rong" type="button">Mở để xem mã</button></div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>2c. Máy khác (đã đăng nhập), Smart OTP đang ở máy cũ</h3>
+      <div class="dien-thoai"><div class="dau">Điểm thưởng</div><div class="than">
+        <div class="the-ud">
+          <h4>Smart OTP</h4>
+          <div class="khoi-canh-bao thong-tin">Smart OTP đang ở <strong>iPhone</strong> (kích hoạt 17/11/2026).</div>
+          <span class="nhan-o">Chuyển Smart OTP sang máy này</span>
+          <span class="chu-phu">Mở Smart OTP trên máy cũ, nhập mã 6 số đang hiện. Không cần tin nhắn; máy cũ sẽ hết hiệu lực.</span>
+          <div class="o-ma" aria-label="Mã Smart OTP của máy cũ"><input value="4"><input value="8"><input value="2"><input value="9"><input value="1"><input value="7"></div>
+          <button class="nut chinh nut-rong" type="button">Chuyển sang máy này</button>
+          <a class="lien-ket" href="#khoi-phuc">Không còn máy cũ?</a>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>2d. Bản web của ứng dụng</h3>
+      <div class="dien-thoai"><div class="dau">Điểm thưởng (bản web)</div><div class="than">
+        <div class="the-ud">
+          <h4>Smart OTP</h4>
+          <span>Smart OTP chỉ kích hoạt được trên ứng dụng VComm cho điện thoại (iOS, Android).</span>
+          <div class="khoi-canh-bao canh-bao">Bạn đang dùng Smart OTP trên trình duyệt này. Smart OTP trên trình duyệt hết hiệu lực ngày 17/12/2026. Hãy cài ứng dụng VComm và kích hoạt trên điện thoại.</div>
+          <button class="nut phu nut-rong" type="button">Tải ứng dụng VComm</button>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <h2>3. Đăng nhập trên thiết bị mới, khôi phục, quên mật khẩu</h2>
+  <section class="hang-mau">
+    <div class="o-mau">
+      <h3>3a. Xác nhận thiết bị mới (MAN_HINH_270), sau mật khẩu đúng</h3>
+      <div class="dien-thoai"><div class="dau">Xác nhận đăng nhập</div><div class="than">
+        <div class="the-ud">
+          <h4>Đây là thiết bị mới</h4>
+          <span class="chu-phu">Mở Smart OTP trên máy đang giữ Smart OTP và nhập mã 6 số. Hiệu lực trong 10 phút.</span>
+          <div class="o-ma" aria-label="Mã Smart OTP"><input value="1"><input value="0"><input value="3"><input value="5"><input value=""><input value=""></div>
+          <span class="chu-phu" style="color:var(--mau-loi)">Mã không đúng hoặc đã dùng. Còn 3 lần thử.</span>
+          <button class="nut chinh nut-rong" type="button">Xác nhận</button>
+          <a class="lien-ket" href="#khoi-phuc">Không còn máy giữ Smart OTP?</a>
+          <button class="nut chu" type="button">Chưa kích hoạt Smart OTP? Gửi mã SMS (đến 17/12/2026)</button>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="o-mau" id="khoi-phuc">
+      <h3>3b. Khôi phục khi mất máy (MAN_HINH_271)</h3>
+      <div class="dien-thoai"><div class="dau">Khôi phục Smart OTP</div><div class="than">
+        <div class="khoi-canh-bao canh-bao">Sau khi khôi phục: máy cũ hết hiệu lực; <strong>mọi giao dịch dùng điểm tạm khóa 24 giờ</strong> để bảo vệ bạn. Tích điểm vẫn bình thường.</div>
+        <label class="truong"><span class="nhan-o">Số điện thoại</span><input class="o-nhap-ud" value="0901 234 321"></label>
+        <label class="truong"><span class="nhan-o">Mật khẩu</span><input class="o-nhap-ud" type="password" value="matkhau"></label>
+        <label class="truong"><span class="nhan-o">Mã SMS gửi tới 090****321</span><input class="o-nhap-ud" value="" placeholder="6 số"></label>
+        <button class="nut chinh nut-rong" type="button">Khôi phục trên máy này</button>
+        <span class="chu-phu">Quên cả mật khẩu hoặc mất số điện thoại? Liên hệ chăm sóc khách hàng VComm.</span>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>3c. Quên mật khẩu (MAN_HINH_75 sửa)</h3>
+      <div class="dien-thoai"><div class="dau">Quên mật khẩu</div><div class="than">
+        <label class="truong"><span class="nhan-o">Số điện thoại</span><input class="o-nhap-ud" value="0901 234 321"></label>
+        <label class="truong"><span class="nhan-o">Mã Smart OTP</span><input class="o-nhap-ud" value="" placeholder="6 số từ máy giữ Smart OTP"></label>
+        <span class="chu-phu">Đang dùng máy giữ Smart OTP: bấm "Lấy mã" rồi mở bằng vân tay hoặc mã khóa, mã tự điền.</span>
+        <button class="nut phu" type="button">Lấy mã trên máy này</button>
+        <label class="truong"><span class="nhan-o">Mật khẩu mới</span><input class="o-nhap-ud" type="password" value=""></label>
+        <button class="nut chinh nut-rong" type="button">Đặt mật khẩu mới</button>
+        <button class="nut chu" type="button">Chưa kích hoạt Smart OTP? Gửi mã SMS (đến 17/12/2026)</button>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>3d. Thiết bị đã đăng nhập (MAN_HINH_272)</h3>
+      <div class="dien-thoai"><div class="dau">Thiết bị đã đăng nhập</div><div class="than">
+        <ul class="danh-sach">
+          <li><div class="dong"><strong>iPhone</strong><span class="nhan thanh-cong">Máy này</span></div><span class="chu-phu">Đang giữ Smart OTP · lần đầu 02/10/2026 · gần nhất vừa xong</span></li>
+          <li><div class="dong"><strong>Điện thoại Android</strong><button class="nut chu" type="button">Gỡ</button></div><span class="chu-phu">Lần đầu 17/11/2026 · gần nhất 17/11/2026 10:02</span></li>
+          <li><div class="dong"><strong>Trình duyệt</strong><button class="nut chu" type="button">Gỡ</button></div><span class="chu-phu">Lần đầu 05/09/2026 · gần nhất 01/11/2026</span></li>
+        </ul>
+        <span class="chu-phu">Gỡ thiết bị sẽ đăng xuất thiết bị đó; lần sau đăng nhập trên thiết bị đó phải xác nhận bằng Smart OTP.</span>
+      </div></div>
+    </div>
+  </section>
+
+  <h2>4. Nhắc kích hoạt và giao dịch điểm</h2>
+  <section class="hang-mau">
+    <div class="o-mau">
+      <h3>4a. Thẻ nhắc trên trang chủ, trang Điểm thưởng (trong thời hạn)</h3>
+      <div class="dien-thoai"><div class="dau">VComm</div><div class="than">
+        <div class="khoi-canh-bao thong-tin">
+          <strong>Kích hoạt Smart OTP trước 17/12/2026</strong><br>
+          Sau ngày này, dùng điểm và đăng nhập trên máy mới cần Smart OTP thay tin nhắn SMS. Còn 30 ngày.
+          <div class="nhom-nut" style="margin-top:var(--khoang-2)"><button class="nut chinh" type="button">Kích hoạt</button><button class="nut chu" type="button">Để sau</button></div>
+        </div>
+        <div class="the-ud"><h4>Sản phẩm nổi bật</h4><span class="chu-phu">…</span></div>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>4b. Đổi điểm ra đối tác (MAN_HINH_265 sửa), hết hạn, chưa kích hoạt</h3>
+      <div class="dien-thoai"><div class="dau">Đổi điểm với đối tác</div><div class="than">
+        <div class="the-ud"><span>Đổi 5.000 điểm VComm → 2.500 dặm bay</span></div>
+        <div class="khoi-canh-bao canh-bao">Kích hoạt Smart OTP để đổi điểm ra đối tác.</div>
+        <button class="nut chinh nut-rong" type="button">Kích hoạt Smart OTP</button>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>4c. Đổi điểm ra đối tác, đã kích hoạt, trên máy giữ Smart OTP</h3>
+      <div class="dien-thoai"><div class="dau">Đổi điểm với đối tác</div><div class="than">
+        <div class="the-ud"><span>Đổi 5.000 điểm VComm → 2.500 dặm bay</span></div>
+        <button class="nut chinh nut-rong" type="button">Xác nhận bằng Smart OTP</button>
+        <span class="chu-phu">Mở bằng vân tay hoặc mã khóa; ứng dụng tự điền mã, không phải gõ. Máy không giữ Smart OTP: nhập mã từ máy giữ Smart OTP.</span>
+      </div></div>
+    </div>
+
+    <div class="o-mau">
+      <h3>4d. Thông báo trong ứng dụng</h3>
+      <div class="dien-thoai"><div class="dau">Thông báo</div><div class="than">
+        <ul class="danh-sach">
+          <li><strong>Đăng nhập trên thiết bị mới</strong><span class="chu-phu">Tài khoản vừa đăng nhập trên Điện thoại Android lúc 10:02 17/11/2026. Không phải bạn? Đổi mật khẩu và gỡ thiết bị.</span></li>
+          <li><strong>Smart OTP đã chuyển sang máy mới</strong><span class="chu-phu">Dùng điểm tạm khóa đến 10:05 18/11/2026. Không phải bạn? Gọi tổng đài.</span></li>
+          <li><strong>Còn 7 ngày để kích hoạt Smart OTP</strong><span class="chu-phu">Kích hoạt trước 17/12/2026.</span></li>
+        </ul>
+      </div></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

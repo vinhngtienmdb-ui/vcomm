@@ -220,3 +220,18 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md` mục 12. Người dùng duyệ
 | `@anthropic-ai/sdk` | Gọi API Anthropic (dòng chảy, gọi công cụ, kết quả có cấu trúc) | Apache-2.0 (đã đọc tệp `LICENSE`; bản trước 1.0.0 là MIT) | 1.4.0, 2026-11-02 | `standardwebhooks` (MIT), `json-schema-to-ts` (MIT), `@opentelemetry/api` (Apache-2.0) | Thấp; API nhà cung cấp đổi nhanh, giữ phiên bản cố định |
 
 Dịch vụ trả phí mới: API Anthropic tính theo token (mô hình mặc định `claude-sonnet-5-5`, 2 / 10 USD mỗi triệu token vào / ra). Chi phí do từng công ty giới hạn bằng hạn mức tháng (mặc định 0, không phát sinh khi chưa bật).
+
+## 12. Phân tích giải pháp có sẵn – CONG_VIEC_72 Smart OTP – 2026-11-17
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_563 (mở Smart OTP bằng vân tay, khuôn mặt hoặc mã khóa 6 số; mã khóa băm PBKDF2-SHA256 có muối, chỉ lưu trên máy).
+- Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58, `expo-secure-store`, `otpauth` 9.6.0 dùng `@noble/hashes` 2.4.0); kho npm. React Native 0.88 trên Hermes không bảo đảm có `crypto.subtle`.
+- Từ khóa đã dùng: tên thư viện cụ thể; không chứa thông tin nghiệp vụ.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `expo-local-authentication` | Hộp vân tay, khuôn mặt của hệ điều hành | MIT (đã đọc tệp LICENSE) | 58.0.2 (2026-10-01; 58.0.3 chưa đủ hai tuần nên không dùng) | Expo SDK 58; không có trên bản web | Thấp |
+| `react-native-biometrics` | Như trên | MIT | Không xét tiếp | Cần mã gốc riêng, không hợp quy trình Expo | Cao |
+| `@noble/hashes` | PBKDF2-SHA256 băm mã khóa | MIT (đã đọc tệp LICENSE) | 2.4.0 (2026-08-27; đã có sẵn trong dự án qua `otpauth`) | Chạy bằng JavaScript trên iOS, Android, web | Thấp |
+| `expo-crypto` | Băm SHA-256 một lần | MIT | Expo SDK 58 | Không có PBKDF2, phải tự lặp | Trung bình |
+
+Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày 2026-11-17 (cùng đặc tả CONG_VIEC_72) và chọn `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp ngày 2026-11-17. Cả hai ghi cố định phiên bản trong `apps/mobile-vcomm/package.json`.

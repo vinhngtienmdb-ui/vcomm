@@ -11,7 +11,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { ruleNames, type FraudRuleCode } from "./fraud";
 import { settlementPermissions } from "./settlements.service";
-import { maskName, maskPhone } from "./smart-otp.service";
+import { maskName, maskPhone } from "../auth/smart-otp.service";
 
 const zone = sql`'Asia/Ho_Chi_Minh'`;
 const money = (value: number) => {

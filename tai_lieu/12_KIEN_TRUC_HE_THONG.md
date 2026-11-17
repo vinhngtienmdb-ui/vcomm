@@ -478,3 +478,21 @@ Biến môi trường mới: `LOYALTY_PARTNER_SIMULATOR` (`on` chỉ ở máy ph
 | Tác vụ nền | `ai-conversation-retention` (`30 1 * * *`, giờ Việt Nam): xóa hội thoại quá 90 ngày, nhật ký lượt quá 24 tháng, khóa lượt treo | QUYTAC_NGHIEPVU_520 |
 | Giao diện | `packages/ui`: `TopBar` (nút), `AiPanel` (ngăn, tải riêng bằng `next/dynamic`), `apiStream`, `readEvents` | Mọi mini app web dùng AppShell có ngăn trợ lý |
 | Kết nối ra ngoài | `api.anthropic.com` qua HTTPS | Mạng của máy chủ API cần cho phép đi ra địa chỉ này; máy chủ đứng trước API (proxy) không được gom đệm dòng sự kiện (`X-Accel-Buffering: no`) |
+
+## 3zc. Thành phần phụ trợ cho ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+Database migration 0158 đến 0160; không thêm mini app, không thêm hạ tầng. Thư viện mới chỉ ở ứng dụng VComm: `expo-local-authentication` 58.0.2, `@noble/hashes` 2.4.0 (tài liệu `13`).
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Smart OTP thuộc phần xác thực | Bảng `loyalty.smart_otp_devices` chuyển sang `core.smart_otp_devices` (`ALTER TABLE … SET SCHEMA`, giữ dữ liệu); `SmartOtpService` chuyển sang `apps/api/src/auth/smart-otp.service.ts`. Phần điểm thưởng, bán lẻ, cửa hàng liên kết, đối tác liên minh gọi dịch vụ, không truy vấn bảng (giữ quyết định ở mục 2: phần xác thực không ghi schema của mini app khác) | CHUC_NANG_242 đến 245 |
+| Trạng thái bảo mật tài khoản | `core.account_security`; `apps/api/src/auth/account-security.ts` (`redeemLockedUntil`, `assertRedeemAllowed`) dùng chung cho mọi luồng dùng điểm, đọc bằng `now()` của cơ sở dữ liệu | CHUC_NANG_244 |
+| Thiết bị tin cậy | `DeviceTrustService` (`apps/api/src/auth/device-trust.service.ts`); thiết bị = băm HMAC-SHA256 của tiêu đề `X-Device-Id` (`apps/api/src/common/device-hash.ts`, cùng khóa băm với CONG_VIEC_60 nên nạp được thiết bị đã ghi nhận); bảng `core.trusted_devices` | CHUC_NANG_243 |
+| Phiên chờ xác nhận thiết bị | `core.sessions.device_verified`; `AuthGuard` trả `401 DEVICE_VERIFICATION_REQUIRED` cho mọi API trừ API đánh dấu `@AllowDevicePending()` (API_318, trạng thái, gửi mã, kích hoạt của API_199); hạn 10 phút trong `BuyerAccountsService`. Cùng cách phiên chưa qua bước hai của xác thực hai lớp | CHUC_NANG_243, CHUC_NANG_244 |
+| Tham số chuyển đổi, thống kê | `AuthenticationSettingsService` (`apps/api/src/auth/authentication-settings.service.ts`), bảng một dòng `core.authentication_settings`; `core.message_deliveries.otp_purpose` để đếm tin SMS theo mục đích | CHUC_NANG_245 |
+| Bảo mật đăng nhập của người mua (quản trị) | `BuyerSecurityService` (`apps/api/src/auth/buyer-security.service.ts`) | CHUC_NANG_244 |
+| Nhắc kích hoạt | `SmartOtpRemindersService` (`apps/api/src/auth/smart-otp-reminders.service.ts`); việc nền `smart-otp-reminders` trong `apps/api/src/jobs/background-jobs.ts`, 9 giờ hằng ngày giờ Việt Nam (`0 9 * * *`, `Asia/Ho_Chi_Minh`); bảng `core.smart_otp_reminders` chống gửi trùng; hết hạn thì hủy Smart OTP trên bản web | CHUC_NANG_245 |
+| ZNS | `MessagingService.sendZns`, `znsConfigured` (`apps/api/src/integrations/messaging.service.ts`) với ba khóa mẫu `esms.template.smart_otp_reminder`, `esms.template.smart_otp_transferred`, `esms.template.smart_otp_revoked` (tài liệu `28` mục 2.4) | CHUC_NANG_244, CHUC_NANG_245 |
+| Bảo mật cổng cửa hàng | `MerchantPortalSecurityService` (`apps/api/src/affiliate/portal-security.service.ts`) dùng lại `MfaService` (ứng dụng xác thực, mã dự phòng); yêu cầu xác thực hai lớp xét theo ứng dụng đăng nhập, không áp cho ứng dụng VComm (`vcomm_app`) | CHUC_NANG_246 |
+| Ứng dụng VComm | `apps/mobile-vcomm/src/lib/smart-otp.ts` (khóa TOTP, băm mã khóa trong `expo-secure-store`), `components/SmartOtpLock.tsx`, `DeviceVerification.tsx`, `SmartOtpRecovery.tsx`, `SmartOtpReminder.tsx`, `app/thiet-bi.tsx`, `app/smart-otp/dat-ma-khoa.tsx` | MAN_HINH_269 đến 272 |
+| Giao diện web | `apps/web-crm`: `/buyer-authentication` (`AuthenticationCard.tsx`), khối `BuyerSecurity.tsx` ở chi tiết người mua; `apps/web-affiliate`: `/bao-mat`, `/quen-mat-khau`, trang đăng nhập | MAN_HINH_273 đến 275 |
