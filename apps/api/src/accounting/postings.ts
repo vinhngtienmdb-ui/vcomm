@@ -69,7 +69,8 @@ export type PostingRole =
   // CONG_VIEC_73: thu tiền mua hàng tại cửa hàng qua ứng dụng VComm.
   | "instore_fee_revenue"
   | "instore_payable_internal"
-  | "instore_receivable_internal";
+  | "instore_receivable_internal"
+  | "instore_refund_payable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -132,6 +133,7 @@ export const postingRoles: PostingRole[] = [
   "instore_fee_revenue",
   "instore_payable_internal",
   "instore_receivable_internal",
+  "instore_refund_payable",
 ];
 
 export interface DraftLine {
@@ -173,7 +175,10 @@ export interface DraftJournal {
     | "instore_checkout"
     | "instore_checkout_owner"
     | "instore_payout"
-    | "instore_payout_owner";
+    | "instore_payout_owner"
+    | "instore_checkout_cancel"
+    | "instore_refund_receipt"
+    | "instore_refund";
   sourceId: string;
   journalNo: string;
   date: string;

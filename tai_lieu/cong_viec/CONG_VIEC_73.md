@@ -448,6 +448,17 @@ Lựa chọn của người dùng cho lát L6 (2026-11-17):
 | Hủy giao dịch có hóa đơn ủy nhiệm | Việc chờ xử lý hóa đơn làm cùng L7 (hủy, hoàn tiền) |
 | Nơi xem | Công ty vận hành sàn: danh sách hóa đơn điện tử, cột "Người bán", bộ lọc "Lập theo ủy nhiệm". Cổng cửa hàng: số hóa đơn, tải PDF. Khách: lịch sử giao dịch trên ứng dụng, số hóa đơn, tải PDF. MAN_HINH_279: dữ liệu ủy nhiệm, ký hiệu theo năm, việc chờ lập, "Lập bù" |
 
+Lựa chọn của người dùng cho lát L7 (2026-11-17):
+
+| Câu | Quyết định |
+|---|---|
+| Phí cổng K khi hủy giao dịch thu hộ | Công ty vận hành sàn chịu. Giao dịch chưa vào bảng chuyển tiền: bỏ khỏi bảng. Đã vào bảng đã lập: L ở bảng tiếp theo = G − H − I − K của giao dịch (đúng số đã chuyển cho cửa hàng) |
+| Bút toán khi hủy, hoàn | Hủy: Nợ 331 cửa hàng / Có 3388 phải trả hoàn tiền khách (số G); phí đã ghi (giao dịch đã vào bảng) thì ghi ngược Nợ 511, 33311, 6418 / Có 331. Ghi đã hoàn: Nợ 3388 / Có 112. Tiền về sau khi đơn đã đóng: Nợ 112 / Có 3388, khi hoàn Nợ 3388 / Có 112. Điểm mở: kế toán trưởng xác nhận tài khoản 3388 trước khi triển khai |
+| Hóa đơn phí sàn tháng khi có ghi ngược | H, I của tháng trừ phần phí ghi ngược ở các bảng trong tháng; âm hoặc 0 thì không lập, không mang sang; không lập hóa đơn điều chỉnh cho tháng đã lập |
+| Hóa đơn ủy nhiệm khi hủy | Chưa phát hành: hủy hóa đơn (trạng thái "Đã hủy"). Đã phát hành: việc chờ ở thẻ "Chờ xử lý" của MAN_HINH_54 (hóa đơn điều chỉnh giảm toàn bộ, hoặc ghi hóa đơn trả hàng của người mua). Còn trong việc chờ lập: xóa |
+| Ai hủy giao dịch đã thu hộ | Chủ cửa hàng trên cổng và Open API, cùng quy tắc; chỉ hủy toàn bộ khi tuần đối soát điểm chưa chốt. Cửa hàng tập đoàn giữ trả hàng theo CONG_VIEC_53 |
+| Hoàn tiền đơn tại cửa hàng | Hiện ở MAN_HINH_98, ghi đã hoàn, bút toán, webhook refund.completed |
+
 ## 18. Các lát và điểm xem trước
 
 Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
@@ -616,6 +627,7 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Trung gian thanh toán: công ty vận hành sàn giữ tiền của cửa hàng liên kết. Phiên làm việc không tra cứu pháp lý. Không bật thu hộ cửa hàng liên kết trên môi trường thật khi người dùng chưa xác nhận hồ sơ pháp lý (công tắc mặc định tắt).
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
 - Điểm mở (L6): bộ kết nối MISA hiện có không gửi người bán, MISA lấy người bán theo mã số thuế của tài khoản. Hóa đơn ủy nhiệm với MISA ở trạng thái "Lỗi cài đặt" đến khi người dùng có xác nhận từ MISA về cách lập theo ủy nhiệm; khi đó làm bộ kết nối riêng.
+- Điểm mở (L7): kế toán trưởng xác nhận tài khoản 3388 (phải trả hoàn tiền khách) trước khi triển khai.
 - Điểm mở (L6): hóa đơn phí sàn tháng ghi ngày cuối tháng trước nhưng lập lúc 2 giờ sáng ngày 1; người dùng tự xác nhận nhà cung cấp, cơ quan thuế chấp nhận.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.

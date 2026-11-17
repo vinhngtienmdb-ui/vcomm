@@ -3894,7 +3894,9 @@ export const einvoiceReturnQuerySchema = z.object({ status: z.enum(einvoiceRetur
 export interface EinvoiceReturnTask {
   id: string;
   status: EinvoiceReturnStatus;
-  returnDocumentId: string;
+  // Phiếu nhận hàng trả lại; hoặc giao dịch cửa hàng liên kết bị hủy có hóa đơn ủy nhiệm (CONG_VIEC_73 lát L7, số LK…).
+  returnDocumentId: string | null;
+  affiliateTransactionId: string | null;
   returnDocumentNo: string | null;
   returnDate: string;
   buyerName: string;
@@ -5111,7 +5113,8 @@ export interface MarketplacePaymentItem {
 }
 
 // API_133: hoàn tiền (QUYTAC_NGHIEPVU_168).
-export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received"] as const;
+// instore_cancelled, transaction_cancelled: đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73).
+export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received", "instore_cancelled", "transaction_cancelled"] as const;
 export type RefundReason = (typeof refundReasons)[number];
 export const refundStatuses = ["pending", "completed"] as const;
 export type RefundStatus = (typeof refundStatuses)[number];
@@ -5138,7 +5141,11 @@ export const buyerBankAccountSchema = z
 
 export interface RefundItem {
   id: string;
-  orderId: string;
+  // Đơn VComm; trống với việc hoàn của đơn chờ tại cửa hàng (checkoutId, số TT…, CONG_VIEC_73 lát L7).
+  orderId: string | null;
+  checkoutId: string | null;
+  // Cửa hàng hoặc quầy của đơn tại cửa hàng.
+  placeName: string | null;
   documentNo: string;
   buyerName: string;
   buyerPhone: string;

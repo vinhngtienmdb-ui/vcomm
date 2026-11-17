@@ -489,7 +489,7 @@ export class EinvoicesService implements OnModuleInit {
           next_attempt_at = now() + make_interval(mins => ${retryDelayMinutes(attempts)}),
           issued_at = CASE WHEN ${status} = 'issued' THEN now() ELSE issued_at END,
           pdf_content = coalesce(${files.pdf}, pdf_content), xml_content = coalesce(${files.xml}, xml_content), version = version + 1
-        WHERE id = ${invoiceId} AND status <> 'issued'
+        WHERE id = ${invoiceId} AND status NOT IN ('issued', 'cancelled')
           AND (SELECT a.id FROM finance.einvoice_attempts a WHERE a.invoice_id = ${invoiceId} ORDER BY a.started_at DESC, a.id DESC LIMIT 1) = ${claimed.attemptId}`);
       // Chỉ kết quả của lần gửi mới nhất được ghi; hóa đơn đã phát hành không lùi trạng thái.
       // Hóa đơn thay thế phát hành xong mới đánh dấu hóa đơn bị thay thế.

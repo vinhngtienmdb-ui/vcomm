@@ -201,6 +201,27 @@ export class InstoreEinvoicesService {
     return { invoiceId };
   }
 
+  // Hủy giao dịch có hóa đơn ủy nhiệm (lát L7; lựa chọn người dùng 2026-11-17): còn trong việc chờ lập thì xóa; hóa đơn chưa phát hành thì "Đã hủy";
+  // đã phát hành (hoặc đã gửi chờ cấp mã) thì lập việc chờ xử lý ở MAN_HINH_54 (hóa đơn điều chỉnh giảm toàn bộ, hoặc hóa đơn trả hàng của người mua).
+  async cancelForTransaction(transaction: Executor, transactionId: string): Promise<"none" | "backlog_removed" | "cancelled" | "task"> {
+    const removed = await transaction.execute(sql`DELETE FROM affiliate.einvoice_backlog WHERE transaction_id = ${transactionId} RETURNING 1`);
+    if (removed.rows.length > 0) return "backlog_removed";
+    const invoice = (
+      await transaction.execute<{ id: string; company_id: string; status: string }>(sql`
+      SELECT id, company_id, status FROM finance.einvoices WHERE affiliate_transaction_id = ${transactionId} AND kind = 'original' FOR UPDATE`)
+    ).rows[0];
+    if (!invoice || invoice.status === "cancelled") return "none";
+    if (["pending", "retrying", "failed", "setup_error", "rejected"].includes(invoice.status)) {
+      // Lần gửi đang chạy dở không ghi đè: process() chỉ cập nhật hóa đơn chưa phát hành theo lần gửi mới nhất; hủy đặt lại để không gửi tiếp.
+      await transaction.execute(sql`UPDATE finance.einvoices SET status = 'cancelled', last_error = NULL, version = version + 1 WHERE id = ${invoice.id}`);
+      return "cancelled";
+    }
+    await transaction.execute(sql`
+      INSERT INTO finance.einvoice_return_tasks (company_id, affiliate_transaction_id, original_invoice_id) VALUES (${invoice.company_id}, ${transactionId}, ${invoice.id})
+      ON CONFLICT (affiliate_transaction_id) DO NOTHING`);
+    return "task";
+  }
+
   // Lập bù (API_334): giao dịch đang trong việc chờ lập; ngày hóa đơn là ngày lập bù.
   async reissue(actor: BuyerAdminActor, transactionId: string): Promise<TransactionEinvoice> {
     const invoiceId = await this.database.transaction(async (transaction) => {
@@ -490,10 +511,33 @@ export class InstoreEinvoicesService {
               AND coalesce(f.recipient_company_id, f.merchant_id) = coalesce(p.recipient_company_id, p.merchant_id) AND f.month = ${first}::date)
           GROUP BY p.recipient_kind, p.recipient_company_id, p.merchant_id, p.fee_tax_rate
           ORDER BY p.recipient_kind, coalesce(p.recipient_company_id, p.merchant_id), p.fee_tax_rate`);
+        // Lát L7: trừ phí ghi ngược (đơn bị hủy sau khi đã vào bảng) ở các bảng trong tháng, theo thuế suất của bảng gốc.
+        const reversed = await transaction.execute<{ merchant_id: string; fee_tax_rate: string; fee: string; tax: string }>(sql`
+          SELECT c.merchant_id, op.fee_tax_rate::text, sum(c.reversal_fee)::text AS fee, sum(c.reversal_fee_tax)::text AS tax
+          FROM instore.checkouts c JOIN instore.payouts rp ON rp.id = c.reversal_payout_id JOIN instore.payouts op ON op.id = c.payout_id
+          WHERE rp.operator_company_id = ${operator.id} AND rp.business_date >= ${first}::date AND rp.business_date <= ${invoiceDate}::date AND c.reversal_fee > 0
+          GROUP BY c.merchant_id, op.fee_tax_rate`);
         const recipients = new Map<string, typeof groups.rows>();
         for (const row of groups.rows) {
           const key = `${row.recipient_kind}:${row.recipient_company_id ?? row.merchant_id}`;
-          recipients.set(key, [...(recipients.get(key) ?? []), row]);
+          recipients.set(key, [...(recipients.get(key) ?? []), { ...row }]);
+        }
+        for (const item of reversed.rows) {
+          const rows = recipients.get(`merchant:${item.merchant_id}`);
+          if (!rows) continue;
+          const line = rows.find((row) => Number(row.fee_tax_rate) === Number(item.fee_tax_rate));
+          if (line) {
+            line.platform_fee = String(Number(line.platform_fee) - Number(item.fee));
+            line.platform_fee_tax = String(Number(line.platform_fee_tax) - Number(item.tax));
+          } else rows.push({ ...rows[0]!, fee_tax_rate: item.fee_tax_rate, platform_fee: String(-Number(item.fee)), platform_fee_tax: String(-Number(item.tax)) });
+        }
+        // Âm hoặc 0 thì không lập, không mang sang (lựa chọn người dùng 2026-11-17).
+        for (const [key, rows] of [...recipients.entries()]) {
+          const kept = rows.filter((row) => Number(row.platform_fee) !== 0);
+          if (kept.reduce((sum, row) => sum + Number(row.platform_fee), 0) <= 0) {
+            this.logger.warn(`Phí sàn tháng ${first} của ${key} sau ghi ngược không dương: không lập hóa đơn`);
+            recipients.delete(key);
+          } else recipients.set(key, kept);
         }
         const company = (
           await transaction.execute<{ legal_name: string; tax_code: string | null; address: string | null }>(sql`

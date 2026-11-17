@@ -202,9 +202,8 @@ describe("Đơn chờ ở cổng cửa hàng liên kết (KICHBAN_KIEMTHU_756, 7
     expect((await minh.call("get", `/buyer/instore/checkouts/${created.body.id}`)).body.saleDocumentNo).toBe(result.transactionNo);
     // Tiền thu hộ chờ chuyển giảm dư nợ của cửa hàng (QUYTAC_NGHIEPVU_586).
     expect(await merchantExposure(application.get<Database>(DATABASE), fixture.merchantId)).toBe(0);
-    // Giao dịch có tiền thu hộ không hủy riêng phần điểm.
-    const cancel = await fixture.owner.call("post", `/merchant-portal/transactions/${result.transactionId}/cancel`, { body: { reason: "Khách đổi ý" } });
-    expect(cancel.body.error.message).toContain("VComm thu hộ");
+    // Thu ngân không hủy được giao dịch; chủ cửa hàng hủy toàn bộ kèm hoàn tiền (lát L7, kiểm thử ở c73-instore-refunds).
+    expect((await fixture.cashier.call("post", `/merchant-portal/transactions/${result.transactionId}/cancel`, { body: { reason: "Khách đổi ý" } })).status).toBe(403);
   });
 
   it("luồng 2 thu tại quầy: khách quét mã QR, xác nhận; hoàn tất ngay, cửa hàng thu phần còn lại", async () => {

@@ -78,6 +78,15 @@ export class AffiliateCheckoutsService implements OnModuleInit {
       complete: (transaction, row, appAmount) => this.complete(transaction, row, appAmount),
     };
     this.instore.registerHandler("affiliate", handler);
+    // Lát L7: hủy giao dịch đã thu hộ (chủ cửa hàng trên cổng, Open API) kèm hoàn tiền, việc chờ hóa đơn.
+    this.transactions.collectedCancelHook = async (transaction, transactionId, counter, reason) => {
+      const checkout = (
+        await transaction.execute<{ id: string }>(sql`SELECT id FROM instore.checkouts WHERE affiliate_transaction_id = ${transactionId} AND kind = 'affiliate'`)
+      ).rows[0];
+      if (!checkout) throw new ApiError("BUSINESS_RULE", "affiliateCollectedNotCancellable");
+      await this.instore.refundCompleted(transaction, checkout.id, reason, counter.cashierUserId);
+      await this.mandatedEinvoices.cancelForTransaction(transaction, transactionId);
+    };
   }
 
   private async merchant(executor: Executor, merchantId: string, lock = false): Promise<MerchantRow> {

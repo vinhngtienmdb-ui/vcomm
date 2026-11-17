@@ -149,6 +149,67 @@ export class InstorePayoutsService {
     await this.ledger.record(transaction, draft);
   }
 
+  // ---------------------------------------------------------------------------
+  // Hủy, hoàn tiền (lát L7; lựa chọn người dùng 2026-11-17): công ty vận hành sàn chịu phí cổng; tài khoản 3388 kế toán trưởng xác nhận trước khi triển khai.
+  // ---------------------------------------------------------------------------
+
+  // Hủy đơn đã thu tiền (giao dịch thu hộ đã hoàn tất, hoặc đơn "Đã thu, lỗi ghi sổ"): Nợ phải trả người nhận (bên đã ghi Có lúc tiền về) / Có phải trả hoàn tiền khách.
+  // Đơn đã vào bảng chuyển tiền đã lập: ghi ngược phí (Nợ doanh thu phí sàn, thuế đầu ra, chi phí phí cổng thu lại / Có phải trả người nhận) và trả L = G − H − I − K
+  // để trừ ở bảng tiếp theo. Chưa vào bảng: đơn tự rời khỏi bảng (trạng thái không còn "completed").
+  async recordCancellation(transaction: Executor, row: CheckoutRow): Promise<{ reversal: number; fee: number; tax: number; gateway: number }> {
+    const amount = money(Number(row.paid_amount));
+    const recipient = await this.recipientOf(transaction, row);
+    const payout = row.payout_id
+      ? (await transaction.execute<{ fee_tax_rate: string }>(sql`SELECT fee_tax_rate::text FROM instore.payouts WHERE id = ${row.payout_id}`)).rows[0]
+      : undefined;
+    const fee = payout ? money(Number(row.platform_fee)) : 0;
+    const tax = payout ? money((fee * Number(payout.fee_tax_rate)) / 100) : 0;
+    const gateway = payout ? money(Number(row.gateway_fee)) : 0;
+    const lines: DraftLine[] = [
+      recipient ? debit(recipient.role, amount, recipient.partnerId) : debit("receivable", amount),
+      credit("instore_refund_payable", amount),
+    ];
+    if (payout && fee + tax + gateway > 0)
+      lines.push(debit("instore_fee_revenue", fee), debit("vat_output", tax), debit("collection_fee", gateway), credit(recipient!.role, fee + tax + gateway, recipient!.partnerId));
+    if (amount > 0)
+      await this.ledger.record(transaction, {
+        companyId: row.operator_company_id,
+        sourceType: "instore_checkout_cancel",
+        sourceId: row.id,
+        journalNo: `${row.document_no}-H`,
+        date: await vietnamToday(transaction),
+        description: `Hủy đơn ${row.document_no} đã thu qua ứng dụng VComm, chờ hoàn tiền khách`,
+        lines: lines.filter((line) => Number(line.debit ?? 0) > 0 || Number(line.credit ?? 0) > 0),
+      });
+    return { reversal: payout ? Math.max(amount - fee - tax - gateway, 0) : 0, fee, tax, gateway };
+  }
+
+  // Tiền về sau khi đơn đã đóng (hoặc trả trùng): Nợ tiền gửi ngân hàng / Có phải trả hoàn tiền khách.
+  async recordRefundReceipt(transaction: Executor, row: CheckoutRow, refundId: string, amount: number): Promise<void> {
+    await this.ledger.record(transaction, {
+      companyId: row.operator_company_id,
+      sourceType: "instore_refund_receipt",
+      sourceId: refundId,
+      journalNo: `${row.document_no}-TV`,
+      date: await vietnamToday(transaction),
+      description: `Tiền khách trả qua ứng dụng VComm sau khi đơn ${row.document_no} đã đóng, chờ hoàn`,
+      lines: [debit("bank", money(amount)), credit("instore_refund_payable", money(amount))],
+    });
+  }
+
+  // Kế toán ghi đã hoàn (MAN_HINH_98): Nợ phải trả hoàn tiền khách / Có tiền gửi ngân hàng, ngày chuyển.
+  async recordRefundPaid(transaction: Executor, refund: { id: string; operatorCompanyId: string; documentNo: string; amount: number; refundedOn: string; bankTransactionNo: string }): Promise<void> {
+    await this.ledger.record(transaction, {
+      companyId: refund.operatorCompanyId,
+      sourceType: "instore_refund",
+      sourceId: refund.id,
+      journalNo: `${refund.documentNo}-HT`,
+      date: refund.refundedOn,
+      description: `Hoàn tiền đơn ${refund.documentNo}, giao dịch ${refund.bankTransactionNo}`,
+      lines: [debit("instore_refund_payable", money(refund.amount)), credit("bank", money(refund.amount))],
+    });
+  }
+
   // Hóa đơn bán lẻ của công ty sở hữu cửa hàng tập đoàn (khác công ty vận hành sàn): dòng "Ứng dụng VComm" Nợ phải thu nội bộ / Có phải thu khách lẻ.
   async recordOwnerSale(transaction: Executor, row: CheckoutRow, appAmount: number): Promise<void> {
     if (row.kind !== "retail" || row.company_id === row.operator_company_id || appAmount <= 0) return;
@@ -180,6 +241,9 @@ export class InstorePayoutsService {
         AND (c.paid_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date AND (c.kind = 'affiliate' OR c.company_id <> c.operator_company_id)
       UNION
       SELECT d.recipient_kind, coalesce(d.merchant_id, d.recipient_company_id) FROM instore.payout_deductions d WHERE d.payout_id IS NULL AND d.business_date <= ${day}::date
+      UNION
+      SELECT 'merchant', c.merchant_id FROM instore.checkouts c
+      WHERE c.operator_company_id = ${operator.id} AND c.reversal_amount > 0 AND c.reversal_payout_id IS NULL AND (c.refunded_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date
       UNION
       SELECT p.recipient_kind, coalesce(p.merchant_id, p.recipient_company_id) FROM instore.payouts p
       WHERE p.operator_company_id = ${operator.id} AND p.business_date < ${day}::date
@@ -235,18 +299,26 @@ export class InstorePayoutsService {
     const fee = money(Number(totals.fee));
     const tax = money((fee * rate) / 100);
     const gateway = money(Number(totals.gateway));
-    const reversal = 0;
+    // L: giao dịch đã vào bảng đã lập rồi bị hủy (lát L7), trừ ở bảng tiếp theo.
+    const reversals = (
+      await transaction.execute<{ amount: string; fee: string; tax: string }>(sql`
+        SELECT coalesce(sum(c.reversal_amount), 0)::text AS amount, coalesce(sum(c.reversal_fee), 0)::text AS fee, coalesce(sum(c.reversal_fee_tax), 0)::text AS tax
+        FROM instore.checkouts c
+        WHERE ${checkoutFilter} AND c.operator_company_id = ${operatorId} AND c.reversal_amount > 0 AND c.reversal_payout_id IS NULL
+          AND (c.refunded_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date`)
+    ).rows[0]!;
+    const reversal = Number(reversals.amount);
     const carried = previous && Number(previous.raw) < 0 ? Number(previous.raw) : 0;
     const deduction = Number(deductions.total);
-    if (totals.count === 0 && deduction === 0 && carried === 0) return null;
+    if (totals.count === 0 && deduction === 0 && carried === 0 && reversal === 0) return null;
     const raw = collected - fee - tax - gateway - reversal + carried - deduction;
     const amount = Math.max(raw, 0);
     const inserted = (
       await transaction.execute<{ id: string; document_no: string }>(sql`
         INSERT INTO instore.payouts (operator_company_id, recipient_kind, recipient_company_id, merchant_id, business_date, collected_amount, platform_fee, platform_fee_tax,
-          gateway_fee, reversal_amount, carried_amount, deduction_amount, amount, fee_tax_rate, status, transferred_on)
+          gateway_fee, reversal_amount, reversal_fee, reversal_fee_tax, carried_amount, deduction_amount, amount, fee_tax_rate, status, transferred_on)
         VALUES (${operatorId}, ${recipient.kind}, ${recipient.kind === "retail_company" ? recipientId : null}, ${recipient.kind === "merchant" ? recipientId : null}, ${day}::date,
-          ${collected}, ${fee}, ${tax}, ${gateway}, ${reversal}, ${carried}, ${deduction}, ${amount}, ${rate}, ${amount > 0 ? "pending" : "transferred"},
+          ${collected}, ${fee}, ${tax}, ${gateway}, ${reversal}, ${reversals.fee}, ${reversals.tax}, ${carried}, ${deduction}, ${amount}, ${rate}, ${amount > 0 ? "pending" : "transferred"},
           ${amount > 0 ? null : day}::date)
         RETURNING id, document_no`)
     ).rows[0]!;
@@ -254,6 +326,10 @@ export class InstorePayoutsService {
       UPDATE instore.checkouts c SET payout_id = ${inserted.id}
       WHERE ${checkoutFilter} AND c.operator_company_id = ${operatorId} AND c.status = 'completed' AND c.collect_in_app AND c.paid_amount > 0 AND c.payout_id IS NULL
         AND (c.paid_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date`);
+    await transaction.execute(sql`
+      UPDATE instore.checkouts c SET reversal_payout_id = ${inserted.id}
+      WHERE ${checkoutFilter} AND c.operator_company_id = ${operatorId} AND c.reversal_amount > 0 AND c.reversal_payout_id IS NULL
+        AND (c.refunded_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date`);
     const stamped = await transaction.execute<{ id: string; kind: string; amount: string; reference_id: string | null; business_date: string }>(sql`
       UPDATE instore.payout_deductions SET payout_id = ${inserted.id} WHERE ${recipientFilter} AND payout_id IS NULL AND business_date <= ${day}::date
       RETURNING id, kind, amount::text, reference_id, business_date::text`);
