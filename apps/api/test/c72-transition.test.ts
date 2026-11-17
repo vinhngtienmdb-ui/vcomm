@@ -7,6 +7,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { SmartOtpRemindersService } from "../src/auth/smart-otp-reminders.service";
 import { prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
+import { signIn } from "./helpers";
 import { startTestApplication, testClock, testGateway } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -105,7 +106,7 @@ describe("CONG_VIEC_72 lát L5 thời hạn chuyển đổi", () => {
     at("2026-12-10T02:00:00Z");
     expect((await reminders.runDaily()).zns).toBe(0);
     expect(await reminded(waiting.id)).toEqual(["start", "day_14", "day_7"]);
-    const groupAdmin = await import("./helpers").then(({ signIn }) => signIn(application, "quantri.tapdoan@vcomm.test"));
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
     const configured = await groupAdmin.call("put", "/integration-settings", {
       body: { values: { "esms.api_key": "API-KEY-0001", "esms.secret_key": "SECRET-0002", "esms.brandname": "VCOMM", "esms.oa_id": "4097311281936189049", "esms.template.smart_otp_reminder": "305112" } },
     });
