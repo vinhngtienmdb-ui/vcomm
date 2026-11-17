@@ -60,6 +60,7 @@ type SettlementRow = {
   fee_amount: string;
   sms_count: number;
   sms_fee_amount: string;
+  ipos_fee_amount: string;
   fee_tax_rate: string;
   fee_tax_amount: string;
   adjustment_amount: string;
@@ -77,7 +78,7 @@ type SettlementRow = {
 
 const settlementSelect = sql`
   SELECT s.id, s.document_no, s.merchant_id, m.code AS merchant_code, p.name AS merchant_name, s.week_start::text, (s.week_start + 6)::text AS week_end, s.transaction_count,
-    s.earned_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.shortfall_amount::text, s.fee_percent::text, s.fee_amount::text, s.sms_count, s.sms_fee_amount::text,
+    s.earned_amount::text, s.redeemed_amount::text, s.company_voucher_amount::text, s.shortfall_amount::text, s.fee_percent::text, s.fee_amount::text, s.sms_count, s.sms_fee_amount::text, s.ipos_fee_amount::text,
     s.fee_tax_rate::text, s.fee_tax_amount::text, s.adjustment_amount::text, s.net_amount::text, s.status, s.confirm_due_at, s.confirmed_at, s.confirmed_by, s.resolved_by, s.due_date::text,
     d.open_amount::text, (d.side = 'receivable' AND d.open_amount > 0 AND d.due_date < (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) AS overdue, s.version
   FROM affiliate.settlements s JOIN affiliate.merchants m ON m.id = s.merchant_id JOIN crm.partners p ON p.id = m.partner_id
@@ -103,6 +104,7 @@ function itemOf(row: SettlementRow): AffiliateSettlementItem {
     smsFeeAmount: trimDecimal(row.sms_fee_amount),
     feeTaxRate: trimDecimal(row.fee_tax_rate),
     feeTaxAmount: trimDecimal(row.fee_tax_amount),
+    iposFeeAmount: trimDecimal(row.ipos_fee_amount),
     adjustmentAmount: trimDecimal(row.adjustment_amount),
     netAmount: trimDecimal(row.net_amount),
     status: row.status,

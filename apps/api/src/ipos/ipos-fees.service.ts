@@ -543,6 +543,11 @@ export class IposFeesService implements OnModuleInit {
       debtOpenAmount: debt === null ? null : money(debt),
       journalNos: journals.rows.map((item) => item.journal_no),
       canManage: canManage && row.status === "awaiting",
+      canReissue:
+        canManage &&
+        row.status === "voided" &&
+        (await this.database.execute(sql`SELECT 1 FROM ipos.fee_invoices WHERE subscription_id = ${row.subscription_id} AND period_start = ${row.period_start}::date AND status <> 'voided'`)).rows
+          .length === 0,
     };
   }
 

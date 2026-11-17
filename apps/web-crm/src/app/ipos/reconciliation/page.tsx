@@ -1,7 +1,7 @@
 "use client";
 
-// MAN_HINH_306 Doanh thu và đối soát iPOS (CONG_VIEC_74 L6; CHUC_NANG_260; QUYTAC_NGHIEPVU_626, 627; API_357). Chỉ đọc; thẻ Phí làm ở lát L7.
-import type { IposErpRevenue, IposMismatchRow, IposReconciliation } from "contracts";
+// MAN_HINH_306 Doanh thu và đối soát iPOS (CONG_VIEC_74 L6, L7; CHUC_NANG_260; QUYTAC_NGHIEPVU_626, 627; API_357). Chỉ đọc.
+import type { IposErpRevenue, IposFeeSummary, IposMismatchRow, IposReconciliation } from "contracts";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -9,8 +9,8 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDateTime, formatNumber } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
-type Tab = "revenue" | "collection" | "loyalty";
-const tabs: Tab[] = ["revenue", "collection", "loyalty"];
+type Tab = "revenue" | "collection" | "loyalty" | "fees";
+const tabs: Tab[] = ["revenue", "collection", "loyalty", "fees"];
 
 const vietnamToday = () => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 const daysBefore = (day: string, days: number) => new Date(new Date(`${day}T00:00:00Z`).getTime() - days * 86_400_000).toISOString().slice(0, 10);
@@ -152,6 +152,63 @@ function Mismatches({ kind, query }: { kind: "collection" | "loyalty"; query: st
   );
 }
 
+// Thẻ Phí (QUYTAC_NGHIEPVU_627 khoản 3): phiếu phí lập trong khoảng ngày theo cách thu; mở danh sách phiếu ở MAN_HINH_305.
+function Fees({ query }: { query: string }) {
+  const t = useTranslations("ipos");
+  const { state, reload } = useApi<IposFeeSummary>(`/ipos/reconciliation/fees?${query}`);
+  return (
+    <Loaded state={state} onRetry={() => void reload()}>
+      {(result) =>
+        result.rows.length === 0 ? (
+          <MessageView text={t("noFeeSummary")} />
+        ) : (
+          <>
+            <div className="khung-bang">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t("billingMethod")}</th>
+                    <th className="so">{t("feeSummaryInvoices")}</th>
+                    <th className="so">{t("feeTotal")}</th>
+                    <th className="so">{t("feePaid")}</th>
+                    <th className="so">{t("feeRemaining")}</th>
+                    <th className="so">{t("feeSummaryOverdue")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...result.rows.map((row) => ({ ...row, label: t(`billing_${row.method}`), href: null })), { ...result.totals, label: t("erpTotal"), href: null }].map((row) => (
+                    <tr key={row.label}>
+                      <td data-nhan={t("billingMethod")}>{row.href ? <Link href={row.href}>{row.label}</Link> : <strong>{row.label}</strong>}</td>
+                      <td data-nhan={t("feeSummaryInvoices")} className="so">
+                        {formatNumber(row.invoices, 0)}
+                      </td>
+                      <td data-nhan={t("feeTotal")} className="so">
+                        {money(row.total)}
+                      </td>
+                      <td data-nhan={t("feePaid")} className="so">
+                        {money(row.paid)}
+                      </td>
+                      <td data-nhan={t("feeRemaining")} className="so">
+                        {money(row.remaining)}
+                      </td>
+                      <td data-nhan={t("feeSummaryOverdue")} className="so">
+                        {Number(row.overdue) > 0 ? <span className="nhan loi">{money(row.overdue)}</span> : "0"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="chu-phu">
+              <Link href="/ipos/fees">{t("feesTitle")}</Link>
+            </p>
+          </>
+        )
+      }
+    </Loaded>
+  );
+}
+
 export default function IposReconciliationPage() {
   const t = useTranslations("ipos");
   const today = vietnamToday();
@@ -181,7 +238,7 @@ export default function IposReconciliationPage() {
           <input className="o-nhap" type="date" value={to} min={from} max={today} onChange={(event) => event.target.value && setTo(event.target.value)} />
         </label>
       </div>
-      {tab === "revenue" ? <Revenue query={query} /> : <Mismatches key={tab} kind={tab} query={query} />}
+      {tab === "revenue" ? <Revenue query={query} /> : tab === "fees" ? <Fees query={query} /> : <Mismatches key={tab} kind={tab} query={query} />}
     </>
   );
 }

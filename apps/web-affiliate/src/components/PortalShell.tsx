@@ -50,6 +50,7 @@ const iposMenu = [
   { href: "/ipos/registers", key: "iposRegisters", ownerOnly: true },
   { href: "/ipos/cashiers", key: "iposCashiers", ownerOnly: true },
   { href: "/ipos/settings", key: "iposSettings", ownerOnly: true },
+  { href: "/ipos/subscription", key: "iposSubscription", ownerOnly: true },
 ] as const;
 
 function IposMenu({ role, pathname }: { role: Membership["role"]; pathname: string }) {

@@ -1185,6 +1185,8 @@ export interface IposFeeInvoiceDetail extends IposFeeInvoice {
   debtOpenAmount: string | null;
   journalNos: string[];
   canManage: boolean;
+  // Phiếu đã hủy, kỳ chưa có phiếu khác: lập lại được.
+  canReissue: boolean;
 }
 
 export const iposFeeInvoiceListQuerySchema = z.object({

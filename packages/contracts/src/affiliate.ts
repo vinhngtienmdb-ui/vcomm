@@ -460,6 +460,8 @@ export interface AffiliateSettlementItem {
   smsFeeAmount: string;
   feeTaxRate: string;
   feeTaxAmount: string;
+  // Phí thuê bao iPOS (G; CONG_VIEC_74), đã gồm thuế.
+  iposFeeAmount: string;
   adjustmentAmount: string;
   netAmount: string;
   status: AffiliateSettlementStatus;
