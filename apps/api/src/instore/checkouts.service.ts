@@ -10,6 +10,7 @@ import type {
   InstoreCheckoutKind,
   InstoreCheckoutLine,
   InstoreCheckoutLoyalty,
+  InstoreCheckoutVoucher,
   InstoreCheckoutSource,
   InstoreCheckoutStatus,
   PayInstoreCheckoutResponse,
@@ -41,13 +42,41 @@ const paymentAttemptLimit = 10;
 export interface CheckoutKindHandler {
   // Giới hạn điểm khách dùng được cho đơn (QUYTAC_NGHIEPVU_578).
   loyalty(executor: Executor, row: CheckoutRow, userId: string): Promise<InstoreCheckoutLoyalty | null>;
-  // Trừ điểm khi khách bấm thanh toán; trả số điểm, tiền điểm và mã chứng từ dành trước.
-  redeem(transaction: DatabaseTransaction, row: CheckoutRow, userId: string, points: number): Promise<{ points: number; amount: number; reservedSaleId: string }>;
+  // Voucher khách dùng được (cửa hàng liên kết; quầy tập đoàn không có voucher).
+  vouchers(executor: Executor, row: CheckoutRow, userId: string): Promise<InstoreCheckoutVoucher[]>;
+  // Trừ điểm, dùng voucher khi khách bấm thanh toán, xác nhận; trả số điểm, tiền điểm, tiền voucher và chứng từ dành trước.
+  redeem(transaction: DatabaseTransaction, row: CheckoutRow, userId: string, input: { points: number; voucherCodeId: string | null }): Promise<RedeemResult>;
+  // Tỷ lệ phí sàn, phí thu hộ của nơi bán tại thời điểm thanh toán (QUYTAC_NGHIEPVU_584).
+  platformFeePercent(executor: Executor, row: CheckoutRow): Promise<number>;
   // Đơn đóng khi chưa hoàn tất: hoàn điểm đã trừ, nhả hàng đang giữ.
   release(transaction: DatabaseTransaction, row: CheckoutRow): Promise<void>;
   // Ghi chứng từ khi đã thu đủ (appAmount: phần thu qua cổng); trả mã chứng từ.
   complete(transaction: DatabaseTransaction, row: CheckoutRow, appAmount: number): Promise<string>;
 }
+
+export interface RedeemResult {
+  points: number;
+  amount: number;
+  voucherAmount: number;
+  // Quầy tập đoàn: mã hóa đơn bán lẻ dành trước; cửa hàng liên kết: giao dịch LK… đang chờ.
+  reservedSaleId: string | null;
+  affiliateTransactionId: string | null;
+}
+
+// Kết quả hoàn tất đơn của cửa hàng liên kết chuyển cho phần mềm cửa hàng đăng ký móc (iPOS, CONG_VIEC_74).
+export interface AffiliateCheckoutResult {
+  affiliateTransactionId: string;
+  documentNo: string;
+  points: number;
+  pointsAmount: string;
+  voucherAmount: string;
+  // Tiền khách trả qua cổng (thu hộ); "0" khi thu tại quầy.
+  appAmount: string;
+  // Tiền cửa hàng còn thu tại quầy; "0" khi thu hộ.
+  dueAtCounter: string;
+}
+// Móc chạy trong giao dịch hoàn tất, sau khi ghi LK…; trả mã chứng từ của phần mềm (ghi vào ipos_invoice_id) hoặc null.
+export type CompletionHook = (transaction: DatabaseTransaction, row: CheckoutRow, result: AffiliateCheckoutResult) => Promise<string | null>;
 
 // Đơn chờ hết hạn sau 10 phút kể từ khi tạo (QUYTAC_NGHIEPVU_575).
 export const checkoutLifetimeMinutes = 10;
@@ -104,6 +133,13 @@ export type CheckoutRow = {
   paid_amount: string;
   retail_sale_id: string | null;
   posting_error: string | null;
+  voucher_code_id: string | null;
+  affiliate_transaction_id: string | null;
+  api_key_id: string | null;
+  partner_checkout_code: string | null;
+  platform_fee_percent: string | null;
+  platform_fee: string;
+  gateway_fee: string;
 };
 
 export interface CreatedCheckout {
@@ -116,12 +152,14 @@ export interface CreatedCheckout {
 const columns = sql`c.id, c.document_no, c.kind, c.source, c.operator_company_id, c.company_id, c.store_id, c.register_id, c.merchant_id, c.outlet_id,
   c.created_by_user_id, c.bill_amount::text, c.lines, c.collect_in_app, c.buyer_user_id, c.points, c.points_amount::text, c.voucher_amount::text,
   c.amount_due::text, c.status, c.expires_at, c.shift_id, c.sale_input, c.reserved_sale_id, c.buyer_attached_via, c.buyer_invoice_info, c.paid_amount::text,
-  c.retail_sale_id, c.posting_error`;
+  c.retail_sale_id, c.posting_error, c.voucher_code_id, c.affiliate_transaction_id, c.api_key_id, c.partner_checkout_code, c.platform_fee_percent::text,
+  c.platform_fee::text, c.gateway_fee::text`;
 
 @Injectable()
 export class InstoreCheckoutsService {
   private readonly logger = new Logger("InstoreCheckouts");
   private readonly handlers = new Map<InstoreCheckoutKind, CheckoutKindHandler>();
+  private readonly completionHooks = new Map<InstoreCheckoutSource, CompletionHook>();
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
@@ -132,6 +170,15 @@ export class InstoreCheckoutsService {
 
   registerHandler(kind: InstoreCheckoutKind, handler: CheckoutKindHandler): void {
     this.handlers.set(kind, handler);
+  }
+
+  // Phần mềm cửa hàng (iPOS) đăng ký khi khởi động để ghi chứng từ của mình trong cùng giao dịch hoàn tất.
+  registerCompletionHook(source: InstoreCheckoutSource, hook: CompletionHook): void {
+    this.completionHooks.set(source, hook);
+  }
+
+  completionHook(source: InstoreCheckoutSource): CompletionHook | undefined {
+    return this.completionHooks.get(source);
   }
 
   private handler(kind: InstoreCheckoutKind): CheckoutKindHandler {
@@ -294,13 +341,23 @@ export class InstoreCheckoutsService {
       if (!["awaiting_buyer", "awaiting_payment"].includes(row.status) || this.expired(row)) throw new ApiError("BUSINESS_RULE", "instoreCheckoutClosed");
       let amountDue = row.amount_due === null ? null : Number(row.amount_due);
       if (row.status === "awaiting_buyer") {
-        const redeemed = input.points > 0 ? await this.handler(row.kind).redeem(transaction, row, userId, input.points) : null;
-        amountDue = Math.max(Number(row.bill_amount) - Number(row.voucher_amount) - (redeemed?.amount ?? 0), 0);
+        const redeemed = await this.handler(row.kind).redeem(transaction, row, userId, { points: input.points, voucherCodeId: input.voucherCodeId });
+        amountDue = Math.max(Number(row.bill_amount) - redeemed.voucherAmount - redeemed.amount, 0);
         await transaction.execute(sql`
-          UPDATE instore.checkouts SET status = 'awaiting_payment', points = ${redeemed?.points ?? 0}, points_amount = ${redeemed?.amount ?? 0},
-            reserved_sale_id = ${redeemed?.reservedSaleId ?? null}, amount_due = ${amountDue}, buyer_invoice_info = ${input.invoiceInfo ? JSON.stringify(input.invoiceInfo) : null}::jsonb,
+          UPDATE instore.checkouts SET status = 'awaiting_payment', points = ${redeemed.points}, points_amount = ${redeemed.amount},
+            voucher_code_id = ${redeemed.voucherAmount > 0 || input.voucherCodeId ? input.voucherCodeId : null}, voucher_amount = ${redeemed.voucherAmount},
+            reserved_sale_id = ${redeemed.reservedSaleId}, affiliate_transaction_id = ${redeemed.affiliateTransactionId},
+            amount_due = ${amountDue}, buyer_invoice_info = ${input.invoiceInfo ? JSON.stringify(input.invoiceInfo) : null}::jsonb,
             updated_at = now(), version = version + 1
           WHERE id = ${id}`);
+      }
+      // Đơn thu tại quầy (cửa hàng tắt thu hộ hoặc thu ngân chọn): hoàn tất ngay khi khách xác nhận, cửa hàng tự thu phần còn lại
+      // (QUYTAC_NGHIEPVU_578; người dùng quyết định 2026-11-17). Lỗi ghi thì hủy cả lần xác nhận.
+      if (!row.collect_in_app) {
+        const confirmed = (await this.row(transaction, id, true))!;
+        const documentId = await this.handler(row.kind).complete(transaction, confirmed, 0);
+        await this.markCompleted(transaction, confirmed, documentId);
+        return;
       }
       if (!amountDue || amountDue <= 0) {
         await this.completeWithin(transaction, id, 0);
@@ -391,19 +448,13 @@ export class InstoreCheckoutsService {
 
   // Ghi chứng từ trong điểm lưu tạm của giao dịch: lỗi ghi sổ không làm mất ghi nhận tiền (QUYTAC_NGHIEPVU_580).
   private async completeWithin(transaction: DatabaseTransaction, checkoutId: string, appAmount: number): Promise<void> {
+    await this.chargeFees(transaction, (await this.row(transaction, checkoutId, true))!, appAmount);
     const row = (await this.row(transaction, checkoutId, true))!;
     await transaction.execute(sql`SAVEPOINT instore_complete`);
     try {
       const documentId = await this.handler(row.kind).complete(transaction, row, appAmount);
       await transaction.execute(sql`RELEASE SAVEPOINT instore_complete`);
-      await transaction.execute(sql`
-        UPDATE instore.checkouts SET status = 'completed', completed_at = now(), posting_error = NULL,
-          retail_sale_id = CASE WHEN kind = 'retail' THEN ${documentId}::uuid ELSE retail_sale_id END, updated_at = now(), version = version + 1
-        WHERE id = ${checkoutId}`);
-      if (row.buyer_user_id)
-        await notify(transaction, [
-          { userId: row.buyer_user_id, companyId: null, kind: "instore.checkout_completed", title: `Đã thanh toán đơn ${row.document_no}`, payload: { checkoutId } },
-        ]);
+      await this.markCompleted(transaction, row, documentId);
     } catch (error) {
       await transaction.execute(sql`ROLLBACK TO SAVEPOINT instore_complete`);
       const message = error instanceof ApiError ? error.message : (error as Error).message;
@@ -421,6 +472,36 @@ export class InstoreCheckoutsService {
           },
         ]);
     }
+  }
+
+  private async markCompleted(transaction: DatabaseTransaction, row: CheckoutRow, documentId: string): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE instore.checkouts SET status = 'completed', completed_at = now(), posting_error = NULL,
+        retail_sale_id = CASE WHEN kind = 'retail' THEN ${documentId}::uuid ELSE retail_sale_id END,
+        affiliate_transaction_id = CASE WHEN kind = 'affiliate' THEN ${documentId}::uuid ELSE affiliate_transaction_id END, updated_at = now(), version = version + 1
+      WHERE id = ${row.id}`);
+    if (row.buyer_user_id)
+      await notify(transaction, [
+        { userId: row.buyer_user_id, companyId: null, kind: "instore.checkout_completed", title: `Đã thanh toán đơn ${row.document_no}`, payload: { checkoutId: row.id } },
+      ]);
+  }
+
+  // Phí sàn (phí thu hộ) và phí cổng chốt khi tiền về (QUYTAC_NGHIEPVU_584): phí sàn = làm tròn đến đồng (tiền thu qua ứng dụng × tỷ lệ của nơi bán);
+  // phí cổng theo biểu phí của công ty vận hành sàn cho phương thức của lần thanh toán thành công, hiệu lực ngày thanh toán. Ghi lại thì giữ phí đã chốt.
+  private async chargeFees(transaction: DatabaseTransaction, row: CheckoutRow, appAmount: number): Promise<void> {
+    if (appAmount <= 0 || row.platform_fee_percent !== null) return;
+    const percent = await this.handler(row.kind).platformFeePercent(transaction, row);
+    const rate = (
+      await transaction.execute<{ percent: string; fixed_amount: string }>(sql`
+        SELECT r.percent::text, r.fixed_amount::text FROM instore.gateway_fee_rates r
+        WHERE r.company_id = ${row.operator_company_id} AND r.effective_from <= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date
+          AND r.method = (SELECT p.method FROM marketplace.payments p WHERE p.checkout_id = ${row.id} AND p.status = 'succeeded' ORDER BY p.completed_at LIMIT 1)
+        ORDER BY r.effective_from DESC LIMIT 1`)
+    ).rows[0];
+    const platformFee = Math.round((appAmount * percent) / 100);
+    const gatewayFee = rate ? Math.round((appAmount * Number(rate.percent)) / 100 + Number(rate.fixed_amount)) : 0;
+    await transaction.execute(sql`
+      UPDATE instore.checkouts SET platform_fee_percent = ${percent}, platform_fee = ${platformFee}, gateway_fee = ${Math.min(gatewayFee, appAmount)} WHERE id = ${row.id}`);
   }
 
   // Cửa hàng trưởng ghi lại đơn "Đã thu, lỗi ghi sổ" (kiểm quyền do nơi gọi làm trước).
@@ -522,6 +603,8 @@ export class InstoreCheckoutsService {
     const place = await this.placeOf(executor, row.id);
     // Đơn còn mở nhưng đã quá hạn (việc nền chưa chạy) hiện là Hết hạn.
     const status: InstoreCheckoutStatus = openStatuses.includes(row.status as (typeof openStatuses)[number]) && this.expired(row) ? "expired" : row.status;
+    const handler = this.handlers.get(row.kind);
+    const choosing = status === "awaiting_buyer" && row.buyer_user_id !== null;
     return {
       id: row.id,
       documentNo: row.document_no,
@@ -537,12 +620,17 @@ export class InstoreCheckoutsService {
       pointsAmount: row.points_amount,
       voucherAmount: row.voucher_amount,
       amountDue: row.amount_due,
-      loyalty: status === "awaiting_buyer" && row.buyer_user_id ? await this.handlers.get(row.kind)?.loyalty(executor, row, row.buyer_user_id) ?? null : null,
+      loyalty: choosing ? ((await handler?.loyalty(executor, row, row.buyer_user_id!)) ?? null) : null,
+      vouchers: choosing ? ((await handler?.vouchers(executor, row, row.buyer_user_id!)) ?? []) : [],
+      voucherCodeId: row.voucher_code_id,
       paymentMethods: status === "awaiting_buyer" || status === "awaiting_payment" ? await this.enabledMethods(executor) : [],
       smartOtpRequired: status === "awaiting_buyer" && row.buyer_user_id ? await this.smartOtpRequired(row, row.buyer_user_id) : false,
       saleDocumentNo: row.retail_sale_id
         ? ((await executor.execute<{ document_no: string }>(sql`SELECT document_no FROM retail.sales WHERE id = ${row.retail_sale_id}`)).rows[0]?.document_no ?? null)
-        : null,
+        : row.affiliate_transaction_id && status === "completed"
+          ? ((await executor.execute<{ document_no: string }>(sql`SELECT document_no FROM affiliate.transactions WHERE id = ${row.affiliate_transaction_id}`)).rows[0]
+              ?.document_no ?? null)
+          : null,
     };
   }
 }

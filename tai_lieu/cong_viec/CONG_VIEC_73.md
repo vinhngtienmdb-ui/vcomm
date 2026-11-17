@@ -118,7 +118,7 @@ Ngoài phạm vi:
 - Giới hạn điểm giữ như hiện nay: cửa hàng tập đoàn theo `quoteRedemption` (QUYTAC_NGHIEPVU_379); cửa hàng liên kết theo QUYTAC_NGHIEPVU_399 (sau voucher). Không thêm giới hạn theo cửa hàng.
 - Dùng điểm lớn hơn 0 phải mở Smart OTP trên máy (luồng 1 đã mở khi hiện mã; luồng 2 hỏi mở khi bấm thanh toán). Khách chưa kích hoạt: trong thời hạn chuyển đổi được dùng điểm như cách 1 hiện nay; hết hạn phải kích hoạt.
 - Tiền còn lại = tiền hóa đơn − voucher − tiền điểm. Bằng 0: bấm "Xác nhận", hoàn tất ngay, không qua cổng.
-- Đơn cách thu "tại quầy" hoặc cửa hàng tắt thu hộ: chỉ chọn điểm, voucher, bấm "Xác nhận"; khách trả phần còn lại tại quầy.
+- Đơn cách thu "tại quầy" hoặc cửa hàng tắt thu hộ: chỉ chọn điểm, voucher, bấm "Xác nhận"; khách trả phần còn lại tại quầy. Đơn hoàn tất ngay khi khách bấm "Xác nhận" (ghi giao dịch `LK…` với điểm, voucher như cách 1 của CONG_VIEC_55); cửa hàng tự thu phần còn lại; khách không trả thì cửa hàng hủy đơn để hoàn điểm, voucher (người dùng quyết định 2026-11-17).
 - Khách bấm "Từ chối": đơn chuyển khách từ chối, nhả giữ hàng.
 
 ### QUYTAC_NGHIEPVU_579 – Thanh toán qua cổng

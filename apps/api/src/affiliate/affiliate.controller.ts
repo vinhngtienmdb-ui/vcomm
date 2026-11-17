@@ -1,6 +1,8 @@
 // API_206: cửa hàng liên kết trên web quản trị (CONG_VIEC_55). Quyền xét tại công ty vận hành sàn.
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  affiliateCollectionSchema,
+  type AffiliateCollectionResponse,
   affiliateApiKeyCreateSchema,
   affiliateApiKeyUpdateSchema,
   revokeApiKeySchema,
@@ -48,6 +50,7 @@ import { AffiliateReportsService } from "./reports.service";
 import { AffiliateTransactionsService } from "./transactions.service";
 import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
+import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
 
 @Controller("affiliate")
 export class AffiliateController {
@@ -60,6 +63,7 @@ export class AffiliateController {
     private readonly transactions: AffiliateTransactionsService,
     private readonly apiKeys: AffiliateApiKeysService,
     private readonly portalSecurity: MerchantPortalSecurityService,
+    private readonly checkouts: AffiliateCheckoutsService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -86,6 +90,18 @@ export class AffiliateController {
   async detail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateMerchantDetail> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
     return this.merchants.detail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  // API_332 (CONG_VIEC_73 lát L4; MAN_HINH_279): cài đặt thu hộ qua ứng dụng của cửa hàng.
+  @Get("merchants/:id/collection")
+  async collection(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateCollectionResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.checkouts.collection(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  @Patch("merchants/:id/collection")
+  async updateCollection(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateCollectionResponse> {
+    return this.checkouts.updateCollection(await this.manager(request), id, affiliateCollectionSchema.parse(body));
   }
 
   @Put("merchants/:id")

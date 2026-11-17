@@ -830,7 +830,15 @@
     "instoreOpenCheckouts": "This shift still has orders waiting for VComm app payment. Cancel them or wait for them to complete before closing.",
     "instorePaymentAttemptLimit": "Payment was opened more than 10 times. Ask the cashier for a new order.",
     "instoreAmountDueRequired": "Choose a payment method for the remaining amount.",
-    "retailPayCodeOtherCustomer": "The scanned payment code does not belong to the selected customer. Check the customer or ask them to open their own payment code."
+    "retailPayCodeOtherCustomer": "The scanned payment code does not belong to the selected customer. Check the customer or ask them to open their own payment code.",
+    "instoreVoucherUnavailable": "Vouchers cannot be used for this order.",
+    "instoreCollectionDisabled": "The store has not enabled collection through the VComm app. Choose \"Customer pays at the counter\".",
+    "instoreCashierCheckoutLimit": "You already have 3 orders waiting for customers. Cancel one or wait for them to finish before creating a new one.",
+    "instoreOperatorOnly": "Only the marketplace operator company sets in-store gateway fees.",
+    "instoreFeeDatePast": "The effective date cannot be before today.",
+    "affiliateCollectionAccountRequired": "Choose the payout bank account before enabling collection.",
+    "affiliateCollectionAcknowledge": "Enabling collection for the first time requires confirming the warning: collecting money for the store may be a payment intermediary activity.",
+    "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release."
   },
   "login": {
     "title": "Sign in",

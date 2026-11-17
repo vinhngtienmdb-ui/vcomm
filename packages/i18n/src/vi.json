@@ -830,7 +830,15 @@
     "instoreOpenCheckouts": "Ca còn đơn chờ khách thanh toán qua ứng dụng. Hủy hoặc chờ đơn hoàn tất trước khi đóng ca.",
     "instorePaymentAttemptLimit": "Đơn đã mở thanh toán quá 10 lần. Nhờ thu ngân tạo đơn mới.",
     "instoreAmountDueRequired": "Chọn phương thức thanh toán cho phần còn lại.",
-    "retailPayCodeOtherCustomer": "Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình."
+    "retailPayCodeOtherCustomer": "Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình.",
+    "instoreVoucherUnavailable": "Đơn này không dùng được voucher.",
+    "instoreCollectionDisabled": "Cửa hàng chưa bật thu hộ qua ứng dụng VComm. Chọn \"Khách trả tại quầy\".",
+    "instoreCashierCheckoutLimit": "Bạn đang có 3 đơn chờ khách thanh toán. Hủy bớt hoặc chờ đơn hoàn tất rồi tạo đơn mới.",
+    "instoreOperatorOnly": "Chỉ công ty vận hành sàn cài biểu phí cổng tại cửa hàng.",
+    "instoreFeeDatePast": "Ngày áp dụng không được trước hôm nay.",
+    "affiliateCollectionAccountRequired": "Chọn tài khoản nhận tiền trước khi bật thu hộ.",
+    "affiliateCollectionAcknowledge": "Bật thu hộ lần đầu cần xác nhận đã đọc cảnh báo: thu hộ tiền của cửa hàng có thể là hoạt động trung gian thanh toán.",
+    "affiliateCollectedNotCancellable": "Giao dịch có tiền VComm thu hộ chưa hủy được ở đây; hủy và hoàn tiền cho khách sẽ có ở bản sau."
   },
   "login": {
     "title": "Đăng nhập",
