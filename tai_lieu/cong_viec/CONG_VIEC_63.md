@@ -3,7 +3,7 @@
 - Mô tả: Trợ lý AI cho nhân viên nội bộ: hỏi đáp số liệu kinh doanh bằng lời (chỉ đọc, qua các dịch vụ đã có, đúng quyền của người hỏi) và soạn nháp nội dung sản phẩm để nhân viên sửa, tự lưu. Quản trị công ty bật từng tính năng, đặt hạn mức chi phí tháng và số lượt mỗi người mỗi ngày. Che dữ liệu cá nhân trước khi gửi ra mô hình; lưu hội thoại 90 ngày; đánh giá đúng, sai; nhật ký token, chi phí từng lượt.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Đặc tả, bản mẫu, chia lát đã duyệt (người dùng, 2026-11-17); L1, L2 đã duyệt xem trước (2026-11-17); L3 xong, chờ xem trước và nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng, 2026-11-17).
 - Mức: Lớn (chức năng mới, dịch vụ ngoài mới, thư viện mới, dữ liệu cá nhân ra nước ngoài, thêm quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_63-tro-ly-ai`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 1 (MODULE_16), `24` THAY_DOI_04 (nguồn tham khảo `vcomm_ai_integration_guide.md` của V-com-ERP, chưa đọc được – mục 16); quyết định của người dùng ngày 2026-11-17 (mục 17).
@@ -271,6 +271,7 @@ Người dùng đã chốt ngày 2026-11-17 (mục 17): mô hình mặc định 
 | Xem trước | Bằng bộ giả lập, không chặn tiến độ |
 | Xem trước L1 | Đạt; chấp nhận chuyển hộp xác nhận thông báo và KICHBAN_KIEMTHU_656 sang L2; làm L2 (2026-11-17) |
 | Xem trước L2 | Đạt; làm L3, lát cuối thì trình nghiệm thu (2026-11-17) |
+| Nghiệm thu | Đạt; chấp nhận ba điểm lệch của L3 (2026-11-17) |
 
 ## 18. Thành phần không được thay đổi
 
