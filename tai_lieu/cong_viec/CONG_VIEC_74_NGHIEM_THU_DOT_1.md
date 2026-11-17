@@ -15,11 +15,11 @@
 | TIEUCHI_NGHIEMTHU_572 đến 575 | Đạt (tự động) | `c74-sales`, `c74-payments` (KICHBAN_KIEMTHU_782 đến 785); nội dung VietQR là "<mã điểm bán> <8 ký tự mã yêu cầu>" (người dùng chọn) |
 | TIEUCHI_NGHIEMTHU_576 | Đạt phần máy chủ (gửi lại cùng khóa yêu cầu không ghi trùng, tự động); **ngắt mạng thật thử trên máy** | `c74-sales`; mục 3 dưới đây |
 | TIEUCHI_NGHIEMTHU_577 | Mẫu in 58 mm, 80 mm kiểm bằng bản xem trước chữ; **in thật thử trên Sunmi T2** | Ảnh xem trước lát L3; mục 3 |
-| TIEUCHI_NGHIEMTHU_578 | Đạt (tự động: móc hoàn tất ghi hóa đơn có dòng ứng dụng VComm, điểm; đơn chờ, mã QR, hủy) và đã thử luồng thật trên máy phát triển với VNPAY giả lập; **cổng thanh toán thật thử khi nghiệm thu** | `c74-payments`; ảnh "luồng thật" |
+| TIEUCHI_NGHIEMTHU_578 | Đạt (tự động: móc hoàn tất ghi hóa đơn có dòng ứng dụng VComm, điểm; đơn chờ, mã QR, hủy) và đã thử luồng thật trên máy phát triển với VNPAY giả lập; **cổng thanh toán thật thử khi nghiệm thu** | `c74-payments`, `c74-app-refund` (luồng khách quét mã, trả qua VNPAY giả lập, ghi hóa đơn); ảnh "luồng thật" |
 | TIEUCHI_NGHIEMTHU_579 | Đạt (tự động) | `c74-payments` |
 | TIEUCHI_NGHIEMTHU_580 | Đạt (tự động); chủ đóng hộ ca trên cổng | `c74-sales`, `c74-payments`, `c74-returns` (KICHBAN_KIEMTHU_792, 793) |
 | TIEUCHI_NGHIEMTHU_581 | Đạt (tự động) | `c74-returns` (KICHBAN_KIEMTHU_794) |
-| TIEUCHI_NGHIEMTHU_582 | Đạt phần điểm, voucher (hủy hóa đơn hoàn điểm; tuần đã đối soát bị chặn). **Hủy hóa đơn có ứng dụng VComm chưa làm**: chờ hoàn tiền cả đơn của CONG_VIEC_73 lát L7 (máy báo `iposReturnAppPending`) | `c74-returns` (KICHBAN_KIEMTHU_795) |
+| TIEUCHI_NGHIEMTHU_582 | Đạt (tự động): hủy hóa đơn có điểm, voucher hoàn điểm, tuần đã đối soát bị chặn; hủy hóa đơn có thanh toán qua ứng dụng VComm hủy `LK…` có thu hộ, CONG_VIEC_73 lập việc hoàn tiền khách (nối sau khi CONG_VIEC_73 xong lát L7) | `c74-returns` (KICHBAN_KIEMTHU_795), `c74-app-refund` |
 | TIEUCHI_NGHIEMTHU_583 | Đạt (tự động: số liệu khớp hóa đơn, phiếu trả, ca; xuất Excel) | `c74-returns`; ảnh lát L5 |
 | TIEUCHI_NGHIEMTHU_584 | Đạt (tự động) | `c74-payments` (KICHBAN_KIEMTHU_797, 798); ảnh lát L6 |
 | TIEUCHI_NGHIEMTHU_585 | Đạt (tự động). Hóa đơn điện tử phí lập khi công ty vận hành sàn đã bật hóa đơn điện tử | `c74-fees` (KICHBAN_KIEMTHU_799) |
@@ -79,7 +79,6 @@ Ghi kết quả mỗi dòng (Đạt / Không đạt, ảnh, ghi chú) rồi gử
 
 ## 4. Việc chưa làm trong đợt 1 (người dùng đã biết)
 
-- Hủy hóa đơn có thanh toán qua ứng dụng VComm: chờ hoàn tiền cả đơn của CONG_VIEC_73 lát L7.
 - Đối soát ngân hàng tự động theo nội dung PI… (QUYTAC_NGHIEPVU_602): việc riêng sau.
 - Gửi tin nhắn trong ứng dụng VComm (nhắc gia hạn, kết quả duyệt thu ngân): làm ở đợt sau; đợt 1 dùng thông báo trên cổng cửa hàng.
 - Máy in USB, chế độ in ảnh: khi có máy cụ thể.

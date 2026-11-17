@@ -189,6 +189,9 @@ export class IposCheckoutsService implements OnModuleInit {
       await requireSelling(transaction, actor, vietnamDate(now));
       const shift = await openShiftOf(transaction, actor, input.shiftId);
       const settings = await loadSettings(transaction, actor.device.merchantId);
+      // Hóa đơn ghi khi khách trả xong cần mã điểm bán: chặn ngay từ lúc tạo đơn để khách không trả tiền vào đơn không ghi được hóa đơn.
+      const outlet = (await transaction.execute<{ code: string | null }>(sql`SELECT code FROM affiliate.outlets WHERE id = ${actor.device.outletId}`)).rows[0];
+      if (!outlet?.code) throw new ApiError("BUSINESS_RULE", "iposOutletCodeMissing");
       const variants = await transaction.execute<{ id: string; name: string; unit: string; price: string; active: boolean }>(sql`
         SELECT v.id, i.unit, (v.status = 'active' AND i.status = 'active') AS active,
           i.name || COALESCE(' – ' || v.attribute1_value, '') || COALESCE(' / ' || v.attribute2_value, '') AS name,

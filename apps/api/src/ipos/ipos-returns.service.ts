@@ -113,7 +113,6 @@ export class IposReturnsService {
       if (reason) throw new ApiError("BUSINESS_RULE", reason as "iposReturnExpired" | "iposReturnCancelled" | "iposReturnNothingLeft");
       const mode = this.modeOf(head);
       if (mode === "full_cancel" && input.kind !== "full_cancel") throw new ApiError("BUSINESS_RULE", "iposReturnFullOnly");
-      if (head.methods.includes("vcomm_app")) throw new ApiError("BUSINESS_RULE", "iposReturnAppPending");
       // Thu ngân trả hàng cần chủ cửa hàng duyệt bằng PIN, trừ khi cài đặt cho thu ngân tự trả (QUYTAC_NGHIEPVU_624 khoản 4).
       const settings = await loadSettings(transaction, actor.device.merchantId);
       let approvedBy: string | null = null;
