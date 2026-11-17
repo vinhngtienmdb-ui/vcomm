@@ -3,13 +3,13 @@
 - Mô tả: Khách mua tại cửa hàng tập đoàn hoặc cửa hàng liên kết chọn điểm và trả tiền ngay trong ứng dụng VComm qua cổng thanh toán. Hai cách: cửa hàng quét mã thanh toán động trên ứng dụng khách, hoặc khách quét mã QR thanh toán của cửa hàng. Công ty vận hành sàn thu tiền một nơi, chuyển hằng ngày cho công ty sở hữu cửa hàng hoặc cửa hàng liên kết sau khi trừ phí sàn và phí cổng. VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm. Mở Open API đơn chờ thanh toán và webhook để phần mềm bán hàng (iPOS sau này) dùng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả, bản mẫu, các điểm AI đề xuất (mục 19).
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu và 16 điểm AI đề xuất (mục 19) ngày 2026-11-17. Bổ sung API hoàn tiền, tra trạng thái cho iPOS (CONG_VIEC_74) ngày 2026-11-17, chờ người dùng xem. Viết mã sau khi CONG_VIEC_72 vào `main`.
 - Nhánh: `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang`.
 - Nguồn: yêu cầu người dùng 2026-11-17; quyết định người dùng 2026-11-17 (mục 17); CONG_VIEC_53 (bán tại quầy, điểm tại quầy), CONG_VIEC_55 (cửa hàng liên kết), CONG_VIEC_67 (Open API cửa hàng liên kết), CONG_VIEC_25, 32, 33 đến 42 (cổng thanh toán), CONG_VIEC_16 (hóa đơn điện tử), CONG_VIEC_19 (đối soát thu hộ cổng), CONG_VIEC_51 (sổ cái điểm, nợ nội bộ), CONG_VIEC_72 (Smart OTP).
 - Mức: Lớn (nhiều module; đổi quy trình, cấu trúc dữ liệu, API đã duyệt; nghiệp vụ tài chính mới).
 - Thay đổi: THAY_DOI_38.
 - Phụ thuộc: CONG_VIEC_72 phải hợp nhất vào `main` trước khi viết mã (dùng khóa Smart OTP trên máy, khóa dùng điểm sau khôi phục).
-- Mã dự kiến (số tiếp theo trên `main` ngày 2026-11-17, chờ phiên điều phối cấp chính thức): YCAU_NGHIEPVU_205 đến 208, QUYTAC_NGHIEPVU_573 đến 592, CHUC_NANG_247 đến 251, TIEUCHI_NGHIEMTHU_546 đến 559, KICHBAN_KIEMTHU_750 đến 767, MAN_HINH_276 đến 282, API_327 đến 334, database migration 0161 đến 0164, Luồng 67.
+- Mã do phiên điều phối cấp ngày 2026-11-17: YCAU_NGHIEPVU_205 đến 208, QUYTAC_NGHIEPVU_573 đến 592, CHUC_NANG_247 đến 251, TIEUCHI_NGHIEMTHU_546 đến 559, KICHBAN_KIEMTHU_750 đến 767, MAN_HINH_276 đến 282, API_327 đến 334, database migration 0161 đến 0164, Luồng 67.
 
 ## 1. Mục tiêu
 
@@ -205,8 +205,12 @@ Kế toán trưởng xác nhận tài khoản trước lát L4.
 - Khóa API phạm vi `loyalty.member` của cửa hàng liên kết (CONG_VIEC_67); thêm phạm vi `instore.checkout` do người có `affiliate.manage` gán.
 - Tạo đơn: `partnerCheckoutCode` (duy nhất theo cửa hàng), `outletId`, `billAmount`, `lines` (không bắt buộc), `payCode` (luồng 1, không bắt buộc). Không có `payCode` thì trả chuỗi QR, đường dẫn thanh toán (luồng 2).
 - Gắn mã động sau khi tạo: `POST …/{partnerCheckoutCode}/pay-code`.
-- Tra, hủy; liệt kê theo trạng thái, khoảng thời gian.
-- Kết quả: trạng thái, số `TT…`, số `LK…` khi hoàn tất, tiền hóa đơn, voucher, điểm, tiền thu hộ, phí, hóa đơn điện tử (ký hiệu, số, mã tra cứu khi có).
+- Tra trạng thái theo `partnerCheckoutCode` hoặc số `TT…`; liệt kê theo trạng thái, khoảng thời gian, điểm bán (tối đa 100 dòng mỗi trang). Phần mềm cửa hàng dùng tra trạng thái khi chưa nhận webhook (ví dụ hỏi mỗi 3 giây khi đang chờ khách, tối đa theo giới hạn tần suất của khóa).
+- Hủy đơn chưa thanh toán: `POST …/cancel` (lý do 1 đến 500 ký tự); hoàn điểm, trả voucher, nhả giữ hàng. Khách đã mở cổng mà cổng báo thành công sau khi hủy: xử lý như QUYTAC_NGHIEPVU_579 (lập việc chờ hoàn tiền), gửi webhook `refund.completed` khi đã hoàn.
+- Hủy đơn đã thanh toán và hoàn tiền: `POST …/refund` (lý do 1 đến 500 ký tự, khóa yêu cầu). Chỉ hủy toàn bộ, khi tuần đối soát điểm của giao dịch chưa chốt (QUYTAC_NGHIEPVU_400); làm như chủ cửa hàng hủy trên cổng (QUYTAC_NGHIEPVU_583): hoàn điểm, trả voucher, trừ lại điểm đã tích, ghi ngược thu hộ và phí vào bảng chuyển tiền tiếp theo, lập việc chờ hoàn tiền cho khách (kế toán chuyển khoản tay), lập việc chờ xử lý hóa đơn ủy nhiệm. Tuần đã chốt: trả `409 affiliateWeekClosed`, cửa hàng khiếu nại theo cách hiện có. Thu hộ tắt (khách trả tại quầy): chỉ hủy giao dịch điểm, không lập việc hoàn tiền; cửa hàng tự trả tiền cho khách.
+- Trạng thái hoàn tiền trong kết quả tra: `none`, `pending` (chờ kế toán chuyển), `completed` (kèm ngày hoàn); webhook `refund.completed` khi kế toán ghi đã hoàn.
+- Trả hàng một phần qua API: ngoài phạm vi (giữ CONG_VIEC_55).
+- Kết quả: trạng thái, số `TT…`, số `LK…` khi hoàn tất, trạng thái hoàn tiền, trạng thái hủy, tiền hóa đơn, voucher, điểm, tiền thu hộ, phí, hóa đơn điện tử (ký hiệu, số, mã tra cứu khi có).
 
 ### QUYTAC_NGHIEPVU_591 – Webhook
 
@@ -316,7 +320,7 @@ Open API (khóa phạm vi `instore.checkout`, gốc `/api/v1/open/affiliate`):
 
 | Mã | Phương thức, đường dẫn | Mô tả |
 |---|---|---|
-| API_330 | `POST /checkouts`; `POST /checkouts/{partnerCheckoutCode}/pay-code`; `GET /checkouts`, `GET /checkouts/{partnerCheckoutCode}`; `POST /checkouts/{partnerCheckoutCode}/cancel` | QUYTAC_NGHIEPVU_590 |
+| API_330 | `POST /checkouts`; `POST /checkouts/{partnerCheckoutCode}/pay-code`; `GET /checkouts`, `GET /checkouts/{partnerCheckoutCode}` (hoặc số `TT…`); `POST /checkouts/{partnerCheckoutCode}/cancel` (chưa thanh toán); `POST /checkouts/{partnerCheckoutCode}/refund` (đã thanh toán: hủy toàn bộ, hoàn tiền) | QUYTAC_NGHIEPVU_590 |
 
 Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung hiện có; bộ xử lý tìm lần thanh toán theo số tham chiếu rồi rẽ theo đơn VComm hoặc đơn chờ tại cửa hàng.
 
@@ -365,7 +369,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | TIEUCHI_NGHIEMTHU_555 | Bút toán hai công ty đúng tài khoản; hóa đơn phí sàn tháng | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_556 | Dư nợ cửa hàng liên kết trừ tiền thu hộ chờ chuyển | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_557 | Hóa đơn ủy nhiệm: đúng người bán, ký hiệu riêng, dòng ủy nhiệm, dòng hàng, điểm là phương thức thanh toán; thiếu dữ liệu ghi việc chờ, lập bù được; hủy giao dịch tạo việc chờ xử lý hóa đơn | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_558 | Open API và webhook: tạo, gắn mã, tra, hủy; webhook có chữ ký, thử lại theo lịch, gửi lại, gửi thử; phạm vi khóa | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_558 | Open API và webhook: tạo, gắn mã, tra trạng thái, hủy chưa thanh toán, hủy đã thanh toán và hoàn tiền (chỉ khi tuần chưa chốt), trạng thái hoàn tiền; webhook có chữ ký, thử lại theo lịch, gửi lại, gửi thử; phạm vi khóa | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_559 | Giao diện ứng dụng, quầy, cổng, quản trị chạy được trên bản xem trước; phân quyền từng màn hình | Bắt buộc |
 
 ## 14. Kịch bản kiểm thử
@@ -386,7 +390,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | KICHBAN_KIEMTHU_761 | Bút toán hai công ty, hóa đơn phí tháng | 555 | Tự động |
 | KICHBAN_KIEMTHU_762 | Dư nợ trừ thu hộ chờ chuyển, xét hạn mức tích điểm | 556 | Tự động |
 | KICHBAN_KIEMTHU_763 | Hóa đơn ủy nhiệm: đủ dữ liệu, thiếu, hết hiệu lực, lập bù, dòng từ API, một dòng mặc định, hủy | 557 | Tự động |
-| KICHBAN_KIEMTHU_764 | Open API: phạm vi khóa, tạo, mã đối tác trùng, gắn mã động, tra, liệt kê, hủy | 558 | Tự động |
+| KICHBAN_KIEMTHU_764 | Open API: phạm vi khóa, tạo, mã đối tác trùng, gắn mã động, tra theo mã đối tác và số `TT…`, liệt kê, hủy chưa thanh toán, hủy khi cổng đang xử lý, hoàn tiền đã thanh toán (tuần chưa chốt, đã chốt, thu hộ tắt, gửi trùng khóa), trạng thái hoàn tiền | 558 | Tự động |
 | KICHBAN_KIEMTHU_765 | Webhook: chữ ký, thử lại theo lịch, dừng sau hết lượt, gửi lại, gửi thử, đổi khóa ký | 558 | Tự động |
 | KICHBAN_KIEMTHU_766 | Phân quyền: thu ngân, chủ cửa hàng, `affiliate.manage`, `finance.instore.*`, người mua khác | 559 | Tự động |
 | KICHBAN_KIEMTHU_767 | Giao diện: ứng dụng (mã, đơn, kết quả), quầy, cổng, quản trị trên bản xem trước | 559 | Thủ công, ảnh xem trước |
