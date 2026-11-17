@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_74 lát L1 xong, người dùng duyệt, yêu cầu thêm ngay Smart OTP cho đăng nhập lần đầu trên máy iPOS (đã làm trên nền nhánh CONG_VIEC_72); chuyển lát L2. Thứ tự hợp nhất vào main: CONG_VIEC_72 trước CONG_VIEC_73, 74.
 - CONG_VIEC_73 lát L1 xong (mã thanh toán động, đơn chờ; kiểm thử API 902/902), người dùng duyệt, chấp nhận 2 điểm lệch và thư viện expo-brightness; chuyển lát L2.
 - CONG_VIEC_74 lát L0 xong (pull request #188; kiểm thử API 880/880), người dùng duyệt, chấp nhận lưu thuế suất gói trực tiếp; chuyển lát L1. CONG_VIEC_73 bắt đầu viết mã lát L1 trên nền nhánh CONG_VIEC_72 (chờ người dùng thử Smart OTP trên điện thoại thật).
 - CONG_VIEC_72 trình nghiệm thu (pull request #177, commit `f776efc`): lát L1 đến L6; điều chỉnh L4 khôi phục qua đăng nhập mật khẩu và phiên chờ, không dùng API_320; điều chỉnh L6 (a đến f). Hợp nhất main v0.13.0 vào nhánh; kiểm thử API 894/894. Rà soát bảo mật sửa lỗi thành viên cổng tự đăng ký ứng dụng xác thực sau thời hạn. Còn người dùng thử trên điện thoại thật.
