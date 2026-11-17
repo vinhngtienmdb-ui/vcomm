@@ -1,10 +1,10 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-17
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04 (2026-11-09); THAY_DOI_30 (2026-11-12)
 
 ## 1. Phạm vi sản phẩm
 
@@ -61,7 +61,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 | MODULE_13 Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ |
 | MODULE_14 Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách |
 | MODULE_15 Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn |
-| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI (quản lý sản xuất bỏ theo THAY_DOI_30) |
+| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI (quản lý sản xuất đã bỏ theo THAY_DOI_30) |
 
 ## 3. Phạm vi ngoài
 

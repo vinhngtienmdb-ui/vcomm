@@ -7,7 +7,7 @@
 - Mức: Lớn (module mới, đổi phân quyền, thêm điểm tiếp nhận công khai, sửa cấu trúc dữ liệu bán hàng).
 - Nhánh: `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 3 (MODULE_16), `05` mục 5 (phiên bản 6.x), `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-12 (mục 17).
-- Ba phần còn lại của MODULE_16: Dropship (CONG_VIEC_62), trợ lý AI (CONG_VIEC_63), quản lý sản xuất (CONG_VIEC_64).
+- Ba phần còn lại của MODULE_16: Dropship (CONG_VIEC_62), trợ lý AI (CONG_VIEC_63), quản lý sản xuất (CONG_VIEC_64, đã hủy; đã bỏ theo THAY_DOI_30).
 
 ## 1. Mục tiêu
 
