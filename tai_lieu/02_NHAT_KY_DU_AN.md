@@ -26,6 +26,7 @@
 
 ### Quyết định
 
+- Người dùng nghiệm thu LOI_15 (pull request #196), phát hành bản vá 0.13.1; mở CONG_VIEC_75 (chặn bằng kiểu việc gửi dữ liệu sai cách ở hàm gọi API của ứng dụng di động). CONG_VIEC_73: duyệt lát L3, giữ chọn khách bằng số điện thoại; cửa hàng tắt thu hộ hoàn tất khi khách xác nhận. CONG_VIEC_74: duyệt phần đã làm của lát L4.
 - CONG_VIEC_74: duyệt lát L3 (4 điều chỉnh); lát L4 nội dung chuyển khoản VietQR là mã điểm bán cộng mã yêu cầu, duyệt qrcode-generator 2.0.4. CONG_VIEC_73: voucher làm ở L4 cùng cửa hàng liên kết; phiên điều phối cài expo-brightness 58.0.2 (bản 58.0.3 chưa đủ 2 tuần) vì phiên con bị chặn lệnh cài.
 - LOI_15 (Cao, ứng dụng VComm màn hình cửa hàng liên kết gửi thân rỗng): người dùng chọn sửa ngay, phát hành bản vá 0.13.1. CONG_VIEC_73: duyệt lát L2. CONG_VIEC_74: duyệt lát L2, bốn thư viện in (Bluetooth kèm phương án dự phòng), in hóa đơn dạng chữ.
 - CONG_VIEC_74: người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm đề xuất (pull request #188; quản trị trong cổng cửa hàng liên kết; số hóa đơn theo điểm bán; PIN 6 số trên máy đã ghép; mặc định cho bán tồn âm; giá gồm thuế; phí thuê bao ghi doanh thu 511 khi lập phiếu cả kỳ); iPOS gọi thẳng service trong backend; mở rộng THAY_DOI_39 cho khoản phí thuê bao trong bảng đối soát tuần và bảng chuyển tiền thu hộ; giữ mã thừa cho đợt 2. CONG_VIEC_72: người dùng duyệt lát L6 kèm 6 điều chỉnh.
