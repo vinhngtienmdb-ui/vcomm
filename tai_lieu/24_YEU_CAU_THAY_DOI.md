@@ -556,3 +556,14 @@
 - Mức quy mô: Lớn; làm trong CONG_VIEC_72.
 - Rủi ro: cao (đổi cách xác thực của người mua); giảm bằng thời hạn chuyển đổi, thiết bị tin cậy nạp sẵn, khóa dùng điểm khi khôi phục.
 - Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đang làm trong CONG_VIEC_72.
+
+### THAY_DOI_38: Mua hàng tại cửa hàng thanh toán trong ứng dụng VComm, thu hộ và hóa đơn ủy nhiệm – 2026-11-17
+- Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_73.
+- Nội dung thay đổi: mã thanh toán động thay nhập mã Smart OTP; đơn chờ thanh toán tại quầy cửa hàng tập đoàn, cổng cửa hàng liên kết, Open API; khách chọn điểm và trả trong ứng dụng qua VNPAY (cổng khác theo khung); công ty vận hành sàn thu hộ, trừ phí sàn và phí cổng, chuyển phần còn lại theo ngày cho công ty sở hữu cửa hàng hoặc cửa hàng liên kết; VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm; webhook cho phần mềm cửa hàng. iPOS là CONG_VIEC_74.
+- Thành phần bị ảnh hưởng: CONG_VIEC_53 mục 2 (cổng thanh toán tại quầy vào phạm vi), QUYTAC_NGHIEPVU_373, 374, 377, 379; CONG_VIEC_55 mục 2 (thanh toán tiền hóa đơn qua VComm vào phạm vi), QUYTAC_NGHIEPVU_394, 396, 398 (dư nợ), 400; CONG_VIEC_67 Open API (phạm vi khóa mới `instore.checkout`, đơn chờ); CONG_VIEC_25, 32 sổ thanh toán (đơn chờ tại cửa hàng); CONG_VIEC_16 (lập hóa đơn thay người bán khác theo ủy nhiệm); CONG_VIEC_72 QUYTAC_NGHIEPVU_560, 569 (thêm mã thanh toán động; chỉ dùng lại mã của CONG_VIEC_72).
+- Dữ liệu, API, giao diện, quyền: database migration 0161 đến 0164; API_327 đến 334; MAN_HINH_276 đến 282; quyền mới `finance.instore.view`, `finance.instore.manage` (nhạy cảm; mặc định Kế toán trưởng, Quản trị công ty tại công ty vận hành sàn); không thêm thư viện (tự vẽ mã vạch Code 128).
+- Không đổi: bảng đối soát điểm tuần (A đến F), cách 3 số điện thoại, đặt hàng VComm.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_750 đến 767; hồi quy KICHBAN_KIEMTHU_514, 515, 517, 519, 533 đến 546, 693 đến 704, 734 đến 749, 376 đến 378, kịch bản cổng của CONG_VIEC_33 đến 42, kịch bản hóa đơn điện tử của CONG_VIEC_16; toàn bộ kiểm thử.
+- Mức quy mô: Lớn (MODULE_06, 09, 11, 12, 14, 16); làm trong CONG_VIEC_73.
+- Rủi ro: trung gian thanh toán khi thu hộ cửa hàng liên kết (công tắc theo cửa hàng mặc định tắt đến khi người dùng xác nhận hồ sơ pháp lý); ủy nhiệm lập hóa đơn (người dùng xác nhận tính hợp lệ, thủ tục với cơ quan thuế); tài khoản kế toán do kế toán trưởng xác nhận trước lát L4; phụ thuộc CONG_VIEC_72.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu, 16 điểm đề xuất). Đang làm trong CONG_VIEC_73.
