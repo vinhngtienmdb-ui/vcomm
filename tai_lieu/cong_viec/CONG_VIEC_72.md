@@ -495,3 +495,35 @@ Mỗi lát dừng ở điểm xem trước chờ phản hồi. Kết thúc: ch�
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa thực hiện.
+
+## 21. Hướng dẫn thử trên điện thoại thật bằng Expo Go
+
+Phần sinh trắc học, mã khóa, lưu khóa trong bộ nhớ an toàn của máy chỉ thử được trên điện thoại thật (KICHBAN_KIEMTHU_737, 738). Cần hai điện thoại (máy A, máy B) hoặc một điện thoại và một máy giả lập, cùng mạng Wi-Fi với máy tính chạy API.
+
+### 21.1. Chuẩn bị
+
+1. Máy tính: chạy PostgreSQL, Redis; tại gốc dự án nạp `.env`, chạy `pnpm --filter api build && pnpm --filter api db:migrate && pnpm --filter api db:seed`, rồi `pnpm --filter api dev` (cổng 4000).
+2. Tìm địa chỉ IP máy tính trong mạng Wi-Fi (ví dụ `192.168.1.20`). Mở cổng 4000 và 8081 trên tường lửa máy tính.
+3. Chạy ứng dụng: `EXPO_PUBLIC_API_URL=http://192.168.1.20:4000/api/v1 pnpm --filter mobile-vcomm dev`. Màn hình hiện mã QR.
+4. Điện thoại: cài Expo Go (App Store, Google Play), bản hỗ trợ Expo SDK 58. Android quét mã QR trong Expo Go; iPhone quét bằng ứng dụng Camera.
+5. Mã SMS khi chưa cài eSMS: API in ra log dòng `Mã OTP thử (<mục đích>) cho +84…: <mã>`. Không dùng cách này trên môi trường thật.
+6. Điện thoại cần đã cài vân tay hoặc khuôn mặt trong phần cài đặt của máy. Lưu ý: trên iPhone, Expo Go có thể không cho dùng Face ID (hệ điều hành chỉ cho ứng dụng có khai báo riêng); khi đó ứng dụng chuyển sang mã khóa của máy hoặc mã khóa 6 số. Muốn thử Face ID đầy đủ cần bản cài đặt phát triển (development build), ngoài phạm vi lần thử này.
+
+### 21.2. Các bước thử
+
+| Bước | Thao tác | Kết quả mong đợi |
+|---|---|---|
+| 1 | Máy A: Đăng ký số mới, bật "Kích hoạt Smart OTP", nhập mã SMS | Vào bước đặt mã khóa 6 số; mã dễ đoán (sáu số giống nhau như 111111, dãy liền như 123456 hoặc 654321, sáu số cuối của số điện thoại) bị từ chối |
+| 2 | Đặt mã khóa, đồng ý dùng vân tay hoặc khuôn mặt | Thẻ Smart OTP ở Điểm thưởng hiện "••• •••" và nút "Xem mã" |
+| 3 | Bấm "Xem mã" | Hộp vân tay, khuôn mặt của hệ điều hành; đúng thì hiện mã 6 số đổi mỗi 30 giây, tự ẩn sau 60 giây |
+| 4 | Tắt sinh trắc học trong thẻ, bấm "Xem mã", nhập sai mã khóa 4 lần, đúng lần 5 | Báo số lần còn lại; lần đúng hiện mã |
+| 5 | Nhập sai mã khóa 5 lần liên tiếp | Smart OTP trên máy bị xóa; máy chủ hủy Smart OTP (nhật ký `smart_otp.revoke` lý do sai mã khóa); thẻ quay về "Kích hoạt" |
+| 6 | Kích hoạt lại trên máy A (mã SMS) | Tính là khôi phục: dải "Tạm khóa dùng điểm đến …" 24 giờ; tích điểm vẫn bình thường |
+| 7 | Máy B: đăng nhập cùng số bằng mật khẩu | Màn hình "Xác nhận đăng nhập trên thiết bị mới"; nhập mã đang hiện trên máy A thì vào được; máy A nhận thông báo đăng nhập máy mới |
+| 8 | Máy B: Điểm thưởng → "Chuyển Smart OTP sang máy này", nhập mã máy A | Máy B giữ Smart OTP, đặt mã khóa mới; máy A thẻ báo Smart OTP ở máy khác; không bị khóa dùng điểm |
+| 9 | Máy B: Tài khoản → Thiết bị đã đăng nhập, gỡ máy A | Máy A bị đăng xuất ở lần gọi tiếp theo |
+| 10 | Máy A: đăng nhập lại bằng mật khẩu, chọn "Không còn máy giữ Smart OTP" | Gửi mã SMS, kích hoạt trên máy A, đặt mã khóa; khóa dùng điểm 24 giờ; máy B mất Smart OTP |
+| 11 | Quên mật khẩu trên máy B (sau khi chuyển lại Smart OTP sang B): nhập số, mã Smart OTP trên máy B, mật khẩu mới | Đặt được; các máy khác bị đăng xuất |
+| 12 | Tại quầy (web-retail) hoặc cổng cửa hàng: khách vừa khôi phục đổi điểm | Báo khách đang tạm khóa dùng điểm đến … |
+
+Ghi kết quả từng bước (đạt, không đạt, ảnh chụp nếu lỗi) gửi phiên điều phối để ghi tài liệu `25`.
