@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 bổ sung sau nghiệm thu
+- Phạm vi: QUYTAC_NGHIEPVU_574 chặn mã thành viên cũ sau thời hạn chuyển đổi (409 affiliateMemberCodeRetired ở cấp mã, lập giao dịch trên cổng, Open API, tra điểm Open API; ứng dụng ẩn thẻ Mã thành viên trên MAN_HINH_181 sau hạn); commit `450105e`. Phát hiện khi đối chiếu tài liệu chung với mã; yêu cầu đã duyệt trong đặc tả.
+- Kết quả: KICHBAN_KIEMTHU_751 (c55-transactions, c67-open-affiliate) đạt; toàn bộ kiểm thử API 169 tệp, 945 đạt; kiểm tra kiểu API và ứng dụng VComm đạt.
+- Kết luận: Đạt.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L7 và nghiệm thu toàn bộ
 - Phạm vi: hủy và hoàn tiền giao dịch thu hộ, ghi ngược L, Open API đơn chờ (API_330), webhook (API_331), hoàn tiền đơn tại cửa hàng trên MAN_HINH_98 (database migration 0172); toàn bộ lát L1 đến L7, nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `62797ed`).
 - Kết quả: toàn bộ kiểm thử API một tiến trình 169 tệp, 944 đạt; TIEUCHI_NGHIEMTHU_546 đến 559 có mã và kiểm thử. Sửa thêm lỗi sẵn có của CONG_VIEC_67 (sửa khóa API trả 500).
