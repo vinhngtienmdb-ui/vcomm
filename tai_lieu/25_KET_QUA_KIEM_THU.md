@@ -183,6 +183,12 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L3
+- Phạm vi: bán hàng tiền mặt, ca, thu chi, đóng ca, giỏ treo, hóa đơn, in và in lại, mở ngăn kéo, cài đặt bán hàng (database migration 0168, API_337 đến 340, 342, 352, MAN_HINH_285 đến 289, 291, 292, 302); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `f1617786`, `d5238fd6`).
+- Kết quả: kiểm thử c74 và c55 39/39 đạt (c74-sales: KICHBAN_KIEMTHU_780 phần tồn âm, 781, 782, 783, 785 ba quầy 300 hóa đơn số liên tục); typecheck 20/20, lint 5/5; cài theo tệp khóa phiên bản đạt; mẫu in 58 mm, 80 mm kiểm bằng bản xem trước chữ (KICHBAN_KIEMTHU_788).
+- Chưa kiểm: chưa dựng bản Android; in thật trên Sunmi T2 (KICHBAN_KIEMTHU_787), ngắt mạng trên máy thật (KICHBAN_KIEMTHU_786), Bluetooth chờ máy thật.
+- Kết luận: Đạt phần tự động lát L3; người dùng duyệt điểm xem trước 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L2
 - Phạm vi: hàng hóa, tồn kho (database migration 0167, API_345, 346, 347, MAN_HINH_294, 295); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `eefdbd7b`).
 - Kết quả: kiểm thử c74 và c55 31/31 đạt (c74-catalog: KICHBAN_KIEMTHU_774, 778 đến 780); typecheck 20/20, lint 5/5; không thêm thư viện.
