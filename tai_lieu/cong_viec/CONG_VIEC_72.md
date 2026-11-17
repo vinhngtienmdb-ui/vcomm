@@ -472,6 +472,12 @@ Sửa:
   - Đặt lại xác thực không làm được với tài khoản nhân viên bắt buộc xác thực hai lớp (`409 merchantPortalResetStaff`), để chủ cửa hàng không xóa được ứng dụng xác thực của nhân viên. Đặt lại thu hồi mọi phiên web của tài khoản.
   - Ứng dụng xác thực, mã dự phòng theo tài khoản: người là thành viên nhiều cửa hàng bị đặt lại ở một cửa hàng thì thiết lập lại cho mọi cửa hàng.
   - Quên mật khẩu cổng: sai mã 5 lần trong 15 phút thì tạm khóa 15 phút (`423`).
+- Đối chiếu khi cập nhật tài liệu (2026-11-17), tài liệu 17 ghi theo mã:
+  - API_117 đăng nhập trả `verificationMethod` (một giá trị: `smart_otp`, `sms`, `smart_otp_activation` hoặc trống) thay `verificationMethods`.
+  - API_199 trạng thái trả `platform`, `onThisDevice`, `redeemLockedUntil`, `transitionEndsOn` (ngày cuối thời hạn); không có `webActivationExpiresAt` (Smart OTP bản web hết hiệu lực cùng ngày cuối thời hạn).
+  - `/buyer/login/otp` với khách đã kích hoạt hoặc hết hạn vẫn trả `204` nhưng không gửi tin, mã nhập vào trả `401 otpInvalid` (không lộ trạng thái); không dùng `409 smartOtpPreferred`.
+  - API_307 báo giá đổi điểm trả `smartOtpRequired`, `smartOtpActive`; đang khóa dùng điểm thì tạo giao dịch trả `409 loyaltyRedeemLocked`. Lỗi không kèm giờ hết khóa; giờ hết khóa xem qua `redeemLockedUntil` của API_198, API_199, API tra điểm Open API.
+  - Thiết bị tin cậy hết hạn sau 360 ngày không dùng (12 tháng 30 ngày).
 
 ## 18. Các lát và điểm xem trước
 

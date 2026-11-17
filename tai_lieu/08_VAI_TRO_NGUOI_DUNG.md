@@ -1002,3 +1002,25 @@ Vai trò khác: quản trị công ty tự gán `ai.chat.use`, `ai.product_conte
 | CHUC_NANG_228 Soạn nội dung | Có | Có | Không | Có | Không |
 | CHUC_NANG_229 Hội thoại, đánh giá | Chỉ của mình | Chỉ của mình | Chỉ của mình | — | Không |
 | CHUC_NANG_229 Thống kê | Mọi công ty | Công ty mình | Không | Không | Công ty được gán (không nội dung) |
+
+## 60. Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+- Một quyền mới của mini app Khách hàng và Đối tác (`crm`), chỉ xét tại công ty vận hành sàn (database migration 0160; danh mục `apps/api/src/permissions/permission-catalog.ts`). Quản trị tập đoàn, Quản trị công ty có sẵn; giao cho nhân viên chăm sóc khách hàng qua vai trò tùy chỉnh.
+- Quyền dùng lại: `marketplace.buyer.view` xem khối "Bảo mật đăng nhập" của người mua (MAN_HINH_80), tham số chuyển đổi, thống kê (MAN_HINH_275); `marketplace.buyer.manage` (nhạy cảm) sửa tham số chuyển đổi; `affiliate.manage` đặt lại xác thực cổng cho chủ, thu ngân (MAN_HINH_178).
+- Vai trò cổng cửa hàng liên kết: chủ cửa hàng đặt lại xác thực cho thu ngân của cửa hàng mình (MAN_HINH_177), không đặt cho chủ khác, cửa hàng khác. Không ai đặt lại được từ cổng cho tài khoản nhân viên bắt buộc xác thực hai lớp.
+- Người mua: chỉ xem, gỡ thiết bị của mình; kích hoạt, chuyển, tự hủy Smart OTP của mình. Yêu cầu xác thực hai lớp của cổng chỉ áp khi đăng nhập cổng; người là thành viên cổng đồng thời là người mua không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm.
+
+| Quyền | Mini app | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|---|
+| `marketplace.buyer.security` | Khách hàng và Đối tác (`crm`) | Công ty vận hành sàn | Có | Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | `marketplace.buyer.view` | `marketplace.buyer.manage` | `marketplace.buyer.security` | `affiliate.manage` | Chủ cửa hàng | Thu ngân | Người mua |
+|---|---|---|---|---|---|---|---|
+| Xem tham số chuyển đổi, thống kê (MAN_HINH_275) | Có | Có (cần cả quyền xem) | Không | Không | Không | Không | Không |
+| Sửa tham số chuyển đổi | Không | Có | Không | Không | Không | Không | Không |
+| Xem khối "Bảo mật đăng nhập" của người mua (MAN_HINH_80) | Có | — | Cần cả quyền xem | Không | Không | Không | Không |
+| Hủy Smart OTP của người mua | Không | Không | Có | Không | Không | Không | Tự hủy của mình |
+| Đặt lại xác thực cổng cho thu ngân | Không | Không | Không | Có (MAN_HINH_178) | Có, cửa hàng mình (MAN_HINH_177) | Không | Không |
+| Đặt lại xác thực cổng cho chủ cửa hàng | Không | Không | Không | Có (MAN_HINH_178) | Không | Không | Không |
+| Thiết lập bảo mật, quên mật khẩu cổng | Không | Không | Không | Không | Của mình | Của mình | Không |
+| Thiết bị đã đăng nhập, kích hoạt, chuyển Smart OTP | Không | Không | Không | Không | Không | Không | Của mình |
