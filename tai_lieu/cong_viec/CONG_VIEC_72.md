@@ -500,7 +500,12 @@ Mỗi lát dừng ở điểm xem trước chờ phản hồi. Kết thúc: ch�
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa thực hiện.
+Ngày 2026-11-17, trên commit `1fc0904` (đã hợp nhất main v0.13.0):
+- Lập trình đủ sáu lát L1 đến L6; người dùng duyệt từng điểm xem trước và các điều chỉnh ghi ở mục 17.
+- Kiểm thử: toàn bộ kiểm thử API một tiến trình 161 tệp, 894/894 đạt; KICHBAN_KIEMTHU_734 đến 736, 739 đến 749 tự động (`apps/api/test/c72-*.test.ts`); 737, 738 thử tay trên điện thoại thật theo mục 21 (chờ người dùng). Kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform, web-retail đạt; khóa dịch khớp. CI pull request #177 đạt.
+- Bảo mật: rà soát xong, đã sửa một lỗi (thành viên cổng bị chặn tự đăng ký ứng dụng xác thực); kết quả ở tài liệu `22`.
+- Tài liệu: 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 17, 21, 22, 27, 28 đã cập nhật trên nhánh; sổ dùng chung 02, 03, 24, 25 gửi phiên điều phối.
+- Còn mở (không chặn nghiệm thu mã): người dùng thử trên máy thật (mục 21); đăng ký ba mẫu ZNS và nhập số tổng đài trước khi triển khai.
 
 ## 21. Hướng dẫn thử trên điện thoại thật bằng Expo Go
 
