@@ -17,6 +17,7 @@ import { useApi } from "ui/lib/use-api";
 import { AffiliateApiKeys } from "@/components/AffiliateApiKeys";
 import { IposMerchantBlock } from "@/components/IposMerchantBlock";
 import { AffiliateCollection } from "@/components/AffiliateCollection";
+import { AffiliateEinvoiceMandate } from "@/components/AffiliateEinvoiceMandate";
 import { merchantStatusClass, TermsFields, termsBody, type TermsForm } from "@/components/AffiliateTerms";
 
 const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
@@ -324,6 +325,7 @@ export default function AffiliateMerchantPage() {
             )}
           </section>
           <AffiliateCollection merchantId={data.id} onSaved={(message) => done(message)} />
+          <AffiliateEinvoiceMandate merchantId={data.id} onSaved={(message) => done(message)} />
           <section className="the">
             <div className="tieu-de">
               <h2>{t("outlets")}</h2>

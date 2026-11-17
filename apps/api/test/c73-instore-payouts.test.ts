@@ -135,8 +135,14 @@ describe("Hạch toán và bảng chuyển tiền thu hộ (QUYTAC_NGHIEPVU_585,
       "INSERT INTO instore.payout_deductions (recipient_kind, merchant_id, business_date, kind, amount, note) VALUES ('merchant', $1, $2, 'ipos_subscription', 500000, 'Phí thuê bao iPOS tháng 11')",
       [fixture.merchantId, fixture.today],
     );
+    // Móc khoản trừ của CONG_VIEC_74 chạy trong giao dịch lập bảng.
+    const hooked: { documentNo: string; amount: number; deductions: string[] }[] = [];
+    service.registerDeductionHook("ipos_subscription", async (_transaction, payout, deductions) => {
+      hooked.push({ documentNo: payout.documentNo, amount: payout.amount, deductions: deductions.map((item) => item.amount) });
+    });
     const first = await service.generateDaily(fixture.today);
     expect(first).toHaveLength(1);
+    expect(hooked).toEqual([{ documentNo: expect.stringMatching(/^CT/), amount: 0, deductions: ["500000.0000"] }]);
     // Chạy lại không lập trùng.
     expect(await service.generateDaily(fixture.today)).toEqual([]);
     const list = (await fixture.call("get", "/finance/instore/payouts")).body;
