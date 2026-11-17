@@ -812,7 +812,17 @@
     "merchantPortalSmsDisabled": "Cổng cửa hàng không còn đăng nhập bằng mã SMS. Đăng nhập bằng mật khẩu và mã ứng dụng xác thực.",
     "merchantPortalPasswordNotNeeded": "Tài khoản đã có mật khẩu.",
     "merchantPortalResetStaff": "Tài khoản này là tài khoản nhân viên bắt buộc xác thực hai lớp, không đặt lại được từ cổng cửa hàng.",
-    "mfaResetLocked": "Nhập sai mã quá 5 lần. Thử lại sau 15 phút."
+    "mfaResetLocked": "Nhập sai mã quá 5 lần. Thử lại sau 15 phút.",
+    "instorePayCodeInvalid": "Mã thanh toán không đúng hoặc đã hết hạn. Nhờ khách mở lại Mã thanh toán trong ứng dụng VComm.",
+    "instorePayCodeLocked": "Smart OTP của khách đang tạm khóa 15 phút do sai mã nhiều lần.",
+    "instoreScanLocked": "Quét sai mã thanh toán quá 10 lần trong một giờ. Tạm khóa quét mã, thử lại sau.",
+    "instorePayCodeOtherDevice": "Smart OTP của bạn đang ở máy khác. Chuyển Smart OTP sang máy này để dùng Mã thanh toán.",
+    "instoreCheckoutNotFound": "Không tìm thấy đơn hoặc mã đã hết hạn. Nhờ cửa hàng tạo mã mới.",
+    "instoreCheckoutTaken": "Đơn đang được khách khác thanh toán.",
+    "instoreCheckoutHasBuyer": "Đơn đã có khách.",
+    "instoreCheckoutClosed": "Đơn đã hoàn tất, hết hạn hoặc bị hủy.",
+    "instoreClaimLocked": "Mở mã thanh toán sai quá nhiều lần. Tạm khóa, thử lại sau.",
+    "instoreRegisterBusy": "Quầy đang có đơn chờ khách thanh toán. Hủy đơn đó hoặc chờ hết hạn rồi tạo đơn mới."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4530,7 +4540,21 @@
     "partnerActivateSmartOtp": "Đã hết thời hạn chuyển đổi: kích hoạt Smart OTP để đổi điểm ra đối tác.",
     "partnerSmartOtpHere": "Máy này đang giữ Smart OTP: bấm \"Lấy mã trên máy này\", mở bằng vân tay hoặc mã khóa, mã tự điền.",
     "smartOtpReminder": "Kích hoạt Smart OTP trước hết ngày {date} (còn {days} ngày): sau ngày này, dùng điểm và đăng nhập trên máy mới cần Smart OTP thay tin nhắn SMS.",
-    "smartOtpReminderWeb": "Smart OTP trên trình duyệt hết hiệu lực sau ngày {date} (còn {days} ngày). Cài ứng dụng VComm và kích hoạt trên điện thoại."
+    "smartOtpReminderWeb": "Smart OTP trên trình duyệt hết hiệu lực sau ngày {date} (còn {days} ngày). Cài ứng dụng VComm và kích hoạt trên điện thoại.",
+    "payCodeTitle": "Mã thanh toán",
+    "payCodeEntry": "Thanh toán tại cửa hàng",
+    "payCodeEntryHint": "Đưa Mã thanh toán cho thu ngân quét để dùng điểm và trả tiền ngay trên ứng dụng.",
+    "payCodeBarcode": "Mã vạch thanh toán",
+    "payCodeQr": "Mã QR thanh toán",
+    "payCodeNeedsSmartOtp": "Kích hoạt Smart OTP trên máy này để dùng Mã thanh toán.",
+    "payCodeOtherDevice": "Smart OTP của bạn đang ở máy khác. Chuyển Smart OTP sang máy này để dùng Mã thanh toán.",
+    "payCodeOpenSmartOtp": "Mở Smart OTP",
+    "payCodeUnlockHint": "Mở Smart OTP để hiện Mã thanh toán.",
+    "payCodeRefresh": "Mã đổi sau {seconds} giây · không cần mạng",
+    "payCodeHint": "Sau khi thu ngân quét, đơn hiện ngay trên màn hình này để bạn chọn điểm và thanh toán.",
+    "payCodeRedeemLocked": "Dùng điểm tạm khóa đến {time} do vừa khôi phục Smart OTP. Bạn vẫn tích điểm và thanh toán được.",
+    "payCodeCheckoutWaiting": "{store} · {place} đang chờ bạn thanh toán",
+    "payCodeCheckoutExpires": "Hết hạn lúc {time}"
   },
   "buyers": {
     "title": "Tài khoản người mua",

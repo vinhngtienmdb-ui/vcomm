@@ -812,7 +812,17 @@
     "merchantPortalSmsDisabled": "The store portal no longer accepts SMS sign-in. Sign in with your password and authenticator code.",
     "merchantPortalPasswordNotNeeded": "This account already has a password.",
     "merchantPortalResetStaff": "This is a staff account with mandatory two-step verification; it cannot be reset from the store portal.",
-    "mfaResetLocked": "Too many wrong codes. Try again in 15 minutes."
+    "mfaResetLocked": "Too many wrong codes. Try again in 15 minutes.",
+    "instorePayCodeInvalid": "The payment code is wrong or expired. Ask the customer to reopen the Payment code in the VComm app.",
+    "instorePayCodeLocked": "The customer's Smart OTP is locked for 15 minutes after too many wrong codes.",
+    "instoreScanLocked": "More than 10 wrong payment codes scanned in an hour. Scanning is paused, try again later.",
+    "instorePayCodeOtherDevice": "Your Smart OTP is on another device. Move Smart OTP to this device to use the Payment code.",
+    "instoreCheckoutNotFound": "Order not found or the code has expired. Ask the store for a new code.",
+    "instoreCheckoutTaken": "Another customer is paying this order.",
+    "instoreCheckoutHasBuyer": "This order already has a customer.",
+    "instoreCheckoutClosed": "This order is completed, expired or cancelled.",
+    "instoreClaimLocked": "Too many wrong payment codes opened. Paused, try again later.",
+    "instoreRegisterBusy": "This register already has an order waiting for payment. Cancel it or wait until it expires."
   },
   "login": {
     "title": "Sign in",
@@ -4530,7 +4540,21 @@
     "partnerActivateSmartOtp": "The transition period has ended: activate Smart OTP to exchange points to a partner.",
     "partnerSmartOtpHere": "This phone holds Smart OTP: tap \"Get the code on this phone\", open it with fingerprint, face or lock code, and the code fills in.",
     "smartOtpReminder": "Activate Smart OTP by the end of {date} ({days} days left): after that, spending points and signing in on a new phone need Smart OTP instead of text messages.",
-    "smartOtpReminderWeb": "Browser Smart OTP stops working after {date} ({days} days left). Install the VComm app and activate it on your phone."
+    "smartOtpReminderWeb": "Browser Smart OTP stops working after {date} ({days} days left). Install the VComm app and activate it on your phone.",
+    "payCodeTitle": "Payment code",
+    "payCodeEntry": "Pay in store",
+    "payCodeEntryHint": "Show the Payment code to the cashier to use points and pay right in the app.",
+    "payCodeBarcode": "Payment barcode",
+    "payCodeQr": "Payment QR code",
+    "payCodeNeedsSmartOtp": "Activate Smart OTP on this device to use the Payment code.",
+    "payCodeOtherDevice": "Your Smart OTP is on another device. Move Smart OTP to this device to use the Payment code.",
+    "payCodeOpenSmartOtp": "Open Smart OTP",
+    "payCodeUnlockHint": "Unlock Smart OTP to show the Payment code.",
+    "payCodeRefresh": "Code changes in {seconds} seconds · works offline",
+    "payCodeHint": "After the cashier scans, the order appears on this screen so you can choose points and pay.",
+    "payCodeRedeemLocked": "Using points is paused until {time} after Smart OTP recovery. You can still earn points and pay.",
+    "payCodeCheckoutWaiting": "{store} · {place} is waiting for your payment",
+    "payCodeCheckoutExpires": "Expires at {time}"
   },
   "buyers": {
     "title": "Buyer accounts",

@@ -84,7 +84,7 @@ Ngoài phạm vi:
 ### QUYTAC_NGHIEPVU_574 – Mã thanh toán động
 
 - Chỉ có trên ứng dụng điện thoại đã kích hoạt Smart OTP (CONG_VIEC_72). Muốn hiện mã phải mở Smart OTP (mã khóa hoặc sinh trắc học).
-- Nội dung: 18 chữ số = mã thanh toán của thiết bị (12 chữ số ngẫu nhiên, cấp khi kích hoạt hoặc chuyển Smart OTP, đổi khi kích hoạt lại; không chứa số điện thoại, tên) + mã TOTP 6 số hiện tại của Smart OTP.
+- Nội dung: 18 chữ số = mã thanh toán của thiết bị (12 chữ số ngẫu nhiên; ứng dụng xin qua API_327 lần đầu mở Mã thanh toán sau mỗi lần kích hoạt, chuyển Smart OTP; mã gắn với lần kích hoạt nên kích hoạt lại, chuyển máy thì mã cũ hết hiệu lực; xin lại thì mã cũ hết hiệu lực; không chứa số điện thoại, tên) + mã TOTP 6 số hiện tại của Smart OTP.
 - Ứng dụng hiện cùng lúc mã QR và mã vạch Code 128 của 18 chữ số, kèm 18 chữ số chia nhóm để nhập tay; đổi mỗi 30 giây, không cần mạng; tăng độ sáng màn hình khi hiện mã.
 - Máy chủ kiểm: tìm thiết bị theo 12 số đầu (lưu băm HMAC-SHA256), kiểm 6 số cuối như Smart OTP: bước 30 giây, lệch một bước, mỗi bước dùng một lần, sai dùng chung bộ đếm sai của tài khoản (5 lần khóa 15 phút). 12 số đầu không khớp thiết bị nào: báo "Mã không hợp lệ", tính vào giới hạn quét sai của thu ngân, khóa API (QUYTAC_NGHIEPVU_592).
 - Khóa dùng điểm sau khôi phục Smart OTP: vẫn định danh được khách, tích điểm, trả tiền; không dùng điểm (ứng dụng báo thời điểm hết khóa).
@@ -97,7 +97,7 @@ Ngoài phạm vi:
 - Cửa hàng tập đoàn: giá, khuyến mãi tính như bán tại quầy khi tạo; giữ hàng tại kho bán theo số lượng (CONG_VIEC_05) đến khi hoàn tất, hết hạn hoặc hủy; tiền thay đổi so với lúc xem thì báo như hiện nay.
 - Hạn: 10 phút kể từ khi tạo. Trạng thái: chờ khách, chờ thanh toán (khách đã bấm thanh toán), hoàn tất, hết hạn, đã hủy, khách từ chối.
 - Thu ngân, chủ cửa hàng, khóa API hủy được đơn khi chưa hoàn tất. Đóng ca bị chặn khi ca còn đơn chờ thanh toán.
-- Giới hạn: mỗi quầy tập đoàn một đơn chờ; mỗi thu ngân cửa hàng liên kết (cổng hoặc iPOS) ba đơn chờ; mỗi khóa API theo giới hạn tần suất hiện có.
+- Giới hạn: mỗi quầy tập đoàn một đơn chờ (còn đơn chờ trong hạn thì báo "Quầy đang có đơn chờ khách thanh toán"; đơn quá hạn mà việc nền chưa đóng thì đóng luôn khi tạo đơn mới); mỗi thu ngân cửa hàng liên kết (cổng hoặc iPOS) ba đơn chờ; mỗi khóa API theo giới hạn tần suất hiện có.
 - Mỗi lần tạo mang khóa yêu cầu duy nhất; gửi lại cùng khóa trả đơn đã tạo.
 
 ### QUYTAC_NGHIEPVU_576 – Luồng 1: cửa hàng quét mã động
@@ -284,7 +284,8 @@ Sửa màn hình đã có:
 | 0161 (L1) | `instore.checkouts` | `id`, `document_no` (`TT…`), `operator_company_id`, `kind` (`retail`, `affiliate`), `store_id` hoặc `merchant_id` và `outlet_id`, `register_id`, `shift_id`, `source` (`retail_counter`, `merchant_portal`, `open_api`, `ipos`), `created_by_user_id` hoặc `api_key_id`, `partner_checkout_code` (Open API, iPOS), `ipos_invoice_id` (trống, khóa ngoại thêm ở CONG_VIEC_74), `idempotency_key`, `bill_amount`, `lines` (jsonb), `collect_in_app`, `qr_token_hash`, `buyer_user_id`, `points`, `points_amount`, `voucher_code_id`, `voucher_amount`, `amount_due`, `status`, `expires_at`, `retail_sale_id`, `affiliate_transaction_id`, `platform_fee_percent`, `platform_fee`, `gateway_fee`, `payout_id`, `buyer_invoice_info` (jsonb), thời điểm; ràng buộc theo `kind`; chỉ mục duy nhất (`merchant_id`, `partner_checkout_code`) |
 | 0161 (L1) | `marketplace.payments` | `order_id` cho phép trống; thêm `checkout_id`; ràng buộc đúng một trong hai |
 | 0161 (L1) | `marketplace.refunds` | thêm `checkout_id`; lý do thêm `instore_cancelled` |
-| 0161 (L1) | `loyalty.smart_otp_devices` | thêm `pay_code_prefix_hash` (duy nhất) |
+| 0161 (L1) | `core.smart_otp_devices` (CONG_VIEC_72 chuyển bảng sang `core`) | thêm `pay_code_prefix_hash` (duy nhất), `pay_code_issued_for` (thời điểm kích hoạt mà mã gắn với) |
+| 0161 (L1) | `instore.attempt_failures` | `subject` (`scan:<thu ngân hoặc khóa API>`, `claim:<người mua>`), `failed_at`: đếm lần sai trong 60 phút (QUYTAC_NGHIEPVU_592) |
 | 0162 (L2) | `retail.stores` | `app_payment_enabled`, `platform_fee_percent` |
 | 0162 (L2) | `retail.sale_payments`, `retail.return_refunds` | `method` thêm `vcomm_app` (định nghĩa lại ràng buộc theo `main` mới nhất) |
 | 0163 (L4) | `affiliate.merchants` | `collection_enabled`, `collection_fee_percent`, `payout_bank_account_id` |
@@ -305,7 +306,7 @@ Nguồn chứng từ mới cho bút toán: `instore_checkout`, `instore_payout`.
 
 | Mã | Phương thức, đường dẫn | Mô tả |
 |---|---|---|
-| API_327 | `GET /buyer/instore/checkouts/pending`; `POST /buyer/instore/checkouts/claim` (`token`); `GET /buyer/instore/checkouts/{id}`; `POST /buyer/instore/checkouts/{id}/pay` (`points`, `voucherCodeId`, `method`, `invoiceInfo`, `smartOtp`); `POST /buyer/instore/checkouts/{id}/decline` | Đơn đang chờ mình (luồng 1), nhận đơn từ QR (luồng 2), xem, thanh toán (trả hướng dẫn cổng hoặc hoàn tất ngay), từ chối. Mã thanh toán của thiết bị trả kèm khi kích hoạt, chuyển Smart OTP (sửa API_199 của CONG_VIEC_53 theo bản trên `main` sau CONG_VIEC_72) |
+| API_327 | `POST /buyer/instore/pay-code` (cấp mã thanh toán của thiết bị); `GET /buyer/instore/checkouts/pending`; `POST /buyer/instore/checkouts/claim` (`token`); `GET /buyer/instore/checkouts/{id}`; `POST /buyer/instore/checkouts/{id}/pay` (`points`, `voucherCodeId`, `method`, `invoiceInfo`, `smartOtp`); `POST /buyer/instore/checkouts/{id}/decline` | Đơn đang chờ mình (luồng 1), nhận đơn từ QR (luồng 2), xem, thanh toán (trả hướng dẫn cổng hoặc hoàn tất ngay), từ chối. Cấp mã thanh toán chỉ cho thiết bị đang giữ Smart OTP, không cho bản web; không sửa API_199 của CONG_VIEC_72 |
 
 Nhân viên, cổng cửa hàng (gốc `/api/v1`):
 
@@ -452,6 +453,14 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 | L5 | Bảng chuyển tiền ngày, hạch toán hai công ty, hóa đơn phí tháng (API_333, MAN_HINH_281, 282) | Lập bảng, ghi đã chuyển, xem sổ cái |
 | L6 | Database migration 0164; hóa đơn ủy nhiệm (API_334, MAN_HINH_279 phần ủy nhiệm) | Giao dịch có hóa đơn ủy nhiệm trên bộ giả lập |
 | L7 | Open API đơn chờ, webhook (API_330, 331, sửa 231, 232) | Gọi thử API, nhận webhook ở máy nhận thử |
+
+### Kết quả lát L1 (2026-11-17)
+
+- Database migration 0161: schema `instore`, `instore.checkouts`, `instore.attempt_failures`; mã thanh toán trên `core.smart_otp_devices`; `marketplace.payments`, `marketplace.refunds` nhận đơn chờ.
+- Máy chủ: `apps/api/src/instore/pay-code.service.ts` (cấp mã, đọc mã 18 số, giới hạn quét sai), `checkouts.service.ts` (`InstoreCheckoutsService`: tạo, gắn khách bằng mã động hoặc QR, khách xem, từ chối, hủy, hết hạn; việc nền mỗi phút), `buyer-instore.controller.ts` (API_327 phần L1).
+- Ứng dụng: MAN_HINH_276 `apps/mobile-vcomm/src/app/ma-thanh-toan.tsx`, `lib/pay-code.ts` (mã thanh toán, Code 128 bộ C vẽ bằng `react-native-svg` đã có); lối vào ở trang chủ.
+- Kiểm thử: `apps/api/test/c73-instore-checkouts.test.ts` (KICHBAN_KIEMTHU_750; phần khung của 753 đến 755).
+- Chưa làm ở L1 (theo kế hoạch): thanh toán qua cổng, chọn điểm, voucher (L2); nút "Quét mã cửa hàng" và tăng độ sáng màn hình (cần thư viện `expo-brightness`, chưa đề xuất thêm); MAN_HINH_277.
 
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
