@@ -12,7 +12,8 @@ import { users } from "../database/schema";
 import { MessagingService } from "../integrations/messaging.service";
 import { AuthService, type ClientInfo, type IssuedSession, type SessionClientType } from "./auth.service";
 
-export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp" | "affiliate_redeem";
+// CONG_VIEC_74: `ipos_register` thu ngân tự đăng ký iPOS (số có thể chưa có tài khoản), `ipos_login` đăng nhập thiết bị iPOS lần đầu.
+export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp" | "affiliate_redeem" | "ipos_register" | "ipos_login";
 
 const lifetimeMinutes = 5;
 const maximumWrongCodes = 5;
@@ -43,9 +44,9 @@ export class PhoneOtpService {
       SELECT count(*)::int AS total FROM core.otp_codes WHERE phone = ${phone} AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
     if ((recent.rows[0]?.total ?? 0) >= maximumSendsPerHour) throw new ApiError("RATE_LIMITED", "otpTooMany");
     // Mã đăng ký gửi tới số chưa có tài khoản: giới hạn tổng số mỗi giờ của cả hệ thống để chặn bơm SMS tốn tiền (rà soát CONG_VIEC_23).
-    if (purpose === "register") {
+    if (purpose === "register" || purpose === "ipos_register") {
       const registered = await this.database.execute<{ total: number }>(sql`
-        SELECT count(*)::int AS total FROM core.otp_codes WHERE purpose = 'register' AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
+        SELECT count(*)::int AS total FROM core.otp_codes WHERE purpose IN ('register', 'ipos_register') AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
       if ((registered.rows[0]?.total ?? 0) >= maximumRegisterSendsPerHour) throw new ApiError("RATE_LIMITED", "otpTooMany");
     }
     const user = await this.activeUserByPhone(phone);
@@ -57,7 +58,8 @@ export class PhoneOtpService {
         INSERT INTO core.otp_codes (phone, purpose, code_hash, expires_at, created_at)
         VALUES (${phone}, ${purpose}, ${hashCode(code)}, ${new Date(now.getTime() + lifetimeMinutes * 60_000)}, ${now})`);
     });
-    if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return false;
+    // Đăng ký thu ngân iPOS gửi cả khi số đã hoặc chưa có tài khoản (QUYTAC_NGHIEPVU_605).
+    if (purpose !== "ipos_register" && (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email))) return false;
     const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null);
     // Máy phát triển chưa cài eSMS: in mã ra log để thử đăng nhập. Không bao giờ in trên môi trường thật.
     if (!sent && process.env.NODE_ENV !== "production") {

@@ -154,6 +154,14 @@ export async function replaceMemberOutlets(executor: Executor, memberId: string,
     INSERT INTO affiliate.member_outlets (member_id, outlet_id) SELECT ${memberId}::uuid, unnest(${pgArray(unique)}::uuid[])`);
 }
 
+// Kích hoạt ngay thành viên vừa mời khi số điện thoại đã xác minh bằng OTP ở nơi khác (thu ngân tự đăng ký iPOS được chủ duyệt; CONG_VIEC_74, QUYTAC_NGHIEPVU_605).
+export async function activateInvitedMember(executor: Executor, memberId: string, userId: string): Promise<void> {
+  const updated = await executor.execute(sql`
+    UPDATE affiliate.members SET user_id = ${userId}, status = 'active', activated_at = now(), invitation_expires_at = NULL, updated_at = now(), version = version + 1
+    WHERE id = ${memberId} AND status = 'invited'`);
+  if (!updated.rowCount) throw new ApiError("BUSINESS_RULE", "affiliateMemberStatusInvalid");
+}
+
 @Injectable()
 export class AffiliateMerchantsService {
   constructor(

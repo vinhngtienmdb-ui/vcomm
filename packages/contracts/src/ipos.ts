@@ -131,3 +131,154 @@ export interface IposMerchantOverview {
   availableOutlets: { id: string; name: string }[];
   canManage: boolean;
 }
+
+// ---- Lát L1: quầy, thiết bị, đăng nhập trên thiết bị, thu ngân tự đăng ký (QUYTAC_NGHIEPVU_604 đến 607) ----
+// Thiết bị gửi khóa thiết bị qua tiêu đề `x-ipos-device`.
+export const iposDeviceHeader = "x-ipos-device";
+const phone = z
+  .string()
+  .trim()
+  .transform((value) => {
+    const digits = value.replace(/[\s.()-]/g, "");
+    if (/^0\d{9}$/.test(digits)) return `+84${digits.slice(1)}`;
+    if (/^84\d{9}$/.test(digits)) return `+${digits}`;
+    return digits;
+  })
+  .pipe(z.string().regex(/^\+84\d{9}$/, "invalidPhone"));
+const otpCode = z.string().trim().regex(/^\d{6}$/, "invalidValue");
+const merchantCode = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .pipe(z.string().regex(/^CH\d{6}$/, "invalidValue"));
+
+export const iposPairSchema = z
+  .object({
+    // 8 ký tự chữ in hoa và số; cho phép gõ kèm dấu gạch, khoảng trắng.
+    code: z
+      .string()
+      .trim()
+      .transform((value) => value.replace(/[\s-]/g, "").toUpperCase())
+      .pipe(z.string().regex(/^[A-Z0-9]{8}$/, "invalidValue")),
+    model: z.string().trim().max(100).nullable().optional(),
+    appVersion: z.string().trim().max(30).nullable().optional(),
+  })
+  .strict();
+export type IposMemberRole = "owner" | "cashier";
+export interface IposDeviceMember {
+  memberId: string;
+  fullName: string;
+  role: IposMemberRole;
+  locked: boolean;
+}
+export interface IposDeviceInfo {
+  deviceId: string;
+  merchantCode: string;
+  merchantName: string;
+  outletId: string;
+  outletName: string;
+  registerId: string;
+  registerName: string;
+  subscriptionStatus: IposSubscriptionStatus | null;
+  // Người đã đặt mã PIN trên máy này.
+  members: IposDeviceMember[];
+}
+export interface IposPairResult {
+  // Khóa thiết bị chỉ trả một lần; máy lưu trong kho bảo mật.
+  deviceKey: string;
+  device: IposDeviceInfo;
+}
+export const iposLoginOtpSchema = z.object({ phone }).strict();
+export const iposLoginSchema = z.object({ phone, code: otpCode }).strict();
+// Mã PIN 6 số; không nhận 6 số giống nhau hoặc dãy tăng, giảm (kiểm ở máy chủ, lỗi `iposPinWeak`).
+export const iposPinSchema = z.object({ pin: z.string().regex(/^\d{6}$/, "invalidValue") }).strict();
+export const iposPinLoginSchema = z.object({ memberId: z.string().uuid(), pin: z.string().regex(/^\d{6}$/, "invalidValue") }).strict();
+export interface IposLoginResult {
+  tokens: { accessToken: string; refreshToken: string; accessExpiresAt: string; refreshExpiresAt: string };
+  member: IposDeviceMember & { hasPin: boolean };
+}
+export interface IposMe {
+  member: IposDeviceMember & { hasPin: boolean };
+  device: IposDeviceInfo;
+  // Hết 12 giờ kể từ đăng nhập thì phải đăng nhập lại.
+  sessionExpiresAt: string;
+}
+
+export const iposRegistrationOtpSchema = z.object({ merchantCode, phone }).strict();
+export const iposRegistrationSchema = z
+  .object({
+    merchantCode,
+    phone,
+    code: otpCode,
+    fullName: z.string().trim().min(1).max(100),
+    outletIds: z.array(z.string().uuid()).max(50),
+  })
+  .strict();
+export interface IposRegistrationOutlet {
+  id: string;
+  name: string;
+  address: string;
+}
+export interface IposRegistrationCreated {
+  id: string;
+  status: "pending";
+  expiresAt: string;
+}
+
+// Cổng cửa hàng: quyền vào nhóm iPOS, quầy, thiết bị, yêu cầu đăng ký.
+export interface IposPortalOutlet {
+  outletId: string;
+  outletName: string;
+  subscriptionId: string;
+  subscriptionStatus: IposSubscriptionStatus;
+  endsOn: string;
+  planName: string;
+  maxRegisters: number;
+  activeRegisters: number;
+}
+export interface IposPortalAccess {
+  // Có ít nhất một thuê bao chưa hủy, hoặc thuê bao đã hủy trong 12 tháng (chỉ xem).
+  enabled: boolean;
+  isOwner: boolean;
+  outlets: IposPortalOutlet[];
+  pendingRegistrations: number;
+}
+export const iposRegisterCreateSchema = z.object({ outletId: z.string().uuid(), name: z.string().trim().min(1).max(50) }).strict();
+export const iposRegisterUpdateSchema = z.object({ name: z.string().trim().min(1).max(50), status: z.enum(["active", "inactive"]), version }).strict();
+export interface IposRegisterDevice {
+  id: string;
+  model: string | null;
+  appVersion: string | null;
+  pairedAt: string;
+  pairedByName: string;
+  lastSeenAt: string;
+}
+export interface IposRegisterItem {
+  id: string;
+  outletId: string;
+  outletName: string;
+  name: string;
+  status: "active" | "inactive";
+  // Quầy đang hoạt động vượt số quầy của thuê bao (mới nhất trước) không mở ca được (QUYTAC_NGHIEPVU_597).
+  overLimit: boolean;
+  device: IposRegisterDevice | null;
+  version: number;
+}
+export interface IposPairingCode {
+  code: string;
+  expiresAt: string;
+}
+export const iposRegistrationStatuses = ["pending", "approved", "rejected", "expired"] as const;
+export type IposRegistrationStatus = (typeof iposRegistrationStatuses)[number];
+export interface IposCashierRegistration {
+  id: string;
+  fullName: string;
+  phone: string;
+  requestedOutlets: { id: string; name: string }[];
+  status: IposRegistrationStatus;
+  createdAt: string;
+  expiresAt: string;
+  reason: string | null;
+}
+export const iposRegistrationApproveSchema = z.object({ outletIds: z.array(z.string().uuid()).min(1).max(50) }).strict();
+export const iposRegistrationRejectSchema = z.object({ reason: reason.nullable() }).strict();
