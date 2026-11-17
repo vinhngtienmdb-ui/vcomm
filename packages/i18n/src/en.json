@@ -829,7 +829,8 @@
     "instoreSmartOtpRequired": "Unlock Smart OTP to use points.",
     "instoreOpenCheckouts": "This shift still has orders waiting for VComm app payment. Cancel them or wait for them to complete before closing.",
     "instorePaymentAttemptLimit": "Payment was opened more than 10 times. Ask the cashier for a new order.",
-    "instoreAmountDueRequired": "Choose a payment method for the remaining amount."
+    "instoreAmountDueRequired": "Choose a payment method for the remaining amount.",
+    "retailPayCodeOtherCustomer": "The scanned payment code does not belong to the selected customer. Check the customer or ask them to open their own payment code."
   },
   "login": {
     "title": "Sign in",
@@ -8078,7 +8079,11 @@
     "appCancel": "Cancel waiting order",
     "appNewCode": "Create new code",
     "appClose": "Close",
-    "appCancelReason": "Cancelled by cashier at the counter"
+    "appCancelReason": "Cancelled by cashier at the counter",
+    "payCode": "Customer payment code",
+    "payCodeHint": "Scan the code in the customer's VComm app (18 digits).",
+    "payCodeUseOtp": "Code cannot be scanned: enter the 6-digit Smart OTP",
+    "payCodeUseScan": "Scan payment code"
   },
   "retailSales": {
     "title": "Retail sales",

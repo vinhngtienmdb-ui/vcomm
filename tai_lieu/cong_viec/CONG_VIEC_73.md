@@ -476,6 +476,14 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - Voucher trên MAN_HINH_277 chưa làm (dời sang L3 cùng việc dùng điểm tại quầy bằng quét mã).
   - Nút tăng độ sáng màn hình ở MAN_HINH_276: người dùng đã duyệt thư viện `expo-brightness` (bản theo Expo SDK 58) nhưng lệnh cài bị hệ thống kiểm soát quyền của phiên chặn; chưa cài, chưa ghi vào tài liệu 13. Cần người dùng tự cài hoặc cho phép cài.
 
+### Kết quả lát L3 (2026-11-17)
+
+- Hóa đơn bán lẻ (API_196) nhận `customer.payCode` (18 số) thay `customer.smartOtp` khi dùng điểm; gửi cả hai bị từ chối. Máy chủ đọc mã như luồng 1 (giới hạn quét sai của thu ngân, bộ đếm sai Smart OTP của khách, mỗi bước 30 giây dùng một lần); mã của người khác báo "Mã thanh toán vừa quét không phải của khách đang chọn".
+- MAN_HINH_161: dòng điểm mặc định là ô "Mã thanh toán của khách" cho máy quét (Enter của máy quét không gửi hộp thoại); nút "Khách không quét được mã: nhập mã Smart OTP 6 số" chuyển sang ô 6 số dự phòng và ngược lại.
+- Khách vẫn được chọn bằng số điện thoại (F3) như trước. Không định danh khách bằng mã quét ở ô F3: mã chỉ dùng được một lần mỗi bước 30 giây, định danh xong thì khách phải đổi mã mới mới dùng được điểm.
+- Kiểm thử: thêm vào `apps/api/test/c73-instore-retail.test.ts` (mã đúng, mã dùng lại, mã của khách khác, mã sai, gửi cả hai loại mã, ô 6 số dự phòng).
+- Chưa làm: voucher trên MAN_HINH_277 (quầy tập đoàn chưa có voucher; đã hỏi người dùng có dời sang L4 không); nút tăng độ sáng (chờ người dùng cài `expo-brightness`).
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.

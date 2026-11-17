@@ -313,3 +313,46 @@ describe("Luồng 1 và luồng 2 tại quầy (KICHBAN_KIEMTHU_756 đến 758)"
     expect(closed.body.status).toBe("closed");
   });
 });
+
+describe("Dùng điểm tại quầy bằng quét mã thanh toán (CONG_VIEC_73 lát L3; KICHBAN_KIEMTHU_756)", () => {
+  // Mỗi bước 30 giây chỉ dùng một lần: đặt đồng hồ sang bước chưa dùng ở các kiểm thử trước.
+  const codeAt = (offsetSeconds: number) => {
+    testClock.fixed = new Date(Date.now() + offsetSeconds * 1000);
+    return minh.prefix + new TOTP({ secret: Secret.fromBase32(minh.secret), digits: 6, period: 30 }).generate({ timestamp: testClock.fixed.getTime() });
+  };
+  const sale = (customer: Record<string, unknown>, points: number, newShift: string) =>
+    call(cashier, "post", "/retail/sales", {
+      shiftId: newShift,
+      clientKey: randomUUID(),
+      lines: [rice("1")],
+      customer: { points, ...customer },
+      payments: [{ method: "cash", amount: String(110000 - points) }],
+      expectedTotal: "110000",
+    });
+
+  it("quét mã của chính khách thì dùng được điểm; mã của khách khác, mã sai, gửi cả hai loại mã thì báo", async () => {
+    const register = (await pool.query("SELECT register_id FROM retail.shifts WHERE id = $1", [shiftId])).rows[0].register_id as string;
+    const opened = await call(cashier, "post", "/retail/shifts", { registerId: register, openingCash: "0" });
+    expect(opened.status, JSON.stringify(opened.body)).toBe(201);
+    const newShift = opened.body.id as string;
+    try {
+      const before = await balance(minh.id);
+      const paid = await sale({ userId: minh.id, payCode: codeAt(300) }, 1000, newShift);
+      expect(paid.status, JSON.stringify(paid.body)).toBe(201);
+      expect(paid.body.loyalty).toMatchObject({ pointsUsed: 1000, pointsAmount: "1000" });
+      expect(await balance(minh.id)).toBe(before - 1000 + (paid.body.loyalty.pointsEarned as number));
+      // Cùng mã dùng lại (cùng bước 30 giây) không được.
+      expect((await sale({ userId: minh.id, payCode: codeAt(300) }, 1000, newShift)).status).toBe(409);
+      const other = await sale({ userId: hoa.id, payCode: codeAt(600) }, 1000, newShift);
+      expect(other.body.error.message).toBe("Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình.");
+      const wrong = await sale({ userId: minh.id, payCode: "000000000000123456" }, 1000, newShift);
+      expect(wrong.body.error.message).toBe("Mã thanh toán không đúng hoặc đã hết hạn. Nhờ khách mở lại Mã thanh toán trong ứng dụng VComm.");
+      expect((await sale({ userId: minh.id, payCode: codeAt(900), smartOtp: "123456" }, 1000, newShift)).status).toBe(400);
+      // Ô 6 số dự phòng vẫn dùng được.
+      const fallback = await sale({ userId: minh.id, smartOtp: codeAt(1200).slice(12) }, 1000, newShift);
+      expect(fallback.status, JSON.stringify(fallback.body)).toBe(201);
+    } finally {
+      testClock.fixed = null;
+    }
+  });
+});

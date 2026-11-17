@@ -31,6 +31,7 @@ import { LoyaltyLedgerService, pointsFor } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
 import { redeemLockedUntil } from "../auth/account-security";
 import { maskName, maskPhone, SmartOtpService } from "../auth/smart-otp.service";
+import { PayCodeService } from "../instore/pay-code.service";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -92,6 +93,7 @@ export class RetailSalesService {
     private readonly reservations: ReservationsService,
     private readonly loyalty: LoyaltyLedgerService,
     private readonly smartOtp: SmartOtpService,
+    private readonly payCodes: PayCodeService,
   ) {}
 
   private async counter(executor: Executor, actor: Actor, shiftId: string): Promise<RetailStore> {
@@ -251,14 +253,20 @@ export class RetailSalesService {
       WHERE sh.id = ${input.shiftId} AND sh.company_id = ${actor.companyId} AND x.client_key = ${input.clientKey} AND x.cashier_id = ${actor.userId}`)
     ).rows[0];
     if (recorded) return this.detail(actor, recorded.id);
-    // Dùng điểm: kiểm mã Smart OTP trong giao dịch riêng trước khi bán (lần sai được ghi kể cả khi bán không thành; QUYTAC_NGHIEPVU_379).
+    // Dùng điểm: kiểm mã trong giao dịch riêng trước khi bán (lần sai được ghi kể cả khi bán không thành; QUYTAC_NGHIEPVU_379).
+    // Mã thanh toán 18 số quét từ ứng dụng (CONG_VIEC_73 lát L3) phải là của chính khách đang chọn; mã 6 số khách đọc giữ làm dự phòng.
     const customer = input.customer;
     if (customer) {
       await this.shifts.requireOwnOpenShift(this.database, actor, input.shiftId);
       await this.loyaltyCustomer(this.database, customer.userId);
       if (customer.points > 0) {
-        if (!customer.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { "customer.smartOtp": "retailSmartOtpRequired" } });
-        await this.smartOtp.verify(customer.userId, customer.smartOtp, actor.companyId);
+        if (customer.payCode) {
+          const owner = await this.payCodes.resolve(customer.payCode, { subject: `user:${actor.userId}`, companyId: actor.companyId });
+          if (owner !== customer.userId) throw new ApiError("BUSINESS_RULE", "retailPayCodeOtherCustomer");
+        } else {
+          if (!customer.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { "customer.smartOtp": "retailSmartOtpRequired" } });
+          await this.smartOtp.verify(customer.userId, customer.smartOtp, actor.companyId);
+        }
       }
     }
     await this.prepareNumbering(actor);

@@ -829,7 +829,8 @@
     "instoreSmartOtpRequired": "Mở Smart OTP để dùng điểm.",
     "instoreOpenCheckouts": "Ca còn đơn chờ khách thanh toán qua ứng dụng. Hủy hoặc chờ đơn hoàn tất trước khi đóng ca.",
     "instorePaymentAttemptLimit": "Đơn đã mở thanh toán quá 10 lần. Nhờ thu ngân tạo đơn mới.",
-    "instoreAmountDueRequired": "Chọn phương thức thanh toán cho phần còn lại."
+    "instoreAmountDueRequired": "Chọn phương thức thanh toán cho phần còn lại.",
+    "retailPayCodeOtherCustomer": "Mã thanh toán vừa quét không phải của khách đang chọn. Kiểm tra lại khách hoặc nhờ khách mở Mã thanh toán của chính mình."
   },
   "login": {
     "title": "Đăng nhập",
@@ -8078,7 +8079,11 @@
     "appCancel": "Hủy đơn chờ",
     "appNewCode": "Tạo mã mới",
     "appClose": "Đóng",
-    "appCancelReason": "Thu ngân hủy tại quầy"
+    "appCancelReason": "Thu ngân hủy tại quầy",
+    "payCode": "Mã thanh toán của khách",
+    "payCodeHint": "Quét mã trên ứng dụng VComm của khách (18 số).",
+    "payCodeUseOtp": "Khách không quét được mã: nhập mã Smart OTP 6 số",
+    "payCodeUseScan": "Quét mã thanh toán"
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",

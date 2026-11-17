@@ -6272,7 +6272,8 @@ export const createRetailSaleSchema = z
       })
       .strict()
       .optional(),
-    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã Smart OTP 6 số. Tiền điểm do máy chủ tính.
+    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã thanh toán 18 số quét từ ứng dụng
+    // (CONG_VIEC_73 lát L3) hoặc mã Smart OTP 6 số khách đọc (dự phòng). Tiền điểm do máy chủ tính.
     customer: z
       .object({
         userId: z.uuid(),
@@ -6281,8 +6282,13 @@ export const createRetailSaleSchema = z
           .string()
           .regex(/^[0-9]{6}$/, "invalidValue")
           .optional(),
+        payCode: z
+          .string()
+          .regex(/^[0-9]{18}$/, "invalidValue")
+          .optional(),
       })
       .strict()
+      .refine((value) => !(value.smartOtp && value.payCode), { path: ["payCode"], message: "invalidValue" })
       .optional(),
     payments: z
       .array(
