@@ -1195,7 +1195,7 @@ export const iposFeeInvoiceListQuerySchema = z.object({
   merchantId: z.string().uuid().optional(),
   // Kỳ: tháng bắt đầu kỳ dạng YYYY-MM.
   period: z.string().regex(/^\d{4}-\d{2}$/).optional(),
-  overdue: z.coerce.boolean().optional(),
+  overdue: z.enum(["true", "false"]).transform((value) => value === "true").optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });

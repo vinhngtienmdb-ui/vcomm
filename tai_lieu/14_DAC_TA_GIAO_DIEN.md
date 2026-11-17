@@ -2,7 +2,7 @@
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
 - Phiên bản: 2.16
-- Ngày cập nhật: 2026-11-12
+- Ngày cập nhật: 2026-11-17
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
@@ -38,6 +38,7 @@
 - Cập nhật CONG_VIEC_59 (2026-11-12): thêm MAN_HINH_210 đến MAN_HINH_217 của MODULE_13 Văn phòng số phần 2 (chữ ký số, trình ký, kho hợp đồng; mini app `web-office`; bản mẫu `ban_mau/MAN_HINH_210` đến `MAN_HINH_217`, đã duyệt 2026-11-12); sửa MAN_HINH_158 (công văn đi: nút Ký số, khối tiến trình phiên ký), MAN_HINH_118 (hợp đồng lao động của Nhân sự: nút Ký số); menu Văn phòng số thêm Trình ký, Hợp đồng, Kiểm tra chữ ký, Cài đặt ký số và hợp đồng
 - Cập nhật CONG_VIEC_60 (2026-11-12): thêm MAN_HINH_218 đến MAN_HINH_223 của MODULE_11 Điểm thưởng phần 2 (đối soát điểm nội bộ trong `web-finance`; quy tắc, vụ việc gian lận, báo cáo, thiết bị của ví điểm trong `web-crm`; bản mẫu MAN_HINH_218 đến 223); sửa MAN_HINH_146 (kiểu chia chi phí), MAN_HINH_147 (thẻ Thiết bị)
 - Cập nhật CONG_VIEC_65 (2026-11-16): thêm MAN_HINH_258 đến MAN_HINH_265 của MODULE_11 Điểm thưởng phần 3 (đối tác liên minh điểm ngoài tập đoàn; quản trị trong `web-crm` nhóm Điểm thưởng; liên kết, đổi điểm trên ứng dụng VComm; bản mẫu MAN_HINH_258 đến 265); sửa MAN_HINH_151 (lối vào, nhãn nguồn), MAN_HINH_147 (nhãn nguồn)
+- Cập nhật CONG_VIEC_74 (2026-11-17): thêm MAN_HINH_283 đến MAN_HINH_306 của MODULE_17 iPOS đợt 1 (ứng dụng `apps/mobile-ipos` 283 đến 292, nhóm iPOS của cổng cửa hàng `apps/web-affiliate` 293 đến 302, ERP `apps/web-crm` 303 đến 306); sửa MAN_HINH_176, 178, 180, menu cổng cửa hàng, menu `web-crm`
 
 ## MODULE_01 Nền tảng
 
@@ -3133,4 +3134,58 @@ Sửa màn hình đã có:
 Điều hướng: MAN_HINH_73 → MAN_HINH_270 → (mất máy) MAN_HINH_271 → MAN_HINH_269; MAN_HINH_76 → MAN_HINH_272; trang đăng nhập cổng → MAN_HINH_273 hoặc MAN_HINH_274. Vai trò – màn hình theo mục 60 tài liệu `08`.
 
 - Trạng thái mỗi màn hình: rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; máy tính, điện thoại.
+- Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.
+
+## MODULE_17 iPOS đợt 1: ứng dụng bán hàng, cổng cửa hàng, ERP (CONG_VIEC_74)
+
+Bản mẫu đã duyệt 2026-11-17: `ban_mau/CONG_VIEC_74_UNG_DUNG_IPOS.html` (ứng dụng iPOS), `ban_mau/CONG_VIEC_74_CONG_CUA_HANG_IPOS.html` (cổng cửa hàng), `ban_mau/CONG_VIEC_74_QUAN_TRI_IPOS.html` (ERP).
+
+Ứng dụng iPOS (`apps/mobile-ipos`, Expo, máy tính bảng Android, Sunmi; bố cục ngang, rộng tối thiểu 1024 điểm ảnh; gọi API gốc `/api/v1/ipos`):
+
+| Mã | Tên | Tệp trong mã | Nội dung | API | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_283 | Ghép thiết bị và đăng nhập | `src/app/index.tsx`, `src/components/PinPad.tsx` | Nhập mã ghép; chọn người đã đăng nhập máy này, nhập PIN; đăng nhập lần đầu bằng số điện thoại và mã Smart OTP (mã SMS khi chưa kích hoạt, trong thời hạn); đặt PIN; khóa màn hình sau 15 phút, sau đóng ca | API_335 | `ban_mau/CONG_VIEC_74_UNG_DUNG_IPOS.html` |
+| MAN_HINH_284 | Thu ngân tự đăng ký | `src/app/dang-ky.tsx` | Mã cửa hàng, danh sách điểm bán theo mã, số điện thoại, OTP, họ tên, điểm bán; trạng thái chờ duyệt | API_336 | như trên |
+| MAN_HINH_285 | Mở ca | `src/screens/OpenShift.tsx` | Quầy, tiền đầu ca, gợi ý tiền để lại, ghi chú khi khác; cảnh báo thuê bao quá hạn, chặn khi tạm khóa | API_337, API_338 | như trên |
+| MAN_HINH_286 | Bán hàng | `src/screens/Pos.tsx` (thanh trạng thái: ca, mạng, máy in, thuê bao), `src/screens/Sell.tsx` | Ô quét, tìm; lưới nhóm, mặt hàng; giỏ (số lượng, giảm dòng); giảm hóa đơn, duyệt PIN chủ khi vượt mức; khách VComm; treo giỏ | API_337, API_339, API_342 | như trên |
+| MAN_HINH_287 | Thanh toán | `src/screens/Payment.tsx`, `src/components/QrView.tsx` | Tiền mặt (mệnh giá nhanh, tiền thừa), VietQR (mã, nội dung "<mã điểm bán> <8 ký tự mã yêu cầu>", nút "Đã nhận tiền"), kết hợp; khách VComm dùng điểm, voucher (quét mã thành viên hoặc khách quét mã QR cửa hàng); ứng dụng VComm (quét mã động, mã QR đơn chờ, trạng thái chờ khách, hủy) | API_340, API_341 | như trên |
+| MAN_HINH_288 | Kết quả thanh toán | `src/screens/Sell.tsx` | Số hóa đơn, phương thức, điểm tích, dùng; trạng thái in; In lại, Đơn mới | API_340 (ghi lần in) | như trên |
+| MAN_HINH_289 | Hóa đơn trong ca | `src/screens/Sales.tsx` | Danh sách hóa đơn ca hiện tại, tìm số; chi tiết; in lại ghi "In lại lần n" | API_340 | như trên |
+| MAN_HINH_290 | Trả hàng | `src/screens/Returns.tsx` | Tìm, quét số hóa đơn; chọn dòng, số lượng; lý do; duyệt PIN chủ; hoàn tiền mặt; hủy toàn bộ hóa đơn có điểm, voucher; in phiếu `TR-…` | API_342, API_343 | như trên |
+| MAN_HINH_291 | Thu chi và đóng ca | `src/screens/CloseShift.tsx` | Thu chi (mở ngăn kéo); đếm tiền theo mệnh giá hoặc nhập tổng; tiền hệ thống, chênh lệch, lý do, để lại két; biên bản, in | API_338 (gồm `POST /ipos/pos/drawer-events`) | như trên |
+| MAN_HINH_292 | Cài đặt thiết bị | `src/screens/DeviceSettings.tsx`, `src/lib/printer-settings.ts` | Máy in (Sunmi gắn sẵn, mạng LAN địa chỉ IP và cổng, Bluetooth Classic đã ghép đôi), khổ giấy 58, 80 mm, in không dấu (máy in rời), số liên, tự in, mở ngăn kéo qua máy in, in thử; thông tin thiết bị và quầy | Không (lưu trên máy) | như trên |
+
+Cổng cửa hàng (`apps/web-affiliate`, `basePath` `/merchant`; nhóm menu "iPOS" trong `PortalShell.tsx`, chỉ chủ cửa hàng, hiện khi cửa hàng có thuê bao; gọi API gốc `/api/v1/merchant-portal/ipos`):
+
+| Mã | Tên | Đường dẫn, tệp trong mã | Nội dung | API | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_293 | Tổng quan iPOS | `/ipos/overview` (`src/app/ipos/overview/page.tsx`) | Doanh thu hôm nay, 7 ngày; ca đang mở (cảnh báo ca quá 24 giờ); cảnh báo tồn thấp; thuê bao (gói, hạn, trạng thái); yêu cầu đăng ký thu ngân chờ duyệt | API_344 | `ban_mau/CONG_VIEC_74_CONG_CUA_HANG_IPOS.html` |
+| MAN_HINH_294 | Hàng hóa | `/ipos/items` (`src/app/ipos/items/page.tsx`) | Nhóm hàng; danh sách mặt hàng (tìm, lọc nhóm, trạng thái); ngăn kéo thêm, sửa (biến thể, mã vạch, giá theo điểm bán); nhập Excel (tải mẫu, kiểm, lỗi theo dòng, ghi). Chưa có ảnh mặt hàng | API_345, API_346 | như trên |
+| MAN_HINH_295 | Tồn kho | `/ipos/stock` (`src/app/ipos/stock/page.tsx`) | Tồn theo điểm bán (lọc dưới mức, âm); phiếu nhập, phiếu điều chỉnh; lịch sử biến động | API_347 | như trên |
+| MAN_HINH_296 | Quầy và thiết bị | `/ipos/registers` (`src/app/ipos/registers/page.tsx`) | Quầy theo điểm bán, giới hạn của gói; ghép thiết bị (mã 8 ký tự, đếm ngược 10 phút); thiết bị đang ghép, lần dùng gần nhất, thu hồi | API_348 | như trên |
+| MAN_HINH_297 | Thu ngân | `/ipos/cashiers` (`src/app/ipos/cashiers/page.tsx`) | Yêu cầu tự đăng ký chờ duyệt (duyệt, gán điểm bán, từ chối); khóa, mở thu ngân dùng chức năng của MAN_HINH_177 | API_349 | như trên |
+| MAN_HINH_298 | Ca và chốt két | `/ipos/shifts` (`src/app/ipos/shifts/page.tsx`) | Danh sách ca (quầy, người, mở, đóng, chênh lệch); chi tiết biên bản; đóng hộ ca | API_350 | như trên |
+| MAN_HINH_299 | Hóa đơn và trả hàng | `/ipos/sales` (`src/app/ipos/sales/page.tsx`) | Danh sách hóa đơn, phiếu trả (lọc ngày, điểm bán, phương thức, tìm số); chi tiết | API_350 | như trên |
+| MAN_HINH_300 | Báo cáo iPOS | `/ipos/reports` (`src/app/ipos/reports/page.tsx`, `src/components/IposPeriod.tsx`) | Bộ lọc khoảng ngày (≤ 366 ngày), điểm bán; doanh thu thuần, phương thức, theo giờ, hàng bán chạy, lợi nhuận gộp, ca, tồn kho; xuất Excel một tệp nhiều trang | API_351 (`GET /reports`, `/reports/export`) | như trên |
+| MAN_HINH_301 | Thuê bao và phí | `/ipos/subscription` (`src/app/ipos/subscription/page.tsx`) | Thuê bao từng điểm bán (cảnh báo quá hạn, tạm khóa); phiếu phí (trạng thái, cách thu, số còn phải thu); mã VietQR trả phí (nội dung số phiếu `PI…`); lịch sử đã thu | API_353 | như trên |
+| MAN_HINH_302 | Cài đặt bán hàng | `/ipos/settings` (`src/app/ipos/settings/page.tsx`) | Mã điểm bán; tài khoản nhận VietQR; giảm giá tối đa của thu ngân; thời hạn trả hàng, thu ngân tự trả hàng; chặn tồn âm; mẫu in (lời chào, khổ giấy mặc định) | API_352 | như trên |
+
+ERP (`apps/web-crm`, `basePath` `/crm`, nhóm Cửa hàng liên kết trong `CrmShell.tsx`, quyền xem `affiliate.view`):
+
+| Mã | Tên | Đường dẫn, tệp trong mã | Nội dung | API | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_303 | Gói iPOS | `/crm/ipos/plans` (`src/app/ipos/plans/page.tsx`) | Danh sách gói, ngăn kéo thêm, sửa, ngừng bán (sửa: `ipos.plan.manage`) | API_354 | `ban_mau/CONG_VIEC_74_QUAN_TRI_IPOS.html` |
+| MAN_HINH_304 | Thuê bao iPOS | `/crm/ipos/subscriptions` (`src/app/ipos/subscriptions/page.tsx`); khối "iPOS" `src/components/IposMerchantBlock.tsx` trong `/crm/affiliate/merchants/<id>` (MAN_HINH_178) | Danh sách thuê bao mọi cửa hàng (lọc trạng thái, gói, hạn); khối iPOS: cách thu phí, thuê bao từng điểm bán, cấp, sửa, gia hạn, khóa tay, mở khóa, hủy (sửa: `ipos.subscription.manage`) | API_355 | như trên |
+| MAN_HINH_305 | Phí thuê bao iPOS | `/crm/ipos/fees` (`src/app/ipos/fees/page.tsx`) | Phiếu phí (lọc trạng thái, cách thu, cửa hàng, kỳ); chi tiết (bút toán, công nợ, hóa đơn điện tử, nơi đã trừ); hủy, lập lại | API_356 | như trên |
+| MAN_HINH_306 | Doanh thu và đối soát iPOS | `/crm/ipos/reconciliation` (`src/app/ipos/reconciliation/page.tsx`) | Bộ lọc khoảng ngày (mặc định 7 ngày); thẻ Doanh thu (cửa hàng, điểm bán, phương thức, số ca, chênh lệch két); thẻ Đối soát thu hộ; thẻ Đối soát điểm, voucher (dòng lệch mở chi tiết cửa hàng, hiện số chứng từ, số bảng đối soát); thẻ Phí (tổng phải thu, đã thu, quá hạn; mở MAN_HINH_305) | API_357 | như trên |
+
+Sửa màn hình đã có:
+- MAN_HINH_178 (`web-crm`): khối "iPOS" (MAN_HINH_304).
+- MAN_HINH_176, 180: dòng "(G) Phí thuê bao iPOS (đã gồm thuế)" khi bảng đối soát tuần có G (`packages/ui/src/components/AffiliateSettlement.tsx`).
+- Menu cổng cửa hàng: nhóm "iPOS" (số yêu cầu đăng ký chờ duyệt cạnh mục Thu ngân); menu `web-crm`: Gói iPOS, Thuê bao iPOS, Phí thuê bao iPOS, Doanh thu và đối soát iPOS.
+- MAN_HINH_281, 282 (CONG_VIEC_73): không sửa; bảng chuyển tiền đã hiện khoản trừ N "Phí thuê bao iPOS" kèm ghi chú số phiếu.
+
+Điều hướng: ứng dụng iPOS MAN_HINH_283 (hoặc 284) → 285 → 286 → 287 → 288; từ khung máy bán sang 289, 290, 291, 292. Cổng cửa hàng: nhóm iPOS MAN_HINH_293 đến 302. ERP: MAN_HINH_178 → khối iPOS; menu → MAN_HINH_303 đến 306; thẻ Phí của MAN_HINH_306 → MAN_HINH_305.
+
+- Trạng thái mỗi màn hình: có dữ liệu, rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh. Ứng dụng: Sunmi T2, máy tính bảng Android; cổng và ERP: máy tính, máy tính bảng.
 - Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.

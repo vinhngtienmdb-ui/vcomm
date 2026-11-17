@@ -701,6 +701,9 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | L7 | Công ty vận hành sàn chưa bật hóa đơn điện tử thì chưa lập hóa đơn phí (ghi nhật ký), không có hàng chờ lập bù | Lập bù làm khi người dùng cần |
 | L7 | Nhắc gia hạn bằng thông báo trên cổng cửa hàng; chưa gửi tin nhắn trong ứng dụng VComm | Như điều chỉnh của lát L1 |
 | L7 | MAN_HINH_281, 282 không sửa | Bảng chuyển tiền của CONG_VIEC_73 đã hiện khoản trừ N kèm ghi chú số phiếu |
+| Khép đợt 1 (rà soát mã) | Hủy phiếu phí bị chặn khi phiếu đã có hóa đơn điện tử (`iposFeeEinvoiceIssued`): hủy, điều chỉnh hóa đơn trên module hóa đơn trước | Tránh hai hóa đơn cho một kỳ khi lập lại phiếu |
+| Khép đợt 1 (rà soát mã) | Kỳ đã hủy không tự lập lại bởi việc nền, chỉ lập lại bằng tay (API_356); thuê bao tạm khóa không lập kỳ mới đến khi trả phiếu cũ hoặc mở khóa; miễn phí hết hạn mà chưa chọn cách thu khác thì thu bằng VietQR | Hủy phiếu phải giữ được; không cộng dồn phiếu cho thuê bao đang khóa |
+| Khép đợt 1 (rà soát mã) | Phiếu trừ đối soát tuần đóng công nợ ngay khi gắn vào bảng (không đợi xác nhận); phiếu thu đủ thì bỏ khoản trừ N chưa vào bảng chuyển tiền; bảng có số còn lại 0 ghi phiếu đã thu ngay | Không thu hai lần |
 
 ## 20. Rủi ro và điểm chưa xác định
 

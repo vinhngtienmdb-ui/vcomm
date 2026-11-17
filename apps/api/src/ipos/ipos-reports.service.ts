@@ -1,5 +1,5 @@
 // Cổng cửa hàng nhóm iPOS: tổng quan (API_344), ca, hóa đơn, phiếu trả (API_350), báo cáo cửa hàng và xuất Excel (API_351)
-// (CONG_VIEC_74; CHUC_NANG_260; QUYTAC_NGHIEPVU_623, 625). Chủ cửa hàng xem mọi điểm bán; dữ liệu theo cửa hàng của thành viên.
+// (CONG_VIEC_74; CHUC_NANG_259; QUYTAC_NGHIEPVU_623, 625). Chủ cửa hàng xem mọi điểm bán; dữ liệu theo cửa hàng của thành viên.
 // Doanh thu thuần = tổng tiền hóa đơn (sau giảm) − tiền hàng trả lại, tính theo ngày lập hóa đơn và ngày lập phiếu trả (giờ Việt Nam).
 import { Inject, Injectable } from "@nestjs/common";
 import type { IposOverview, IposPaymentMethod, IposPortalReturnRow, IposPortalSaleRow, IposPortalShiftRow, IposReport, iposPortalPeriodQuery } from "contracts";

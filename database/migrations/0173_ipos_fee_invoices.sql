@@ -2,7 +2,7 @@
 -- 0170 đã dùng cho trả hàng ở lát L5, phiên điều phối cấp 0173.
 
 -- Phiếu phí: mỗi thuê bao mỗi kỳ một phiếu chưa hủy. Tiền = giá mỗi tháng × số tháng; thuế = làm tròn đồng (tiền × thuế suất gói); tổng = tiền + thuế.
--- Cách thu chụp lúc lập (đổi cách thu áp cho phiếu lập sau). Trừ thu hộ quá 7 ngày chưa trừ đủ thì phần còn lại chuyển VietQR (`method` đổi, ghi `switched_at`).
+-- Cách thu chụp lúc lập (đổi cách thu áp cho phiếu lập sau). `switched_at` dự phòng cho chuyển cách thu (quy tắc quá 7 ngày chuyển VietQR người dùng đã bỏ, cột chưa dùng).
 CREATE SEQUENCE ipos.fee_invoice_no_seq;
 CREATE TABLE ipos.fee_invoices (
     id                  uuid          PRIMARY KEY DEFAULT gen_random_uuid(),

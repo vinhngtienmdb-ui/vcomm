@@ -921,7 +921,8 @@
     "iposFeeNotVoidable": "Only awaiting fee invoices with nothing collected and not yet in a weekly settlement or payout can be voided.",
     "iposFeeReissueInvalid": "This period has no voided fee invoice to reissue, or the store is on free billing.",
     "iposFeeNotPayableByVietqr": "This fee invoice is not collected by VietQR transfer or is already paid.",
-    "iposFeeVietqrNotConfigured": "The marketplace operator has not set up a receiving bank account. Contact VComm to pay."
+    "iposFeeVietqrNotConfigured": "The marketplace operator has not set up a receiving bank account. Contact VComm to pay.",
+    "iposFeeEinvoiceIssued": "This fee invoice already has an e-invoice. Cancel or adjust the e-invoice in the e-invoice module before voiding."
   },
   "login": {
     "title": "Sign in",

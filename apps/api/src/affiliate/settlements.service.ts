@@ -551,6 +551,8 @@ export class AffiliateSettlementsService implements OnModuleInit {
       UPDATE affiliate.settlements SET status = ${debtItemId ? "confirmed" : "paid"}, confirmed_by = ${confirmedBy}, confirmed_at = now(), due_date = ${dueDate}::date,
         debt_item_id = ${debtItemId}, paid_at = ${debtItemId ? null : sql`now()`}, version = version + 1
       WHERE id = ${id}`);
+    // Số còn lại 0: bảng đã thanh toán ngay, báo các khoản thu thêm (phiếu phí iPOS đã thu).
+    if (!debtItemId) for (const charge of this.charges) await charge.paid(executor, id);
     await this.refreshPaid(executor);
   }
 

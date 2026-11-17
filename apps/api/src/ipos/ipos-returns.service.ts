@@ -1,4 +1,4 @@
-// Máy bán iPOS: trả hàng, hủy hóa đơn (CONG_VIEC_74; CHUC_NANG_259; QUYTAC_NGHIEPVU_611, 619, 624; API_343).
+// Máy bán iPOS: trả hàng, hủy hóa đơn (CONG_VIEC_74; CHUC_NANG_258; QUYTAC_NGHIEPVU_611, 619, 624; API_343).
 // Hóa đơn chỉ tiền mặt, VietQR: trả một phần hoặc hết, tiền hoàn theo phần sau giảm (gồm giảm hóa đơn đã phân bổ), hoàn tiền mặt từ két của ca đang mở.
 // Hóa đơn có điểm, voucher: chỉ hủy toàn bộ, hủy giao dịch `LK…` qua service CONG_VIEC_55 (tuần đối soát đã chốt thì chặn).
 // Hóa đơn có thanh toán qua ứng dụng VComm: hủy cần hàm hoàn tiền của CONG_VIEC_73 (lát L7), chưa có.
@@ -126,7 +126,7 @@ export class IposReturnsService {
       const byId = new Map(lines.map((line) => [line.id, line]));
       const requested =
         input.kind === "full_cancel"
-          ? lines.filter((line) => Number(line.returned_quantity) < Number(line.quantity)).map((line) => ({ saleLineId: line.id, quantity: String(Number(line.quantity) - Number(line.returned_quantity)) }))
+          ? lines.filter((line) => Number(line.returned_quantity) < Number(line.quantity)).map((line) => ({ saleLineId: line.id, quantity: (Number(line.quantity) - Number(line.returned_quantity)).toFixed(3) }))
           : input.lines;
       if (new Set(requested.map((line) => line.saleLineId)).size !== requested.length) throw new ApiError("BUSINESS_RULE", "iposReturnQuantityInvalid");
       const priced = requested.map((line) => {
@@ -152,7 +152,11 @@ export class IposReturnsService {
         ).rows[0]!;
         const previous = (await transaction.execute<{ refunded: string }>(sql`SELECT COALESCE(sum(refund_cash), 0)::text AS refunded FROM ipos.returns WHERE sale_id = ${head.id}`)).rows[0]!;
         refundCash = Math.max(0, Number(paid.cash) - Number(previous.refunded));
-        if (head.affiliate_transaction_id) {
+        // cancelFor chạy giao dịch riêng: lần gửi trước đã hủy LK… nhưng giao dịch này lỗi thì gửi lại bỏ qua bước hủy LK….
+        const lkStatus = head.affiliate_transaction_id
+          ? (await transaction.execute<{ status: string }>(sql`SELECT status FROM affiliate.transactions WHERE id = ${head.affiliate_transaction_id}`)).rows[0]?.status
+          : undefined;
+        if (head.affiliate_transaction_id && lkStatus !== "cancelled") {
           const company = (await transaction.execute<{ company_id: string }>(sql`SELECT company_id FROM affiliate.merchants WHERE id = ${actor.device.merchantId}`)).rows[0]!;
           try {
             await this.transactions.cancelFor(

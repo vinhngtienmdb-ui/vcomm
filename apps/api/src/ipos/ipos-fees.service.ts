@@ -38,7 +38,7 @@ import { bankTransferConfiguration, vietQrData } from "../marketplace/payments/g
 type Executor = Pick<Database, "execute">;
 type VatRate = InvoiceItem["vatRate"];
 
-// Kỳ tiếp lập phiếu trước ngày hết hạn 7 ngày; trừ thu hộ quá 7 ngày chưa đủ chuyển VietQR; phiếu hạn trả 7 ngày kể từ ngày lập.
+// Kỳ tiếp lập phiếu trước ngày hết hạn 7 ngày; phiếu hạn trả 7 ngày kể từ ngày lập. Trừ thu hộ luôn trừ đủ vào bảng chuyển tiền (người dùng bỏ quy tắc quá 7 ngày chuyển VietQR).
 export const iposFeeLeadDays = 7;
 export const iposFeeDueDays = 7;
 
@@ -119,20 +119,22 @@ export class IposFeesService implements OnModuleInit {
         Number(
           (
             await executor.execute<{ total: string }>(sql`
-              SELECT coalesce(sum(total - paid_amount), 0)::text AS total FROM ipos.fee_invoices
-              WHERE merchant_id = ${merchantId} AND method = 'settlement_deduction' AND status = 'awaiting' AND settlement_id IS NULL AND issued_on <= ${until}::date`)
+              SELECT coalesce(sum(total - paid_amount), 0)::text AS total FROM (
+                SELECT total, paid_amount FROM ipos.fee_invoices
+                WHERE merchant_id = ${merchantId} AND method = 'settlement_deduction' AND status = 'awaiting' AND settlement_id IS NULL AND issued_on <= ${until}::date
+                FOR UPDATE) x`)
           ).rows[0]!.total,
         ),
+      // Gắn vào bảng: phần còn phải thu của phiếu chuyển vào G; đóng công nợ phiếu ngay để phiếu thu sau đó không trừ vào phiếu đã nằm trong bảng.
       attach: async (executor, merchantId, settlementId, until) => {
-        await executor.execute(sql`
+        const rows = await executor.execute<{ id: string }>(sql`
           UPDATE ipos.fee_invoices SET settlement_id = ${settlementId}, version = version + 1
-          WHERE merchant_id = ${merchantId} AND method = 'settlement_deduction' AND status = 'awaiting' AND settlement_id IS NULL AND issued_on <= ${until}::date`);
-      },
-      // Xác nhận bảng: công nợ của phiếu chuyển vào công nợ của bảng (đóng công nợ phiếu bằng khoản ghi có cùng nguồn).
-      confirmed: async (executor, settlementId) => {
-        const rows = await executor.execute<{ id: string }>(sql`SELECT id FROM ipos.fee_invoices WHERE settlement_id = ${settlementId} AND status = 'awaiting'`);
+          WHERE merchant_id = ${merchantId} AND method = 'settlement_deduction' AND status = 'awaiting' AND settlement_id IS NULL AND issued_on <= ${until}::date
+          RETURNING id`);
         for (const row of rows.rows) await this.closeDebt(executor, row.id, "Chuyển vào bảng đối soát tuần");
       },
+      // Xác nhận bảng: bút toán chuyển G sang phải thu của bảng do service bảng đối soát ghi (settlementDraft).
+      confirmed: async () => undefined,
       paid: async (executor, settlementId) => {
         const rows = await executor.execute<{ id: string }>(sql`
           UPDATE ipos.fee_invoices SET paid_amount = total, status = 'paid', paid_at = now(), version = version + 1
@@ -157,10 +159,11 @@ export class IposFeesService implements OnModuleInit {
     const today = this.today();
     const candidates = await this.database.execute<{ id: string; period_start: string; first: boolean }>(sql`
       WITH last AS (
-        SELECT DISTINCT ON (subscription_id) subscription_id, period_end FROM ipos.fee_invoices WHERE status <> 'voided' ORDER BY subscription_id, period_end DESC)
+        SELECT DISTINCT ON (subscription_id) subscription_id, period_end FROM ipos.fee_invoices ORDER BY subscription_id, period_end DESC)
       SELECT s.id, coalesce(last.period_end, greatest(coalesce(s.trial_ends_on, s.starts_on), (s.ends_on - make_interval(months => s.period_months))::date))::text AS period_start, last.period_end IS NULL AS first
       FROM ipos.subscriptions s LEFT JOIN ipos.merchant_billing b ON b.merchant_id = s.merchant_id LEFT JOIN last ON last.subscription_id = s.id
-      WHERE s.status <> 'cancelled' AND coalesce(b.method, 'vietqr') <> 'free'
+      -- Miễn phí hết hạn thì lập phiếu theo cách thu chọn lại (QUYTAC_NGHIEPVU_603); thuê bao tạm khóa không lập kỳ mới đến khi trả phiếu cũ hoặc mở khóa.
+      WHERE s.status NOT IN ('cancelled', 'locked') AND NOT (coalesce(b.method, 'vietqr') = 'free' AND (b.free_until IS NULL OR b.free_until >= ${today}::date))
         AND coalesce(last.period_end, greatest(coalesce(s.trial_ends_on, s.starts_on), (s.ends_on - make_interval(months => s.period_months))::date)) <= ${today}::date + ${iposFeeLeadDays}::int`);
     let issued = 0;
     for (const row of candidates.rows) {
@@ -191,18 +194,22 @@ export class IposFeesService implements OnModuleInit {
         partner_id: string;
         method: IposFeeMethod | "free";
         status: string;
+        free_until: string | null;
       }>(sql`
         SELECT s.merchant_id, s.outlet_id, s.plan_id, s.period_months, coalesce(s.custom_monthly_price, pl.monthly_price)::text AS monthly_price, pl.tax_percent::text,
-          pl.company_id, m.partner_id, coalesce(b.method, 'vietqr') AS method, s.status
+          pl.company_id, m.partner_id, coalesce(b.method, 'vietqr') AS method, s.status, b.free_until::text AS free_until
         FROM ipos.subscriptions s JOIN ipos.plans pl ON pl.id = s.plan_id JOIN affiliate.merchants m ON m.id = s.merchant_id
         -- Cửa hàng chưa chọn cách thu: thu bằng VietQR.
         LEFT JOIN ipos.merchant_billing b ON b.merchant_id = s.merchant_id
         WHERE s.id = ${subscriptionId} FOR UPDATE OF s`)
     ).rows[0];
-    if (!sub || sub.method === "free" || sub.status === "cancelled") return null;
+    if (!sub || sub.status === "cancelled") return null;
+    // Miễn phí còn hiệu lực đến đầu kỳ: không lập phiếu. Hết miễn phí mà chưa chọn cách thu khác: thu bằng VietQR.
+    if (sub.method === "free" && (sub.free_until === null || sub.free_until >= periodStart)) return null;
+    const method: IposFeeMethod = sub.method === "free" ? "vietqr" : sub.method;
     const taken = await transaction.execute(sql`SELECT 1 FROM ipos.fee_invoices WHERE subscription_id = ${subscriptionId} AND period_start = ${periodStart}::date AND status <> 'voided'`);
     if (taken.rows.length > 0) return null;
-    const amount = Number(sub.monthly_price) * sub.period_months;
+    const amount = Math.round(Number(sub.monthly_price) * sub.period_months);
     const tax = Math.round((amount * Number(sub.tax_percent)) / 100);
     const total = amount + tax;
     const dates = (
@@ -214,7 +221,7 @@ export class IposFeesService implements OnModuleInit {
         INSERT INTO ipos.fee_invoices (company_id, merchant_id, subscription_id, outlet_id, plan_id, period_start, period_end, period_months, monthly_price, amount, tax_percent,
           tax_amount, total, method, issued_on, due_on, created_by)
         VALUES (${sub.company_id}, ${sub.merchant_id}, ${subscriptionId}, ${sub.outlet_id}, ${sub.plan_id}, ${periodStart}::date, ${dates.period_end}::date, ${sub.period_months},
-          ${sub.monthly_price}, ${amount}, ${sub.tax_percent}, ${tax}, ${total}, ${sub.method}, ${today}::date, ${dates.due_on}::date, ${createdBy})
+          ${sub.monthly_price}, ${amount}, ${sub.tax_percent}, ${tax}, ${total}, ${method}, ${today}::date, ${dates.due_on}::date, ${createdBy})
         RETURNING id, document_no`)
     ).rows[0]!;
     if (total > 0) {
@@ -242,7 +249,7 @@ export class IposFeesService implements OnModuleInit {
         lines: [debit("ipos_fee_receivable", total, sub.partner_id), credit("ipos_fee_revenue", amount), credit("vat_output", tax)],
       });
       // Trừ thu hộ: khoản trừ N vào bảng chuyển tiền ngày gần nhất lập sau ngày lập phiếu (QUYTAC_NGHIEPVU_600).
-      if (sub.method === "collection_deduction") {
+      if (method === "collection_deduction") {
         await transaction.execute(sql`
           INSERT INTO instore.payout_deductions (recipient_kind, merchant_id, business_date, kind, amount, reference_id, note)
           VALUES ('merchant', ${sub.merchant_id}, ${today}::date, 'ipos_subscription', ${total}, ${inserted.id}, ${`Phí thuê bao iPOS ${inserted.document_no}`})`);
@@ -315,7 +322,12 @@ export class IposFeesService implements OnModuleInit {
       FROM finance.debt_items d
       WHERE d.id = f.debt_item_id AND f.status = 'awaiting' AND f.settlement_id IS NULL AND f.paid_amount <> least(f.total, f.total - d.open_amount)
       RETURNING f.id, f.status`);
-    for (const row of paid.rows as { id: string; status: string }[]) if (row.status === "paid") await this.extendSubscription(executor, row.id);
+    for (const row of paid.rows as { id: string; status: string }[]) {
+      if (row.status !== "paid") continue;
+      // Đã thu đủ (phiếu thu): bỏ khoản trừ N chưa vào bảng chuyển tiền để không thu hai lần.
+      await executor.execute(sql`DELETE FROM instore.payout_deductions WHERE reference_id = ${row.id} AND payout_id IS NULL`);
+      await this.extendSubscription(executor, row.id);
+    }
   }
 
   // Trừ thu hộ (QUYTAC_NGHIEPVU_600): khoản trừ N vào bảng chuyển tiền thì phần đó coi như đã thu. Công nợ phải trả của bảng đã trừ N nên phần N còn ở 331 của cửa hàng:
@@ -400,6 +412,9 @@ export class IposFeesService implements OnModuleInit {
       if (row.status !== "awaiting" || Number(row.paid_amount) > 0 || row.settlement_id) throw new ApiError("BUSINESS_RULE", "iposFeeNotVoidable");
       const gathered = await transaction.execute(sql`SELECT 1 FROM instore.payout_deductions WHERE reference_id = ${id} AND payout_id IS NOT NULL`);
       if (gathered.rows.length > 0) throw new ApiError("BUSINESS_RULE", "iposFeeNotVoidable");
+      // Đã lập hóa đơn điện tử phí: hủy hoặc điều chỉnh hóa đơn trên module hóa đơn trước, không hủy phiếu ở đây (tránh hai hóa đơn cho một kỳ).
+      const einvoice = await transaction.execute(sql`SELECT 1 FROM finance.einvoices WHERE ipos_fee_invoice_id = ${id} AND kind = 'original'`);
+      if (einvoice.rows.length > 0) throw new ApiError("BUSINESS_RULE", "iposFeeEinvoiceIssued");
       await transaction.execute(sql`DELETE FROM instore.payout_deductions WHERE reference_id = ${id} AND payout_id IS NULL`);
       await this.closeDebt(transaction, id, `Hủy phiếu phí: ${input.reason}`);
       const partner = (await transaction.execute<{ partner_id: string }>(sql`SELECT partner_id FROM affiliate.merchants WHERE id = ${row.merchant_id}`)).rows[0]!.partner_id;
@@ -637,7 +652,7 @@ export class IposFeesService implements OnModuleInit {
       SELECT s.merchant_id, o.name AS outlet_name, s.ends_on::text,
         CASE WHEN s.status = 'trial' THEN 'trial' WHEN s.ends_on - ${today}::date = 7 THEN 'days7' WHEN s.ends_on - ${today}::date = 1 THEN 'days1' ELSE 'overdue' END AS kind
       FROM ipos.subscriptions s JOIN affiliate.outlets o ON o.id = s.outlet_id LEFT JOIN ipos.merchant_billing b ON b.merchant_id = s.merchant_id
-      WHERE coalesce(b.method, 'vietqr') <> 'free' AND (
+      WHERE NOT (coalesce(b.method, 'vietqr') = 'free' AND (b.free_until IS NULL OR b.free_until >= ${today}::date)) AND (
         (s.status = 'trial' AND s.trial_ends_on - ${today}::date = 3)
         OR (s.status IN ('active', 'overdue') AND (s.ends_on - ${today}::date IN (7, 1) OR s.ends_on + 1 = ${today}::date))
       )

@@ -1,5 +1,5 @@
 // Máy bán iPOS: khách VComm dùng điểm, voucher tại quầy (service giao dịch của CONG_VIEC_55, 67) và đơn chờ thanh toán qua ứng dụng VComm
-// (InstoreCheckoutsService của CONG_VIEC_73) (CONG_VIEC_74; CHUC_NANG_258; QUYTAC_NGHIEPVU_614, 616, 617; API_341).
+// (InstoreCheckoutsService của CONG_VIEC_73) (CONG_VIEC_74; CHUC_NANG_256; QUYTAC_NGHIEPVU_614, 616, 617; API_341).
 // Giao dịch điểm, đơn chờ ghi vào `ipos.shift_links` theo ca để chặn đóng ca khi còn dở.
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type { IposLoyaltyTransaction, IposSaleCreateInput, IposVcommCheckout, iposLoyaltyCreateSchema, iposVcommCheckoutCreateSchema } from "contracts";

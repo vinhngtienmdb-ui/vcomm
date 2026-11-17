@@ -1,4 +1,4 @@
-// Máy bán iPOS: ghi, tra hóa đơn bán lẻ, ghi lần in (CONG_VIEC_74; CHUC_NANG_257; QUYTAC_NGHIEPVU_611, 613, 615, 617 đến 620; API_340).
+// Máy bán iPOS: ghi, tra hóa đơn bán lẻ, ghi lần in (CONG_VIEC_74; CHUC_NANG_256; QUYTAC_NGHIEPVU_611, 613, 615, 617 đến 620; API_340).
 // Một giao dịch: hóa đơn (số theo điểm bán, ngày), dòng hàng (giá vốn tại thời điểm bán), dòng thanh toán, trừ tồn, gắn ca.
 // Gửi lại cùng khóa yêu cầu (kể cả song song) trả hóa đơn đã ghi.
 import { Inject, Injectable } from "@nestjs/common";
