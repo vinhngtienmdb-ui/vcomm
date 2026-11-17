@@ -513,6 +513,39 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - "Hiện mã QR" ở cổng luôn tạo đơn chờ (kể cả cửa hàng tắt thu hộ); máy chủ vẫn nhận mã QR cũ `VCLK1…` nhưng cổng không tạo nữa. Cách số điện thoại giữ như CONG_VIEC_55. Khung mã thành viên trên MAN_HINH_181 giữ trong thời hạn chuyển đổi, thêm nút mở Mã thanh toán.
   - Giới hạn ba đơn chờ mỗi thu ngân kiểm ở API_329; iPOS tự kiểm khi gọi `InstoreCheckoutsService` trực tiếp.
 
+### Kết quả lát L5 (2026-11-17)
+
+- Database migration 0164:
+  - Bảng mới `instore.settings` (thuế suất phí sàn, phí thu hộ, mặc định 10 %).
+  - `instore.payouts` thêm thuế suất chốt lúc lập, công nợ phải trả và phải thu nội bộ, phiếu chi, phiếu thu.
+  - Hai loại phiếu `instore_payout_payment`, `instore_payout_receipt`.
+  - Nguồn bút toán `instore_checkout`, `instore_checkout_owner`, `instore_payout`, `instore_payout_owner`; nguồn công nợ `instore_payout`, `instore_payout_owner`.
+  - Vai trò tài khoản `instore_fee_revenue` (511, 5113), `instore_payable_internal` (3368), `instore_receivable_internal` (1368). Thuế phí dùng vai trò thuế đầu ra, đầu vào sẵn có; phí cổng dùng vai trò phí thu hộ, phí cổng sẵn có (6418, 6421).
+- Máy chủ (`apps/api/src/instore/payouts.service.ts`):
+  - Hạch toán theo QUYTAC_NGHIEPVU_587:
+    - Tiền cổng về: Nợ 112 / Có 331 (cửa hàng liên kết) hoặc Có 3368 (công ty sở hữu).
+    - Hóa đơn bán lẻ của công ty sở hữu: Nợ 1368 / Có 131.
+    - Lập bảng: công ty vận hành sàn Nợ 331 hoặc 3368 / Có 511, 33311, 6418; công ty sở hữu Nợ 6418, 1331 / Có 1368.
+    - Ghi đã chuyển: phiếu chi Nợ 331 hoặc 3368 / Có 112; phiếu thu Nợ 112 / Có 1368.
+  - Việc nền 1 giờ sáng lập bảng ngày; tiền chuyển âm ghi 0, mang sang; khoản trừ khác N đọc từ `instore.payout_deductions`.
+  - Việc nền 8 giờ 5 sáng ngày làm việc nhắc bảng chờ chuyển quá 2 ngày làm việc.
+  - API_333; `GET`, `PUT /finance/instore/settings` (thuế suất).
+- Giao diện:
+  - MAN_HINH_281: danh sách, cảnh báo quá hạn, chi tiết G đến N, đơn thu hộ, khoản trừ khác, ghi đã chuyển.
+  - MAN_HINH_280: thêm thuế suất phí.
+  - MAN_HINH_282: mục "Tiền thu hộ" trên cổng cửa hàng.
+- Kiểm thử:
+  - `apps/api/test/c73-instore-payouts.test.ts`: cửa hàng liên kết, thuế suất riêng, mang sang số âm, bút toán, phiếu chi, cổng cửa hàng, nhắc quá hạn.
+  - `apps/api/test/c73-instore-payouts-retail.test.ts`: công ty mẹ vận hành sàn, cửa hàng của công ty bán lẻ; bút toán hai công ty, phiếu chi, phiếu thu.
+- Lệch so với đặc tả, theo đề xuất đang chờ người dùng chọn (gửi điều phối 2026-11-17):
+  - Hóa đơn điện tử phí sàn hằng tháng chưa làm, đề xuất dời sang L6. Lý do: hóa đơn điện tử hiện phải gắn phiếu xuất kho; lập qua đơn bán dịch vụ sẽ ghi doanh thu hai lần.
+  - Cảnh báo bảng quá hạn là thông báo trong ứng dụng cho người có quyền `finance.instore.manage`, kèm dòng cảnh báo trên MAN_HINH_281; trang chủ chưa có cơ chế cảnh báo.
+  - Ngày làm việc chỉ bỏ thứ Bảy, Chủ nhật (không trừ ngày lễ), như hạn hóa đơn điện tử.
+  - Phiếu chi, phiếu thu khi ghi đã chuyển ghi sổ ngay, không qua duyệt, và không kiểm số dư quỹ. Lý do: tiền cổng về ngân hàng không qua phiếu thu nên số dư quỹ trên hệ thống không gồm tiền này; giới hạn có sẵn từ CONG_VIEC_25.
+  - Phiếu thu ở công ty sở hữu vào quỹ ngân hàng của cửa hàng có tiền thu hộ lớn nhất trong bảng. Cửa hàng chưa cài quỹ ngân hàng thì chưa lập phiếu thu; màn hình báo để công ty đó lập tay.
+  - Cửa hàng tập đoàn của chính công ty vận hành sàn: không lập bảng chuyển tiền; tiền cổng ghi Nợ 112 / Có 131; không tính phí sàn.
+  - Khoản ghi ngược L luôn bằng 0 cho đến L7 (hủy, hoàn tiền đơn đã thu).
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
