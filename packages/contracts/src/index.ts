@@ -3815,6 +3815,8 @@ export const einvoiceListQuerySchema = z
     from: isoDate.optional(),
     to: isoDate.optional(),
     search: z.string().trim().max(100).optional(),
+    // Lập theo ủy nhiệm thay cửa hàng liên kết (CONG_VIEC_73 lát L6).
+    mandated: z.enum(["true", "false"]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -3834,7 +3836,11 @@ export interface EinvoiceListItem {
   status: EinvoiceStatus;
   overdue: boolean;
   replaced: boolean;
+  // Số phiếu xuất, số giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng).
   sourceDocumentNo: string | null;
+  sourceKind: "document" | "affiliate_transaction" | "fee_invoice";
+  sellerName: string;
+  mandated: boolean;
 }
 export interface EinvoiceParty {
   partnerId?: string | null;
@@ -3872,7 +3878,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   lastError: string | null;
   dueDate: string;
   issuedAt: string | null;
-  sourceDocumentId: string;
+  sourceDocumentId: string | null;
   related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];

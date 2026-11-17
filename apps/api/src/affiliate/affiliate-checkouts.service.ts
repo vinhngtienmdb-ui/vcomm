@@ -29,6 +29,7 @@ import { vietnamToday } from "../marketplace/shop.service";
 import type { Actor } from "../permissions/roles.service";
 import { type PortalMember } from "./portal.service";
 import { feeTaxRate } from "./settlements.service";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
 import { AffiliateTransactionsService } from "./transactions.service";
 import { usableCodes } from "./vouchers.service";
 
@@ -62,6 +63,7 @@ export class AffiliateCheckoutsService implements OnModuleInit {
     private readonly transactions: AffiliateTransactionsService,
     private readonly loyalty: LoyaltyLedgerService,
     private readonly audit: AuditService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
   ) {}
 
   onModuleInit(): void {
@@ -153,6 +155,8 @@ export class AffiliateCheckoutsService implements OnModuleInit {
     if (!id) throw new ApiError("BUSINESS_RULE", "instoreCheckoutClosed");
     const collected = appAmount > 0 ? { amount: appAmount, platformFee: Number(row.platform_fee), gatewayFee: Number(row.gateway_fee) } : { amount: 0, platformFee: 0, gatewayFee: 0 };
     const documentNo = await this.transactions.finishForCheckout(transaction, id, collected);
+    // Giao dịch có thu hộ: lập hóa đơn thay cửa hàng theo ủy nhiệm, hoặc ghi việc chờ lập (lát L6; QUYTAC_NGHIEPVU_588, 589).
+    if (row.collect_in_app) await this.mandatedEinvoices.issueForCheckout(transaction, row.id, await vietnamToday(transaction));
     const hook = this.instore.completionHook(row.source);
     if (hook) {
       const dueAtCounter = row.collect_in_app ? 0 : Math.max(Number(row.bill_amount) - Number(row.voucher_amount) - Number(row.points_amount), 0);

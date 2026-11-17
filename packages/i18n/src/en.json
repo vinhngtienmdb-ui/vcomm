@@ -841,7 +841,15 @@
     "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release.",
     "instorePayoutNotPending": "The payout statement is not waiting for transfer.",
     "instoreTransferBeforeDate": "The transfer date cannot be before the statement date.",
-    "instorePayoutNoPartner": "The payout statement has no payable (the recipient has no internal partner). Ask an administrator to check the recipient company partner."
+    "instorePayoutNoPartner": "The payout statement has no payable (the recipient has no internal partner). Ask an administrator to check the recipient company partner.",
+    "filePdfOnly": "Only PDF files are accepted.",
+    "einvoiceMandateMissing": "The store has no invoice mandate data.",
+    "einvoiceMandateUnsupported": "Setup error: the e-invoice provider does not support invoices issued under mandate.",
+    "einvoiceCorrectionNotSupported": "Mandated invoices and platform fee invoices cannot be replaced here yet.",
+    "einvoiceBacklog_mandate_missing": "Not issued: the store has no invoice mandate data.",
+    "einvoiceBacklog_mandate_inactive": "Not issued: the mandate is not yet effective or has expired.",
+    "einvoiceBacklog_series_missing": "Not issued: the store has no invoice series for the year.",
+    "einvoiceBacklog_einvoice_off": "Not issued: the platform operator has not enabled e-invoices."
   },
   "login": {
     "title": "Sign in",

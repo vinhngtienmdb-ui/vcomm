@@ -841,7 +841,15 @@
     "affiliateCollectedNotCancellable": "Giao dịch có tiền VComm thu hộ chưa hủy được ở đây; hủy và hoàn tiền cho khách sẽ có ở bản sau.",
     "instorePayoutNotPending": "Bảng chuyển tiền không ở trạng thái chờ chuyển.",
     "instoreTransferBeforeDate": "Ngày chuyển không được trước ngày của bảng.",
-    "instorePayoutNoPartner": "Bảng chuyển tiền chưa có công nợ phải trả (người nhận chưa có đối tác nội bộ). Báo quản trị kiểm tra đối tác của công ty nhận."
+    "instorePayoutNoPartner": "Bảng chuyển tiền chưa có công nợ phải trả (người nhận chưa có đối tác nội bộ). Báo quản trị kiểm tra đối tác của công ty nhận.",
+    "filePdfOnly": "Chỉ nhận tệp PDF.",
+    "einvoiceMandateMissing": "Cửa hàng chưa có dữ liệu ủy nhiệm hóa đơn.",
+    "einvoiceMandateUnsupported": "Lỗi cài đặt: nhà cung cấp hóa đơn chưa hỗ trợ lập hóa đơn theo ủy nhiệm.",
+    "einvoiceCorrectionNotSupported": "Hóa đơn lập theo ủy nhiệm hoặc hóa đơn phí sàn chưa lập thay thế được ở đây.",
+    "einvoiceBacklog_mandate_missing": "Chưa lập được: cửa hàng chưa có dữ liệu ủy nhiệm hóa đơn.",
+    "einvoiceBacklog_mandate_inactive": "Chưa lập được: văn bản ủy nhiệm chưa có hiệu lực hoặc đã hết hạn.",
+    "einvoiceBacklog_series_missing": "Chưa lập được: cửa hàng chưa có ký hiệu hóa đơn của năm.",
+    "einvoiceBacklog_einvoice_off": "Chưa lập được: công ty vận hành sàn chưa bật hóa đơn điện tử."
   },
   "login": {
     "title": "Đăng nhập",

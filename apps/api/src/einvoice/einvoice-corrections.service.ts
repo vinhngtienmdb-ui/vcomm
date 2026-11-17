@@ -163,7 +163,7 @@ export class EinvoiceCorrectionsService {
           status: EinvoiceStatus;
           version: number;
           replaced_by_id: string | null;
-          source_document_id: string;
+          source_document_id: string | null;
           currency: string;
           buyer: Party;
           adjusted: boolean;
@@ -177,6 +177,8 @@ export class EinvoiceCorrectionsService {
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.kind === "adjustment") throw new ApiError("BUSINESS_RULE", "einvoiceAdjustmentNotReplaceable");
+      // Hóa đơn ủy nhiệm, hóa đơn phí sàn tháng (CONG_VIEC_73): chưa lập thay thế ở đây; xử lý hóa đơn khi hủy giao dịch làm ở lát L7.
+      if (!row.source_document_id) throw new ApiError("BUSINESS_RULE", "einvoiceCorrectionNotSupported");
       if (row.status !== "issued") throw new ApiError("BUSINESS_RULE", "einvoiceNotIssued");
       if (row.replaced_by_id) throw new ApiError("BUSINESS_RULE", "einvoiceAlreadyReplaced");
       if (row.adjusted) throw new ApiError("BUSINESS_RULE", "einvoiceAlreadyAdjusted");

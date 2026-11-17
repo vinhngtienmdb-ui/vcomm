@@ -439,6 +439,15 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | Mất mạng, khách chưa có ứng dụng | Giữ như hiện nay |
 | Open API cho iPOS | Tra trạng thái, hủy đơn chưa thanh toán, hủy toàn bộ đơn đã thanh toán kèm hoàn tiền; trả một phần hàng cho đơn trả bằng ứng dụng để sau, ngoài phạm vi |
 
+Lựa chọn của người dùng cho lát L6 (2026-11-17):
+
+| Câu | Quyết định |
+|---|---|
+| Người bán trên hóa đơn ủy nhiệm | Làm đủ dữ liệu ủy nhiệm, ký hiệu riêng, lập, gửi nền, lập bù trên bộ giả lập. Nhà cung cấp MISA: hóa đơn ủy nhiệm báo "Lỗi cài đặt: nhà cung cấp chưa hỗ trợ ủy nhiệm", không gửi. Bộ kết nối riêng làm khi người dùng có xác nhận từ MISA (mục 20) |
+| Hóa đơn phí sàn tháng | Một hóa đơn mỗi tháng cho mỗi người nhận; dòng "Phí dịch vụ sàn tháng MM/YYYY" bằng tổng H, mỗi thuế suất một dòng; phí cổng K không lên hóa đơn; không sinh bút toán, không phiếu xuất. Ngày hóa đơn là ngày cuối tháng trước, việc nền 2 giờ sáng ngày 1. Người dùng tự xác nhận việc ngày lập khác ngày hóa đơn |
+| Hủy giao dịch có hóa đơn ủy nhiệm | Việc chờ xử lý hóa đơn làm cùng L7 (hủy, hoàn tiền) |
+| Nơi xem | Công ty vận hành sàn: danh sách hóa đơn điện tử, cột "Người bán", bộ lọc "Lập theo ủy nhiệm". Cổng cửa hàng: số hóa đơn, tải PDF. Khách: lịch sử giao dịch trên ứng dụng, số hóa đơn, tải PDF. MAN_HINH_279: dữ liệu ủy nhiệm, ký hiệu theo năm, việc chờ lập, "Lập bù" |
+
 ## 18. Các lát và điểm xem trước
 
 Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
@@ -574,6 +583,8 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 
 - Trung gian thanh toán: công ty vận hành sàn giữ tiền của cửa hàng liên kết. Phiên làm việc không tra cứu pháp lý. Không bật thu hộ cửa hàng liên kết trên môi trường thật khi người dùng chưa xác nhận hồ sơ pháp lý (công tắc mặc định tắt).
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
+- Điểm mở (L6): bộ kết nối MISA hiện có không gửi người bán, MISA lấy người bán theo mã số thuế của tài khoản. Hóa đơn ủy nhiệm với MISA ở trạng thái "Lỗi cài đặt" đến khi người dùng có xác nhận từ MISA về cách lập theo ủy nhiệm; khi đó làm bộ kết nối riêng.
+- Điểm mở (L6): hóa đơn phí sàn tháng ghi ngày cuối tháng trước nhưng lập lúc 2 giờ sáng ngày 1; người dùng tự xác nhận nhà cung cấp, cơ quan thuế chấp nhận.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.
 - Ứng dụng iPOS: công việc riêng (CONG_VIEC_74), gọi service đơn chờ trong backend (mục 15); phí thuê bao iPOS trừ vào bảng chuyển tiền qua `instore.payout_deductions` do CONG_VIEC_74 ghi.
