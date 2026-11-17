@@ -19,6 +19,13 @@ import { defaultRateLimit, RATE_LIMIT, RateLimiter } from "./common/rate-limiter
 import { CLOCK, systemClock } from "./common/clock";
 import { LogOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messages";
 import { DatabaseModule } from "./database/database.module";
+import { AiAccessService } from "./ai/ai-access.service";
+import { AI_CONFIG, readAiConfig, type AiConfig } from "./ai/ai-config";
+import { AiController } from "./ai/ai.controller";
+import { AiSettingsService } from "./ai/ai-settings.service";
+import { AnthropicModelClient } from "./ai/anthropic-model-client";
+import { FakeModelClient } from "./ai/fake-model-client";
+import { AI_MODEL_CLIENT } from "./ai/model-client";
 import { ApiCallLogsService } from "./open-api/api-call-logs.service";
 import { ApiKeyGuard } from "./open-api/api-key.guard";
 import { ApiKeysController } from "./open-api/api-keys.controller";
@@ -261,7 +268,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, AiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController],
   providers: [
     AuthService,
     ActivationService,
@@ -446,6 +453,11 @@ import { UsersService } from "./users/users.service";
     OpenCustomersService,
     { provide: CLOCK, useValue: systemClock },
     { provide: RATE_LIMIT, useValue: defaultRateLimit },
+    // CONG_VIEC_63: trợ lý AI; chưa cấu hình nhà cung cấp thì dùng bộ giả lập nhưng mọi tính năng báo "chưa cấu hình".
+    { provide: AI_CONFIG, useFactory: readAiConfig },
+    { provide: AI_MODEL_CLIENT, useFactory: (config: AiConfig) => (config.provider === "anthropic" ? new AnthropicModelClient(config) : new FakeModelClient()), inject: [AI_CONFIG] },
+    AiAccessService,
+    AiSettingsService,
     RateLimiter,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: ApiErrorFilter },

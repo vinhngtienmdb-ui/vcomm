@@ -3958,3 +3958,19 @@ Quy tắc xóa và lưu giữ: không xóa hợp đồng, giao dịch đổi, t�
 | 0154 | `marketplace.store_settings` | `facebook_feed_enabled` boolean mặc định `false`; `facebook_feed_token` text duy nhất, 43 ký tự base64url hoặc trống; `facebook_feed_token_created_at`, `facebook_feed_fetched_at` timestamptz; ràng buộc `store_settings_facebook_feed_enabled_needs_token` (bật thì có mã) |
 
 Chỉ thêm cột. Database migration 0155 không dùng, trả phiên điều phối.
+
+## 44. Database migration 0136, 0137 – CONG_VIEC_63 (trợ lý AI)
+
+Schema mới `ai`. 0136 làm ở L1; 0137 ở L2. 0138, 0139 không dùng, đã trả phiên điều phối.
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0136 (L1) | `ai.settings` | `company_id` (khóa chính), `chat_enabled`, `product_content_enabled` (mặc định `false`), `monthly_budget_usd` (`numeric(9,2)`, 0 đến 10.000, mặc định 0), `daily_turns_per_user` (1 đến 500, mặc định 30), `quota_notified_month` (`date`, tháng đã báo vượt), `updated_by`, `updated_at`, `version` |
+| 0136 (L1) | `ai.notice_acknowledgements` | (`user_id`, `notice_version`) khóa chính, `acknowledged_at` |
+| 0136 (L1) | `ai.usage_events` | `id` (`bigserial`), `company_id`, `user_id`, `feature` (`chat`, `product_content`), `conversation_id` (trống được, không khóa ngoại để giữ sau khi xóa hội thoại), `product_id` (trống được), `provider`, `model`, `input_tokens`, `cache_read_tokens`, `cache_write_tokens`, `output_tokens`, `tool_calls` (số lần), `cost_usd` (`numeric(12,6)`), `status` (`ok`, `refusal`, `error`, `max_tokens`), `duration_ms`, `created_at`. Chỉ mục (`company_id`, `created_at`), (`user_id`, `created_at`). Không có nội dung |
+| 0136 (L1) | `core.permissions` | Bốn quyền mục 6; gán Quản trị tập đoàn, Quản trị công ty theo cách các database migration trước |
+| 0137 (L2) | `ai.conversations` | `id`, `company_id`, `user_id`, `title` (≤ 100 ký tự, lấy từ câu hỏi đầu đã che), `message_count`, `last_message_at`, `created_at`. Chỉ mục (`user_id`, `company_id`, `last_message_at`) |
+| 0137 (L2) | `ai.messages` | `id`, `conversation_id` (xóa theo hội thoại), `role` (`user`, `assistant`), `content` (đã che, ≤ 20.000 ký tự), `tool_calls` (`jsonb`: tên, tham số; không kết quả), `status` (`ok`, `refusal`, `error`, `max_tokens`), `usage_event_id`, `created_at` |
+| 0137 (L2) | `ai.feedback` | `message_id` (khóa chính, xóa theo tin nhắn), `user_id`, `rating` (`up`, `down`), `reason` (`wrong_figures`, `not_relevant`, `missing_data`, `other`; bắt buộc khi `down`), `note` (≤ 500), `updated_at` |
+
+Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (chưa có tác vụ xóa tự động, thêm cùng tác vụ dọn của L2); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.

@@ -871,3 +871,12 @@ Luồng 64. Màn hình MAN_HINH_258 đến 265.
 | YCAU_NGHIEPVU_200, 201 | CHUC_NANG_241 | TIEUCHI_NGHIEMTHU_531 đến 533 | KICHBAN_KIEMTHU_725 đến 728 | `database/migrations/0154_facebook_product_feed.sql`; `apps/api/src/marketplace/product-feed.service.ts`, `product-feed.controller.ts`; `apps/web-crm/src/app/store-settings/page.tsx`; `packages/contracts` (`ProductFeedStatus`) |
 
 Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 theo THAY_DOI_33). Luồng 65. Màn hình MAN_HINH_266; sửa MAN_HINH_86, 201 (267, 268 không dùng). API_314 đến 317.
+
+## 44. Kiểm tra bao phủ CONG_VIEC_63 lát L1 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_179, 180, 182, 183 | CHUC_NANG_226 | TIEUCHI_NGHIEMTHU_470 đến 474, 481 (MAN_HINH_244) | KICHBAN_KIEMTHU_653 đến 655, 657 đến 659 | `database/migrations/0136_ai_assistant.sql`; `apps/api/src/ai/` (`ai-config.ts`, `model-client.ts`, `anthropic-model-client.ts`, `fake-model-client.ts`, `redact.ts`, `ai-access.service.ts`, `ai-settings.service.ts`, `ai.controller.ts`); `packages/contracts/src/ai.ts`; `apps/web-platform/src/app/platform/ai-settings/page.tsx` |
+| YCAU_NGHIEPVU_177, 178, 181 | CHUC_NANG_227 đến 229 | TIEUCHI_NGHIEMTHU_475 đến 480 | KICHBAN_KIEMTHU_656, 660 đến 666 | Lát L2, L3 (chưa làm) |
+
+Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 đến 245 (246 đến 249 không dùng). API_273 đến 279 (280 không dùng).

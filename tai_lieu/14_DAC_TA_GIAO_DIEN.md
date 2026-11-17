@@ -3084,3 +3084,14 @@ Sửa màn hình đã có: MAN_HINH_201 nội dung gửi đi dùng đường d�
 Điều hướng: đường dẫn chia sẻ trên mạng xã hội → MAN_HINH_266 → ứng dụng (MAN_HINH_91 hoặc đăng ký) hoặc bản web. Vai trò – màn hình: MAN_HINH_266 mọi người (không đăng nhập); thẻ Tệp danh mục theo mục 58 tài liệu `08`.
 
 Trang MAN_HINH_266 dùng giá trị màu, chữ, khoảng cách chép từ `packages/ui/src/styles.css` (không thêm giá trị vào tài liệu `15`).
+
+## MODULE_16 Mở rộng kinh doanh phần 3: trợ lý AI (CONG_VIEC_63)
+
+| Mã | Tên | Mini app | Nội dung | Bản mẫu |
+|---|---|---|---|---|
+| MAN_HINH_242 | Ngăn trợ lý AI | Mọi mini app web (nút ở thanh trên, dùng chung `packages/ui`) | Ngăn bên phải: danh sách hội thoại của tôi (90 ngày), hội thoại đang mở, ô hỏi, câu hỏi gợi ý; câu trả lời dòng chảy kèm "Dữ liệu từ" (công cụ đã gọi, liên kết màn hình); nút Đúng, Sai; số lượt còn hôm nay; hộp thông báo xử lý dữ liệu cá nhân lần đầu; trạng thái hết hạn mức, tắt, lỗi | `ban_mau/MAN_HINH_242_TRO_LY_AI.html` |
+| MAN_HINH_243 | Soạn nội dung sản phẩm bằng AI | Sản phẩm (ngăn kéo trong biểu mẫu sản phẩm) | Chọn giọng văn, độ dài, từ khóa; xem trước ba phần; Dùng từng phần hoặc tất cả, Viết lại; nhắc kiểm tra "[cần bổ sung]" | `ban_mau/MAN_HINH_243_SOAN_NOI_DUNG_AI.html` |
+| MAN_HINH_244 | Cài đặt trợ lý AI | Nền tảng (menu Trợ lý AI) | Bật, tắt từng tính năng; hạn mức tháng USD (kèm quy đổi tham khảo VND theo tỷ giá hiện có); lượt mỗi người mỗi ngày; mô hình đang dùng (chỉ đọc); thông báo xử lý dữ liệu cá nhân (chỉ đọc, phiên bản) | `ban_mau/MAN_HINH_244_CAI_DAT_TRO_LY_AI.html` |
+| MAN_HINH_245 | Thống kê sử dụng trợ lý AI | Nền tảng | Chi phí tháng / hạn mức, theo ngày; số lượt, token theo tính năng; số người dùng; xếp hạng người dùng theo số lượt, chi phí (không nội dung); tỷ lệ Đúng, Sai theo lý do; lọc tháng | `ban_mau/MAN_HINH_245_THONG_KE_TRO_LY_AI.html` |
+
+MAN_HINH_244 (L1): trang `/platform/ai-settings` của mini app Nền tảng, menu "Trợ lý AI" hiện với người có `ai.settings.manage`. Người chỉ có `ai.usage.view` xem được qua đường dẫn, các ô chỉ đọc, không có nút Lưu. Ô hạn mức nhập USD (dấu chấm hoặc dấu phẩy thập phân), dưới ô hiện quy đổi VND theo tỷ giá bán USD gần nhất trong bảng tỷ giá. Bảng "Nhà cung cấp, dữ liệu cá nhân" chỉ đọc; nút "Xem nội dung" mở nội dung thông báo xử lý dữ liệu cá nhân phiên bản hiện hành. Nút "Lịch sử" mở nhật ký thao tác lọc `ai_settings`.

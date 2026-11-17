@@ -786,7 +786,14 @@
     "partnerApiKeyContractTerminated": "Hợp đồng đã chấm dứt, không cấp khóa mới.",
     "partnerSettlementClosed": "Bảng đối soát đã xác nhận, không lập lại được.",
     "partnerSettlementNotMatched": "Bảng chưa khớp, chưa xác nhận được.",
-    "partnerSettlementChanged": "Giao dịch của tháng đã thay đổi từ lúc lập bảng. Vui lòng lập lại rồi xác nhận."
+    "partnerSettlementChanged": "Giao dịch của tháng đã thay đổi từ lúc lập bảng. Vui lòng lập lại rồi xác nhận.",
+    "aiFeatureDisabled": "Công ty chưa bật tính năng trợ lý AI này hoặc chưa đặt hạn mức chi phí. Liên hệ quản trị công ty.",
+    "aiQuotaExceeded": "Công ty đã dùng hết hạn mức trợ lý AI tháng này. Trợ lý mở lại ngày 1 tháng sau hoặc khi quản trị tăng hạn mức.",
+    "aiDailyLimit": "Bạn đã dùng hết số lượt trợ lý AI hôm nay. Trợ lý mở lại lúc 0 giờ ngày mai.",
+    "aiBusy": "Trợ lý đang trả lời câu hỏi trước của bạn. Đợi câu trả lời xong rồi hỏi tiếp.",
+    "aiNoticeRequired": "Bạn cần đọc và đồng ý thông báo xử lý dữ liệu cá nhân trước khi dùng trợ lý AI.",
+    "aiProviderError": "Trợ lý tạm thời không phản hồi. Thử lại sau ít phút.",
+    "aiNotConfigured": "Hệ thống chưa cấu hình nhà cung cấp mô hình AI. Liên hệ quản trị hệ thống."
   },
   "login": {
     "title": "Đăng nhập",
@@ -864,7 +871,8 @@
     "integrations": "Cài đặt tích hợp",
     "proposalTemplates": "Mẫu đề xuất",
     "apiKeys": "Khóa API đối tác",
-    "apiCallLogs": "Nhật ký gọi API"
+    "apiCallLogs": "Nhật ký gọi API",
+    "aiSettings": "Trợ lý AI"
   },
   "users": {
     "title": "Nhân viên",
@@ -10515,5 +10523,52 @@
     "referralHint": "Đăng ký từ đường dẫn này sẽ ghi người giới thiệu {code}.",
     "unavailable": "Sản phẩm không còn bán.",
     "viewStore": "Xem cửa hàng VComm"
+  },
+  "aiSettings": {
+    "title": "Cài đặt trợ lý AI",
+    "features": "Tính năng",
+    "chatEnabled": "Hỏi đáp số liệu",
+    "chatHint": "Nhân viên có quyền “Dùng trợ lý AI hỏi đáp số liệu” hỏi về báo cáo, đơn bán, sản phẩm, tồn kho trong phạm vi quyền của mình.",
+    "productContentEnabled": "Soạn nội dung sản phẩm",
+    "productContentHint": "Nhân viên có quyền “Dùng AI soạn nội dung sản phẩm” và quyền sửa sản phẩm nhờ AI soạn nháp mô tả.",
+    "limits": "Hạn mức",
+    "monthlyBudget": "Hạn mức chi phí mỗi tháng (USD, 0 = tắt)",
+    "budgetVnd": "≈ {amount} theo tỷ giá bán USD ngày {date} (tham khảo)",
+    "budgetNoRate": "Chưa có tỷ giá USD để quy đổi tham khảo.",
+    "dailyTurns": "Số lượt mỗi người mỗi ngày (1 đến 500)",
+    "spent": "Tháng {month} đã dùng {spent} USD / {budget} USD ({percent}%). Hết hạn mức thì trợ lý khóa đến ngày 1 tháng sau và người có quyền cài đặt nhận thông báo.",
+    "spentNoBudget": "Tháng {month} đã dùng {spent} USD. Hạn mức đang là 0: trợ lý chưa dùng được.",
+    "provider": "Nhà cung cấp, dữ liệu cá nhân",
+    "item": "Mục",
+    "value": "Giá trị",
+    "providerName": "Nhà cung cấp",
+    "provider_anthropic": "Anthropic (API trực tiếp)",
+    "provider_fake": "Bộ giả lập (chỉ dùng phát triển, kiểm thử)",
+    "configured": "Đã cấu hình",
+    "notConfigured": "Chưa cấu hình",
+    "notConfiguredWarning": "Máy chủ chưa cấu hình nhà cung cấp mô hình (khóa API). Trợ lý chưa dùng được dù đã bật. Liên hệ quản trị hệ thống.",
+    "model": "Mô hình",
+    "modelHint": "{model} (đổi bằng cấu hình máy chủ)",
+    "prices": "Đơn giá",
+    "pricesValue": "{input} USD / {output} USD mỗi triệu token vào / ra",
+    "redacted": "Dữ liệu được che",
+    "redactedValue": "Điện thoại, email, số định danh, số tài khoản",
+    "retention": "Lưu hội thoại",
+    "retentionValue": "90 ngày, chỉ người hỏi xem được",
+    "notice": "Thông báo xử lý dữ liệu cá nhân",
+    "noticeValue": "Phiên bản {version} · {count} người dùng đã xác nhận",
+    "showNotice": "Xem nội dung",
+    "hideNotice": "Ẩn nội dung",
+    "saved": "Đã lưu cài đặt trợ lý AI",
+    "readOnly": "Bạn chỉ có quyền xem cài đặt này."
+  },
+  "aiNotice": {
+    "title": "Thông báo xử lý dữ liệu cá nhân (phiên bản {version})",
+    "sent": "Câu hỏi của bạn và số liệu trợ lý đọc được (trong phạm vi quyền của bạn) được gửi tới nhà cung cấp mô hình Anthropic, máy chủ ở Hoa Kỳ, để tạo câu trả lời.",
+    "redacted": "Trước khi gửi, hệ thống che số điện thoại, email, số định danh, số tài khoản. Tên, địa chỉ khách hàng không được che.",
+    "training": "Theo điều khoản thương mại của nhà cung cấp, dữ liệu gửi qua API không được dùng để huấn luyện mô hình.",
+    "retention": "Hội thoại lưu 90 ngày trên VComm, chỉ bạn xem được; bạn xóa được bất kỳ lúc nào. Quản trị chỉ xem số lượt, chi phí.",
+    "accept": "Tôi đã đọc và đồng ý",
+    "later": "Để sau"
   }
 }

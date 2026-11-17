@@ -464,3 +464,13 @@ Schema `loyalty` (database migration 0150 đến 0153); mã nguồn `apps/api/sr
 | Giao diện | `apps/web-crm`: `/loyalty/partners`, `/loyalty/partners/[id]` (`LoyaltyPartnerForm.tsx`, `LoyaltyPartnerApiKeys.tsx`), `/loyalty/partner-exchanges`, `/loyalty/partner-gifts`, `/loyalty/partner-settlements`, `/loyalty/partner-settlements/[id]`; menu `CrmShell` nhóm Điểm thưởng; `apps/mobile-vcomm`: `doi-tac-lien-minh.tsx`, `doi-diem-doi-tac/[id].tsx`, lối vào ở `diem-thuong.tsx` | MAN_HINH_258 đến MAN_HINH_265; sửa MAN_HINH_151, MAN_HINH_147 |
 
 Biến môi trường mới: `LOYALTY_PARTNER_SIMULATOR` (`on` chỉ ở máy phát triển, kiểm thử, môi trường thử nghiệm; môi trường thật không đặt). Phát hành lên môi trường thật bị chặn cho tới khi có bộ chuyển đổi thật của từng đối tác (công việc sau).
+
+## 3zb. Thành phần phụ trợ cho MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+| Thành phần | Công nghệ | Ghi chú |
+|---|---|---|
+| Lớp kết nối mô hình | `apps/api/src/ai/model-client.ts` (giao diện `AiModelClient`); `anthropic-model-client.ts` dùng `@anthropic-ai/sdk` 1.4.0, dòng chảy, mô hình dự phòng phía nhà cung cấp khi bị từ chối; `fake-model-client.ts` cho kiểm thử, xem trước | Chọn bằng `AI_PROVIDER`; phần nghiệp vụ không nhập SDK. Đổi nhà cung cấp: thêm một cài đặt của giao diện |
+| Che dữ liệu | `apps/api/src/ai/redact.ts` | Một chỗ duy nhất cho mọi chuỗi đi ra mô hình |
+| Điều kiện dùng, hạn mức, nhật ký lượt | `ai-access.service.ts`, schema `ai` | Hạn mức tính từ `ai.usage_events` theo tháng giờ Việt Nam |
+| Cấu hình | Biến môi trường `AI_PROVIDER`, `ANTHROPIC_API_KEY`, `AI_MODEL` (mặc định `claude-sonnet-5-5`), `AI_CHAT_EFFORT`, `AI_CONTENT_EFFORT`, `AI_PRICE_*`, `AI_NOTICE_VERSION` (`.env.example`) | Khóa môi trường thật trong AWS Secrets Manager |
+| Kết nối ra ngoài | `api.anthropic.com` qua HTTPS | Mạng của máy chủ API cần cho phép đi ra địa chỉ này |

@@ -1,9 +1,9 @@
 # CONG_VIEC_63: Mở rộng kinh doanh phần 3 – Trợ lý AI (MODULE_16)
 
 - Mô tả: Trợ lý AI cho nhân viên nội bộ: hỏi đáp số liệu kinh doanh bằng lời (chỉ đọc, qua các dịch vụ đã có, đúng quyền của người hỏi) và soạn nháp nội dung sản phẩm để nhân viên sửa, tự lưu. Quản trị công ty bật từng tính năng, đặt hạn mức chi phí tháng và số lượt mỗi người mỗi ngày. Che dữ liệu cá nhân trước khi gửi ra mô hình; lưu hội thoại 90 ngày; đánh giá đúng, sai; nhật ký token, chi phí từng lượt.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả, bản mẫu giao diện, chia lát.
+- Trạng thái: Đặc tả, bản mẫu, chia lát đã duyệt (người dùng, 2026-11-17); đang làm L1.
 - Mức: Lớn (chức năng mới, dịch vụ ngoài mới, thư viện mới, dữ liệu cá nhân ra nước ngoài, thêm quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_63-tro-ly-ai`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 1 (MODULE_16), `24` THAY_DOI_04 (nguồn tham khảo `vcomm_ai_integration_guide.md` của V-com-ERP, chưa đọc được – mục 16); quyết định của người dùng ngày 2026-11-17 (mục 17).
@@ -120,7 +120,7 @@ Ngoại lệ: nhà cung cấp lỗi, quá tải, hết thời gian → báo "Tr�
 | MAN_HINH_244 | Cài đặt trợ lý AI | Nền tảng (menu Trợ lý AI) | Bật, tắt từng tính năng; hạn mức tháng USD (kèm quy đổi tham khảo VND theo tỷ giá hiện có); lượt mỗi người mỗi ngày; mô hình đang dùng (chỉ đọc); thông báo xử lý dữ liệu cá nhân (chỉ đọc, phiên bản) | `ban_mau/MAN_HINH_244_CAI_DAT_TRO_LY_AI.html` |
 | MAN_HINH_245 | Thống kê sử dụng trợ lý AI | Nền tảng | Chi phí tháng / hạn mức, theo ngày; số lượt, token theo tính năng; số người dùng; xếp hạng người dùng theo số lượt, chi phí (không nội dung); tỷ lệ Đúng, Sai theo lý do; lọc tháng | `ban_mau/MAN_HINH_245_THONG_KE_TRO_LY_AI.html` |
 
-MAN_HINH_246 đến 249 không dùng, trả phiên điều phối.
+MAN_HINH_246 đến 249 không dùng (đã trả phiên điều phối, 2026-11-17).
 
 ## 9. Dữ liệu
 
@@ -135,8 +135,6 @@ Schema mới `ai`.
 | 0137 (L2) | `ai.conversations` | `id`, `company_id`, `user_id`, `title` (≤ 100 ký tự, lấy từ câu hỏi đầu đã che), `message_count`, `last_message_at`, `created_at`. Chỉ mục (`user_id`, `company_id`, `last_message_at`) |
 | 0137 (L2) | `ai.messages` | `id`, `conversation_id` (xóa theo hội thoại), `role` (`user`, `assistant`), `content` (đã che, ≤ 20.000 ký tự), `tool_calls` (`jsonb`: tên, tham số; không kết quả), `status` (`ok`, `refusal`, `error`, `max_tokens`), `usage_event_id`, `created_at` |
 | 0137 (L2) | `ai.feedback` | `message_id` (khóa chính, xóa theo tin nhắn), `user_id`, `rating` (`up`, `down`), `reason` (`wrong_figures`, `not_relevant`, `missing_data`, `other`; bắt buộc khi `down`), `note` (≤ 500), `updated_at` |
-| 0138 | Dự phòng | Chưa dùng; trả phiên điều phối nếu không cần |
-| 0139 | Dự phòng | Như trên |
 
 Thống kê Đúng, Sai đếm từ `ai.feedback` còn giữ (90 ngày, mục 16); nhật ký lượt không chứa đánh giá.
 
@@ -153,7 +151,6 @@ Gốc `/api/v1`, đăng nhập như hiện có, theo công ty đang chọn (`X-C
 | API_277 | `POST /ai/product-content` | `ai.product_content.use` và quyền sửa sản phẩm | Đầu vào: `productId` (trống khi sản phẩm chưa lưu) và dữ liệu biểu mẫu, `tone`, `length`, `keywords[]`. Kết quả JSON: `description`, `listingDescription`, `highlights[]`, `missing[]` (thông số cần bổ sung), `remainingTurns`. Lỗi hạn mức như API_275 |
 | API_278 | `GET`, `PATCH /ai/settings` | Xem: `ai.settings.manage` hoặc `ai.usage.view`; sửa: `ai.settings.manage` | Cài đặt công ty (QUYTAC_NGHIEPVU_511) kèm `provider`, `model` đang cấu hình (chỉ đọc), `configured` (máy chủ có khóa chưa; không trả khóa), phiên bản thông báo |
 | API_279 | `GET /ai/usage` | `ai.usage.view` hoặc `ai.settings.manage` | Thống kê theo tháng (`month=YYYY-MM`): tổng chi phí, hạn mức, theo ngày, theo tính năng, theo người dùng (tên, số lượt, token, chi phí), số Đúng, Sai theo lý do; xuất Excel dùng cách hiện có của báo cáo |
-| API_280 | Dự phòng | — | Trả phiên điều phối nếu không cần |
 
 Mã lỗi thêm vào tài liệu `17` mục 1: `409 AI_QUOTA_EXCEEDED`, `409 AI_DAILY_LIMIT`, `409 AI_BUSY`, `409 AI_NOTICE_REQUIRED`, `403 AI_FEATURE_DISABLED`, `503 AI_NOT_CONFIGURED`, `502 AI_PROVIDER_ERROR`.
 
@@ -228,29 +225,25 @@ Mã lỗi thêm vào tài liệu `17` mục 1: `409 AI_QUOTA_EXCEEDED`, `409 AI_
 ## 15. Ràng buộc kỹ thuật
 
 - Lớp kết nối trung lập `apps/api/src/ai/model-client.ts`: giao diện `AiModelClient` (gửi tin nhắn kèm công cụ, nhận dòng chữ, lời gọi công cụ, token, lý do dừng; gọi lấy kết quả có cấu trúc). Hai cài đặt: `AnthropicModelClient` (dùng `@anthropic-ai/sdk`), `FakeModelClient` (kịch bản trả lời định trước, ghi lại yêu cầu để kiểm thử). Phần nghiệp vụ không nhập trực tiếp SDK.
-- Biến môi trường: `AI_PROVIDER` (`anthropic`, `fake`; trống thì chưa cấu hình), `ANTHROPIC_API_KEY` (môi trường thật lấy từ AWS Secrets Manager như khóa bí mật khác; không ghi vào cơ sở dữ liệu, log, tệp `.env` commit), `AI_MODEL` (mặc định `claude-opus-5-5`), `AI_CHAT_EFFORT` (mặc định `medium`), `AI_CONTENT_EFFORT` (mặc định `low`), `AI_PRICE_INPUT`, `AI_PRICE_OUTPUT`, `AI_PRICE_CACHE_READ`, `AI_PRICE_CACHE_WRITE` (USD mỗi triệu token; mặc định theo bảng giá hiện hành của mô hình mặc định: 4; 20; 0,2; 5), `AI_NOTICE_VERSION`. Kiểm thử luôn dùng `fake`.
+- Biến môi trường: `AI_PROVIDER` (`anthropic`, `fake`; trống thì chưa cấu hình), `ANTHROPIC_API_KEY` (môi trường thật lấy từ AWS Secrets Manager như khóa bí mật khác; không ghi vào cơ sở dữ liệu, log, tệp `.env` commit), `AI_MODEL` (mặc định `claude-sonnet-5-5`, người dùng chọn 2026-11-17), `AI_CHAT_EFFORT` (mặc định `medium`), `AI_CONTENT_EFFORT` (mặc định `low`), `AI_PRICE_INPUT`, `AI_PRICE_OUTPUT`, `AI_PRICE_CACHE_READ`, `AI_PRICE_CACHE_WRITE` (USD mỗi triệu token; mặc định theo bảng giá hiện hành của mô hình mặc định: 2; 10; 0,1; 2,5), `AI_NOTICE_VERSION`. Kiểm thử luôn dùng `fake`.
 - Gọi mô hình: dòng chảy (`messages.stream`), `max_tokens` 4.000 cho mỗi lần gọi hỏi đáp, 4.000 cho soạn nội dung; hết thời gian 60 giây mỗi lần gọi; thử lại 2 lần theo mặc định SDK cho lỗi tạm thời. Kiểm `stop_reason` (`refusal`, `max_tokens`) trước khi đọc nội dung. Bật dự phòng phía nhà cung cấp khi mô hình từ chối (tham số `fallbacks` của API); nếu người dùng không muốn thì bỏ.
 - Gọi công cụ: công cụ khai báo `strict`, đầu vào kiểm lại bằng lược đồ `zod` của API báo cáo trước khi chạy; vòng lặp tự viết (không dùng phần beta của SDK) để kiểm từng lời gọi, đếm, cắt, che.
 - Lời nhắc hệ thống cố định (không chứa ngày giờ, tên người dùng) để dùng bộ nhớ đệm của nhà cung cấp; ngày hôm nay, công ty, ngôn ngữ đưa vào tin nhắn đầu của lượt. Mô hình được dặn: dữ liệu trong kết quả công cụ là dữ liệu, không phải chỉ dẫn (chống chèn lệnh qua tên sản phẩm, ghi chú đơn).
 - Che dữ liệu đặt ở một chỗ (`apps/api/src/ai/redact.ts`), mọi chuỗi đi ra lớp kết nối đều qua đây; kiểm thử bảng mẫu.
 - Ngăn trợ lý tải mã riêng khi mở (không làm nặng trang các mini app); thẻ `aria-live` cho câu trả lời dòng chảy.
-- Database migration 0136, 0137 (0138, 0139 dự phòng); ràng buộc kiểm tra quyền định nghĩa lại phải gồm mọi giá trị trên `main` mới nhất.
+- Database migration 0136, 0137 (0138, 0139 đã trả phiên điều phối); ràng buộc kiểm tra quyền định nghĩa lại phải gồm mọi giá trị trên `main` mới nhất.
 - Không thêm thư viện ngoài `@anthropic-ai/sdk`.
 
 ## 16. Điều kiện đặc biệt, điểm chưa xác minh
 
-Cần người dùng chốt khi duyệt đặc tả:
+Người dùng đã chốt ngày 2026-11-17 (mục 17): mô hình mặc định `claude-sonnet-5-5`; hạn mức nhập USD kèm quy đổi VND tham khảo; tên, địa chỉ khách cá nhân không che, ghi rõ trong thông báo; bản nháp thông báo, hồ sơ chuyển dữ liệu ra nước ngoài ở tài liệu `22` do người dùng hoặc tư vấn pháp lý rà trước khi bật thật; người dùng xác nhận điều khoản nhà cung cấp khi đăng ký khóa; xem trước bằng bộ giả lập.
 
-1. Mô hình mặc định và chi phí. Ước tính một lượt hỏi đáp (khoảng 8.000 token đầu vào gồm công cụ, lịch sử, kết quả; 800 token đầu ra) ≈ 0,05 USD với `claude-opus-5-5` (4 / 20 USD mỗi triệu token), giảm khi trúng bộ nhớ đệm. Ví dụ 20 người × 30 lượt × 22 ngày ≈ 13.200 lượt ≈ 660 USD mỗi tháng nếu dùng hết. `claude-sonnet-5-5` (2 / 10 USD) khoảng một nửa; `claude-haiku-5-5` (0,10 / 0,50 USD) khoảng 1/40 nhưng yếu hơn khi chọn công cụ, đọc số liệu. Đề xuất mặc định `claude-opus-5-5` (đổi bằng `AI_MODEL` không cần sửa mã); hạn mức tháng của công ty giới hạn chi phí thật. Đơn giá lấy theo bảng giá hiện hành của nhà cung cấp, cần đối chiếu lại khi ký hợp đồng.
-2. Đơn vị hạn mức: đề xuất USD (đúng đơn vị nhà cung cấp tính tiền, không lệch tỷ giá), màn hình hiện thêm quy đổi VND tham khảo. Phương án khác: nhập VND, quy đổi theo tỷ giá ngày.
-3. Che dữ liệu không gồm tên người và địa chỉ (theo danh sách người dùng chọn). Khách hàng là cá nhân sẽ có tên, địa chỉ gửi ra nhà cung cấp khi hỏi về đơn, công nợ. Đề xuất giữ như đã chọn và ghi rõ trong thông báo; phương án khác là che cả tên khách cá nhân (câu trả lời khó đọc hơn).
-4. Hồ sơ chuyển dữ liệu ra nước ngoài, nội dung thông báo xử lý dữ liệu cá nhân: phiên này soạn bản nháp theo dữ liệu thực tế của hệ thống (loại dữ liệu, nơi nhận, thời gian lưu, biện pháp bảo vệ) ở tài liệu `22`; không tra cứu văn bản pháp luật theo quy định chung. Người dùng hoặc tư vấn pháp lý rà và hoàn thiện trước khi bật cho người dùng thật.
-5. Điều khoản nhà cung cấp (không dùng dữ liệu API để huấn luyện, thời gian nhà cung cấp giữ dữ liệu, nơi xử lý): ghi theo điều khoản thương mại hiện hành của Anthropic; người dùng xác nhận theo hợp đồng thực tế khi đăng ký khóa.
+Ước tính chi phí với `claude-sonnet-5-5` (2 / 10 USD mỗi triệu token): khoảng 0,025 USD một lượt hỏi đáp (8.000 token vào, 800 token ra), giảm khi trúng bộ nhớ đệm.
 
 Điểm khác:
 
 - Chưa đọc `vcomm_ai_integration_guide.md` của V-com-ERP: phiên này không được cấp quyền gắn repo đó. Đặc tả không phụ thuộc tệp này; nếu người dùng muốn đối chiếu thì cấp quyền hoặc dán nội dung.
-- Mã còn dư: MAN_HINH_246 đến 249, API_280, database migration 0138, 0139 trả phiên điều phối nếu đặc tả được duyệt như trên.
+- Mã đã trả phiên điều phối: MAN_HINH_246 đến 249, API_280, database migration 0138, 0139.
 - Thống kê Đúng, Sai chỉ tính trên đánh giá còn giữ (90 ngày) vì đánh giá xóa theo tin nhắn.
 - Khóa API Anthropic do người dùng đăng ký, nạp vào AWS Secrets Manager; cần thêm mục hướng dẫn trong tài liệu `28`. Xem trước dùng bộ giả lập; muốn thử với mô hình thật thì người dùng cấp khóa thử cho môi trường phát triển.
 - Câu trả lời của mô hình có thể sai: giao diện ghi "Trợ lý có thể nhầm, kiểm tra ở màn hình nguồn" và luôn có liên kết tới báo cáo nguồn.
@@ -269,6 +262,13 @@ Cần người dùng chốt khi duyệt đặc tả:
 | Dữ liệu cá nhân | Che điện thoại, email, số định danh, số tài khoản; thông báo xử lý dữ liệu cá nhân; hồ sơ chuyển dữ liệu ra nước ngoài |
 | Bật, tắt | Quản trị bật từng tính năng, quyền `ai.*` |
 | Chất lượng | Nút Đúng, Sai; nhật ký token, chi phí từng lượt |
+| Duyệt đặc tả, bản mẫu, chia lát, thư viện | Duyệt; `@anthropic-ai/sdk` 1.4.0; làm L1, dừng ở điểm xem trước |
+| Mô hình mặc định | `claude-sonnet-5-5`, đổi bằng biến môi trường |
+| Đơn vị hạn mức | USD, hiện quy đổi VND tham khảo |
+| Tên, địa chỉ khách cá nhân | Không che, ghi rõ trong thông báo |
+| Thông báo, hồ sơ chuyển dữ liệu ra nước ngoài | Bản nháp ở tài liệu `22`; người dùng hoặc tư vấn rà trước khi bật thật |
+| Điều khoản nhà cung cấp | Người dùng xác nhận khi đăng ký khóa |
+| Xem trước | Bằng bộ giả lập, không chặn tiến độ |
 
 ## 18. Thành phần không được thay đổi
 
@@ -280,7 +280,7 @@ Cần người dùng chốt khi duyệt đặc tả:
 
 | Lát | Nội dung | Điểm xem trước |
 |---|---|---|
-| L1 | Database migration 0136; thư viện `@anthropic-ai/sdk`; lớp kết nối, bộ giả lập; che dữ liệu; hạn mức, nhật ký lượt, thông báo vượt; API_273, API_278; MAN_HINH_244; hộp thông báo xử lý dữ liệu cá nhân | Ảnh màn hình cài đặt (bật, hạn mức, chưa cấu hình); kết quả bảng kiểm thử che dữ liệu; bản nháp thông báo và hồ sơ chuyển dữ liệu (tài liệu `22`) |
+| L1 | Database migration 0136; thư viện `@anthropic-ai/sdk`; lớp kết nối, bộ giả lập; che dữ liệu; hạn mức, nhật ký lượt, thông báo vượt; API_273, API_278; MAN_HINH_244 (xem nội dung thông báo xử lý dữ liệu cá nhân); hộp xác nhận thông báo nằm trong ngăn trợ lý nên làm ở L2 | Ảnh màn hình cài đặt (bật, hạn mức, chưa cấu hình); kết quả bảng kiểm thử che dữ liệu; bản nháp thông báo và hồ sơ chuyển dữ liệu (tài liệu `22`) |
 | L2 | Database migration 0137; công cụ đọc dữ liệu; API_274 đến 276; ngăn trợ lý MAN_HINH_242 trong `packages/ui`; tác vụ xóa 90 ngày | Ảnh ngăn trợ lý với bộ giả lập: hỏi doanh số, câu trả lời có nguồn, đánh giá, hết hạn mức; nếu người dùng cấp khóa thử: vài câu hỏi thật trên dữ liệu thử |
 | L3 | API_277, MAN_HINH_243 trong biểu mẫu sản phẩm; API_279, MAN_HINH_245; xuất Excel | Ảnh soạn nội dung trước và sau Dùng; ảnh thống kê |
 

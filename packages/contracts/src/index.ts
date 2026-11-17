@@ -8,12 +8,19 @@ export const errorCodes = [
   "FORBIDDEN",
   "IP_NOT_ALLOWED",
   "SCOPE_NOT_GRANTED",
+  "AI_FEATURE_DISABLED",
   "NOT_FOUND",
   "CONFLICT_VERSION",
   "BUSINESS_RULE",
+  "AI_QUOTA_EXCEEDED",
+  "AI_DAILY_LIMIT",
+  "AI_BUSY",
+  "AI_NOTICE_REQUIRED",
   "ACCOUNT_LOCKED",
   "RATE_LIMITED",
   "INTERNAL",
+  "AI_PROVIDER_ERROR",
+  "AI_NOT_CONFIGURED",
 ] as const;
 export type ErrorCode = (typeof errorCodes)[number];
 
@@ -7929,6 +7936,7 @@ export * from "./recruitment";
 export * from "./reviews";
 export * from "./affiliate";
 export * from "./open-api";
+export * from "./ai";
 export * from "./loyalty-partners";
 
 // ---------------------------------------------------------------------------

@@ -1376,3 +1376,48 @@ Kết quả rà soát bảo mật CONG_VIEC_67 (2026-11-12): không phát hiện
 - Đường dẫn chia sẻ có `ref`, `ctv` thành thẻ `og:url` để mạng xã hội giữ mã khi người nhận bấm.
 
 Kết quả rà soát bảo mật CONG_VIEC_68 (2026-11-16): không phát hiện lỗi mức Nghiêm trọng, Cao; không thêm thư viện; quét khóa bí mật và thư viện phụ thuộc trên CI (Quét bảo mật) đạt.
+
+### Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa API Anthropic (`ANTHROPIC_API_KEY`) | Khóa bí mật | Biến môi trường; môi trường thật lấy từ AWS Secrets Manager như khóa bí mật khác (mục 5); không lưu cơ sở dữ liệu, không ghi log, không trả qua API (API_278 chỉ trả "đã cấu hình") | Chỉ ứng dụng khi chạy |
+| Câu hỏi, câu trả lời, công cụ đã gọi (L2) | Nội bộ; có thể chứa dữ liệu cá nhân của khách (tên, địa chỉ) | Schema `ai`, bản đã che (QUYTAC_NGHIEPVU_514); xóa hẳn sau 90 ngày | Chỉ người hỏi (API theo `user_id` và công ty); quản trị không có API đọc nội dung |
+| Nhật ký lượt | Nội bộ | `ai.usage_events`: token, chi phí, trạng thái; không nội dung; giữ 24 tháng | `ai.usage.view`, `ai.settings.manage` (thống kê) |
+| Xác nhận thông báo | Cá nhân (thời điểm đồng ý) | `ai.notice_acknowledgements` | Không có API liệt kê; cài đặt chỉ hiện số người đã xác nhận |
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `GET /api/v1/ai/me`, `POST /ai/me/acknowledge` (API_273) | Phiên nhân viên, CSRF | Chỉ thông tin của chính người gọi; công ty theo thành viên (`X-Company-Id` ngoài công ty của mình trả `403`); không trả số tiền đã dùng |
+| `GET`, `PATCH /api/v1/ai/settings` (API_278) | Phiên nhân viên, CSRF; xem: `ai.settings.manage` hoặc `ai.usage.view`; sửa: `ai.settings.manage` (nhạy cảm) | `version` chống ghi đè; hạn mức 0 đến 10.000 USD, lượt 1 đến 500; nhật ký thao tác trước, sau |
+| Lượt gọi mô hình (API_275, API_277, L2, L3) | Như trên, quyền `ai.*` của tính năng | Kiểm điều kiện trước mỗi lượt (QUYTAC_NGHIEPVU_510, 513): đã cấu hình, công ty bật, còn hạn mức tháng, còn lượt hôm nay, đã xác nhận thông báo; một lượt mỗi người tại một thời điểm; trần token mỗi lần gọi |
+
+- Gửi dữ liệu ra nhà cung cấp: mọi chuỗi đi ra lớp kết nối qua `apps/api/src/ai/redact.ts` (che điện thoại, email, số định danh, số tài khoản theo tên trường và theo mẫu). Tên, địa chỉ khách hàng không che theo quyết định của người dùng (2026-11-17), ghi rõ trong thông báo.
+- Chống chèn lệnh qua dữ liệu (tên sản phẩm, ghi chú đơn chứa câu lệnh): trợ lý chỉ có công cụ đọc, gọi bằng quyền của người hỏi, nên câu lệnh chèn không mở rộng được quyền; lời nhắc hệ thống dặn coi kết quả công cụ là dữ liệu (L2). Câu trả lời hiển thị dạng văn bản, không hiển thị HTML.
+- Bộ giả lập (`AI_PROVIDER=fake`) không gọi mạng; môi trường thật đặt `AI_PROVIDER=anthropic`.
+- Thư viện mới `@anthropic-ai/sdk` 1.4.0 (Apache-2.0; phụ thuộc `standardwebhooks` MIT, `json-schema-to-ts` MIT, `@opentelemetry/api` Apache-2.0). `pnpm audit --audit-level=high` không có lỗ hổng mức Cao (2026-11-17).
+
+#### Bản nháp thông báo xử lý dữ liệu cá nhân – phiên bản 1 (CONG_VIEC_63, 2026-11-17)
+
+Trạng thái: bản nháp do AI soạn theo dữ liệu thực tế của hệ thống; người dùng hoặc tư vấn pháp lý rà và hoàn thiện trước khi bật trợ lý cho người dùng thật. Nội dung hiện trên giao diện lấy từ `packages/i18n` (khóa `aiNotice`); sửa nội dung thì tăng `AI_NOTICE_VERSION` để mọi người xác nhận lại.
+
+1. Câu hỏi của bạn và số liệu trợ lý đọc được (trong phạm vi quyền của bạn) được gửi tới nhà cung cấp mô hình Anthropic, máy chủ ở Hoa Kỳ, để tạo câu trả lời.
+2. Trước khi gửi, hệ thống che số điện thoại, email, số định danh, số tài khoản. Tên, địa chỉ khách hàng không được che.
+3. Theo điều khoản thương mại của nhà cung cấp, dữ liệu gửi qua API không được dùng để huấn luyện mô hình.
+4. Hội thoại lưu 90 ngày trên VComm, chỉ bạn xem được; bạn xóa được bất kỳ lúc nào. Quản trị chỉ xem số lượt, chi phí.
+
+#### Bản nháp hồ sơ chuyển dữ liệu cá nhân ra nước ngoài – trợ lý AI (CONG_VIEC_63, 2026-11-17)
+
+Trạng thái: bản nháp mô tả dữ kiện kỹ thuật; không tra cứu, không trích dẫn văn bản pháp luật (theo quy định chung của dự án). Người dùng hoặc tư vấn pháp lý bổ sung phần pháp lý, thông tin bên chuyển, bên nhận theo mẫu hiện hành và hoàn tất thủ tục trước khi bật cho người dùng thật.
+
+| Mục | Nội dung |
+|---|---|
+| Bên chuyển | Công ty sử dụng VComm bật trợ lý AI (mỗi công ty trong tập đoàn bật riêng ở MAN_HINH_244) |
+| Bên nhận | Anthropic (nhà cung cấp mô hình), xử lý tại Hoa Kỳ; người dùng xác nhận điều khoản thương mại, thời gian nhà cung cấp giữ dữ liệu khi đăng ký khóa API |
+| Mục đích | Tạo câu trả lời cho câu hỏi số liệu của nhân viên; soạn nháp nội dung sản phẩm |
+| Người có dữ liệu bị chuyển | Khách hàng, đối tác có trong đơn bán, công nợ, báo cáo mà nhân viên hỏi; nhân viên hỏi (nội dung câu hỏi) |
+| Loại dữ liệu | Tên, địa chỉ khách hàng, đối tác; số liệu giao dịch (đơn, công nợ, doanh số). Không gửi: số điện thoại, email, số định danh, số tài khoản (che trước khi gửi); dữ liệu nhân sự, lương (không có công cụ đọc) |
+| Cách chuyển | API HTTPS của nhà cung cấp, khóa API riêng của công ty vận hành hệ thống, lưu trong AWS Secrets Manager |
+| Thời gian lưu | Trên VComm: hội thoại 90 ngày, nhật ký lượt (không nội dung) 24 tháng. Tại nhà cung cấp: theo điều khoản thương mại khi đăng ký khóa |
+| Biện pháp bảo vệ | Che dữ liệu một chiều trước khi gửi; chỉ đọc theo quyền của người hỏi; quản trị bật từng tính năng, cấp quyền theo vai trò; hạn mức chi phí; thông báo và xác nhận trước lần dùng đầu; nhật ký thao tác khi đổi cài đặt |
+| Người phụ trách | Người dùng điền |

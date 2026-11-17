@@ -224,8 +224,8 @@
         <div class="the-web"><h2 style="margin:0">Nhà cung cấp, dữ liệu cá nhân</h2>
           ${bang(["Mục", "Giá trị"], [
             ["Nhà cung cấp", "Anthropic (API trực tiếp)" + (trangThai === "chua-cau-hinh" ? " · " + nhan("Chưa cấu hình", "canh-bao") : " · " + nhan("Đã cấu hình", "thanh-cong"))],
-            ["Mô hình", "<code>claude-opus-5-5</code> (đổi bằng cấu hình máy chủ)"],
-            ["Đơn giá", "4 USD / 20 USD mỗi triệu token vào / ra"],
+            ["Mô hình", "<code>claude-sonnet-5-5</code> (đổi bằng cấu hình máy chủ)"],
+            ["Đơn giá", "2 USD / 10 USD mỗi triệu token vào / ra"],
             ["Dữ liệu được che", "Điện thoại, email, số định danh, số tài khoản"],
             ["Lưu hội thoại", "90 ngày, chỉ người hỏi xem được"],
             ["Thông báo xử lý dữ liệu cá nhân", "Phiên bản 1 · 18/24 người dùng đã xác nhận · <a href='#'>Xem nội dung</a>"],

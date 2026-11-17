@@ -786,7 +786,14 @@
     "partnerApiKeyContractTerminated": "The contract has been terminated; no new keys can be issued.",
     "partnerSettlementClosed": "The settlement has been confirmed and cannot be rebuilt.",
     "partnerSettlementNotMatched": "The settlement does not match yet and cannot be confirmed.",
-    "partnerSettlementChanged": "The month's transactions have changed since the settlement was built. Please rebuild it, then confirm."
+    "partnerSettlementChanged": "The month's transactions have changed since the settlement was built. Please rebuild it, then confirm.",
+    "aiFeatureDisabled": "Your company has not enabled this AI assistant feature or has not set a spending limit. Contact your company administrator.",
+    "aiQuotaExceeded": "Your company has used up this month's AI assistant budget. It reopens on the 1st of next month or when an administrator raises the limit.",
+    "aiDailyLimit": "You have used all of today's AI assistant turns. It reopens at midnight.",
+    "aiBusy": "The assistant is still answering your previous question. Wait for it to finish before asking again.",
+    "aiNoticeRequired": "Read and accept the personal data processing notice before using the AI assistant.",
+    "aiProviderError": "The assistant is temporarily unavailable. Try again in a few minutes.",
+    "aiNotConfigured": "The AI model provider has not been configured. Contact your system administrator."
   },
   "login": {
     "title": "Sign in",
@@ -864,7 +871,8 @@
     "integrations": "Integrations",
     "proposalTemplates": "Proposal templates",
     "apiKeys": "Partner API keys",
-    "apiCallLogs": "API call log"
+    "apiCallLogs": "API call log",
+    "aiSettings": "AI assistant"
   },
   "users": {
     "title": "Users",
@@ -10515,5 +10523,52 @@
     "referralHint": "Signing up from this link records {code} as your referrer.",
     "unavailable": "This product is no longer for sale.",
     "viewStore": "Visit the VComm store"
+  },
+  "aiSettings": {
+    "title": "AI assistant settings",
+    "features": "Features",
+    "chatEnabled": "Data questions",
+    "chatHint": "Staff with “Use AI assistant for data questions” can ask about reports, sales orders, products and stock within their own permissions.",
+    "productContentEnabled": "Product content drafting",
+    "productContentHint": "Staff with “Use AI to draft product content” and product edit permission can have AI draft descriptions.",
+    "limits": "Limits",
+    "monthlyBudget": "Monthly spending limit (USD, 0 = off)",
+    "budgetVnd": "≈ {amount} at the USD selling rate of {date} (for reference)",
+    "budgetNoRate": "No USD exchange rate available for reference.",
+    "dailyTurns": "Turns per person per day (1 to 500)",
+    "spent": "Used {spent} USD of {budget} USD in {month} ({percent}%). When the limit is reached the assistant locks until the 1st of next month and settings managers are notified.",
+    "spentNoBudget": "Used {spent} USD in {month}. The limit is 0: the assistant is not available.",
+    "provider": "Provider and personal data",
+    "item": "Item",
+    "value": "Value",
+    "providerName": "Provider",
+    "provider_anthropic": "Anthropic (direct API)",
+    "provider_fake": "Simulator (development and testing only)",
+    "configured": "Configured",
+    "notConfigured": "Not configured",
+    "notConfiguredWarning": "The server has no model provider configured (API key). The assistant cannot be used even when enabled. Contact your system administrator.",
+    "model": "Model",
+    "modelHint": "{model} (changed in server configuration)",
+    "prices": "Prices",
+    "pricesValue": "{input} USD / {output} USD per million input / output tokens",
+    "redacted": "Redacted data",
+    "redactedValue": "Phone numbers, email, ID numbers, bank account numbers",
+    "retention": "Conversation retention",
+    "retentionValue": "90 days, visible only to the person who asked",
+    "notice": "Personal data processing notice",
+    "noticeValue": "Version {version} · {count} users accepted",
+    "showNotice": "Show content",
+    "hideNotice": "Hide content",
+    "saved": "AI assistant settings saved",
+    "readOnly": "You can only view these settings."
+  },
+  "aiNotice": {
+    "title": "Personal data processing notice (version {version})",
+    "sent": "Your question and the data the assistant reads (within your permissions) are sent to the model provider Anthropic, with servers in the United States, to generate the answer.",
+    "redacted": "Before sending, phone numbers, email addresses, ID numbers and bank account numbers are redacted. Customer names and addresses are not redacted.",
+    "training": "Under the provider's commercial terms, data sent through the API is not used to train models.",
+    "retention": "Conversations are kept on VComm for 90 days and only you can see them; you can delete them at any time. Administrators only see turn counts and costs.",
+    "accept": "I have read and accept",
+    "later": "Later"
   }
 }

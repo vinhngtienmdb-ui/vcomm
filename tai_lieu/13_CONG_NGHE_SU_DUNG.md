@@ -210,3 +210,13 @@ Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-
 | Chỉ dùng `node:crypto` | Tự viết xử lý cấu trúc PDF và CMS | Không áp dụng | Không áp dụng | Node.js | Cao, dễ sai |
 
 Quyết định: người dùng duyệt bộ `@signpdf`, `pdf-lib`, `node-forge` ngày 2026-11-12; đồng ý dùng `node-forge` 1.4.3 thay 1.4.2 (bản vá lỗ hổng) cùng ngày.
+
+## 11. Phân tích giải pháp có sẵn – CONG_VIEC_63 trợ lý AI – 2026-11-17
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md` mục 12. Người dùng duyệt ngày 2026-11-17.
+
+| Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc | Rủi ro |
+|---|---|---|---|---|---|
+| `@anthropic-ai/sdk` | Gọi API Anthropic (dòng chảy, gọi công cụ, kết quả có cấu trúc) | Apache-2.0 (đã đọc tệp `LICENSE`; bản trước 1.0.0 là MIT) | 1.4.0, 2026-11-02 | `standardwebhooks` (MIT), `json-schema-to-ts` (MIT), `@opentelemetry/api` (Apache-2.0) | Thấp; API nhà cung cấp đổi nhanh, giữ phiên bản cố định |
+
+Dịch vụ trả phí mới: API Anthropic tính theo token (mô hình mặc định `claude-sonnet-5-5`, 2 / 10 USD mỗi triệu token vào / ra). Chi phí do từng công ty giới hạn bằng hạn mức tháng (mặc định 0, không phát sinh khi chưa bật).
