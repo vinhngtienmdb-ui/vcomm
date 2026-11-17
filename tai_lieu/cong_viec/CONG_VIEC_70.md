@@ -3,7 +3,7 @@
 - Mô tả: Phí tin nhắn OTP SMS của cửa hàng liên kết (THAY_DOI_31, CONG_VIEC_67) đã gửi nhưng chưa vào bảng đối soát tuần được cộng vào dư nợ khi xét hạn mức nợ (QUYTAC_NGHIEPVU_398), kèm thuế giá trị gia tăng. Dư nợ mới dùng chung cho xét tích điểm (tại quầy, qua Open API), báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo dư nợ từ 80 % hạn mức.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Đã lập trình, kiểm thử; chờ người dùng nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-17).
 - Mức: Vừa (sửa quy tắc nghiệp vụ đã duyệt trong một module; không đổi cấu trúc dữ liệu, API, giao diện, quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_70-phi-tin-nhan-du-no`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-17; CONG_VIEC_67 mục 20 ghi nhận "Phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức"; quyết định của người dùng (mục 17).
@@ -98,7 +98,7 @@ Kiểm thử tự động: `apps/api/test/c70-sms-exposure.test.ts`. Hồi quy: 
 
 ## 16. Điều kiện đặc biệt, điểm chưa xác minh
 
-- Sau triển khai, cửa hàng đang có tin chưa chốt thấy dư nợ tăng ngay và có thể bị chặn tích sớm hơn; nên báo cửa hàng có phí mỗi tin lớn hơn 0 trước khi triển khai.
+- Rủi ro khi triển khai: sau triển khai, cửa hàng đang có tin chưa chốt thấy dư nợ tăng ngay và có thể bị chặn tích sớm hơn. Trước khi triển khai, nên báo trước các cửa hàng có phí mỗi tin OTP lớn hơn 0 (người dùng nhắc khi nghiệm thu 2026-11-17).
 
 ## 17. Quyết định của người dùng (2026-11-17, qua phiên điều phối)
 
@@ -109,6 +109,7 @@ Kiểm thử tự động: `apps/api/test/c70-sms-exposure.test.ts`. Hồi quy: 
 | Gửi OTP khi vượt hạn mức, quá hạn | Vẫn gửi |
 | Hiển thị | Chỉ đổi số dư nợ tổng, không đổi giao diện |
 | Tin gửi trước khi triển khai, chưa vào bảng | Tính |
+| Nghiệm thu | Nghiệm thu 2026-11-17; báo trước cửa hàng có phí tin > 0 trước khi triển khai |
 | Mã | THAY_DOI_36, TIEUCHI_NGHIEMTHU_535, KICHBAN_KIEMTHU_731 đến 733; không cấp QUYTAC mới; database migration 0157 không dùng |
 
 ## 18. Thành phần không được thay đổi
@@ -130,7 +131,7 @@ Kiểm thử tự động: `apps/api/test/c70-sms-exposure.test.ts`. Hồi quy: 
 | Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt theo mục 5; không đổi quyền, dữ liệu |
 | Giao diện | Không đổi |
 | Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU_535 đạt bằng `apps/api/test/c70-sms-exposure.test.ts` (3 kiểm thử); chạy trên mã cũ cả 3 không đạt |
-| Kiểm thử toàn bộ máy chủ | Xem tài liệu `25` (phiên điều phối ghi) |
+| Kiểm thử toàn bộ máy chủ | Một tiến trình: 150 tệp, 816/817; `c5-documents` KICHBAN_KIEMTHU_153 (ngưỡng thời gian 500 ms) không đạt một lần, chạy lại riêng 6/6 đạt, không liên quan thay đổi; chi tiết tài liệu `25` (phiên điều phối ghi) |
 | Kiểm tra kiểu | `pnpm --filter api typecheck` đạt |
 | Rà soát bảo mật | Không thêm điểm tiếp nhận, dữ liệu, thư viện; truy vấn tham số hóa, lọc theo cửa hàng |
 | Tài liệu | `07`, `11`, `21`, `22`, `27`; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
