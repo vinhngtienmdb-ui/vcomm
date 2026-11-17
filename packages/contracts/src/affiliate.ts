@@ -93,6 +93,8 @@ export interface AffiliateMember {
   status: AffiliateMemberStatus;
   outletIds: string[];
   invitationExpiresAt: string | null;
+  // CONG_VIEC_72: thành viên đã kích hoạt đã thiết lập mật khẩu và ứng dụng xác thực chưa; null khi chưa kích hoạt.
+  securitySetUp: boolean | null;
   version: number;
 }
 export interface AffiliateMerchantTerms {
@@ -700,3 +702,28 @@ export interface OpenAffiliateTransaction {
   expiresAt: string | null;
   cancelReason: string | null;
 }
+
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_570): bảo mật đăng nhập cổng cửa hàng liên kết.
+// set_up: đã có mật khẩu và ứng dụng xác thực; optional: chưa thiết lập, còn thời hạn chuyển đổi ("Để sau");
+// required: phiên kích hoạt bằng mã SMS, phải thiết lập xong mới vào cổng; mfa_pending: cần nhập mã ứng dụng xác thực;
+// blocked: hết hạn hoặc đã bị đặt lại mà chưa kích hoạt lại bằng mã SMS, nhờ người mời đặt lại xác thực.
+export const merchantPortalSecurityStatuses = ["set_up", "optional", "required", "mfa_pending", "blocked"] as const;
+export type MerchantPortalSecurityStatus = (typeof merchantPortalSecurityStatuses)[number];
+export interface MerchantPortalSecurity {
+  status: MerchantPortalSecurityStatus;
+  needsPassword: boolean;
+  needsAuthenticator: boolean;
+  transitionEndsOn: string;
+  daysLeft: number;
+}
+// API_324: chính sách công khai cho trang đăng nhập cổng: còn liên kết "Đăng nhập bằng mã SMS" trong thời hạn.
+export interface MerchantPortalAuthenticationPolicy {
+  transitionEndsOn: string;
+  smsLoginOpen: boolean;
+}
+export const merchantPortalPasswordSchema = z.object({ password: z.string().max(256) }).strict();
+const authenticatorCode = z.string().regex(/^\d{6}$/);
+export const merchantPortalPasswordResetSchema = z
+  .object({ phone: vietnamPhone, code: authenticatorCode.optional(), backupCode: z.string().trim().min(8).max(20).optional(), password: z.string().max(256) })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.backupCode), { path: ["code"] });

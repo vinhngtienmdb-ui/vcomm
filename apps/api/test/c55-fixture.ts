@@ -10,6 +10,7 @@ import { testIds } from "../src/database/seed";
 import { creditLot } from "../src/loyalty/ledger.service";
 import { lockAccount } from "../src/loyalty/tiers";
 import { PermissionService } from "../src/permissions/permission.service";
+import { authenticatorCode, completePortalSetup } from "./portal-setup";
 import { sessionFrom, signIn, type Session } from "./helpers";
 import type { BuyerCall } from "./marketplace-fixture";
 
@@ -25,6 +26,8 @@ export interface AffiliateFixture {
   outletB: string;
   today: string;
   activate: (phone: string) => Promise<Session>;
+  // CONG_VIEC_72: mã ứng dụng xác thực hiện tại của thành viên cổng đã kích hoạt (số điện thoại dạng 09…).
+  authenticator: (phone: string) => string;
   register: (phone: string, name: string) => Promise<{ id: string; call: BuyerCall; phone: string }>;
   grantPoints: (userId: string, points: number) => Promise<void>;
   createMerchant: (name: string, taxCode: string, contractNo: string) => Promise<string>;
@@ -35,13 +38,18 @@ export async function prepareAffiliate(application: NestExpressApplication, pool
   const setOtp = async (phone: string) => {
     await pool.query("UPDATE core.otp_codes SET code_hash = $1 WHERE phone = $2 AND consumed_at IS NULL", [createHash("sha256").update("246810").digest("hex"), `+84${phone.slice(1)}`]);
   };
+  const secrets = new Map<string, string>();
   const activate = async (phone: string): Promise<Session> => {
     expect((await http().post("/api/v1/merchant-portal/activation/otp").send({ phone })).status).toBe(204);
     await setOtp(phone);
     const response = await http().post("/api/v1/merchant-portal/activation").send({ phone, code: "246810" });
     expect(response.status, JSON.stringify(response.body)).toBe(200);
-    return sessionFrom(application, response.headers["set-cookie"]);
+    const session = sessionFrom(application, response.headers["set-cookie"]);
+    const setup = await completePortalSetup(session);
+    if (setup) secrets.set(phone, setup.secret);
+    return session;
   };
+  const authenticator = (phone: string) => authenticatorCode(secrets.get(phone)!);
   const register = async (phone: string, name: string) => {
     expect((await http().post("/api/v1/buyer/register/otp").send({ phone })).status).toBe(204);
     await setOtp(phone);
@@ -97,5 +105,5 @@ export async function prepareAffiliate(application: NestExpressApplication, pool
   const owner = await activate("0909111222");
   await owner.call("post", "/merchant-portal/members", { body: { fullName: "Lê Thu Hà", phone: "0912333444", outletIds: [outletA] } });
   const cashier = await activate("0912333444");
-  return { admin, call, owner, cashier, merchantId, outletA, outletB, today, activate, register, grantPoints, createMerchant };
+  return { admin, call, owner, cashier, merchantId, outletA, outletB, today, activate, authenticator, register, grantPoints, createMerchant };
 }

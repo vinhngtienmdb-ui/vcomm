@@ -37,6 +37,7 @@ import { webOrigin } from "../common/outbound-messages";
 import { oauthProviders, OauthService, oauthStateCookieName } from "./oauth.service";
 import type { OauthProvider } from "./oauth-providers";
 import { PhoneOtpService } from "./phone-otp.service";
+import { AuthenticationSettingsService } from "./authentication-settings.service";
 import { PermissionService } from "../permissions/permission.service";
 import { verifyAccessToken } from "./tokens";
 
@@ -77,6 +78,7 @@ export class AuthController {
     private readonly oauth: OauthService,
     private readonly messaging: MessagingService,
     private readonly permissionService: PermissionService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
   ) {}
 
   // API_54: cách đăng nhập đã cài đặt, để MAN_HINH_01 chỉ hiện nút dùng được.
@@ -97,7 +99,14 @@ export class AuthController {
   @Post("otp/send")
   @HttpCode(204)
   async sendOtp(@Body() body: unknown): Promise<void> {
-    await this.phoneOtp.send(otpSendSchema.parse(body).phone);
+    const input = otpSendSchema.parse(body);
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_570): cổng cửa hàng chỉ đăng nhập bằng mã SMS trong thời hạn chuyển đổi; tin tính riêng trong thống kê.
+    if (input.app === "merchant") {
+      if (!(await this.authenticationSettings.portalTransitionOpen())) throw new ApiError("BUSINESS_RULE", "merchantPortalSmsDisabled");
+      await this.phoneOtp.send(input.phone, "login", true, "merchant_portal");
+      return;
+    }
+    await this.phoneOtp.send(input.phone);
   }
 
   // API_03
@@ -107,6 +116,7 @@ export class AuthController {
   @HttpCode(200)
   async verifyOtp(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
     const input = otpVerifySchema.parse(body);
+    if (input.app === "merchant" && !(await this.authenticationSettings.portalTransitionOpen())) throw new ApiError("BUSINESS_RULE", "merchantPortalSmsDisabled");
     const { response: result, session } = await this.phoneOtp.verify(input.phone, input.code, clientInfo(request));
     setSessionCookies(response, session);
     return result;
@@ -155,7 +165,9 @@ export class AuthController {
         return response.redirect(302, pending.app === "merchant" ? `${webOrigin()}/merchant/counter?lienKet=${outcome.provider}` : `${webOrigin()}/ho-so?lienKet=${outcome.provider}`);
       if (outcome.kind === "activated") return response.redirect(302, `${webOrigin()}/dang-nhap?kichHoat=${outcome.provider}`);
       setSessionCookies(response, outcome.session);
-      response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/xac-thuc" : pending.app === "merchant" ? "/merchant" : "/"}`);
+      // Cổng cửa hàng (CONG_VIEC_72): Zalo xong vẫn nhập mã ứng dụng xác thực ngay trên trang đăng nhập cổng.
+      if (pending.app === "merchant") return response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/merchant/dang-nhap?buoc=ma" : "/merchant"}`);
+      response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/xac-thuc" : "/"}`);
     } catch (error) {
       response.redirect(302, errorRedirect(pending.mode, error, pending.activationToken ?? undefined, pending.app));
     }

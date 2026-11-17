@@ -1,7 +1,7 @@
 // CONG_VIEC_72 (THAY_DOI_37): ưu tiên Smart OTP thay SMS – tham số chuyển đổi, thống kê (API_323; QUYTAC_NGHIEPVU_561, 572).
 import { z } from "zod";
 
-export const otpStatisticPurposes = ["register", "smart_otp", "login", "password_reset", "affiliate_redeem"] as const;
+export const otpStatisticPurposes = ["register", "smart_otp", "login", "password_reset", "affiliate_redeem", "merchant_portal"] as const;
 export type OtpStatisticPurpose = (typeof otpStatisticPurposes)[number];
 
 export interface AuthenticationSettingsResponse {

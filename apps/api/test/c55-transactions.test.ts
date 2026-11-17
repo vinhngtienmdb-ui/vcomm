@@ -10,6 +10,7 @@ import { testIds } from "../src/database/seed";
 import { creditLot } from "../src/loyalty/ledger.service";
 import { lockAccount } from "../src/loyalty/tiers";
 import { PermissionService } from "../src/permissions/permission.service";
+import { completePortalSetup } from "./portal-setup";
 import { sessionFrom, signIn, type Session } from "./helpers";
 import type { BuyerCall } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
@@ -35,7 +36,9 @@ async function activate(phone: string): Promise<Session> {
   await setOtp(phone);
   const response = await http().post("/api/v1/merchant-portal/activation").send({ phone, code: "246810" });
   expect(response.status, JSON.stringify(response.body)).toBe(200);
-  return sessionFrom(application, response.headers["set-cookie"]);
+  const session = sessionFrom(application, response.headers["set-cookie"]);
+  await completePortalSetup(session);
+  return session;
 }
 async function register(phone: string, name: string): Promise<{ id: string; call: BuyerCall; phone: string }> {
   expect((await http().post("/api/v1/buyer/register/otp").send({ phone })).status).toBe(204);

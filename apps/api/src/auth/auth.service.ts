@@ -88,10 +88,15 @@ export class AuthService {
     identifier: string,
     client: ClientInfo,
     clientType: SessionClientType = "web",
+    options: { setupPending?: boolean } = {},
   ): Promise<{ response: LoginResponse & { deviceVerificationRequired?: boolean; verificationMethod?: DeviceVerificationMethod | null }; session: IssuedSession }> {
     const now = client.now ?? new Date();
     const mfaEnrolled = await this.mfa.isEnrolled(user.id);
-    const needsMfa = user.mfaRequired || mfaEnrolled;
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_570, mục 15): ứng dụng xác thực của thành viên cổng cửa hàng chỉ áp cho cổng;
+    // đăng nhập ứng dụng VComm của người đó vẫn theo xác nhận thiết bị (QUYTAC_NGHIEPVU_565).
+    const enrolledApplies = mfaEnrolled && !(clientType === "vcomm_app" && (await this.portalMember(user.id)));
+    // setupPending: phiên kích hoạt cổng của tài khoản chưa thiết lập bảo mật chỉ dùng được các bước thiết lập (phiên chờ như xác thực hai lớp).
+    const needsMfa = user.mfaRequired || enrolledApplies || Boolean(options.setupPending);
     // CONG_VIEC_72 (QUYTAC_NGHIEPVU_565): ứng dụng VComm đăng nhập bằng mật khẩu trên thiết bị chưa tin cậy thì phiên chờ xác nhận.
     // Mã SMS (đã chứng minh giữ số), Zalo (giữ nguyên theo quyết định người dùng) và tài khoản đã qua xác thực hai lớp không hỏi thêm.
     const deviceHash = deviceHashOf(client.deviceId);
@@ -132,6 +137,16 @@ export class AuthService {
       },
       session,
     };
+  }
+
+  // Thu hồi mọi phiên của tài khoản theo loại ứng dụng (CONG_VIEC_72: đặt lại xác thực, quên mật khẩu cổng cửa hàng thu hồi phiên web).
+  async revokeSessions(executor: Pick<Database, "execute">, userId: string, clientType: SessionClientType): Promise<void> {
+    await executor.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE user_id = ${userId} AND client_type = ${clientType} AND revoked_at IS NULL`);
+  }
+
+  private async portalMember(userId: string): Promise<boolean> {
+    const rows = await this.database.execute(sql`SELECT 1 FROM affiliate.members WHERE user_id = ${userId} AND status = 'active' LIMIT 1`);
+    return rows.rows.length > 0;
   }
 
   // Đổi token làm mới mỗi lần dùng; dùng lại token cũ thì thu hồi cả chuỗi phiên (tài liệu 22 mục 3).

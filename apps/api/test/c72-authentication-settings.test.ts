@@ -101,6 +101,7 @@ describe("CONG_VIEC_72 lát L1", () => {
       { purpose: "login", count: 0 },
       { purpose: "password_reset", count: 0 },
       { purpose: "affiliate_redeem", count: 0 },
+      { purpose: "merchant_portal", count: 0 },
     ]);
 
     const body = { transitionStartsOn: "2026-11-18", buyerTransitionDays: 45, portalTransitionDays: 20, recoveryRedeemLockHours: 48, supportHotline: "1900 1234", version: 1 };

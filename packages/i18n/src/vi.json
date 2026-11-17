@@ -797,7 +797,12 @@
     "smartOtpPreferred": "Tài khoản dùng Smart OTP: đăng nhập bằng mật khẩu rồi nhập mã Smart OTP.",
     "loyaltyRedeemLocked": "Dùng điểm đang tạm khóa do tài khoản vừa khôi phục Smart OTP. Vẫn tích điểm bình thường; thử lại sau thời điểm hết khóa.",
     "affiliateSmartOtpRequired": "Đã hết thời hạn dùng mã SMS. Khách cần kích hoạt Smart OTP trên ứng dụng VComm, hoặc dùng mã thành viên, xác nhận trên ứng dụng.",
-    "partnerSmartOtpActivationRequired": "Kích hoạt Smart OTP để đổi điểm ra đối tác."
+    "partnerSmartOtpActivationRequired": "Kích hoạt Smart OTP để đổi điểm ra đối tác.",
+    "merchantPortalSecurityRequired": "Hoàn tất thiết lập bảo mật (mật khẩu, ứng dụng xác thực) để vào cổng.",
+    "merchantPortalSecurityBlocked": "Tài khoản chưa thiết lập bảo mật và đã hết thời hạn dùng mã SMS. Nhờ chủ cửa hàng (thu ngân) hoặc VComm (chủ cửa hàng) đặt lại xác thực, rồi vào thẻ Kích hoạt.",
+    "merchantPortalSmsDisabled": "Cổng cửa hàng không còn đăng nhập bằng mã SMS. Đăng nhập bằng mật khẩu và mã ứng dụng xác thực.",
+    "merchantPortalPasswordNotNeeded": "Tài khoản đã có mật khẩu.",
+    "merchantPortalResetStaff": "Tài khoản này là tài khoản nhân viên bắt buộc xác thực hai lớp, không đặt lại được từ cổng cửa hàng."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4747,7 +4752,8 @@
     "smsPurpose_login": "Đăng nhập (dự phòng)",
     "smsPurpose_password_reset": "Quên mật khẩu (dự phòng)",
     "smsPurpose_affiliate_redeem": "Cửa hàng liên kết qua Open API (dự phòng)",
-    "authenticationPageTitle": "Xác thực người mua"
+    "authenticationPageTitle": "Xác thực người mua",
+    "smsPurpose_merchant_portal": "Đăng nhập cổng cửa hàng liên kết (dự phòng)"
   },
   "listings": {
     "title": "Đăng bán",

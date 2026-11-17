@@ -7,6 +7,7 @@ import type { z } from "zod";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
+import { portalSetUpSql } from "../affiliate/portal-set-up";
 import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "./auth.service";
 
@@ -95,12 +96,11 @@ export class AuthenticationSettingsService {
         FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id AND u.status = 'active'
         LEFT JOIN core.smart_otp_devices d ON d.user_id = b.user_id`)
     ).rows[0]!;
-    // Thành viên cổng đang hoạt động; đã thiết lập = có mật khẩu và ứng dụng xác thực đã xác nhận.
+    // Thành viên cổng đang hoạt động; đã thiết lập = có mật khẩu và ứng dụng xác thực đã xác nhận (sau lần đặt lại xác thực nếu có).
     const portal = (
       await this.database.execute<{ members: number; set_up: number }>(sql`
         SELECT count(DISTINCT m.user_id)::int AS members,
-          count(DISTINCT m.user_id) FILTER (WHERE EXISTS (SELECT 1 FROM core.user_identities i WHERE i.user_id = m.user_id AND i.provider = 'password') AND EXISTS (
-            SELECT 1 FROM core.mfa_factors f WHERE f.user_id = m.user_id AND f.factor_type = 'totp' AND f.confirmed_at IS NOT NULL))::int AS set_up
+          count(DISTINCT m.user_id) FILTER (WHERE ${portalSetUpSql(sql`m.user_id`)})::int AS set_up
         FROM affiliate.members m JOIN core.users u ON u.id = m.user_id AND u.status = 'active'
         WHERE m.status = 'active'`)
     ).rows[0]!;

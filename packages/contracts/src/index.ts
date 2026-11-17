@@ -866,10 +866,11 @@ export interface MessageDeliveryItem {
 }
 
 // API_02, API_03: đăng nhập bằng số điện thoại (CHUC_NANG_08).
-export const otpSendSchema = z.object({ phone: phoneE164 }).strict();
+// app "merchant": gọi từ trang đăng nhập cổng cửa hàng liên kết (CONG_VIEC_72; sau thời hạn cổng bị từ chối).
+export const otpSendSchema = z.object({ phone: phoneE164, app: z.literal("merchant").optional() }).strict();
 // MAN_HINH_19: gửi thử một tin theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau) tới số do quản trị nhập.
 export const integrationTestMessageSchema = z.object({ phone: phoneE164 }).strict();
-export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/) }).strict();
+export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/), app: z.literal("merchant").optional() }).strict();
 
 // API_54: cách đăng nhập đang dùng được, để MAN_HINH_01 hiện nút.
 export interface AuthMethodsResponse {

@@ -126,6 +126,7 @@ import { AffiliateController } from "./affiliate/affiliate.controller";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
+import { MerchantPortalSecurityService } from "./affiliate/portal-security.service";
 import { AffiliateTransactionsService } from "./affiliate/transactions.service";
 import { AffiliateVouchersService } from "./affiliate/vouchers.service";
 import { AffiliateSettlementsService } from "./affiliate/settlements.service";
@@ -365,6 +366,7 @@ import { UsersService } from "./users/users.service";
     PartnerSettlementsService,
     AffiliateMerchantsService,
     MerchantPortalService,
+    MerchantPortalSecurityService,
     AffiliateTransactionsService,
     AffiliateVouchersService,
     AffiliateSettlementsService,

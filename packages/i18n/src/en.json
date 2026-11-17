@@ -797,7 +797,12 @@
     "smartOtpPreferred": "This account uses Smart OTP: sign in with your password, then enter the Smart OTP code.",
     "loyaltyRedeemLocked": "Point use is paused because Smart OTP was just recovered on this account. Points can still be earned; try again after the pause ends.",
     "affiliateSmartOtpRequired": "Text codes are no longer available. The customer needs to activate Smart OTP in the VComm app, or use the member code or in-app confirmation.",
-    "partnerSmartOtpActivationRequired": "Activate Smart OTP to exchange points to a partner."
+    "partnerSmartOtpActivationRequired": "Activate Smart OTP to exchange points to a partner.",
+    "merchantPortalSecurityRequired": "Finish the security setup (password, authenticator app) to enter the portal.",
+    "merchantPortalSecurityBlocked": "This account has no security setup and the SMS period has ended. Ask the store owner (cashiers) or VComm (owners) to reset authentication, then use the Activate tab.",
+    "merchantPortalSmsDisabled": "The store portal no longer accepts SMS sign-in. Sign in with your password and authenticator code.",
+    "merchantPortalPasswordNotNeeded": "This account already has a password.",
+    "merchantPortalResetStaff": "This is a staff account with mandatory two-step verification; it cannot be reset from the store portal."
   },
   "login": {
     "title": "Sign in",
@@ -4747,7 +4752,8 @@
     "smsPurpose_login": "Sign-in (fallback)",
     "smsPurpose_password_reset": "Forgot password (fallback)",
     "smsPurpose_affiliate_redeem": "Affiliate stores via Open API (fallback)",
-    "authenticationPageTitle": "Buyer authentication"
+    "authenticationPageTitle": "Buyer authentication",
+    "smsPurpose_merchant_portal": "Store portal sign-in (fallback)"
   },
   "listings": {
     "title": "Listings",
