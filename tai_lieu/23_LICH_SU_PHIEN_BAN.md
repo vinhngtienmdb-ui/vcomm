@@ -22,7 +22,7 @@
 - Công việc gộp trong phiên bản: LOI_15 (pull request #196, đầu nhánh `491a7a0f`). Nhánh phát hành tạo từ `main` `56bbc8f` (sau khi hợp nhất pull request #197).
 - Kiểm thử:
   - Tái hiện lỗi trên bản web ứng dụng VComm với API thật trên máy (màn hình Cửa hàng liên kết, nút "Hiện mã thành viên"): trước khi sửa gửi `text/plain`, máy chủ trả 400 `VALIDATION_FAILED`; sau khi sửa gửi `application/json`, máy chủ trả 200 và hiện mã QR. Kiểm tra mức HTTP các đường quét mã, xác nhận, từ chối giao dịch, nhận voucher: đạt. Kết quả ghi ở tài liệu `25`.
-  - Trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER): đang chạy, ghi kết quả khi xong.
+  - Trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER) 154 tệp, 875 kiểm thử đạt.
 - Tag: `v0.13.1` trên commit hợp nhất nhánh `phat-hanh/v0.13.1` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Triển khai: chưa triển khai.
 - Phương án quay lui riêng của phiên bản: triển khai lại tag `v0.13.0` (ứng dụng VComm bản web; bản di động phát hành lại bản dựng từ `v0.13.0`). Không có database migration, biến môi trường, quyền, tác vụ nền cần hoàn tác. Quay lui thì lỗi LOI_15 xuất hiện lại.
