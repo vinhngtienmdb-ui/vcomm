@@ -183,6 +183,25 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_69
+
+- Phạm vi: liên kết "Nhật ký gọi" ở khóa API cửa hàng liên kết, đối tác liên minh điểm mở MAN_HINH_226 lọc sẵn theo khóa; AffiliateApiKeys.tsx, LoyaltyPartnerApiKeys.tsx (web-crm), MAN_HINH_226, ApiCallLogTable.tsx (web-platform); nhánh `sua-loi/CONG_VIEC_69-nhat-ky-goi-loc-khoa` (pull request #173, commit `4f132d8`).
+- Kết quả: kiểm tra kiểu, lint đạt; kiểm thử API 814/814, mobile-warehouse 5/5; Playwright 1360 và 390 điểm ảnh trên dữ liệu giả (2 khóa, 12 lần gọi): mở ?apiKeyId hiện 8/8 dòng đúng khóa, ô Khóa hiện tên; chọn "Tất cả khóa" hiện 12 dòng; sửa sau nghiệm thu: khóa không thuộc công ty đang chọn thì bỏ lọc (12 dòng). Ba kết quả mong đợi trong tài liệu 03 đạt.
+- Bảo mật phần B, C: không thêm thư viện; không đổi phân quyền, dữ liệu; tham số địa chỉ kiểm tra dạng uuid, máy chủ vẫn kiểm quyền và công ty.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_70
+
+- Phạm vi: THAY_DOI_36 – dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế (`merchantExposure`); nhánh `chuc-nang/CONG_VIEC_70-phi-tin-nhan-du-no` (pull request #174, commit `a4f9612`).
+- Kết quả: c70-sms-exposure 3/3 (KICHBAN_KIEMTHU_731 đến 733; chạy trên mã cũ cả 3 không đạt); toàn bộ kiểm thử API 150 tệp 816/817, lỗi còn lại là kiểm thử hiệu năng c5-documents (KICHBAN_KIEMTHU_153, 50.000 dòng dưới 500 ms) do máy chậm khi chạy dài, chạy lại riêng 6/6 đạt; mọi c55, c67 đạt; kiểm tra kiểu đạt.
+- Bảo mật phần B, C: không đổi dữ liệu, API, quyền; không thêm thư viện.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_71
+
+- Phạm vi: chỉ tài liệu (01, 04, 05, 23, cong_viec/CONG_VIEC_61, index), pull request #170. Không áp dụng kiểm thử mã.
+- Đối chiếu: tìm "sản xuất" trong toàn bộ tài liệu, ngoài sổ chỉ còn ghi chú đã bỏ theo THAY_DOI_30 và "ngày sản xuất" của lô; trạng thái module ở 01 khớp 03 và 23; tag v0.1.0 đến v0.11.0 có trên kho; tiêu đề phiên bản ở 23 khớp các tag. Kết quả: Đạt. Người dùng duyệt 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – Phát hành 0.11.0
 
 - Phạm vi: nhánh `phat-hanh/v0.11.0` gộp CONG_VIEC_62 (`7a3e5af`), CONG_VIEC_65 (`b823305`), CONG_VIEC_68 (`5027197`) (pull request #166, commit hợp nhất `4916028`).

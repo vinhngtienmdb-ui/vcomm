@@ -9,12 +9,17 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_69, 70 trình nghiệm thu (pull request #173, #174); CONG_VIEC_71 dọn tài liệu (pull request #170; commit đầu lệch mẫu commit, giữ nguyên; quy ước Git ghi loại `tai-lieu` trong khi lịch sử dùng `docs`, cần thống nhất sau); CONG_VIEC_63 lập đặc tả, bản mẫu (pull request #172).
 - Cấp LOI_14 (kiểm thử lỗi khi chạy qua 0 giờ giờ Việt Nam), mở phiên sửa.
 - Người dùng yêu cầu mở thêm phiên: cấp CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ xét hạn mức), CONG_VIEC_71 (dọn tài liệu quản lý sản xuất, cập nhật tài liệu 01); mở lại CONG_VIEC_63 (trợ lý AI). Xóa hai dòng trùng cũ của CONG_VIEC_57, 58 trong tài liệu 03 (bản ghi "chờ phát hành"; dòng đúng là đã phát hành v0.6.0).
 - Phát hành 0.11.0 (pull request #166, commit hợp nhất `4916028`): CONG_VIEC_62 (Dropship), CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn), CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội); THAY_DOI_33, 34, 35. Database migration 0156 gộp ràng buộc phạm vi khóa API. Kiểm thử API 814 đạt. Không thêm thư viện. Chưa triển khai.
 
 ### Quyết định
 
+- CONG_VIEC_70 (người dùng chốt 2026-11-17): dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế; phí D, E chưa chốt giữ nguyên; vẫn gửi OTP khi vượt hạn mức; giao diện chỉ đổi số tổng. Cấp THAY_DOI_36.
+- CONG_VIEC_63 (người dùng chốt 2026-11-17): bản đầu cho nhân viên nội bộ; hỏi đáp dữ liệu chỉ đọc qua API có sẵn và soạn nội dung sản phẩm cho nhân viên duyệt; cùng quyền dữ liệu người hỏi; lưu hội thoại 90 ngày; che điện thoại, email, số định danh, số tài khoản (không che tên, địa chỉ khách); API Anthropic trực tiếp qua lớp kết nối trung lập, mô hình mặc định claude-sonnet-5-5; hạn mức tiền tháng theo công ty tính USD, mặc định 0 (tắt); xem trước bằng bộ giả lập. Duyệt đặc tả, bản mẫu MAN_HINH_242 đến 245, thư viện @anthropic-ai/sdk 1.4.0 (Apache-2.0).
+- Người dùng nghiệm thu CONG_VIEC_69 (yêu cầu sửa thêm bỏ lọc khóa cũ khi đổi công ty), CONG_VIEC_70; duyệt CONG_VIEC_71 kèm sửa tài liệu 23, 05 mục 4.
+- Người dùng yêu cầu ưu tiên Smart OTP thay SMS, Zalo truyền thống (2026-11-17): áp cho xác thực giao dịch điểm, đăng nhập người mua, quên mật khẩu, cổng cửa hàng liên kết; khách chưa kích hoạt dùng SMS dự phòng trong thời hạn chuyển đổi rồi bắt buộc; giữ đăng nhập Zalo và thông báo ZNS. Mở CONG_VIEC_72.
 - Người dùng 2026-11-17: sửa ngay LOI_14 kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example; chưa triển khai 0.4.0 đến 0.11.0; giữ tạm dừng CONG_VIEC_63 (sau đó người dùng mở lại cùng ngày).
 
 ### Vấn đề tồn đọng
@@ -38,7 +43,6 @@
 
 ### Quyết định
 
-- CONG_VIEC_70 (người dùng chốt 2026-11-17): dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế; phí D, E chưa chốt giữ nguyên; vẫn gửi OTP khi vượt hạn mức; giao diện chỉ đổi số tổng. Cấp THAY_DOI_36.
 - Phát hành 0.10.0 gồm CONG_VIEC_60, 67 ngay; dành database migration 0156 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần. Chưa triển khai.
 - Quy tắc chống gian lận 2 (QUYTAC_NGHIEPVU_476) áp dụng đủ cho chiều đổi điểm ra của CONG_VIEC_65 (làm trong lát L4; phiếu tài liệu 24 lập sau).
 - CONG_VIEC_68: trang chia sẻ do API trả HTML; tên miền qua biến SHARE_PUBLIC_URL; tệp danh mục gồm mọi sản phẩm đang bán, sản phẩm chưa có ảnh không đưa vào; mã bí mật quản lý trên web; không thêm thư viện (người dùng chọn 2026-11-12).
