@@ -485,6 +485,34 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Nút "Tăng độ sáng" trên MAN_HINH_276 (thư viện `expo-brightness` 58.0.2, người dùng duyệt, ghi tài liệu 13 mục 13): đặt độ sáng tối đa cho riêng màn hình ứng dụng, bấm lại hoặc rời màn hình thì trả độ sáng cũ; bản web không có nút.
 - Người dùng chọn (2026-11-17): voucher trên MAN_HINH_277 làm ở L4 cùng cửa hàng liên kết, vì quầy tập đoàn chưa có voucher.
 
+### Kết quả lát L4 (2026-11-17)
+
+- Database migration 0163:
+  - `affiliate.merchants` thêm công tắc thu hộ, phí thu hộ, tài khoản nhận tiền, thời điểm và người xác nhận cảnh báo pháp lý.
+  - Bảng mới `instore.gateway_fee_rates`, `instore.payouts` (khung, lập ở L5), `instore.payout_deductions`.
+  - `affiliate.transactions` thêm tiền thu hộ, phí sàn, phí cổng, `checkout_id`; nguồn `ipos`.
+- Máy chủ:
+  - Giao dịch LK… tách hai bước: dùng voucher, điểm (khi khách bấm thanh toán, xác nhận) và tích điểm, ghi hoàn tất, hạch toán (khi tiền về, hoặc ngay khi xác nhận nếu thu tại quầy). Luồng cũ của CONG_VIEC_55 gọi liền hai bước như trước.
+  - Bộ xử lý loại `affiliate` (`apps/api/src/affiliate/affiliate-checkouts.service.ts`); voucher dùng được kèm số điểm tối đa sau voucher.
+  - Phí sàn, phí thu hộ và phí cổng chốt khi tiền về, áp dụng cả quầy tập đoàn.
+  - Móc `registerCompletionHook` cho iPOS (đã gửi tên hàm, kiểu dữ liệu cho phiên CONG_VIEC_74).
+  - Dư nợ cửa hàng trừ tiền thu hộ chờ chuyển sau phí.
+  - API_329; API_332 (thêm `GET /affiliate/merchants/{id}/collection` để màn hình đọc cài đặt); quyền `finance.instore.view`, `finance.instore.manage`.
+- Giao diện:
+  - MAN_HINH_174: chọn cách khách trả, "Hiện mã QR" và quét Mã thanh toán tạo đơn chờ; kết quả có phí, tiền VComm chuyển.
+  - MAN_HINH_279: phần thu hộ.
+  - MAN_HINH_280: biểu phí cổng.
+  - MAN_HINH_277: chọn voucher; đơn thu tại quầy báo số tiền trả tại quầy.
+  - MAN_HINH_181: quét mã QR thanh toán mở MAN_HINH_277; nút mở MAN_HINH_276.
+- Kiểm thử: `apps/api/test/c73-instore-affiliate.test.ts` (cài đặt thu hộ, biểu phí, luồng 1 thu hộ có voucher, điểm, VNPAY, luồng 2 thu tại quầy, hết hạn trả voucher và hoàn điểm, giới hạn ba đơn mỗi thu ngân, móc iPOS).
+- Lệch so với đặc tả, cần người dùng biết:
+  - Cột webhook của khóa API và bảng nhật ký gửi webhook làm ở database migration của L7; liên kết bút toán, phiếu chi, phiếu thu của bảng chuyển tiền làm ở L5 (bảng đặc tả ghi ở 0163). Lý do: chưa đoán trước cấu trúc của lát sau.
+  - Thuế phí thu hộ dùng thuế suất phí dịch vụ đang có của cửa hàng liên kết (10 %); cài đặt thuế suất riêng làm cùng bảng chuyển tiền ở L5.
+  - Hạch toán tiền thu hộ (phải trả cửa hàng, doanh thu phí) làm ở L5; đến lúc đó tiền thu hộ chỉ ghi trên giao dịch, đơn chờ.
+  - Giao dịch LK… có tiền thu hộ chưa hủy được (hủy kèm hoàn tiền làm ở L7); nút hủy LK… cũ báo lỗi cho giao dịch này.
+  - "Hiện mã QR" ở cổng luôn tạo đơn chờ (kể cả cửa hàng tắt thu hộ); máy chủ vẫn nhận mã QR cũ `VCLK1…` nhưng cổng không tạo nữa. Cách số điện thoại giữ như CONG_VIEC_55. Khung mã thành viên trên MAN_HINH_181 giữ trong thời hạn chuyển đổi, thêm nút mở Mã thanh toán.
+  - Giới hạn ba đơn chờ mỗi thu ngân kiểm ở API_329; iPOS tự kiểm khi gọi `InstoreCheckoutsService` trực tiếp.
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
