@@ -9,7 +9,12 @@
 
 ### Công việc đã thực hiện
 
+- Cấp LOI_14 (kiểm thử lỗi khi chạy qua 0 giờ giờ Việt Nam), mở phiên sửa.
 - Phát hành 0.11.0 (pull request #166, commit hợp nhất `4916028`): CONG_VIEC_62 (Dropship), CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn), CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội); THAY_DOI_33, 34, 35. Database migration 0156 gộp ràng buộc phạm vi khóa API. Kiểm thử API 814 đạt. Không thêm thư viện. Chưa triển khai.
+
+### Quyết định
+
+- Người dùng 2026-11-17: sửa ngay LOI_14 kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example; chưa triển khai 0.4.0 đến 0.11.0; giữ tạm dừng CONG_VIEC_63.
 
 ### Vấn đề tồn đọng
 
