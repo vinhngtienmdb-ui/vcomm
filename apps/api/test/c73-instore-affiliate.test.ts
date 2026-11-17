@@ -261,7 +261,8 @@ describe("Đơn chờ ở cổng cửa hàng liên kết (KICHBAN_KIEMTHU_756, 7
 
   it("móc của phần mềm cửa hàng (iPOS) chạy trong giao dịch hoàn tất, ghi mã chứng từ vào đơn", async () => {
     const instore = application.get(InstoreCheckoutsService);
-    const invoiceId = randomUUID();
+    // Móc giả trả null: ipos_invoice_id có khóa ngoại tới ipos.sales (database migration 0169 của CONG_VIEC_74), mã ngẫu nhiên không ghi được.
+    const invoiceId = null;
     const calls: { documentNo: string; dueAtCounter: string; appAmount: string }[] = [];
     instore.registerCompletionHook("ipos", async (_transaction, _row, result) => {
       calls.push({ documentNo: result.documentNo, dueAtCounter: result.dueAtCounter, appAmount: result.appAmount });
