@@ -76,16 +76,3 @@ export async function portalUpload<T>(path: string, form: FormData): Promise<T> 
   return payload as T;
 }
 
-export async function portalDownload(path: string, fileName: string): Promise<void> {
-  const headers: Record<string, string> = { "accept-language": document.documentElement.lang || "vi" };
-  const merchantId = selectedMerchantId();
-  if (merchantId) headers["x-merchant-id"] = merchantId;
-  const response = await fetch(`/api/v1${path}`, { credentials: "same-origin", headers });
-  if (!response.ok) throw new ApiFailure(response.status, null);
-  const url = URL.createObjectURL(await response.blob());
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-}
