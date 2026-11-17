@@ -77,13 +77,13 @@ export default function LoginScreen() {
         {method === "password" ? (
           <>
             <Field label={t("password")} value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" error={fields.password} />
-            <Button label={t("login")} busy={busy} disabled={!phone || !password} onPress={() => void run(() => signIn("/buyer/login", { phone: phone.trim(), password }))} />
+            <Button label={t("login")} busy={busy} disabled={!phone || !password} onPress={() => void run(async () => void (await signIn("/buyer/login", { phone: phone.trim(), password })))} />
           </>
         ) : (
           <>
             {codeSent ? <Muted>{t("otpSentTo", { phone: phone.trim() })}</Muted> : null}
             {codeSent ? <Field label={t("otpCode")} value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" maxLength={6} error={fields.code} /> : null}
-            {codeSent ? <Button label={t("login")} busy={busy} disabled={code.length !== 6} onPress={() => void run(() => signIn("/buyer/login/otp/verify", { phone: phone.trim(), code }))} /> : null}
+            {codeSent ? <Button label={t("login")} busy={busy} disabled={code.length !== 6} onPress={() => void run(async () => void (await signIn("/buyer/login/otp/verify", { phone: phone.trim(), code })))} /> : null}
             <Button
               label={timer.seconds > 0 ? t("resendIn", { seconds: timer.seconds }) : codeSent ? t("resend") : t("sendCode")}
               kind={codeSent ? "secondary" : "primary"}

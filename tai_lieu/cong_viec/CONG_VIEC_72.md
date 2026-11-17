@@ -380,7 +380,8 @@ Sửa:
   - B. `react-native-biometrics`: cần mã gốc riêng, không hợp quy trình Expo hiện dùng.
   - C. Tự viết mô-đun gốc: không đáng.
 - Đề xuất: A, ghi cố định `"expo-local-authentication": "58.0.2"`. Người dùng đã đồng ý dùng thư viện sinh trắc học của Expo (2026-11-17); chờ người dùng xác nhận phiên bản này khi duyệt đặc tả, sau đó mới cài và ghi vào tài liệu `13`.
-- Băm mã khóa PBKDF2-SHA256: dùng Web Crypto (`crypto.subtle`) có sẵn trên React Native 0.88 và Hermes. Nếu khi lập trình thấy không có, dùng `expo-crypto` (cùng bộ Expo, giấy phép MIT); phải trình lại người dùng trước khi thêm.
+- Băm mã khóa PBKDF2-SHA256: React Native 0.88 trên Hermes không bảo đảm có `crypto.subtle`; người dùng chọn thêm `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp (giấy phép MIT, đã có trong dự án qua `otpauth`) ngày 2026-11-17. 20.000 vòng băm, muối 16 byte. Ghi vào tài liệu `13` mục 11.
+- Giới hạn của `expo-local-authentication`: không cho biết máy vừa thêm vân tay, khuôn mặt mới, nên ứng dụng không tự tắt sinh trắc học khi đó như QUYTAC_NGHIEPVU_563 dự kiến. Bù lại: hệ điều hành bắt nhập mật mã máy khi thêm vân tay, khuôn mặt; ứng dụng không cho dùng mật mã máy thay sinh trắc học (chỉ mã khóa Smart OTP).
 
 ## 13. Tiêu chí nghiệm thu
 

@@ -1,5 +1,5 @@
 // Phiên đăng nhập của ứng dụng VComm: tài khoản người mua (QUYTAC_NGHIEPVU_147).
-import type { AppLoginResponse, BuyerMeResponse } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, SmartOtpActivationResponse } from "contracts";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { api, ApiFailure, loadStoredSession, setSignedOutHandler, storeTokens } from "./api";
 
@@ -9,7 +9,8 @@ type Session = {
   stage: Stage;
   me: BuyerMeResponse | null;
   // Đăng ký, đăng nhập bằng mật khẩu hoặc OTP đều trả phiên dạng token.
-  signIn: (path: string, body: object) => Promise<void>;
+  // Trả phản hồi đăng nhập để màn hình đăng ký lấy khóa Smart OTP kích hoạt kèm (CONG_VIEC_72).
+  signIn: (path: string, body: object) => Promise<AppLoginResponse & { smartOtpActivation?: SmartOtpActivationResponse | null }>;
   verifyMfa: (code: string, backup: boolean) => Promise<void>;
   reload: () => Promise<void>;
   retry: () => Promise<void>;
@@ -44,11 +45,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       stage,
       me,
       signIn: async (path, body) => {
-        const result = await api<AppLoginResponse>(path, { method: "POST", json: body });
+        const result = await api<AppLoginResponse & { smartOtpActivation?: SmartOtpActivationResponse | null }>(path, { method: "POST", json: body });
         await storeTokens(result.tokens);
         // Tài khoản nhân viên bắt buộc xác thực hai lớp vẫn phải nhập mã như web.
-        if (result.mfaRequired) return setStage(result.mfaEnrolled ? "mfa" : "mfaEnroll");
+        if (result.mfaRequired) {
+          setStage(result.mfaEnrolled ? "mfa" : "mfaEnroll");
+          return result;
+        }
         await reload();
+        return result;
       },
       verifyMfa: async (code, backup) => {
         await api("/auth/mfa/verify", { method: "POST", json: backup ? { backupCode: code } : { code } });

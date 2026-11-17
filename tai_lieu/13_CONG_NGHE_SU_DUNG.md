@@ -210,3 +210,18 @@ Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-
 | Chỉ dùng `node:crypto` | Tự viết xử lý cấu trúc PDF và CMS | Không áp dụng | Không áp dụng | Node.js | Cao, dễ sai |
 
 Quyết định: người dùng duyệt bộ `@signpdf`, `pdf-lib`, `node-forge` ngày 2026-11-12; đồng ý dùng `node-forge` 1.4.3 thay 1.4.2 (bản vá lỗ hổng) cùng ngày.
+
+## 11. Phân tích giải pháp có sẵn – CONG_VIEC_72 Smart OTP – 2026-11-17
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_563 (mở Smart OTP bằng vân tay, khuôn mặt hoặc mã khóa 6 số; mã khóa băm PBKDF2-SHA256 có muối, chỉ lưu trên máy).
+- Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58, `expo-secure-store`, `otpauth` 9.6.0 dùng `@noble/hashes` 2.4.0); kho npm. React Native 0.88 trên Hermes không bảo đảm có `crypto.subtle`.
+- Từ khóa đã dùng: tên thư viện cụ thể; không chứa thông tin nghiệp vụ.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `expo-local-authentication` | Hộp vân tay, khuôn mặt của hệ điều hành | MIT (đã đọc tệp LICENSE) | 58.0.2 (2026-10-01; 58.0.3 chưa đủ hai tuần nên không dùng) | Expo SDK 58; không có trên bản web | Thấp |
+| `react-native-biometrics` | Như trên | MIT | Không xét tiếp | Cần mã gốc riêng, không hợp quy trình Expo | Cao |
+| `@noble/hashes` | PBKDF2-SHA256 băm mã khóa | MIT (đã đọc tệp LICENSE) | 2.4.0 (2026-08-27; đã có sẵn trong dự án qua `otpauth`) | Chạy bằng JavaScript trên iOS, Android, web | Thấp |
+| `expo-crypto` | Băm SHA-256 một lần | MIT | Expo SDK 58 | Không có PBKDF2, phải tự lặp | Trung bình |
+
+Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày 2026-11-17 (cùng đặc tả CONG_VIEC_72) và chọn `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp ngày 2026-11-17. Cả hai ghi cố định phiên bản trong `apps/mobile-vcomm/package.json`.
