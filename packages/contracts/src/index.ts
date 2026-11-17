@@ -5878,6 +5878,11 @@ export const saveRetailStoreSchema = z
     returnDays: z.number().int().min(0).max(90).default(7),
     receiptFooter: blankToNull(300),
     status: z.enum(["active", "inactive"]).default("active"),
+    // CONG_VIEC_73 (QUYTAC_NGHIEPVU_573): nhận thanh toán qua ứng dụng VComm, phí sàn 0 đến 10 %.
+    appPaymentEnabled: z.boolean().default(false),
+    platformFeePercent: decimalText(4)
+      .refine((value) => Number(value) <= 10, "invalidValue")
+      .default("0"),
     version: z.number().int().positive().optional(),
   })
   .strict();
@@ -6090,6 +6095,8 @@ export interface RetailStoreResponse {
   returnDays: number;
   receiptFooter: string | null;
   status: "active" | "inactive";
+  appPaymentEnabled: boolean;
+  platformFeePercent: string;
   currency: string;
   registers: RetailRegisterResponse[];
   version: number;
@@ -6141,7 +6148,8 @@ export interface RetailShiftSummaryLine {
 export interface RetailShiftResponse {
   id: string;
   // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
-  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
+  // appPayment: cửa hàng nhận thanh toán qua ứng dụng VComm (CONG_VIEC_73).
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null; appPayment: boolean };
   register: { id: string; code: string; name: string };
   cashier: { id: string; name: string };
   openedAt: string;
@@ -6247,7 +6255,8 @@ export interface RetailQuoteResponse {
   maxManualDiscountPercent: string;
   currency: string;
 }
-export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+// CONG_VIEC_73: "vcomm_app" là phần khách trả trong ứng dụng VComm qua cổng thanh toán.
+export const retailPaymentMethods = ["cash", "bank_transfer", "points", "vcomm_app"] as const;
 export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
 export const createRetailSaleSchema = z
   .object({
@@ -6263,7 +6272,8 @@ export const createRetailSaleSchema = z
       })
       .strict()
       .optional(),
-    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã Smart OTP 6 số. Tiền điểm do máy chủ tính.
+    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã thanh toán 18 số quét từ ứng dụng
+    // (CONG_VIEC_73 lát L3) hoặc mã Smart OTP 6 số khách đọc (dự phòng). Tiền điểm do máy chủ tính.
     customer: z
       .object({
         userId: z.uuid(),
@@ -6272,8 +6282,13 @@ export const createRetailSaleSchema = z
           .string()
           .regex(/^[0-9]{6}$/, "invalidValue")
           .optional(),
+        payCode: z
+          .string()
+          .regex(/^[0-9]{18}$/, "invalidValue")
+          .optional(),
       })
       .strict()
+      .refine((value) => !(value.smartOtp && value.payCode), { path: ["payCode"], message: "invalidValue" })
       .optional(),
     payments: z
       .array(
@@ -6290,6 +6305,27 @@ export const createRetailSaleSchema = z
   })
   .strict();
 export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+// API_328: đơn chờ khách thanh toán qua ứng dụng VComm tại quầy (CONG_VIEC_73; QUYTAC_NGHIEPVU_575, 580).
+// Giỏ như khi bán; khách VComm, điểm, tiền do khách chọn và trả trên ứng dụng.
+export const createRetailCheckoutSchema = createRetailSaleSchema.omit({ customer: true, payments: true });
+export type CreateRetailCheckoutRequest = z.input<typeof createRetailCheckoutSchema>;
+export const retailCheckoutPayCodeSchema = z.object({ code: z.string().trim().min(1).max(40) }).strict();
+export const retailCheckoutCancelSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface RetailCheckoutResponse {
+  id: string;
+  documentNo: string;
+  status: "awaiting_buyer" | "awaiting_payment" | "paid_unposted" | "completed" | "expired" | "cancelled" | "declined";
+  totalAmount: string;
+  expiresAt: string;
+  // Đường dẫn thanh toán in trong mã QR (luồng 2); chỉ trả khi vừa tạo.
+  qrUrl: string | null;
+  buyer: { maskedName: string; tierName: string | null } | null;
+  points: number;
+  pointsAmount: string;
+  amountDue: string | null;
+  saleId: string | null;
+  postingError: string | null;
+}
 // API_198: tra khách VComm tại quầy theo số điện thoại.
 export const retailCustomerQuerySchema = z
   .object({
@@ -8287,3 +8323,4 @@ export * from "./office-contracts";
 export * from "./dropship";
 export * from "./ipos";
 export * from "./authentication";
+export * from "./instore";

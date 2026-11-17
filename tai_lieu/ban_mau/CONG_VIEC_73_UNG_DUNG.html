@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_73 Thanh toán tại cửa hàng – Ứng dụng VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="kho_dien_thoai.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+<style>
+  /* Bản mẫu CONG_VIEC_73. Chỉ dùng biến của tài liệu 15. */
+  body { flex-wrap: wrap; gap: var(--khoang-5); align-items: flex-start; }
+  .dien-thoai { min-height: 720px; }
+  .ma-vach { width: 100%; height: 64px; background: var(--mau-be-mat); }
+  .so-ma { font-size: 20px; font-weight: 800; letter-spacing: 2px; text-align: center; font-variant-numeric: tabular-nums; }
+  .dem-nguoc { height: 6px; border-radius: var(--bo-tron); background: var(--mau-vien); overflow: hidden; }
+  .dem-nguoc span { display: block; height: 100%; width: 60%; background: var(--mau-chinh); }
+  .dong-hang { display: flex; justify-content: space-between; gap: var(--khoang-2); font-size: 14px; }
+  .cong { display: flex; align-items: center; gap: var(--khoang-2); padding: var(--khoang-2) 0; border-bottom: 1px solid var(--mau-vien); }
+  .cong:last-child { border-bottom: 0; }
+  .lon-giua { text-align: center; display: grid; gap: var(--khoang-2); justify-items: center; }
+  .thong-bao.canh-bao { background: var(--mau-canh-bao-nen); color: var(--mau-canh-bao); }
+  .dau-tich { width: 56px; height: 56px; border-radius: 50%; background: var(--mau-thanh-cong-nen); color: var(--mau-thanh-cong); display: grid; place-items: center; font-size: 28px; font-weight: 800; }
+</style>
+</head>
+<body>
+
+<!-- Khung 1: MAN_HINH_276 Mã thanh toán -->
+<div class="dien-thoai" aria-label="MAN_HINH_276 Mã thanh toán">
+  <div class="dau"><button>‹</button><span class="tieu">Mã thanh toán<span class="phu">Đưa cho thu ngân quét</span></span></div>
+  <div class="than-dt">
+    <div class="the" style="justify-items:center">
+      <div class="ma-qr" role="img" aria-label="Mã QR thanh toán"></div>
+      <svg class="ma-vach" id="ma-vach" role="img" aria-label="Mã vạch thanh toán" viewBox="0 0 300 64" preserveAspectRatio="none"></svg>
+      <span class="so-ma">482 913 075 631 · 284 517</span>
+      <div class="dem-nguoc" style="width:100%" aria-label="Còn 18 giây"><span></span></div>
+      <span class="phu-chu">Mã đổi sau 18 giây · không cần mạng</span>
+    </div>
+    <div class="thong-bao tin">Sau khi thu ngân quét, đơn hiện ngay trên màn hình này để bạn chọn điểm và thanh toán.</div>
+    <div class="the"><h3>Điểm khả dụng</h3><span class="phu-chu">1.250 điểm · hạng Vàng</span></div>
+    <div class="thong-bao canh-bao" data-trang-thai="khoa">Dùng điểm tạm khóa đến 14:20 ngày 18/11 do vừa khôi phục Smart OTP. Bạn vẫn tích điểm và thanh toán được.</div>
+  </div>
+  <div class="chan"><button class="nut phu">Quét mã cửa hàng</button><button class="nut chinh">Tăng độ sáng</button></div>
+</div>
+
+<!-- Khung 2: MAN_HINH_277 Thanh toán tại cửa hàng (đơn chờ) -->
+<div class="dien-thoai" aria-label="MAN_HINH_277 Thanh toán tại cửa hàng">
+  <div class="dau"><button>‹</button><span class="tieu">Thanh toán tại cửa hàng<span class="phu">Siêu thị VComm Thủ Đức · Quầy Q01</span></span></div>
+  <div class="than-dt">
+    <div class="thong-bao tin">Đơn TT2611-000412 · hết hạn sau 08:42</div>
+    <div class="the"><h3>Hàng</h3>
+      <div class="dong-hang"><span>Sữa tươi tiệt trùng 1L × 3</span><span>86.400 đ</span></div>
+      <div class="dong-hang"><span>Gạo ST25 túi 5kg × 1</span><span>175.750 đ</span></div>
+      <div class="dong-hang"><span>Nước rửa chén 750ml × 1 (tặng)</span><span>0 đ</span></div>
+      <div class="dong-tien tong" style="border:0;padding:0"><span>Tiền hóa đơn</span><span>262.150 đ</span></div></div>
+    <div class="the"><h3>Dùng điểm</h3>
+      <span class="phu-chu">Số dư 1.250 điểm · 1 điểm = 100 đ · tối đa 655 điểm · tối thiểu 10</span>
+      <div class="o-quet"><input value="500" aria-label="Số điểm dùng" inputmode="numeric"><button class="nut phu">Tối đa</button></div></div>
+    <div class="the"><h3>Thanh toán bằng</h3>
+      <label class="cong"><input type="radio" name="cong" checked> VNPAY (ứng dụng ngân hàng, thẻ ATM)</label>
+      <label class="cong"><input type="radio" name="cong" disabled> MoMo <span class="nhan trung-tinh">Chưa bật</span></label></div>
+    <div class="the">
+      <div class="dong-tien"><span>Tiền điểm</span><span>− 50.000 đ</span></div>
+      <div class="dong-tien tong"><span>Bạn trả</span><span>212.150 đ</span></div>
+      <span class="phu-chu">Dự kiến tích 26 điểm</span></div>
+    <details class="the"><summary>Cần hóa đơn có tên, mã số thuế</summary>
+      <div class="truong"><label>Tên người mua hoặc công ty<input></label><label>Mã số thuế<input></label><label>Địa chỉ<input></label></div></details>
+  </div>
+  <div class="chan"><button class="nut phu">Từ chối</button><button class="nut chinh">Thanh toán 212.150 đ</button></div>
+</div>
+
+<!-- Khung 3: MAN_HINH_277 cửa hàng liên kết, luồng 2 (khách quét QR), có voucher -->
+<div class="dien-thoai" aria-label="MAN_HINH_277 Cửa hàng liên kết">
+  <div class="dau"><button>‹</button><span class="tieu">Thanh toán tại cửa hàng<span class="phu">Cà phê Hạt Nâu · Lê Lợi</span></span></div>
+  <div class="than-dt">
+    <div class="thong-bao tin">Đơn TT2611-000415 · hết hạn sau 09:10</div>
+    <div class="the"><div class="dong-tien tong" style="border:0;padding:0"><span>Tiền hóa đơn</span><span>450.000 đ</span></div></div>
+    <div class="the"><h3>Voucher</h3>
+      <label><input type="radio" name="v" checked> Giảm 10 % đồ uống (tối đa 30.000 đ)</label>
+      <label><input type="radio" name="v"> Không dùng voucher</label></div>
+    <div class="the"><h3>Dùng điểm</h3><span class="phu-chu">Tối đa 210 điểm (50 % tiền sau voucher) · tối thiểu 10</span>
+      <div class="o-quet"><input value="50" aria-label="Số điểm dùng" inputmode="numeric"><button class="nut phu">Tối đa</button></div>
+      <span class="phu-chu">Dùng điểm cần mở Smart OTP khi bấm thanh toán.</span></div>
+    <div class="the">
+      <div class="dong-tien"><span>Giảm voucher</span><span>− 30.000 đ</span></div>
+      <div class="dong-tien"><span>Tiền điểm</span><span>− 50.000 đ</span></div>
+      <div class="dong-tien tong"><span>Bạn trả qua VNPAY</span><span>370.000 đ</span></div>
+      <span class="phu-chu">Hóa đơn điện tử do VComm lập thay Cà phê Hạt Nâu theo ủy nhiệm.</span></div>
+    <div class="thong-bao canh-bao">Ví dụ cửa hàng chưa bật thu hộ: "Bạn trả 370.000 đ trực tiếp tại quầy" và nút "Xác nhận".</div>
+  </div>
+  <div class="chan"><button class="nut phu">Từ chối</button><button class="nut chinh">Thanh toán 370.000 đ</button></div>
+</div>
+
+<!-- Khung 4: kết quả và trạng thái lỗi -->
+<div class="dien-thoai" aria-label="Kết quả thanh toán">
+  <div class="dau"><span class="tieu">Kết quả</span></div>
+  <div class="than-dt">
+    <div class="the lon-giua"><div class="dau-tich">✓</div><h3>Đã thanh toán 212.150 đ</h3>
+      <span class="phu-chu">Siêu thị VComm Thủ Đức · hóa đơn BL2611-000124<br>Dùng 500 điểm · tích 26 điểm · số dư 776 điểm</span>
+      <button class="nut phu">Xem hóa đơn điện tử</button></div>
+    <div class="thong-bao tin">Đang chờ VNPAY xác nhận… Đơn giữ đến 14:28. Không cần thanh toán lại.</div>
+    <div class="thong-bao canh-bao">Đơn đã hết hạn. Điểm đã hoàn lại tài khoản. Nhờ thu ngân tạo đơn mới.</div>
+    <div class="thong-bao canh-bao">Đơn đang được khách khác thanh toán.</div>
+    <div class="thong-bao canh-bao">Bạn đã trả sau khi đơn hết hạn: VComm sẽ hoàn 212.150 đ vào tài khoản ngân hàng của bạn.</div>
+  </div>
+  <div class="chan"><button class="nut chinh">Về trang chủ</button></div>
+</div>
+
+<div class="ghi-chu-ban-mau"><h2>CONG_VIEC_73 · Ứng dụng VComm</h2>
+  <p>Khung 1 – MAN_HINH_276 Mã thanh toán (QUYTAC_NGHIEPVU_574): mở Smart OTP trước khi hiện; 18 chữ số = mã thiết bị 12 số + mã Smart OTP 6 số; mã QR và mã vạch Code 128 cùng nội dung; đổi mỗi 30 giây. Màn hình tự chuyển sang khung 2 khi thu ngân quét (luồng 1).</p>
+  <p>Khung 2 – MAN_HINH_277 ở cửa hàng tập đoàn: dòng hàng từ giỏ, điểm theo giới hạn hiện có, cổng đang bật, thông tin hóa đơn tùy chọn (QUYTAC_NGHIEPVU_578).</p>
+  <p>Khung 3 – MAN_HINH_277 ở cửa hàng liên kết sau khi khách quét mã QR thanh toán (luồng 2): voucher, điểm, thu hộ, hóa đơn ủy nhiệm.</p>
+  <p>Khung 4 – kết quả, chờ cổng, hết hạn, đơn của khách khác, trả sau khi hết hạn (QUYTAC_NGHIEPVU_577, 579).</p>
+  <p><a href="index.html">Mục lục bản mẫu</a></p></div>
+
+<script>
+  // Vẽ mã vạch minh họa (bản mẫu, không phải Code 128 thật).
+  const svg = document.getElementById("ma-vach");
+  let x = 4; const ns = "http://www.w3.org/2000/svg";
+  "211214121142113213211412132112131222".split("").forEach((w, i) => {
+    if (i % 2 === 0) { const r = document.createElementNS(ns, "rect"); r.setAttribute("x", x); r.setAttribute("y", 2); r.setAttribute("width", w * 2.4); r.setAttribute("height", 60); r.setAttribute("fill", "currentColor"); svg.appendChild(r); }
+    x += w * 2.4 + 1.2;
+  });
+</script>
+</body>
+</html>
