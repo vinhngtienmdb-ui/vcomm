@@ -3,7 +3,7 @@
 - Mô tả: iPOS là ứng dụng bán hàng tại quầy cho cửa hàng liên kết (CONG_VIEC_55). Cửa hàng thuê bao theo điểm bán. Thu ngân bán hàng trên máy tính bảng Android hoặc máy bán hàng Sunmi: quét mã, thu tiền mặt, VietQR hoặc qua ứng dụng VComm, in hóa đơn, mở ngăn kéo tiền, mở và đóng ca. Chủ cửa hàng quản lý hàng hóa, tồn kho đơn giản, thu ngân, quầy, báo cáo trên cổng cửa hàng. Công ty vận hành sàn cấp thuê bao, thu phí thuê bao theo cách cấu hình riêng cho từng cửa hàng, xem doanh thu và đối soát trong ERP.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Đang làm lát L2.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Lát L2 người dùng duyệt 2026-11-17 (chấp nhận 5 điều chỉnh mục 19a). Đang làm lát L3.
 - Mức: Lớn (module mới, schema mới `ipos`, ứng dụng di động mới, sửa quy tắc đối soát đã duyệt, thu phí thuê bao).
 - Nhánh: `chuc-nang/CONG_VIEC_74-ipos`.
 - Nguồn: quyết định của người dùng ngày 2026-11-17 (mục 17); CONG_VIEC_55, 67 (cửa hàng liên kết, Open API điểm thưởng), CONG_VIEC_73 (đơn chờ thanh toán, thu hộ, hóa đơn ủy nhiệm), CONG_VIEC_72 (Smart OTP, mã động); ý tưởng từ nguồn riêng V-com-ERP (mục 12), không sao chép mã.
@@ -662,6 +662,13 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | L2 | Nhập Excel mỗi dòng là một mặt hàng không thuộc tính; mặt hàng có biến thể sửa trên cổng (dòng trùng mã của mặt hàng có biến thể không nhận mã vạch, tồn đầu kỳ) | Giữ tệp mẫu đơn giản cho cửa hàng nhỏ |
 | L2 | Nhập Excel gửi lại tệp khi ghi (kiểm lại toàn bộ trong cùng giao dịch), máy chủ không giữ tệp | Không lưu tệp của cửa hàng; dữ liệu đổi giữa hai bước vẫn được kiểm |
 | L2 | Tồn âm chỉ phát sinh khi bán (lát L3); cài đặt chặn tồn âm làm cùng `ipos.settings` ở lát L3 | Phiếu điều chỉnh nhận số lượng thực tế ≥ 0 |
+| L3 | In tiếng Việt bằng chữ, không in ảnh: Sunmi in qua dịch vụ in Sunmi (tự vẽ phông Unicode); máy in rời theo bảng mã windows1258, có tùy chọn in không dấu (điều chỉnh QUYTAC_NGHIEPVU_620 khoản 2) | In ảnh cần thêm thư viện vẽ ảnh; người dùng đồng ý 2026-11-17, in ảnh xin duyệt khi có máy in rời cụ thể |
+| L3 | Máy in rời: mạng LAN và Bluetooth Classic (chưa kiểm thử trên máy thật); USB chưa làm | Người dùng chọn Bluetooth làm ngay, USB khi có máy cụ thể (2026-11-17) |
+| L3 | Hàm tính tiền (giảm dòng, giảm hóa đơn phân bổ, làm tròn) đặt trong `packages/contracts` để máy chủ và máy bán dùng chung | Tổng tiền trên máy và trên máy chủ luôn khớp |
+| L3 | Giảm vượt mức: thu ngân lấy mã duyệt 6 số của chủ cửa hàng (API_342) rồi gửi kèm khi ghi hóa đơn; chủ tự bán thì không cần duyệt | Mã duyệt dùng một lần, gắn thiết bị, ghi người duyệt vào hóa đơn |
+| L3 | Thêm API mở ngăn kéo `POST /ipos/pos/drawer-events` vào nhóm API_338; nhật ký in lại và mở ngăn kéo chung bảng `ipos.device_events` | QUYTAC_NGHIEPVU_620 khoản 3, 4 cần ghi nhật ký |
+| L3 | Đóng ca xong ứng dụng khóa màn hình (phiên kết thúc), người sau đăng nhập lại bằng PIN | QUYTAC_NGHIEPVU_607 khoản 3: phiên hết khi đóng ca |
+| L3 | Mẫu in 58 mm, 80 mm kiểm bằng bản xem trước chữ trên bản web (KICHBAN_KIEMTHU_788); in thật trên Sunmi T2 (KICHBAN_KIEMTHU_787) chờ máy thử | Môi trường phát triển không có máy in, không có bộ công cụ dựng Android |
 
 ## 20. Rủi ro và điểm chưa xác định
 

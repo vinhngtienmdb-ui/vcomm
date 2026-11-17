@@ -235,3 +235,20 @@ Dịch vụ trả phí mới: API Anthropic tính theo token (mô hình mặc đ
 | `expo-crypto` | Băm SHA-256 một lần | MIT | Expo SDK 58 | Không có PBKDF2, phải tự lặp | Trung bình |
 
 Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày 2026-11-17 (cùng đặc tả CONG_VIEC_72) và chọn `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp ngày 2026-11-17. Cả hai ghi cố định phiên bản trong `apps/mobile-vcomm/package.json`.
+
+## 13. Phân tích giải pháp có sẵn – CONG_VIEC_74 in hóa đơn iPOS – 2026-11-17
+
+Phạm vi: ứng dụng iPOS (`apps/mobile-ipos`, Expo SDK 58) in hóa đơn trên máy Sunmi T2 (máy in 80 mm gắn sẵn), máy in rời qua mạng LAN và Bluetooth; mở ngăn kéo tiền (QUYTAC_NGHIEPVU_620). Tra cứu trên npm ngày 2026-11-17; giấy phép đọc từ tệp `LICENSE` sau khi cài.
+
+| Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc kéo theo | Rủi ro |
+|---|---|---|---|---|---|
+| `@point-of-sale/receipt-printer-encoder` | Dựng lệnh ESC/POS (chữ, căn lề, cắt giấy, mở ngăn kéo; bảng mã windows1258 cho tiếng Việt) cho máy in rời | MIT | 4.0.1, 2026-09-18 | `@point-of-sale/codepage-encoder` 3.0.2, `canvas-dither` 1.0.1, `canvas-flatten` 1.0.1, `resize-image-data` 0.3.1, `@canvas/image-data` 1.1.0 (đều MIT) | Thấp; JavaScript thuần |
+| `@mitsuharu/react-native-sunmi-printer-library` | Máy in gắn sẵn của Sunmi qua dịch vụ in Sunmi (in chữ Unicode, gửi lệnh ESC/POS thô để mở ngăn kéo) | MIT | 3.0.0, 2026-09-07 | Không | Trung bình; mã gốc Android, cần bản dựng phát triển; tác giả thử với Expo SDK 57 |
+| `react-native-tcp-socket` | Gửi lệnh in tới máy in mạng LAN (cổng 9100) | MIT | 6.4.3, 2026-09-10 | `buffer` 5.7.1, `eventemitter3` 4.0.7 (MIT) | Thấp |
+| `react-native-bluetooth-classic` | Gửi lệnh in tới máy in nhiệt Bluetooth Classic (SPP) đã ghép đôi | MIT | 1.73.0-rc.17, 2025-11-19 (thẻ `latest` là bản rc) | `buffer` 6.0.3 (MIT) | Cao: bảo trì chậm (gần 1 năm chưa có bản mới), tác giả thử với Expo 51; chưa kiểm thử trên máy thật (tài liệu `22`) |
+| `react-native-ble-plx` (dự phòng, chưa cài) | Bluetooth năng lượng thấp | MIT | 3.5.1, 2026-02-18 | Không xét | Chỉ dùng được cho máy in BLE |
+| `react-native-view-shot` (không dùng) | Vẽ hóa đơn thành ảnh để in | MIT | Không xét | Không xét | Người dùng chọn in chữ, chưa in ảnh |
+
+Quyết định: người dùng duyệt 3 thư viện đầu ngày 2026-11-17 (qua phiên điều phối), duyệt `react-native-bluetooth-classic` 1.73.0-rc.17 cùng ngày kèm phương án dự phòng: nếu không dựng được trên Expo SDK 58 bản dựng phát triển thì chuyển `react-native-ble-plx` 3.5.1 (chỉ máy in BLE) hoặc hoãn Bluetooth. Cả bốn ghi cố định phiên bản trong `apps/mobile-ipos/package.json`. Máy in USB chưa làm, xin duyệt khi có máy cụ thể.
+
+In tiếng Việt (điều chỉnh QUYTAC_NGHIEPVU_620 khoản 2, người dùng đồng ý 2026-11-17): in chữ, không in ảnh. Máy Sunmi in qua dịch vụ in Sunmi (tự vẽ phông Unicode); máy in rời in theo bảng mã windows1258, có tùy chọn in không dấu cho máy không có bảng mã này. Chế độ in ảnh xin duyệt thư viện khi có máy in rời cụ thể.

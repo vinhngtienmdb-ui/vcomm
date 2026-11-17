@@ -780,3 +780,59 @@ export interface IposApproval {
   expiresAt: string;
 }
 export const iposDrawerEventSchema = z.object({ reason: optionalText(200) }).strict();
+
+// Tính tiền hóa đơn dùng chung cho máy chủ và máy bán (QUYTAC_NGHIEPVU_613 khoản 3, 4): tiền làm tròn đến đồng; thành tiền dòng = đơn giá × số lượng − giảm dòng;
+// giảm hóa đơn phân bổ vào dòng theo tỷ lệ tiền sau giảm dòng, phần dư do làm tròn dồn cho dòng có phần lẻ lớn nhất. Giảm vượt tiền hàng trả `error`.
+export interface IposPricedLine {
+  quantity: string;
+  unitPrice: number;
+  discount: IposDiscountInput | null;
+}
+export interface IposTotals {
+  lines: { gross: number; discount: number; allocated: number; amount: number }[];
+  subtotal: number;
+  lineDiscount: number;
+  invoiceDiscount: number;
+  total: number;
+  discountPercent: number;
+  error: "discountTooLarge" | null;
+}
+export function iposComputeTotals(lines: IposPricedLine[], invoiceDiscount: IposDiscountInput | null): IposTotals {
+  let error: IposTotals["error"] = null;
+  const discountOf = (base: number, discount: IposDiscountInput | null): number => {
+    if (!discount) return 0;
+    const value = discount.type === "percent" ? Math.round((base * Number(discount.value)) / 100) : Number(discount.value);
+    if (value > base) {
+      error = "discountTooLarge";
+      return base;
+    }
+    return value;
+  };
+  const priced = lines.map((line) => {
+    const gross = Math.round(line.unitPrice * Number(line.quantity));
+    const discount = discountOf(gross, line.discount);
+    return { gross, discount, net: gross - discount };
+  });
+  const subtotal = priced.reduce((sum, line) => sum + line.gross, 0);
+  const lineDiscount = priced.reduce((sum, line) => sum + line.discount, 0);
+  const net = subtotal - lineDiscount;
+  const invoice = discountOf(net, invoiceDiscount);
+  const shares = priced.map((line) => (net === 0 ? 0 : (invoice * line.net) / net));
+  const allocated = shares.map(Math.floor);
+  let remainder = invoice - allocated.reduce((sum, value) => sum + value, 0);
+  const order = shares.map((share, index) => ({ index, fraction: share - Math.floor(share) })).sort((left, right) => right.fraction - left.fraction || left.index - right.index);
+  for (const { index } of order) {
+    if (remainder <= 0) break;
+    allocated[index] = (allocated[index] ?? 0) + 1;
+    remainder -= 1;
+  }
+  return {
+    lines: priced.map((line, index) => ({ gross: line.gross, discount: line.discount, allocated: allocated[index] ?? 0, amount: line.net - (allocated[index] ?? 0) })),
+    subtotal,
+    lineDiscount,
+    invoiceDiscount: invoice,
+    total: net - invoice,
+    discountPercent: subtotal === 0 ? 0 : ((lineDiscount + invoice) * 100) / subtotal,
+    error,
+  };
+}

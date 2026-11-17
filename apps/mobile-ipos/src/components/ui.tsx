@@ -1,6 +1,6 @@
 // Thành phần giao diện dùng chung của ứng dụng iPOS, chép từ apps/mobile-warehouse (màu, khoảng cách theo tài liệu 15).
 import type { ReactNode } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, type TextInputProps, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, type TextInputProps, View } from "react-native";
 import { colors, radius, space } from "@/lib/theme";
 
 export function Screen({ children }: { children: ReactNode }) {
@@ -134,3 +134,28 @@ export function StatusBadge({ text, tone }: { text: string; tone: "success" | "w
   );
 }
 
+
+// Hộp thoại phủ màn hình (thay Modal để chạy giống nhau trên máy và bản web xem trước).
+export function Overlay({ title, onClose, children, width = 520 }: { title: string; onClose?: () => void; children: ReactNode; width?: number }) {
+  return (
+    <View style={overlay.backdrop} accessibilityViewIsModal>
+      <View style={[overlay.box, { maxWidth: width }]} accessibilityRole="none" aria-label={title}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
+          <Text style={[styles.title, { flex: 1 }]}>{title}</Text>
+          {onClose ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="×" onPress={onClose} style={overlay.close}>
+              <Text style={{ fontSize: 22, color: colors.textMuted }}>×</Text>
+            </Pressable>
+          ) : null}
+        </View>
+        <ScrollView contentContainerStyle={{ gap: space[3] }}>{children}</ScrollView>
+      </View>
+    </View>
+  );
+}
+
+const overlay = StyleSheet.create({
+  backdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15,23,42,0.45)", alignItems: "center", justifyContent: "center", padding: space[4], zIndex: 10 },
+  box: { width: "100%", maxHeight: "100%", backgroundColor: colors.surface, borderRadius: radius.medium, padding: space[4], gap: space[3] },
+  close: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+});

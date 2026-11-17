@@ -2,7 +2,7 @@
 // Một giao dịch: hóa đơn (số theo điểm bán, ngày), dòng hàng (giá vốn tại thời điểm bán), dòng thanh toán, trừ tồn, gắn ca.
 // Gửi lại cùng khóa yêu cầu (kể cả song song) trả hóa đơn đã ghi.
 import { Inject, Injectable } from "@nestjs/common";
-import type { IposDiscountInput, IposSale, IposSaleCreateInput, IposSaleRow, IposVatRate } from "contracts";
+import { iposComputeTotals, type IposDiscountInput, type IposPricedLine, type IposSale, type IposSaleCreateInput, type IposSaleRow, type IposTotals, type IposVatRate } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { CLOCK, vietnamDate, type Clock } from "../common/clock";
@@ -12,56 +12,11 @@ import type { IposPosActor } from "./ipos-device-context";
 import { loadSettings } from "./ipos-settings.service";
 import { consumeApproval, openShiftOf, requireSelling } from "./ipos-shifts.service";
 
-export interface PricedLine {
-  quantity: string;
-  unitPrice: number;
-  discount: IposDiscountInput | null;
-}
-export interface Totals {
-  lines: { gross: number; discount: number; allocated: number; amount: number }[];
-  subtotal: number;
-  lineDiscount: number;
-  invoiceDiscount: number;
-  total: number;
-  discountPercent: number;
-}
-
-const discountOf = (base: number, discount: IposDiscountInput | null): number => {
-  if (!discount) return 0;
-  const value = discount.type === "percent" ? Math.round((base * Number(discount.value)) / 100) : Number(discount.value);
-  if (value > base) throw new ApiError("BUSINESS_RULE", "iposDiscountTooLarge");
-  return value;
-};
-
-// Tiền làm tròn đến đồng (QUYTAC_NGHIEPVU_613 khoản 3, 4): thành tiền dòng = đơn giá × số lượng − giảm dòng; giảm hóa đơn phân bổ vào dòng theo tỷ lệ
-// tiền sau giảm dòng, phần dư do làm tròn dồn cho dòng có phần lẻ lớn nhất. Dùng chung cho máy bán (kiểm thử đơn vị so cùng kết quả).
-export function computeTotals(lines: PricedLine[], invoiceDiscount: IposDiscountInput | null): Totals {
-  const priced = lines.map((line) => {
-    const gross = Math.round(line.unitPrice * Number(line.quantity));
-    const discount = discountOf(gross, line.discount);
-    return { gross, discount, net: gross - discount };
-  });
-  const subtotal = priced.reduce((sum, line) => sum + line.gross, 0);
-  const lineDiscount = priced.reduce((sum, line) => sum + line.discount, 0);
-  const net = subtotal - lineDiscount;
-  const invoice = discountOf(net, invoiceDiscount);
-  const shares = priced.map((line) => (net === 0 ? 0 : (invoice * line.net) / net));
-  const allocated = shares.map(Math.floor);
-  let remainder = invoice - allocated.reduce((sum, value) => sum + value, 0);
-  const order = shares.map((share, index) => ({ index, fraction: share - Math.floor(share) })).sort((left, right) => right.fraction - left.fraction || left.index - right.index);
-  for (const { index } of order) {
-    if (remainder <= 0) break;
-    allocated[index]! += 1;
-    remainder -= 1;
-  }
-  return {
-    lines: priced.map((line, index) => ({ gross: line.gross, discount: line.discount, allocated: allocated[index]!, amount: line.net - allocated[index]! })),
-    subtotal,
-    lineDiscount,
-    invoiceDiscount: invoice,
-    total: net - invoice,
-    discountPercent: subtotal === 0 ? 0 : ((lineDiscount + invoice) * 100) / subtotal,
-  };
+// Tính tiền theo hàm dùng chung trong contracts; giảm vượt tiền hàng thì từ chối.
+export function computeTotals(lines: IposPricedLine[], invoiceDiscount: IposDiscountInput | null): IposTotals {
+  const totals = iposComputeTotals(lines, invoiceDiscount);
+  if (totals.error) throw new ApiError("BUSINESS_RULE", "iposDiscountTooLarge");
+  return totals;
 }
 
 // Thuế giá trị gia tăng tách từ tiền đã gồm thuế, theo suất (chỉ để in, báo cáo).

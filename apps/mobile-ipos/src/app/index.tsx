@@ -3,6 +3,7 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { PinPad } from "@/components/PinPad";
+import { Pos } from "@/screens/Pos";
 import { TopBar } from "@/components/TopBar";
 import { Button, Card, Choice, Field, Loading, Muted, Notice, Title } from "@/components/ui";
 import { ApiFailure, api, failureText } from "@/lib/api";
@@ -183,29 +184,11 @@ function SetPinScreen() {
   );
 }
 
-// Lát L1: sau khi đăng nhập chỉ có thông tin phiên và khóa màn hình; mở ca, bán hàng làm ở lát L3.
-function ReadyScreen() {
-  const { device, me, lock } = useSession();
-  return (
-    <View style={{ flex: 1 }}>
-      <TopBar device={device} member={me?.member.fullName} />
-      <Centered>
-        <Card>
-          <Title>{t("readyTitle", { name: me?.member.fullName ?? "" })}</Title>
-          <Muted>{t("readyText")}</Muted>
-          {me ? <Text style={styles.info}>{t("sessionUntil", { time: new Date(me.sessionExpiresAt).toLocaleString("vi-VN") })}</Text> : null}
-          <Button label={t("lockScreen")} kind="secondary" onPress={() => void lock()} />
-        </Card>
-      </Centered>
-    </View>
-  );
-}
-
 export default function Start() {
   const { stage, touch } = useSession();
   return (
     <View style={{ flex: 1 }} onTouchStart={touch}>
-      {stage === "loading" ? <Loading /> : stage === "unpaired" ? <PairScreen /> : stage === "signedOut" ? <LoginScreen /> : stage === "needPin" ? <SetPinScreen /> : <ReadyScreen />}
+      {stage === "loading" ? <Loading /> : stage === "unpaired" ? <PairScreen /> : stage === "signedOut" ? <LoginScreen /> : stage === "needPin" ? <SetPinScreen /> : <Pos />}
     </View>
   );
 }

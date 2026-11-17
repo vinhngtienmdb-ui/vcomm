@@ -4018,6 +4018,17 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 | 0167 (L2) | `ipos.stock_balances` | (`outlet_id`, `variant_id`) khóa chính, `merchant_id`, `quantity` (cho phép âm), `average_cost` (bình quân gia quyền, 4 chữ số thập phân) |
 | 0167 (L2) | `ipos.stock_documents`, `ipos.stock_document_lines` | Phiếu `number` (`PN…`, `PC…`, duy nhất theo cửa hàng), `kind` (`receipt`, `adjustment`), `source` (`manual`, `import`), `note` (bắt buộc với điều chỉnh). Dòng: nhập có `quantity`, `unit_cost`; điều chỉnh có `actual_quantity`; cả hai ghi `before_quantity` |
 | 0167 (L2) | `ipos.stock_moves` | `merchant_id`, `outlet_id`, `variant_id`, `quantity` (khác 0, âm là giảm), `unit_cost`, `balance_after`, `source_type` (`stock_document`; `sale`, `return` dùng từ L3), `source_id`, `source_number`, `created_by`, `occurred_at` |
+| 0168 (L3) | `affiliate.outlets` | Thêm `code` (2 đến 10 ký tự chữ in hoa, số; chỉ mục duy nhất (`merchant_id`, `code`) khi có mã); ghi qua hàm `setOutletCode` của service `affiliate` |
+| 0168 (L3) | `ipos.settings` | (`merchant_id`) khóa chính: `vietqr_bank_bin`, `vietqr_account_no`, `vietqr_account_name` (cả ba cùng có hoặc cùng trống), `cashier_max_discount_percent` (mặc định 10), `return_days` (7), `cashier_can_return`, `block_negative_stock` (mặc định cho phép tồn âm), `receipt_footer`, `paper_width` (58, 80), `version` |
+| 0168 (L3) | `ipos.shifts` | `register_id`, `member_id`, `device_id`, `opened_at`, `opening_cash` (0 đến 1.000.000.000), `opening_note`, `closed_at`, `closed_by`, `system_cash`, `counted_cash`, `difference`, `difference_reason`, `left_cash` (≤ tiền đếm), `denominations`. Chỉ mục duy nhất ca mở theo quầy và theo thành viên |
+| 0168 (L3) | `ipos.cash_movements` | `shift_id`, `direction` (`in`, `out`), `category` (`handover`, `expense`, `other`), `amount`, `reason`, `member_id` |
+| 0168 (L3) | `ipos.document_sequences` | (`outlet_id`, `day`, `kind`) khóa chính, `last_number` (1 đến 9999); `kind` `sale`, `return` |
+| 0168 (L3) | `ipos.sales` | `document_no` (duy nhất theo điểm bán), `idempotency_key` (duy nhất theo thiết bị), `shift_id`, `register_id`, `device_id`, `member_id`, `buyer_user_id` (L4), `subtotal`, `line_discount`, `invoice_discount`, `total` (ràng buộc bằng tiền hàng trừ giảm), `discount_approved_by`, `print_count`, `status`, `sold_at` |
+| 0168 (L3) | `ipos.sale_lines` | `line_no`, `variant_id`, mã, tên, đơn vị lúc bán, `quantity`, `unit_price`, `gross`, `discount`, `allocated_discount` (phần giảm hóa đơn phân bổ), `amount`, `vat_rate`, `unit_cost` (giá vốn bình quân lúc bán, trống nếu không theo dõi tồn) |
+| 0168 (L3) | `ipos.sale_payments` | `method` (`cash`; `vietqr`, `vcomm_app`, `points`, `voucher` từ L4), `amount`, `tendered` (≥ `amount`), `confirmed_by` |
+| 0168 (L3) | `ipos.held_carts` | (`register_id`, `slot` 1 đến 5) khóa chính, `label`, `payload` (giỏ dạng JSON), `member_id`; xóa khi đóng ca |
+| 0168 (L3) | `ipos.approval_codes` | `device_id`, `approver_id` (chủ cửa hàng), `purpose` (`discount`, `return`), `code_hash` (băm, duy nhất), `expires_at` (2 phút), `used_at` |
+| 0168 (L3) | `ipos.device_events` | Nhật ký `reprint` (in lại hóa đơn, có `sale_id`) và `drawer_open` (chủ cửa hàng mở ngăn kéo): `device_id`, `member_id`, `reason`, `occurred_at` |
 
 Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
 
