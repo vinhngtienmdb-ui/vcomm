@@ -235,3 +235,14 @@ Dịch vụ trả phí mới: API Anthropic tính theo token (mô hình mặc đ
 | `expo-crypto` | Băm SHA-256 một lần | MIT | Expo SDK 58 | Không có PBKDF2, phải tự lặp | Trung bình |
 
 Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày 2026-11-17 (cùng đặc tả CONG_VIEC_72) và chọn `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp ngày 2026-11-17. Cả hai ghi cố định phiên bản trong `apps/mobile-vcomm/package.json`.
+
+## 13. Thư viện thêm cho CONG_VIEC_73 mua hàng tại cửa hàng – 2026-11-17
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_574 (tăng độ sáng màn hình khi hiện mã thanh toán để máy quét đọc được).
+- Nguồn đã tìm: mã nguồn dự án (React Native không có cách đặt độ sáng màn hình); kho npm.
+
+| Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc | Rủi ro |
+|---|---|---|---|---|---|
+| `expo-brightness` | Đặt độ sáng cho riêng màn hình ứng dụng (`setBrightnessAsync`), không đổi cài đặt máy nên không cần quyền | MIT (đã đọc tệp LICENSE) | 58.0.2 (2026-10-01; 58.0.3 chưa đủ hai tuần nên không dùng) | Không có phụ thuộc riêng; Expo SDK 58; không có trên bản web (ẩn nút) | Thấp |
+
+Quyết định: người dùng duyệt `expo-brightness` ngày 2026-11-17; phiên điều phối thêm vào `apps/mobile-vcomm/package.json` (phiên bản cố định) theo yêu cầu người dùng.

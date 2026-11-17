@@ -4596,7 +4596,9 @@
     "instoreInvoiceAddress": "Address",
     "instorePay": "Pay {amount}",
     "instoreConfirm": "Confirm",
-    "instoreDecline": "Decline"
+    "instoreDecline": "Decline",
+    "payCodeBrighten": "Brighten screen",
+    "payCodeBrightnessRestore": "Restore brightness"
   },
   "buyers": {
     "title": "Buyer accounts",

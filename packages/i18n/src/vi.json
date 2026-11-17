@@ -4596,7 +4596,9 @@
     "instoreInvoiceAddress": "Địa chỉ",
     "instorePay": "Thanh toán {amount}",
     "instoreConfirm": "Xác nhận",
-    "instoreDecline": "Từ chối"
+    "instoreDecline": "Từ chối",
+    "payCodeBrighten": "Tăng độ sáng",
+    "payCodeBrightnessRestore": "Trả độ sáng cũ"
   },
   "buyers": {
     "title": "Tài khoản người mua",
