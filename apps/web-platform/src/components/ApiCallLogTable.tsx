@@ -12,11 +12,12 @@ import { useApi } from "ui/lib/use-api";
 const toIso = (value: string) => (value ? new Date(value).toISOString() : "");
 const tone = (status: number) => (status < 400 ? "thanh-cong" : status === 429 || status < 500 ? "canh-bao" : "loi");
 
-export function ApiCallLogTable({ apiKeyId }: { apiKeyId?: string }) {
+// apiKeyId: khóa cố định (thẻ trong chi tiết khóa), không hiện ô lọc khóa. initialApiKeyId: giá trị đầu của ô lọc khóa, người dùng đổi hoặc xóa được.
+export function ApiCallLogTable({ apiKeyId, initialApiKeyId }: { apiKeyId?: string; initialApiKeyId?: string }) {
   const t = useTranslations("apiCallLogs");
   const common = useTranslations("common");
   const keys = useApi<ApiKeyItem[]>(apiKeyId ? null : "/platform/api-keys");
-  const [filters, setFilters] = useState({ apiKeyId: apiKeyId ?? "", result: "", from: "", to: "", path: "" });
+  const [filters, setFilters] = useState({ apiKeyId: apiKeyId ?? initialApiKeyId ?? "", result: "", from: "", to: "", path: "" });
   const [page, setPage] = useState(1);
   const parameters = new URLSearchParams({ page: String(page), pageSize: "50" });
   if (filters.apiKeyId) parameters.set("apiKeyId", filters.apiKeyId);
