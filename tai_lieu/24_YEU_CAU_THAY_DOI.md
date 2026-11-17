@@ -567,7 +567,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_750 đến 767; hồi quy KICHBAN_KIEMTHU_514, 515, 517, 519, 533 đến 546, 693 đến 704, 734 đến 749, 376 đến 378, kịch bản cổng của CONG_VIEC_33 đến 42, kịch bản hóa đơn điện tử của CONG_VIEC_16; toàn bộ kiểm thử.
 - Mức quy mô: Lớn (MODULE_06, 09, 11, 12, 14, 16); làm trong CONG_VIEC_73.
 - Rủi ro: trung gian thanh toán khi thu hộ cửa hàng liên kết (công tắc theo cửa hàng mặc định tắt đến khi người dùng xác nhận hồ sơ pháp lý); ủy nhiệm lập hóa đơn (người dùng xác nhận tính hợp lệ, thủ tục với cơ quan thuế); tài khoản kế toán do kế toán trưởng xác nhận trước lát L4; phụ thuộc CONG_VIEC_72.
-- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu, 16 điểm đề xuất). Đang làm trong CONG_VIEC_73.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu, 16 điểm đề xuất). Đã lập trình và nghiệm thu 2026-11-17 trong CONG_VIEC_73, chờ phát hành.
 
 ### THAY_DOI_39: Thêm phần mềm bán hàng iPOS (MODULE_17) vào kiến trúc – 2026-11-17
 - Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_74.
