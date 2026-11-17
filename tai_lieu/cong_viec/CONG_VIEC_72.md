@@ -466,7 +466,7 @@ Sửa:
 Điều chỉnh khi lập trình, người dùng chấp nhận:
 - L1 (2026-11-17): bốn điều chỉnh dữ liệu ở mục 9; mục menu riêng "Xác thực người mua" (MAN_HINH_275).
 - L4 (2026-11-17): khôi phục khi mất máy làm qua đăng nhập bằng mật khẩu rồi gửi mã, kích hoạt trong phiên chờ (dùng API_199), không dùng API_320; bản web chỉ hướng dẫn khôi phục trên ứng dụng điện thoại.
-- L6 (2026-11-17, chờ người dùng xem):
+- L6 (2026-11-17, người dùng duyệt cả sáu điều chỉnh):
   - Trạng thái bảo mật cổng: đã thiết lập, chưa thiết lập trong hạn ("Để sau"), bắt buộc thiết lập (phiên kích hoạt bằng mã SMS), chờ mã, bị chặn (hết hạn hoặc đã bị đặt lại mà chưa kích hoạt lại). Thêm `GET /merchant-portal/security`, `GET /merchant-portal/authentication-policy` vào API_324.
   - Tài khoản kích hoạt lời mời mà bỏ dở thiết lập: trong thời hạn được coi như tài khoản có sẵn ("Để sau"); hết hạn thì nhờ người mời đặt lại xác thực.
   - Đặt lại xác thực không làm được với tài khoản nhân viên bắt buộc xác thực hai lớp (`409 merchantPortalResetStaff`), để chủ cửa hàng không xóa được ứng dụng xác thực của nhân viên. Đặt lại thu hồi mọi phiên web của tài khoản.
