@@ -3,7 +3,7 @@
 // Bảng nhật ký gọi API đối tác (MAN_HINH_226 và thẻ Nhật ký gọi của MAN_HINH_225; API_259).
 import { apiCallResults, type ApiCallLogItem, type ApiKeyItem, type PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
@@ -30,6 +30,11 @@ export function ApiCallLogTable({ apiKeyId, initialApiKeyId }: { apiKeyId?: stri
     setFilters((current) => ({ ...current, [key]: value }));
     setPage(1);
   };
+  // Khóa đặt sẵn từ địa chỉ không thuộc công ty đang chọn (đổi công ty sau khi mở liên kết): bỏ lọc khóa (CONG_VIEC_69).
+  const unknownKey = !apiKeyId && keys.state.kind === "ready" && filters.apiKeyId !== "" && !keys.state.data.some((key) => key.id === filters.apiKeyId);
+  useEffect(() => {
+    if (unknownKey) change("apiKeyId", "");
+  }, [unknownKey]);
   const filtered = Boolean(filters.result || filters.from || filters.to || filters.path || (!apiKeyId && filters.apiKeyId));
   const headings = [t("time"), ...(apiKeyId ? [] : [t("key")]), t("method"), t("pathColumn"), t("status"), t("errorCode"), t("duration"), t("ip"), t("requestId")];
 
