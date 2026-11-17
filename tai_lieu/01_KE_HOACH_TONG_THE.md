@@ -83,7 +83,7 @@ Các mốc tiếp theo:
 |---|---|---|---|
 | Triển khai lần đầu | Đưa phiên bản đã phát hành lên môi trường thật (giai đoạn 12) | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
 | 1.0 | Hệ thống quản trị doanh nghiệp chạy thật cho mọi công ty con (tài liệu `05` mục 4) | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
-| 2.x đến 6.x | Theo tài liệu `05` mục 4; nhiều phần đã phát hành sớm trong các phiên bản 0.x ở trên | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
+| Sau 1.0 | Phần còn lại của phạm vi tài liệu `05` mục 2 (gồm trợ lý AI, CONG_VIEC_63); thứ tự phiên bản **CHƯA XÁC ĐỊNH** | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
 
 Mốc ước lượng ban đầu (1.0 tháng thứ 9, 2.0 tháng thứ 15, 3.0 tháng thứ 20 kể từ khi bắt đầu) không còn dùng: THAY_DOI_04 làm tăng khối lượng khoảng gấp rưỡi và các module đã phát hành dần trong 0.x; mốc mới chưa được người dùng chốt.
 

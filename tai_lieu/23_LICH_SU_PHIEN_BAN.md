@@ -2,10 +2,10 @@
 
 - Mô tả: Các phiên bản đã phát hành, nội dung và phương án quay lui riêng của từng phiên bản.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-16
+- Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.11.0 – 2026-11-16 – Chờ phát hành
+## Phiên bản 0.11.0 – 2026-11-16 – Đã phát hành
 
 - Chức năng mới:
   - Mở rộng kinh doanh phần 2 – Dropship (MODULE_16, CONG_VIEC_62, THAY_DOI_35): loại kho Dropship (mỗi công ty tối đa một kho đang hoạt động); sản phẩm dropship gắn nhà cung cấp với tồn khai báo, không bán quá tồn; xác nhận đơn bán có hàng dropship tự lập đơn mua cho nhà cung cấp, theo dõi giao (Chờ giao, Đang giao, Đã giao, Giao thất bại, Đã hủy), ghi sổ kho, công nợ, hóa đơn, bút toán như hàng trong kho; trả hàng dropship về nhà cung cấp hoặc về kho công ty; đối soát nhà cung cấp (xuất tệp Excel); Open API cho nhà cung cấp (phạm vi khóa mới `dropship.supplier`: xem đơn, báo trạng thái giao, cập nhật tồn); chiều người bán dropship: cờ người bán trên hồ sơ khách hàng, đơn người bán gửi qua Open API có thu hộ, vận đơn với đơn vị vận chuyển đã kết nối hoặc nhập tay, phiếu giao in danh nghĩa người bán, bảng đối soát người bán hằng tuần (tiền hàng, trả hàng, thu hộ, phí giao, thuế phí giao) với đơn bán dịch vụ phí giao và phiếu chi hoàn tiền khi công ty phải trả.
@@ -65,7 +65,7 @@
   - Trước khi quay lui: thu hồi mọi khóa API phạm vi `dropship.supplier` và `loyalty.partner` (bản 0.10.0 không có phạm vi này, màn hình Khóa API không hiển thị đúng); báo nhà cung cấp, người bán dropship và đối tác liên minh ngừng gọi API; xử lý xong đơn mua dropship đang giao và giao dịch đổi điểm đối tác đang chờ (bản 0.10.0 không có tác vụ hỏi lại); chốt hoặc báo người dùng Tài chính về bảng đối soát người bán, bảng đối soát đối tác liên minh chưa xác nhận (bản 0.10.0 không có tác vụ lập bảng). Phiếu xuất, công nợ, bút toán, phiếu thu chi đã ghi vẫn còn trong sổ. Bản 0.10.0 không biết cột `inventory.warehouses.kind`: ngừng kho loại Dropship trước khi quay lui để không bán, xuất từ kho này như kho thường. Tắt tệp danh mục Facebook trong Commerce Manager (bản 0.10.0 không có đường dẫn tệp); đường dẫn `/s/` đã chia sẻ sẽ trả `404`.
   - Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.11.0.
 
-## Phiên bản 0.10.0 – 2026-11-16 – Chờ phát hành
+## Phiên bản 0.10.0 – 2026-11-16 – Đã phát hành
 
 - Chức năng mới:
   - Điểm thưởng phần 2 (MODULE_11, CONG_VIEC_60): liên minh điểm trong tập đoàn với kiểu chia chi phí điểm theo giai đoạn chương trình (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu) và hạch toán theo kiểu; bảng đối soát điểm nội bộ hằng tháng giữa công ty vận hành sàn và từng công ty con (đối chiếu sổ, hai bên xác nhận hoặc khiếu nại, phiếu thu, phiếu chi nội bộ cho số thuần); mã cài đặt ứng dụng VComm (chỉ lưu băm) liên kết thiết bị với tài khoản; bốn quy tắc chống gian lận nâng cao (nhiều tài khoản trên một thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, giao dịch bất thường theo nhân viên) với ba mức xử lý; vụ việc gian lận; báo cáo liên minh và báo cáo gian lận.
@@ -92,7 +92,7 @@
   - Mã nguồn: triển khai lại tag `v0.9.0`.
   - Database migration: bản 0.9.0 không đọc các bảng đối soát điểm nội bộ, thiết bị, quy tắc và vụ việc gian lận, khóa API cửa hàng liên kết, phí tin nhắn và cột mới; giữ nguyên khi quay lui mã. Các ràng buộc `finance.payments_kind_check`, `loyalty.document_points_skip_reason_check`, `affiliate.transactions_skip_reason_check`, `affiliate.transactions_method_check`, `core.otp_codes_purpose_check` chỉ thêm giá trị nên bản 0.9.0 vẫn ghi được. `core.api_keys.channel_id` cho phép trống chỉ với khóa `loyalty.member`: trước khi quay lui thu hồi mọi khóa cửa hàng liên kết (bản 0.9.0 giả định khóa luôn có kênh bán). `affiliate.transactions.cashier_user_id` cho phép trống cho giao dịch qua API: bản 0.9.0 vẫn đọc được nhưng không hiện người thu ngân cho các giao dịch này. Ràng buộc `net_amount` mới của `affiliate.settlements` có thành phần phí tin mặc định 0 nên bảng đối soát tuần do bản 0.9.0 lập vẫn thỏa. Trước khi quay lui: chốt hoặc báo người dùng Tài chính về bảng đối soát điểm nội bộ đang chờ xác nhận (bản 0.9.0 không có tác vụ lập, nhắc bảng đối soát), phiếu thu chi nội bộ điểm đã ghi vẫn còn trong sổ; báo cửa hàng liên kết ngừng gọi API (bản 0.9.0 không có API cửa hàng liên kết). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.10.0.
 
-## Phiên bản 0.9.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.9.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Văn phòng số phần 2 (MODULE_13, CONG_VIEC_59): chữ ký số qua lớp kết nối nhà cung cấp ký số từ xa (giai đoạn này chỉ có bộ giả lập, bị chặn ở môi trường chính thức), tài khoản ký số của người dùng, chữ ký số của công ty, danh sách chứng thư gốc tin cậy; trình ký tài liệu PDF nhiều người ký theo thứ tự (người dùng, chữ ký công ty, đối tác ký qua đường dẫn), ký theo chuẩn PAdES, kiểm tra chữ ký số trong PDF; kho hợp đồng (loại hợp đồng, hợp đồng, phụ lục, duyệt, ký qua phiên ký, nhập hợp đồng đã ký, thanh lý, chấm dứt, nhắc hạn); công văn đi ký số rồi phát hành không cần bản quét; hợp đồng lao động, phụ lục của Nhân sự ký số.
@@ -123,7 +123,7 @@
   - Mã nguồn: triển khai lại tag `v0.8.0`.
   - Database migration: bản 0.8.0 không đọc các bảng ký số, phiên ký, kho hợp đồng, `crm.open_api_customers` và cột mới; giữ nguyên khi quay lui mã. Ràng buộc `office.files_owner_type_check`, `office.signing_requests_source_type_check` chỉ thêm giá trị nên bản 0.8.0 vẫn ghi được. `crm.partners_check1` nới cho khách cá nhân không có số căn cước do đối tác tạo: bản 0.8.0 không tạo loại khách này nhưng vẫn đọc được; sửa hồ sơ khách đó ở bản 0.8.0 không bị chặn bởi ràng buộc. Trước khi quay lui: báo người dùng Văn phòng số tải về tệp đã ký, hợp đồng cần dùng; phiên ký đang chờ dừng lại (bản 0.8.0 không có tác vụ nền ký số); thu hồi hoặc báo đối tác ngừng dùng phạm vi `customer.write` (bản 0.8.0 không có API khách hàng; đơn Open API đã tạo vẫn còn nhưng không hiện người nhận). Quay lui về 0.8.0 làm mất bản sửa LOI_10, LOI_11, LOI_12. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.9.0.
 
-## Phiên bản 0.8.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.8.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Văn phòng số phần 1 (MODULE_13, ứng dụng mới `apps/web-office`, CONG_VIEC_52): quản lý công việc (giao việc, chủ trì, phối hợp, theo dõi, việc con một cấp, hạn, ưu tiên, tiến độ, bình luận, tệp, lịch sử, việc liên công ty trong tập đoàn, nhắc hạn); quy trình công việc theo mẫu có phiên bản, rẽ nhánh, song song, gộp, lặp có giới hạn; công văn đến (vào sổ, số đến, trình, giao xử lý) và công văn đi (soạn theo thể thức Nghị định 30/2020/NĐ-CP, trình ký qua luồng duyệt chung, văn thư cấp số, phát hành, gửi sang công ty khác trong tập đoàn thành công văn đến), xuất PDF và Word, xuất sổ; bảng tin nội bộ (đối tượng, hẹn giờ đăng, ghim, xác nhận đã đọc, thu hồi, bình luận).
@@ -149,7 +149,7 @@
   - Mã nguồn: triển khai lại tag `v0.7.0`; gỡ ứng dụng `apps/web-office` khỏi máy chủ, bỏ chuyển tiếp `/office`.
   - Database migration: bản 0.7.0 không đọc schema `office`, các bảng ngoại tệ, đánh giá lại, thuế hải quan, tờ khai bổ sung và cột ngoại tệ mới; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0106` đến `0108`) chỉ thêm giá trị nên bản 0.7.0 vẫn ghi được. Trước khi quay lui: báo kế toán dừng lập phiếu ngoại tệ, phiếu nộp thuế hải quan, đánh giá lại (bản 0.7.0 không có chức năng cho các phiếu loại `currency_purchase`, `customs_tax_payment`, `customs_tax_refund`; bút toán đã ghi sổ vẫn nằm trong sổ cái); báo người dùng Văn phòng số tải về công văn, tệp cần dùng. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.8.0.
 
-## Phiên bản 0.7.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.7.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Cửa hàng liên kết phần 1 (MODULE_12, ứng dụng mới `apps/web-affiliate`, CONG_VIEC_55, THAY_DOI_27, THAY_DOI_29): hợp đồng cửa hàng liên kết với đối tác ngoài tập đoàn (tỷ lệ tích, phí dịch vụ, hạn mức nợ, trần mỗi giao dịch, hạn thanh toán), điểm bán, chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại và mã OTP; tích, dùng điểm và voucher tại quầy bằng mã QR động của cửa hàng, mã QR động của khách hoặc số điện thoại kèm xác nhận trên ứng dụng VComm; hủy giao dịch trước khi chốt tuần; voucher ba loại qua duyệt; đối soát tuần có bù trừ, công nợ, chặn tích khi vượt hạn mức hoặc quá hạn; hạch toán ở công ty vận hành sàn; báo cáo cửa hàng, cảnh báo bất thường; danh sách giao dịch và nguồn bút toán riêng (THAY_DOI_29); đăng nhập Zalo cho cổng cửa hàng.
@@ -175,7 +175,7 @@
   - Database migration: bản 0.6.0 không đọc schema `affiliate`, bảng `core.api_keys`, nhật ký gọi API, cột đơn bán qua API; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0103` đến `0105`) chỉ thêm giá trị nên bản 0.6.0 vẫn ghi được. Trước khi quay lui: thu hồi mọi khóa API đang dùng và báo đối tác; chốt và đối soát hết giao dịch cửa hàng liên kết, báo cửa hàng tạm dừng (bản 0.6.0 không có cổng cửa hàng). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.7.0.
   - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-camera` là bản dựng mới; quay lui bằng bản dựng của 0.6.0 trên kho ứng dụng hoặc cập nhật qua mạng.
 
-## Phiên bản 0.6.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.6.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Kế hoạch mua theo ngân sách (MODULE_14 phần 3, mini app `apps/web-purchasing`, CONG_VIEC_58): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng qua luồng duyệt; số đã dùng, số còn được mua theo tháng, quý, năm; cảnh báo ngân sách trong đơn mua, đơn vượt hoặc chưa có ngân sách phải duyệt; phiếu điều chỉnh tăng, giảm, chuyển ngân sách có duyệt.
@@ -202,7 +202,7 @@
   - Database migration: bản 0.5.0 không đọc bảng, cột mới (trạm, ghi chú chăm sóc, ngân sách mua, `loyalty.smart_otp_devices`, `retail.sales.loyalty_user_id`, `marketplace.orders.fulfillment_mode`, `station_id`, `sales_staff_user_id`); giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0110`, `0111`, `0119`) chỉ thêm giá trị nên bản 0.5.0 vẫn ghi được. Trước khi quay lui: tắt phương thức `pay_at_station`, xử lý hết đơn của trạm đang ở trạng thái `ready_for_pickup` (bản 0.5.0 không hiển thị, không chuyển được trạng thái này). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.6.0.
   - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-clipboard`, `otpauth` là bản dựng mới; quay lui bằng bản dựng của 0.5.0 trên kho ứng dụng hoặc cập nhật qua mạng.
 
-## Phiên bản 0.5.0 – 2026-11-11 – Chờ phát hành
+## Phiên bản 0.5.0 – 2026-11-11 – Đã phát hành
 
 - Chức năng mới:
   - Nhân sự phần 4 (MODULE_08, mini app `apps/web-hr`, CONG_VIEC_54): nhu cầu tuyển dụng qua luồng duyệt, tin tuyển dụng, trang tuyển dụng công khai, ứng viên, phỏng vấn, đề nghị nhận việc, lưu giữ dữ liệu ứng viên; đánh giá hiệu suất (mẫu, kỳ, phiếu, hiệu chỉnh, công bố).
