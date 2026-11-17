@@ -56,15 +56,15 @@ function DiscountDialog({ title, base, value, onSave, onClose }: { title: string
 }
 
 // Chủ cửa hàng chọn tên mình, nhập PIN trên máy để duyệt tại chỗ (API_342).
-function ApprovalDialog({ onApproved, onClose }: { onApproved: (approval: IposApproval) => void; onClose: () => void }) {
+export function ApprovalDialog({ onApproved, onClose, purpose = "discount" }: { onApproved: (approval: IposApproval) => void; onClose: () => void; purpose?: "discount" | "return" }) {
   const { device } = useSession();
   const owners = (device?.members ?? []).filter((member) => member.role === "owner");
   const [memberId, setMemberId] = useState(owners[0]?.memberId ?? null);
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   return (
-    <Overlay title={t("approvalTitle")} onClose={onClose} width={420}>
-      <Muted>{t("approvalText")}</Muted>
+    <Overlay title={purpose === "return" ? t("approvalReturnTitle") : t("approvalTitle")} onClose={onClose} width={420}>
+      <Muted>{purpose === "return" ? t("approvalReturnText") : t("approvalText")}</Muted>
       {owners.length === 0 ? <Notice text={t("approvalNoOwner")} /> : <Choice label={t("approver")} value={memberId} options={owners.map((owner) => ({ value: owner.memberId, label: owner.fullName }))} onChange={setMemberId} />}
       {error ? <Notice text={error} /> : null}
       {memberId ? (
@@ -73,7 +73,7 @@ function ApprovalDialog({ onApproved, onClose }: { onApproved: (approval: IposAp
           onChange={setPin}
           onComplete={(value) => {
             setPin("");
-            api<IposApproval>("/ipos/pos/approvals/pin", { method: "POST", json: { memberId, pin: value, purpose: "discount" } })
+            api<IposApproval>("/ipos/pos/approvals/pin", { method: "POST", json: { memberId, pin: value, purpose } })
               .then(onApproved)
               .catch((failure: unknown) => setError(failure instanceof Error ? failure.message : String(failure)));
           }}

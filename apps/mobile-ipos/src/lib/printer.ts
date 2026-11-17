@@ -1,10 +1,10 @@
 // In hóa đơn, in thử, mở ngăn kéo (QUYTAC_NGHIEPVU_620). Lỗi máy in không chặn bán: hóa đơn đã ghi, màn hình báo "Không in được: <nguyên nhân>", cho in lại.
 // Bản web xem trước không có máy in: trả nội dung chữ để màn hình hiện bản xem trước.
-import type { IposSale } from "contracts";
+import type { IposReturn, IposSale } from "contracts";
 import { t } from "./i18n";
 import { hasPhysicalPrinter, printLines, pulseDrawer } from "./printer-driver";
 import { loadPrinterSettings, type PrinterSettings } from "./printer-settings";
-import { buildReceipt, columnsOf, receiptText, type ReceiptLine } from "./receipt";
+import { buildReceipt, buildReturnReceipt, columnsOf, receiptText, type ReceiptLine } from "./receipt";
 
 export interface PrintOutcome {
   printed: boolean;
@@ -42,6 +42,12 @@ export async function printSale(sale: IposSale, options: { storePaperWidth: 58 |
   }
   const paperWidth = settings.paperWidth ?? options.storePaperWidth;
   return output(buildReceipt(sale, { reprintNumber: options.reprintNumber }), settings, paperWidth, options.openDrawer, options.reprintNumber ? 1 : settings.copies);
+}
+
+// In phiếu trả; có hoàn tiền mặt thì mở ngăn kéo.
+export async function printReturn(item: IposReturn, storePaperWidth: 58 | 80): Promise<PrintOutcome> {
+  const settings = await loadPrinterSettings();
+  return output(buildReturnReceipt(item), settings, settings.paperWidth ?? storePaperWidth, Number(item.refundCash) > 0, 1);
 }
 
 export async function printTest(settings: PrinterSettings, storePaperWidth: 58 | 80): Promise<PrintOutcome> {

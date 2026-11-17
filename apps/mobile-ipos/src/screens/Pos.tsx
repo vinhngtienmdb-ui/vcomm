@@ -1,5 +1,5 @@
 // Khung máy bán sau khi đăng nhập: thanh trạng thái (ca, mạng, máy in, thuê bao; MAN_HINH_286), các mục Bán hàng, Hóa đơn trong ca, Thu chi và đóng ca,
-// Cài đặt thiết bị, Khóa màn hình. Chưa mở ca thì hiện màn hình mở ca.
+// Trả hàng, Cài đặt thiết bị, Khóa màn hình. Chưa mở ca thì hiện màn hình mở ca.
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Loading, Notice } from "@/components/ui";
@@ -11,10 +11,11 @@ import { colors, radius, space } from "@/lib/theme";
 import { CloseShift } from "./CloseShift";
 import { DeviceSettings } from "./DeviceSettings";
 import { OpenShift } from "./OpenShift";
+import { Returns } from "./Returns";
 import { Sales } from "./Sales";
 import { Sell } from "./Sell";
 
-type Tab = "sell" | "sales" | "close" | "settings";
+type Tab = "sell" | "sales" | "returns" | "close" | "settings";
 
 function StatusStrip() {
   const { device, me, lock } = useSession();
@@ -48,6 +49,7 @@ function Body() {
     ? [
         { key: "sell", label: t("tabSell") },
         { key: "sales", label: t("tabSales") },
+        { key: "returns", label: t("tabReturns") },
         { key: "close", label: t("tabClose") },
         { key: "settings", label: t("tabSettings") },
       ]
@@ -67,7 +69,7 @@ function Body() {
       </View>
       {!online ? <Notice text={t("offlineBanner")} /> : null}
       <View style={{ flex: 1 }}>
-        {active === "settings" ? <DeviceSettings /> : !shift ? <OpenShift /> : active === "sales" ? <Sales /> : active === "close" ? <CloseShift /> : <Sell />}
+        {active === "settings" ? <DeviceSettings /> : !shift ? <OpenShift /> : active === "sales" ? <Sales /> : active === "returns" ? <Returns /> : active === "close" ? <CloseShift /> : <Sell />}
       </View>
     </View>
   );

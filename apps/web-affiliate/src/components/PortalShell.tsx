@@ -39,6 +39,10 @@ const portalMenu = [
 
 // CONG_VIEC_74: nhóm menu iPOS hiện khi cửa hàng có thuê bao (QUYTAC_NGHIEPVU_595); mục thêm dần theo lát.
 const iposMenu = [
+  { href: "/ipos/overview", key: "iposOverview", ownerOnly: true },
+  { href: "/ipos/sales", key: "iposSales", ownerOnly: true },
+  { href: "/ipos/shifts", key: "iposShifts", ownerOnly: true },
+  { href: "/ipos/reports", key: "iposReports", ownerOnly: true },
   { href: "/ipos/items", key: "iposItems", ownerOnly: true },
   { href: "/ipos/stock", key: "iposStock", ownerOnly: true },
   { href: "/ipos/registers", key: "iposRegisters", ownerOnly: true },

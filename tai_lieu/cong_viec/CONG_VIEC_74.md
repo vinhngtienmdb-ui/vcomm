@@ -3,7 +3,7 @@
 - Mô tả: iPOS là ứng dụng bán hàng tại quầy cho cửa hàng liên kết (CONG_VIEC_55). Cửa hàng thuê bao theo điểm bán. Thu ngân bán hàng trên máy tính bảng Android hoặc máy bán hàng Sunmi: quét mã, thu tiền mặt, VietQR hoặc qua ứng dụng VComm, in hóa đơn, mở ngăn kéo tiền, mở và đóng ca. Chủ cửa hàng quản lý hàng hóa, tồn kho đơn giản, thu ngân, quầy, báo cáo trên cổng cửa hàng. Công ty vận hành sàn cấp thuê bao, thu phí thuê bao theo cách cấu hình riêng cho từng cửa hàng, xem doanh thu và đối soát trong ERP.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Lát L2 người dùng duyệt 2026-11-17 (chấp nhận 5 điều chỉnh mục 19a). Lát L3 người dùng duyệt 2026-11-17 (chấp nhận 4 điều chỉnh mục 19a; in thật trên Sunmi T2, Bluetooth, ngắt mạng thử trên máy thật khi nghiệm thu). Đang làm lát L4.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Lát L0 người dùng duyệt 2026-11-17 (chấp nhận `tax_percent`). Lát L1 người dùng duyệt 2026-11-17 (thêm Smart OTP cho đăng nhập lần đầu). Lát L2 người dùng duyệt 2026-11-17 (chấp nhận 5 điều chỉnh mục 19a). Lát L3 người dùng duyệt 2026-11-17 (chấp nhận 4 điều chỉnh mục 19a; in thật trên Sunmi T2, Bluetooth, ngắt mạng thử trên máy thật khi nghiệm thu). Lát L4 người dùng duyệt 2026-11-17 (chấp nhận 3 điều chỉnh mục 19a; nội dung VietQR "<mã điểm bán> <8 ký tự mã yêu cầu>"). Đang làm lát L5 (chờ duyệt).
 - Mức: Lớn (module mới, schema mới `ipos`, ứng dụng di động mới, sửa quy tắc đối soát đã duyệt, thu phí thuê bao).
 - Nhánh: `chuc-nang/CONG_VIEC_74-ipos`.
 - Nguồn: quyết định của người dùng ngày 2026-11-17 (mục 17); CONG_VIEC_55, 67 (cửa hàng liên kết, Open API điểm thưởng), CONG_VIEC_73 (đơn chờ thanh toán, thu hộ, hóa đơn ủy nhiệm), CONG_VIEC_72 (Smart OTP, mã động); ý tưởng từ nguồn riêng V-com-ERP (mục 12), không sao chép mã.
@@ -674,6 +674,12 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | L4 | Thanh toán qua ứng dụng VComm có thu hộ (luồng 1, 2): đã làm tạo đơn chờ, gắn mã động, mã QR, xem, hủy (API_341); khách trả, hoàn tất ghi hóa đơn chờ CONG_VIEC_73 lát L4 (móc hoàn tất `registerCompletionHook` đã thống nhất với phiên CONG_VIEC_73). Ứng dụng hiện thông báo "chưa trả được qua ứng dụng" | Phụ thuộc CONG_VIEC_73 |
 | L4 | Giao dịch điểm, đơn chờ của máy bán gắn theo ca (`ipos.shift_links`); đóng ca bị chặn khi còn dở. Bỏ giỏ sau khi khách đã dùng điểm thì hủy giao dịch, hoàn điểm | QUYTAC_NGHIEPVU_623 khoản 1 |
 | L4 | Thêm thư viện `qrcode-generator` 2.0.4 cho ứng dụng iPOS | Vẽ mã QR; người dùng duyệt 2026-11-17 |
+| L5 | Phần trả hàng dùng database migration 0170 (đặc tả ghi 0169) | 0169 đã dùng cho thanh toán ở lát L4 |
+| L5 | Báo cáo cửa hàng gộp một API `GET /reports` (cùng bộ lọc) và một tệp Excel nhiều trang, thay cho sáu đường dẫn riêng của API_351 | Một lần truy vấn cho một trang báo cáo; tệp xuất cùng nội dung trang |
+| L5 | Bộ lọc báo cáo trên cổng chỉ có khoảng ngày (tối đa 366 ngày) và điểm bán; lọc theo phương thức, tìm số phiếu có ở trang hóa đơn | Giữ trang báo cáo gọn cho cửa hàng nhỏ |
+| L5 | Hủy hóa đơn có thanh toán qua ứng dụng VComm báo `iposReturnAppPending` | Hoàn tiền cả đơn qua `refund()` của CONG_VIEC_73 lát L7 chưa có |
+| L5 | Hàng trả cộng lại tồn tại điểm bán nhận trả (có thể khác điểm bán của hóa đơn) theo giá vốn lúc bán | Hàng nằm thực tế ở điểm bán nhận trả |
+| L5 | Hủy toàn bộ hóa đơn có điểm, voucher bị chặn khi tuần của giao dịch điểm đã đối soát (`iposReturnWeekSettled`) | Theo quy tắc hủy giao dịch của CONG_VIEC_55; kiểm tra hết điều kiện trước khi gọi `cancelFor` vì hàm này chạy trong giao dịch riêng |
 
 ## 20. Rủi ro và điểm chưa xác định
 

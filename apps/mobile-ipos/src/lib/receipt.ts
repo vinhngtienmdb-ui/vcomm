@@ -1,7 +1,7 @@
 // Dựng nội dung hóa đơn để in (QUYTAC_NGHIEPVU_620 khoản 1, 3): tên cửa hàng, điểm bán, số hóa đơn, ngày giờ, thu ngân, dòng hàng, giảm giá, tổng,
 // thuế theo suất, phương thức, tiền khách đưa, tiền thừa, lời chào. Khổ 80 mm 48 cột chữ, 58 mm 32 cột. In lại ghi "In lại lần n".
 // Kết quả là danh sách dòng không phụ thuộc máy in; lớp in chuyển sang lệnh ESC/POS hoặc lệnh của dịch vụ in Sunmi.
-import type { IposSale } from "contracts";
+import type { IposReturn, IposSale } from "contracts";
 import { t } from "./i18n";
 
 export type ReceiptLine =
@@ -94,6 +94,35 @@ export function buildReceipt(sale: IposSale, options: { reprintNumber: number | 
   }
   if (sale.receiptFooter) lines.push({ kind: "feed" }, { kind: "text", text: sale.receiptFooter, align: "center" });
   lines.push({ kind: "feed" });
+  return lines;
+}
+
+// Phiếu trả hàng `TR-…` (QUYTAC_NGHIEPVU_624 khoản 4).
+export function buildReturnReceipt(item: IposReturn): ReceiptLine[] {
+  const lines: ReceiptLine[] = [
+    { kind: "text", text: item.merchantName, align: "center", bold: true, large: true },
+    { kind: "text", text: item.outletName, align: "center" },
+    { kind: "text", text: item.outletAddress, align: "center" },
+    { kind: "feed" },
+    { kind: "text", text: item.kind === "full_cancel" ? t("returnCancelTitle") : t("returnTitle"), align: "center", bold: true },
+    { kind: "text", text: item.documentNo, align: "center" },
+    { kind: "columns", left: t("returnForSale"), right: item.saleDocumentNo },
+    { kind: "columns", left: t("receiptTime"), right: dateTime(item.createdAt) },
+    { kind: "columns", left: t("receiptCashier"), right: `${item.memberName} · ${item.registerName}` },
+  ];
+  if (item.approvedByName) lines.push({ kind: "columns", left: t("returnApprovedBy"), right: item.approvedByName });
+  lines.push({ kind: "rule" });
+  for (const line of item.lines) {
+    lines.push({ kind: "text", text: line.name, align: "left" });
+    lines.push({ kind: "columns", left: `  ${quantity(line.quantity)} ${line.unit}`, right: money(line.amount) });
+  }
+  lines.push(
+    { kind: "rule" },
+    { kind: "columns", left: t("returnAmount"), right: money(item.amount), bold: true },
+    { kind: "columns", left: t("returnRefundCash"), right: money(item.refundCash), bold: true },
+    { kind: "text", text: t("returnReasonLine", { reason: item.reason }), align: "left" },
+    { kind: "feed" },
+  );
   return lines;
 }
 

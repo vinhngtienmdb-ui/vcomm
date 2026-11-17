@@ -4033,6 +4033,9 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 | 0169 (L4) | `ipos.sales` | Thêm `loyalty_skip_reason` (lý do không tích điểm: hạn mức, quá hạn đối soát) |
 | 0169 (L4) | `ipos.shift_links` | Giao dịch điểm, đơn chờ do máy bán lập trong ca: `shift_id`, `affiliate_transaction_id` hoặc `instore_checkout_id` (đúng một, duy nhất), `sale_id` khi đã gắn hóa đơn; dùng để chặn đóng ca khi còn dở |
 | 0169 (L4) | `instore.checkouts` | Thêm khóa ngoại `ipos_invoice_id` → `ipos.sales` (cột do CONG_VIEC_73 chừa sẵn) |
+| 0170 (L5) | `ipos.returns` | Phiếu trả `TR-<mã điểm bán>-<YYMMDD>-<4 số>` (đếm chung `ipos.document_sequences`, loại `return`): hóa đơn, quầy, thiết bị, ca, thu ngân lập; `kind` (`partial` trả một phần, `full_cancel` hủy toàn bộ hóa đơn), `amount` tiền hàng trả, `refund_cash` tiền mặt hoàn từ két ca đang mở, `approved_by` (chủ cửa hàng duyệt bằng PIN), `reason` (1 đến 200 ký tự), `print_count`. Duy nhất (điểm bán, số phiếu), (thiết bị, khóa yêu cầu); mỗi hóa đơn chỉ một phiếu `full_cancel` |
+| 0170 (L5) | `ipos.return_lines` | Dòng trả: dòng hóa đơn, số lượng (> 0, không vượt số đã mua trừ đã trả, kiểm ở service khi khóa hóa đơn), tiền hoàn theo phần sau giảm (gồm giảm hóa đơn phân bổ), giá vốn lúc bán để cộng lại tồn |
+| 0170 (L5) | `ipos.sales` | Thêm `cancelled_at` (hóa đơn bị hủy toàn bộ chuyển trạng thái `cancelled`) |
 
 Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
 
