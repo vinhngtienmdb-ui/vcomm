@@ -1,11 +1,11 @@
 # MỤC LỤC BỘ TÀI LIỆU THIẾT KẾ
 
 - Dự án: VComm
-- Ngày cập nhật: 2026-11-12
+- Ngày cập nhật: 2026-11-17
 
 | Số | Tệp | Tên tài liệu | Mô tả | Giai đoạn | Trạng thái |
 |---|---|---|---|---|---|
-| 01 | [01_KE_HOACH_TONG_THE.md](01_KE_HOACH_TONG_THE.md) | Kế hoạch tổng thể | Giai đoạn, module, mốc, rủi ro | Toàn dự án | Bản nháp |
+| 01 | [01_KE_HOACH_TONG_THE.md](01_KE_HOACH_TONG_THE.md) | Kế hoạch tổng thể | Giai đoạn, module, mốc, rủi ro | Toàn dự án | Đang cập nhật |
 | 02 | [02_NHAT_KY_DU_AN.md](02_NHAT_KY_DU_AN.md) | Nhật ký dự án | Ghi nhận công việc theo ngày | Toàn dự án | Đang cập nhật |
 | 03 | [03_DANH_SACH_CONG_VIEC.md](03_DANH_SACH_CONG_VIEC.md) | Danh sách công việc | Công việc, trạng thái, đề xuất chờ phê duyệt | Toàn dự án | Đang cập nhật |
 | 04 | [04_TONG_QUAN_DU_AN.md](04_TONG_QUAN_DU_AN.md) | Tổng quan dự án | Vấn đề, mục tiêu, đối tượng, yêu cầu cấp cao | 01 | Đã phê duyệt |
