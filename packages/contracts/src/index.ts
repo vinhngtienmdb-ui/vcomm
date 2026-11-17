@@ -3306,14 +3306,18 @@ export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
 export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
 export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
+// CONG_VIEC_73 (QUYTAC_NGHIEPVU_585, 587): phiếu chi chuyển tiền thu hộ, phiếu thu nhận tiền thu hộ, hệ thống lập khi ghi đã chuyển bảng chuyển tiền.
+export const instorePayoutPaymentKinds = ["instore_payout_receipt", "instore_payout_payment"] as const;
+export type InstorePayoutPaymentKind = (typeof instorePayoutPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind | InstorePayoutPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
   kind === "customer_receipt" ||
   kind === "supplier_refund" ||
   kind === "retail_receipt" ||
   kind === "cash_surplus" ||
   kind === "customs_tax_refund" ||
-  kind === "loyalty_intercompany_receipt";
+  kind === "loyalty_intercompany_receipt" ||
+  kind === "instore_payout_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })

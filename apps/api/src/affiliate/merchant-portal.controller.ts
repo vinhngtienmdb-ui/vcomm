@@ -39,6 +39,9 @@ import {
   merchantCheckoutCancelSchema,
   merchantCheckoutPayCodeSchema,
   type MerchantCheckoutResponse,
+  instorePayoutListQuerySchema,
+  type InstorePayoutDetail,
+  type InstorePayoutItem,
 } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
@@ -54,6 +57,7 @@ import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
+import { InstorePayoutsService } from "../instore/payouts.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -71,6 +75,7 @@ export class MerchantPortalController {
     private readonly apiKeys: AffiliateApiKeysService,
     private readonly security: MerchantPortalSecurityService,
     private readonly checkouts: AffiliateCheckoutsService,
+    private readonly instorePayouts: InstorePayoutsService,
   ) {}
 
   // API_329 (CONG_VIEC_73 lát L4; MAN_HINH_174): đơn chờ khách thanh toán qua ứng dụng VComm.
@@ -88,6 +93,21 @@ export class MerchantPortalController {
   @HttpCode(200)
   async checkoutPayCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
     return this.checkouts.payCode(await this.member(request), id, merchantCheckoutPayCodeSchema.parse(body).code);
+  }
+
+  // API_333 phần cổng cửa hàng (CONG_VIEC_73 lát L5; MAN_HINH_282): chủ cửa hàng xem bảng chuyển tiền thu hộ của cửa hàng.
+  @Get("payouts")
+  async payouts(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<InstorePayoutItem>> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantList(member.merchantId, instorePayoutListQuerySchema.parse(query));
+  }
+
+  @Get("payouts/:id")
+  async payout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<InstorePayoutDetail> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantDetail(member.merchantId, id);
   }
 
   @Post("checkouts/:id/cancel")

@@ -235,3 +235,99 @@ export const instoreGatewayFeesSchema = z
   })
   .strict();
 export type InstoreGatewayFeesRequest = z.input<typeof instoreGatewayFeesSchema>;
+
+// ---------------------------------------------------------------------------
+// Bảng chuyển tiền thu hộ ngày (API_333; MAN_HINH_281, 282). Lát L5.
+// ---------------------------------------------------------------------------
+
+export const instorePayoutListQuerySchema = z
+  .object({
+    recipientKind: z.enum(["merchant", "retail_company"]).optional(),
+    status: z.enum(["pending", "transferred"]).optional(),
+    merchantId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+// G: thu hộ, H: phí sàn, I: thuế phí sàn, K: phí cổng, L: ghi ngược, M: số mang sang (≤ 0), N: khoản trừ khác.
+export interface InstorePayoutItem {
+  id: string;
+  documentNo: string;
+  recipientKind: "merchant" | "retail_company";
+  recipientName: string;
+  recipientCode: string | null;
+  businessDate: string;
+  collectedAmount: string;
+  platformFee: string;
+  platformFeeTax: string;
+  gatewayFee: string;
+  reversalAmount: string;
+  carriedAmount: string;
+  deductionAmount: string;
+  amount: string;
+  feeTaxRate: string;
+  status: "pending" | "transferred";
+  // Chờ chuyển quá 2 ngày làm việc.
+  overdue: boolean;
+  transferredOn: string | null;
+  bankTransactionNo: string | null;
+  paymentNo: string | null;
+  receiptNo: string | null;
+  // Người nhận là công ty tập đoàn mà cửa hàng chưa cài quỹ ngân hàng: chưa lập phiếu thu.
+  receiptMissing: boolean;
+  createdAt: string;
+  version: number;
+}
+export interface InstorePayoutDetail extends InstorePayoutItem {
+  lines: {
+    checkoutId: string;
+    checkoutNo: string;
+    // Số hóa đơn bán lẻ hoặc giao dịch LK…
+    documentNo: string | null;
+    paidAt: string;
+    placeName: string;
+    billAmount: string;
+    collectedAmount: string;
+    platformFee: string;
+    gatewayFee: string;
+  }[];
+  deductions: { id: string; kind: string; businessDate: string; amount: string; note: string | null }[];
+}
+export interface InstorePayoutListResponse {
+  data: InstorePayoutItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+  overdueCount: number;
+}
+
+// Ghi đã chuyển: ngày chuyển, số giao dịch ngân hàng, quỹ chi của công ty vận hành sàn.
+export const instoreTransferredSchema = z
+  .object({
+    transferredOn: z.iso.date(),
+    bankTransactionNo: z.string().trim().min(1).max(100),
+    fundId: z.uuid(),
+    version: z.number().int().min(1),
+  })
+  .strict();
+export type InstoreTransferredRequest = z.input<typeof instoreTransferredSchema>;
+
+// Thuế suất phí sàn, phí thu hộ (mặc định 10 %).
+export const instoreSettingsSchema = z
+  .object({
+    feeTaxRate: z
+      .string()
+      .trim()
+      .regex(/^[0-9]{1,2}(\.[0-9]{1,2})?$/, "invalidValue")
+      .refine((value) => Number(value) <= 20, "invalidValue"),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export interface InstoreSettingsResponse {
+  feeTaxRate: string;
+  version: number;
+  canManage: boolean;
+}

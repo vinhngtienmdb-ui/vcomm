@@ -838,7 +838,10 @@
     "instoreFeeDatePast": "The effective date cannot be before today.",
     "affiliateCollectionAccountRequired": "Choose the payout bank account before enabling collection.",
     "affiliateCollectionAcknowledge": "Enabling collection for the first time requires confirming the warning: collecting money for the store may be a payment intermediary activity.",
-    "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release."
+    "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release.",
+    "instorePayoutNotPending": "The payout statement is not waiting for transfer.",
+    "instoreTransferBeforeDate": "The transfer date cannot be before the statement date.",
+    "instorePayoutNoPartner": "The payout statement has no payable (the recipient has no internal partner). Ask an administrator to check the recipient company partner."
   },
   "login": {
     "title": "Sign in",
@@ -3299,7 +3302,9 @@
     "lineKind_offset": "Offset",
     "lineKind_refund": "Refund",
     "lineKind_late_payment": "Late interest",
-    "lateRiskHint": "Due date and late payment rate come from effective-dated parameters; not yet checked against the legal text."
+    "lateRiskHint": "Due date and late payment rate come from effective-dated parameters; not yet checked against the legal text.",
+    "kind_instore_payout_receipt": "VComm app collection receipt",
+    "kind_instore_payout_payment": "VComm app collection payout"
   },
   "ledger": {
     "accountsTitle": "Chart of accounts",

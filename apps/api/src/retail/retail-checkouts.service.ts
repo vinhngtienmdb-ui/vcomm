@@ -10,6 +10,7 @@ import { redeemLockedUntil } from "../auth/account-security";
 import { maskName } from "../auth/smart-otp.service";
 import { ApiError } from "../common/api-error";
 import { DATABASE, type Database } from "../database/database.module";
+import { InstorePayoutsService } from "../instore/payouts.service";
 import { InstoreCheckoutsService, type CheckoutKindHandler, type RedeemResult, type CheckoutRow, type DatabaseTransaction } from "../instore/checkouts.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { LoyaltyLedgerService, releaseSalePoints } from "../loyalty/ledger.service";
@@ -36,6 +37,7 @@ export class RetailCheckoutsService implements OnModuleInit {
     private readonly sales: RetailSalesService,
     private readonly reservations: ReservationsService,
     private readonly loyalty: LoyaltyLedgerService,
+    private readonly payouts: InstorePayoutsService,
   ) {}
 
   onModuleInit(): void {
@@ -209,12 +211,15 @@ export class RetailCheckoutsService implements OnModuleInit {
     const saved = row.sale_input as SaleInput;
     const invoice = row.buyer_invoice_info;
     const input: SaleInput = invoice ? { ...saved, buyer: { name: invoice.name, taxCode: invoice.taxCode, address: invoice.address, identityNo: null } } : saved;
-    return this.sales.recordWithin(transaction, actor, input, {
+    const saleId = await this.sales.recordWithin(transaction, actor, input, {
       saleId: row.reserved_sale_id ?? randomUUID(),
       checkoutId: row.id,
       appAmount,
       redeemed: row.points > 0 ? { points: row.points, amount: Number(row.points_amount) } : null,
       loyaltyUserId: row.buyer_user_id,
     });
+    // Lát L5: dòng "Ứng dụng VComm" Nợ phải thu nội bộ công ty vận hành sàn / Có phải thu khách lẻ (QUYTAC_NGHIEPVU_587).
+    await this.payouts.recordOwnerSale(transaction, row, appAmount);
+    return saleId;
   }
 }
