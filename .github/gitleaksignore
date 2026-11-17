@@ -14,3 +14,5 @@ d05926f83252c0e72278b24003ed7fcb44e3b4a8:apps/api/test/c49-group-buys-wallets.te
 39b37a8ee6740f009b3ba6795d4bb234a5ce07fc:apps/api/test/c73-instore-payouts.test.ts:generic-api-key:17
 7543bf498abfb56c6e6756d6aa8afc276096ddc1:apps/api/test/c73-instore-payouts-retail.test.ts:generic-api-key:17
 ab04250e0d021947872b75e658d62c5d874f3a41:apps/api/test/c73-instore-einvoices.test.ts:generic-api-key:17
+38dc2a82d58fe0ce2402f50efc89b4f4573cbb70:apps/api/test/c73-instore-refunds.test.ts:generic-api-key:17
+8f325e301a235b99dec2b12077737987c4c095ac:apps/api/test/c73-instore-open-api.test.ts:generic-api-key:12

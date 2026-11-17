@@ -448,6 +448,17 @@ Lựa chọn của người dùng cho lát L6 (2026-11-17):
 | Hủy giao dịch có hóa đơn ủy nhiệm | Việc chờ xử lý hóa đơn làm cùng L7 (hủy, hoàn tiền) |
 | Nơi xem | Công ty vận hành sàn: danh sách hóa đơn điện tử, cột "Người bán", bộ lọc "Lập theo ủy nhiệm". Cổng cửa hàng: số hóa đơn, tải PDF. Khách: lịch sử giao dịch trên ứng dụng, số hóa đơn, tải PDF. MAN_HINH_279: dữ liệu ủy nhiệm, ký hiệu theo năm, việc chờ lập, "Lập bù" |
 
+Lựa chọn của người dùng cho lát L7 (2026-11-17):
+
+| Câu | Quyết định |
+|---|---|
+| Phí cổng K khi hủy giao dịch thu hộ | Công ty vận hành sàn chịu. Giao dịch chưa vào bảng chuyển tiền: bỏ khỏi bảng. Đã vào bảng đã lập: L ở bảng tiếp theo = G − H − I − K của giao dịch (đúng số đã chuyển cho cửa hàng) |
+| Bút toán khi hủy, hoàn | Hủy: Nợ 331 cửa hàng / Có 3388 phải trả hoàn tiền khách (số G); phí đã ghi (giao dịch đã vào bảng) thì ghi ngược Nợ 511, 33311, 6418 / Có 331. Ghi đã hoàn: Nợ 3388 / Có 112. Tiền về sau khi đơn đã đóng: Nợ 112 / Có 3388, khi hoàn Nợ 3388 / Có 112. Điểm mở: kế toán trưởng xác nhận tài khoản 3388 trước khi triển khai |
+| Hóa đơn phí sàn tháng khi có ghi ngược | H, I của tháng trừ phần phí ghi ngược ở các bảng trong tháng; âm hoặc 0 thì không lập, không mang sang; không lập hóa đơn điều chỉnh cho tháng đã lập |
+| Hóa đơn ủy nhiệm khi hủy | Chưa phát hành: hủy hóa đơn (trạng thái "Đã hủy"). Đã phát hành: việc chờ ở thẻ "Chờ xử lý" của MAN_HINH_54 (hóa đơn điều chỉnh giảm toàn bộ, hoặc ghi hóa đơn trả hàng của người mua). Còn trong việc chờ lập: xóa |
+| Ai hủy giao dịch đã thu hộ | Chủ cửa hàng trên cổng và Open API, cùng quy tắc; chỉ hủy toàn bộ khi tuần đối soát điểm chưa chốt. Cửa hàng tập đoàn giữ trả hàng theo CONG_VIEC_53 |
+| Hoàn tiền đơn tại cửa hàng | Hiện ở MAN_HINH_98, ghi đã hoàn, bút toán, webhook refund.completed |
+
 ## 18. Các lát và điểm xem trước
 
 Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
@@ -592,6 +603,40 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - Công ty vận hành sàn chưa bật hóa đơn điện tử lúc chạy việc nền tháng: không lập hóa đơn phí sàn của tháng đó, chỉ ghi nhật ký; bật sau phải chạy lại việc nền cho tháng đó.
   - Ứng dụng mở PDF bằng trình duyệt qua đường dẫn có hạn 10 phút (không thêm thư viện tải tệp).
 
+### Kết quả lát L7 (2026-11-17)
+
+- Database migration 0172:
+  - Phạm vi khóa `instore.checkout`; khóa có phạm vi này gắn cửa hàng liên kết.
+  - Webhook theo khóa: địa chỉ, khóa ký (mã hóa), phiên bản; bảng `affiliate.webhook_deliveries`.
+  - Đơn chờ thêm trạng thái "Đã hoàn tiền" (`refunded`) và các cột ghi ngược (L, phí sàn, thuế phí sàn, bảng chuyển tiền đã trừ).
+  - Bảng chuyển tiền thêm phí sàn, thuế phí sàn đã ghi ngược.
+  - Lý do hoàn tiền "Hủy giao dịch"; hóa đơn điện tử thêm trạng thái "Đã hủy"; việc chờ xử lý hóa đơn nhận giao dịch `LK…`.
+  - Vai trò tài khoản `instore_refund_payable` (3388) và ba loại nguồn bút toán mới.
+- Máy chủ:
+  - Hủy giao dịch `LK…` đã thu hộ (chủ cửa hàng trên cổng và Open API, cùng quy tắc tuần đối soát điểm chưa chốt): lập việc hoàn tiền cho khách, bút toán Nợ 331 / Có 3388; đơn đã vào bảng chuyển tiền thì ghi ngược phí sàn, thuế phí sàn, phí cổng; L = G − H − I − K của đơn trừ vào bảng chuyển tiền sau.
+  - Phí cổng K do công ty vận hành sàn chịu (phương án a): đơn chưa vào bảng chuyển tiền thì không có khoản ghi ngược phí.
+  - Hoàn tiền xong: Nợ 3388 / Có 112. Tiền cổng về sau khi đơn đã đóng: Nợ 112 / Có 3388 rồi lập việc hoàn tiền.
+  - Hóa đơn ủy nhiệm khi hủy: chưa phát hành thì chuyển "Đã hủy"; đã phát hành thì lập việc chờ xử lý (MAN_HINH_54, thẻ "Chờ xử lý trả hàng"), lập hóa đơn điều chỉnh giảm toàn bộ.
+  - Hóa đơn phí sàn tháng trừ phần phí đã ghi ngược trong tháng; tổng âm hoặc bằng 0 thì không lập, không mang sang, không điều chỉnh tháng đã lập.
+  - API_330 Open API đơn chờ (`/api/v1/open/instore`): tạo (mã đơn của phần mềm, gửi lại trả đơn cũ), gắn mã thanh toán, tra cứu, danh sách, hủy chưa thanh toán, hủy đã thanh toán và hoàn tiền.
+  - API_331 webhook: sự kiện đơn hoàn tất, hết hạn, hủy, từ chối, giao dịch hủy, hoàn tiền xong; chữ ký HMAC-SHA256; thử lại sau 1, 5, 30, 120, 360, 1440 phút; gửi thử, gửi lại; việc nền `affiliate-webhooks` mỗi phút.
+  - Cảnh báo bảng chuyển tiền chờ chuyển quá 2 ngày làm việc (`late_payments`).
+  - Móc trừ phí thuê bao iPOS cho CONG_VIEC_74 khi lập bảng chuyển tiền.
+- Giao diện:
+  - MAN_HINH_231 (web quản trị) và MAN_HINH_232 (cổng cửa hàng): ô phạm vi "Đơn chờ thanh toán", khối Webhook (địa chỉ, khóa ký hiện một lần, gửi thử, nhật ký gửi, gửi lại).
+  - MAN_HINH_98: danh sách hoàn tiền gồm đơn mua tại cửa hàng, hoàn tất ghi bút toán.
+  - MAN_HINH_281, 282: dòng L "Ghi ngược giao dịch đã hủy".
+  - Cổng cửa hàng: trạng thái "Đã hoàn tiền" ở quầy, hủy giao dịch thu hộ.
+- Kiểm thử: `apps/api/test/c73-instore-refunds.test.ts`, `c73-instore-open-api.test.ts`, bổ sung `c73-instore-einvoices.test.ts` (hủy), `c73-instore-payouts.test.ts` (móc khoản trừ).
+- Lệch so với đặc tả, cần người dùng biết:
+  - L tính theo từng đơn (G − H − I − K của đơn); thuế phí sàn I làm tròn theo từng đơn nên tổng có thể lệch vài đồng so với thuế tính trên cả bảng.
+  - Hủy giao dịch qua Open API của CONG_VIEC_67 cũng hủy được giao dịch đã thu hộ và lập hoàn tiền (cùng quy tắc với chủ cửa hàng).
+  - Gọi lại hủy đã thanh toán khi đơn đã hoàn tiền trả kết quả cũ (theo trạng thái), không dùng tiêu đề khóa yêu cầu.
+  - Thu ngân không hủy được giao dịch thu hộ (chỉ chủ cửa hàng).
+  - Ngăn kéo hủy trên cổng không có dòng nhắc riêng về hoàn tiền.
+  - Trường hợp tuần đối soát điểm đã chốt dùng kiểm thử sẵn có của CONG_VIEC_55; cảnh báo `late_payments` chưa có kiểm thử tự động.
+  - Sửa lỗi sẵn có của CONG_VIEC_67: sửa khóa API trả lỗi 500 (thiếu cột cửa hàng khi đọc khóa).
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
@@ -616,6 +661,8 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Trung gian thanh toán: công ty vận hành sàn giữ tiền của cửa hàng liên kết. Phiên làm việc không tra cứu pháp lý. Không bật thu hộ cửa hàng liên kết trên môi trường thật khi người dùng chưa xác nhận hồ sơ pháp lý (công tắc mặc định tắt).
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
 - Điểm mở (L6): bộ kết nối MISA hiện có không gửi người bán, MISA lấy người bán theo mã số thuế của tài khoản. Hóa đơn ủy nhiệm với MISA ở trạng thái "Lỗi cài đặt" đến khi người dùng có xác nhận từ MISA về cách lập theo ủy nhiệm; khi đó làm bộ kết nối riêng.
+- Điểm mở (L7): kế toán trưởng xác nhận tài khoản 3388 (phải trả hoàn tiền khách) trước khi triển khai.
+- Chưa làm: chặn mã thành viên cũ (cách 2 của CONG_VIEC_55) sau thời hạn chuyển đổi của người mua (QUYTAC_NGHIEPVU_574, KICHBAN_KIEMTHU_751). Hiện mã cũ vẫn được nhận sau thời hạn; ứng dụng đã chuyển sang Mã thanh toán nên khách mới không còn dùng mã cũ. Cần một lát sửa nhỏ trước khi hết thời hạn chuyển đổi.
 - Điểm mở (L6): hóa đơn phí sàn tháng ghi ngày cuối tháng trước nhưng lập lúc 2 giờ sáng ngày 1; người dùng tự xác nhận nhà cung cấp, cơ quan thuế chấp nhận.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.

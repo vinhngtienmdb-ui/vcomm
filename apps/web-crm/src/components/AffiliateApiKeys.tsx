@@ -2,6 +2,7 @@
 
 // MAN_HINH_231 Kết nối phần mềm của cửa hàng liên kết (CONG_VIEC_67; CHUC_NANG_234; QUYTAC_NGHIEPVU_495; API_295).
 // Khóa chỉ hiện một lần khi cấp, cấp lại; danh sách chỉ có 8 ký tự đầu.
+// CONG_VIEC_73 lát L7: phạm vi instore.checkout (Open API đơn chờ), khối Webhook của khóa.
 import type { AffiliateApiKeyItem, AffiliateApiKeySecret, AffiliateOutlet } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -11,6 +12,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { AffiliateWebhook } from "ui/components/AffiliateWebhook";
 
 const statusClass = { active: "thanh-cong", expired: "canh-bao", revoked: "trung-tinh" } as const;
 
@@ -36,6 +38,7 @@ function KeyDrawer({
   const [sms, setSms] = useState(String(editing?.smsDailyLimit ?? 200));
   const [expiresOn, setExpiresOn] = useState(editing?.expiresOn ?? "");
   const [ips, setIps] = useState(editing?.allowedIps.join("\n") ?? "");
+  const [instoreCheckout, setInstoreCheckout] = useState(editing?.instoreCheckout ?? false);
   return (
     <Drawer title={editing ? t("apiKeyEdit") : t("apiKeyIssue")} onClose={onClose}>
       <form
@@ -53,6 +56,7 @@ function KeyDrawer({
                 .split(/\s+/)
                 .map((entry) => entry.trim())
                 .filter(Boolean),
+              instoreCheckout,
             };
             if (editing) {
               await apiFetch(`/affiliate/api-keys/${editing.id}`, { method: "PUT", body: JSON.stringify({ ...body, version: editing.version }) });
@@ -92,6 +96,10 @@ function KeyDrawer({
         <Field id="ip-duoc-phep" label={keys("ips")} error={fields.allowedIps}>
           <textarea id="ip-duoc-phep" className={inputClass("allowedIps")} rows={3} value={ips} onChange={(event) => setIps(event.target.value)} />
         </Field>
+        <label>
+          <input type="checkbox" checked={instoreCheckout} onChange={(event) => setInstoreCheckout(event.target.checked)} /> {t("apiKeyInstoreCheckout")}
+        </label>
+        <span className="chu-thich">{t("apiKeyInstoreCheckoutHint")}</span>
         <div className="khoi-canh-bao thong-tin">{t("apiKeyScopeHint")}</div>
         <FormError text={formError} />
         <div className="nhom-nut">
@@ -190,6 +198,7 @@ export function AffiliateApiKeys({
   const [secret, setSecret] = useState<AffiliateApiKeySecret | null>(null);
   const [revoking, setRevoking] = useState<AffiliateApiKeyItem | null>(null);
   const [rotating, setRotating] = useState<AffiliateApiKeyItem | null>(null);
+  const [webhookKey, setWebhookKey] = useState<string | null>(null);
   const rotate = useSubmit();
   const refresh = (message: string) => {
     notify(message);
@@ -252,6 +261,11 @@ export function AffiliateApiKeys({
                             <button type="button" className="nut phu" onClick={() => setEditing(item)}>
                               {t("edit")}
                             </button>
+                            {item.instoreCheckout && (
+                              <button type="button" className="nut phu" aria-expanded={webhookKey === item.id} onClick={() => setWebhookKey(webhookKey === item.id ? null : item.id)}>
+                                {t("apiKeyWebhook")}
+                              </button>
+                            )}
                             <button type="button" className="nut phu" onClick={() => setRotating(item)}>
                               {keys("rotate")}
                             </button>
@@ -270,6 +284,12 @@ export function AffiliateApiKeys({
           )
         }
       </Loaded>
+      {state.kind === "ready" &&
+        state.data
+          .filter((item) => item.id === webhookKey)
+          .map((item) => (
+            <AffiliateWebhook key={item.id} apiKey={item} basePath="/affiliate" fetcher={apiFetch} canManage={canManage && item.status !== "revoked"} onSaved={(message) => refresh(message)} />
+          ))}
       {editing && (
         <KeyDrawer
           merchantId={merchantId}

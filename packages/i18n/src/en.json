@@ -923,7 +923,11 @@
     "iposFeeNotPayableByVietqr": "This fee invoice is not collected by VietQR transfer or is already paid.",
     "iposFeeVietqrNotConfigured": "The marketplace operator has not set up a receiving bank account. Contact VComm to pay.",
     "iposFeeEinvoiceIssued": "This fee invoice already has an e-invoice. Cancel or adjust the e-invoice in the e-invoice module before voiding.",
-    "iposCheckoutShiftClosed": "The pending order's shift is closed and the register has no open shift. Open a shift, then repost the order."
+    "iposCheckoutShiftClosed": "The pending order's shift is closed and the register has no open shift. Open a shift, then repost the order.",
+    "instorePartnerCodeTaken": "The software checkout code is already used by another checkout of the store.",
+    "instoreCheckoutPaidUseRefund": "The checkout is paid: use cancel and refund (refund).",
+    "instoreCheckoutNotPaid": "The checkout is not paid: use cancel.",
+    "webhookUrlHttps": "The receiving address must start with https://."
   },
   "login": {
     "title": "Sign in",
@@ -5204,7 +5208,10 @@
     "reason_paid_after_cancel": "Paid after the order was cancelled",
     "reason_duplicate_payment": "Duplicate payment",
     "reason_order_cancelled": "Paid order cancelled",
-    "reason_return_received": "Returned goods received"
+    "reason_return_received": "Returned goods received",
+    "instorePlace": "bought at {place}",
+    "reason_instore_cancelled": "In-store checkout cancelled after payment",
+    "reason_transaction_cancelled": "Store cancelled a collected transaction"
   },
   "withdrawals": {
     "title": "Commission withdrawals",
@@ -8772,7 +8779,7 @@
     "members": "Members",
     "inviteSent": "Invitation sent.",
     "connectionTitle": "Software connection",
-    "connectionHint": "The store's sales software calls the Open API to quote, earn and redeem points, use vouchers and cancel transactions. API transactions share the store's credit limit, weekly settlement and reports. Keys only have the Loyalty scope.",
+    "connectionHint": "The store's sales software calls the Open API to quote, earn and redeem points, use vouchers and cancel transactions. API transactions share the store's credit limit, weekly settlement and reports. Keys have the Loyalty scope; keys that also have the in-store checkout scope (instore.checkout) let the software create in-app payment checkouts and receive webhooks.",
     "connectionEmpty": "The store has no API key. Issue one when the store wants to connect its sales software to VComm.",
     "apiKeyIssue": "Issue key",
     "apiKeyEdit": "Edit key",
@@ -8859,7 +8866,10 @@
     "backlogReason_series_missing": "No series for the year",
     "backlogReason_einvoice_off": "E-invoices not enabled",
     "reissue": "Issue now",
-    "reissued": "Issued invoice no. {no} dated {date}"
+    "reissued": "Issued invoice no. {no} dated {date}",
+    "apiKeyInstoreCheckout": "Allow in-store checkouts via Open API (instore.checkout)",
+    "apiKeyInstoreCheckoutHint": "The store software creates, looks up, cancels and refunds VComm app checkouts and receives webhooks.",
+    "apiKeyWebhook": "Webhook"
   },
   "merchantPortal": {
     "brand": "VComm Partners",
@@ -9068,7 +9078,8 @@
     "cancelCheckoutReason": "Cashier cancelled the pending order",
     "menu_payouts": "Collected money",
     "payoutsHint": "VComm collects what customers pay in the app and transfers it to the store daily, after the collection fee, tax and gateway fee. The weekly points settlement is unchanged.",
-    "menu_iposSubscription": "Subscription and fees"
+    "menu_iposSubscription": "Subscription and fees",
+    "checkoutStatus_refunded": "Cancelled, refund pending"
   },
   "affiliateVoucher": {
     "merchantTitle": "Store vouchers",
@@ -9281,7 +9292,9 @@
     "column_merchantOutlet": "Store · outlet",
     "column_buyer": "Customer",
     "column_einvoice": "Invoice",
-    "einvoicePending": "Being issued"
+    "einvoicePending": "Being issued",
+    "kind_late_payments": "Payments after checkout closed",
+    "detail_late_payments": "Buyer {phone}: {count} payments after the checkout expired or was cancelled"
   },
   "apiKeys": {
     "title": "Partner API keys",
@@ -12181,5 +12194,33 @@
     "line_gatewayFee": "Gateway fee",
     "deductionsTitle": "Other deductions",
     "deduction_ipos_subscription": "iPOS subscription fee"
+  },
+  "affiliateWebhook": {
+    "title": "Webhook of key {name}",
+    "hint": "VComm sends a JSON POST to this address when a checkout completes, expires, is cancelled or declined, a transaction is cancelled, or a refund completes. The X-VComm-Signature header is HMAC-SHA256 of \"timestamp.body\" with the signing secret; reply 2xx within 10 seconds. Failures are retried after 1, 5, 30 minutes, 2, 6, 24 hours.",
+    "url": "Receiving address (HTTPS)",
+    "saveUrl": "Save address",
+    "saved": "Webhook saved",
+    "secret": "Signing secret",
+    "secretSet": "issued at {time}",
+    "secretMissing": "not issued",
+    "secretOnce": "The signing secret is shown only once. Copy it into the store software now.",
+    "issue": "Issue signing secret",
+    "rotate": "Reissue signing secret",
+    "test": "Send test",
+    "testSucceeded": "Test delivered",
+    "testFailed": "Test not delivered: {error}",
+    "deliveries": "Delivery log",
+    "noDeliveries": "No deliveries yet.",
+    "column_time": "Time",
+    "column_event": "Event",
+    "column_status": "Status",
+    "column_attempts": "Attempts",
+    "column_result": "Result",
+    "status_pending": "Retrying",
+    "status_succeeded": "Delivered",
+    "status_failed": "Stopped",
+    "nextAttempt": "Next attempt {time}",
+    "resend": "Resend"
   }
 }

@@ -135,6 +135,11 @@ export type CheckoutRow = {
   retail_sale_id: string | null;
   posting_error: string | null;
   voucher_code_id: string | null;
+  // Bảng chuyển tiền đã gồm đơn (lát L5); thời điểm hủy kèm hoàn tiền (lát L7).
+  payout_id: string | null;
+  refunded_at: Date | null;
+  cancel_reason: string | null;
+  updated_at: Date;
   affiliate_transaction_id: string | null;
   api_key_id: string | null;
   partner_checkout_code: string | null;
@@ -154,13 +159,17 @@ const columns = sql`c.id, c.document_no, c.kind, c.source, c.operator_company_id
   c.created_by_user_id, c.bill_amount::text, c.lines, c.collect_in_app, c.buyer_user_id, c.points, c.points_amount::text, c.voucher_amount::text,
   c.amount_due::text, c.status, c.expires_at, c.shift_id, c.sale_input, c.reserved_sale_id, c.buyer_attached_via, c.buyer_invoice_info, c.paid_amount::text,
   c.retail_sale_id, c.posting_error, c.voucher_code_id, c.affiliate_transaction_id, c.api_key_id, c.partner_checkout_code, c.platform_fee_percent::text,
-  c.platform_fee::text, c.gateway_fee::text`;
+  c.platform_fee::text, c.gateway_fee::text, c.payout_id, c.refunded_at, c.cancel_reason, c.updated_at`;
+
+export type CheckoutEvent = "checkout.completed" | "checkout.expired" | "checkout.cancelled" | "checkout.declined" | "transaction.cancelled" | "refund.completed";
+export type CheckoutEventHook = (transaction: DatabaseTransaction, row: CheckoutRow, event: CheckoutEvent) => Promise<void>;
 
 @Injectable()
 export class InstoreCheckoutsService {
   private readonly logger = new Logger("InstoreCheckouts");
   private readonly handlers = new Map<InstoreCheckoutKind, CheckoutKindHandler>();
   private readonly completionHooks = new Map<InstoreCheckoutSource, CompletionHook>();
+  private readonly eventHooks: CheckoutEventHook[] = [];
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
@@ -172,6 +181,17 @@ export class InstoreCheckoutsService {
 
   registerHandler(kind: InstoreCheckoutKind, handler: CheckoutKindHandler): void {
     this.handlers.set(kind, handler);
+  }
+
+  // Sự kiện đơn chờ (lát L7): webhook cho phần mềm cửa hàng đăng ký; chạy trong giao dịch đổi trạng thái.
+  registerEventHook(hook: CheckoutEventHook): void {
+    this.eventHooks.push(hook);
+  }
+
+  async emit(transaction: DatabaseTransaction, checkoutId: string, event: CheckoutEvent): Promise<void> {
+    if (this.eventHooks.length === 0) return;
+    const row = (await this.row(transaction, checkoutId))!;
+    for (const hook of this.eventHooks) await hook(transaction, row, event);
   }
 
   // Phần mềm cửa hàng (iPOS) đăng ký khi khởi động để ghi chứng từ của mình trong cùng giao dịch hoàn tất.
@@ -430,9 +450,14 @@ export class InstoreCheckoutsService {
       UPDATE instore.checkouts SET paid_amount = paid_amount + ${result.amount}, paid_at = coalesce(paid_at, now()), updated_at = now() WHERE id = ${checkoutId}`);
     if (row.status !== "awaiting_payment" || Number(row.paid_amount) > 0) {
       // Tiền về sau khi đơn đã đóng, hoặc đơn đã thu từ lần thanh toán khác.
-      await transaction.execute(sql`
+      const refundId = (
+        await transaction.execute<{ id: string }>(sql`
         INSERT INTO marketplace.refunds (checkout_id, payment_id, reason, amount)
-        VALUES (${checkoutId}, ${paymentId}, ${row.status === "awaiting_payment" || row.status === "completed" || row.status === "paid_unposted" ? "duplicate_payment" : "paid_after_cancel"}, ${result.amount})`);
+        VALUES (${checkoutId}, ${paymentId}, ${row.status === "awaiting_payment" || row.status === "completed" || row.status === "paid_unposted" ? "duplicate_payment" : "paid_after_cancel"}, ${result.amount})
+        RETURNING id`)
+      ).rows[0]!.id;
+      // Lát L7: Nợ ngân hàng / Có phải trả hoàn tiền khách.
+      await this.payouts.recordRefundReceipt(transaction, row, refundId, result.amount);
       if (row.buyer_user_id)
         await notify(transaction, [
           {
@@ -459,6 +484,7 @@ export class InstoreCheckoutsService {
       const documentId = await this.handler(row.kind).complete(transaction, row, appAmount);
       await transaction.execute(sql`RELEASE SAVEPOINT instore_complete`);
       await this.markCompleted(transaction, row, documentId);
+      await this.emit(transaction, checkoutId, "checkout.completed");
     } catch (error) {
       await transaction.execute(sql`ROLLBACK TO SAVEPOINT instore_complete`);
       const message = error instanceof ApiError ? error.message : (error as Error).message;
@@ -528,10 +554,39 @@ export class InstoreCheckoutsService {
         await transaction.execute(sql`
           INSERT INTO marketplace.refunds (checkout_id, payment_id, reason, amount)
           SELECT ${id}, p.id, 'instore_cancelled', p.amount FROM marketplace.payments p WHERE p.checkout_id = ${id} AND p.status = 'succeeded' ORDER BY p.completed_at LIMIT 1`);
+        // Lát L7: tiền đã ghi Có người nhận lúc về chuyển sang phải trả hoàn tiền khách.
+        await this.payouts.recordCancellation(transaction, current);
       } else if (!openStatuses.includes(current.status as (typeof openStatuses)[number])) throw new ApiError("BUSINESS_RULE", "instoreCheckoutClosed");
       await this.close(transaction, current, "cancelled", { actorUserId, reason });
       return (await this.row(transaction, id))!;
     });
+  }
+
+  // Hủy đơn thu hộ đã hoàn tất (lát L7; QUYTAC_NGHIEPVU_583): lập việc chờ hoàn tiền cho khách (kế toán chuyển khoản tay), bút toán hủy, L khi đơn đã vào bảng chuyển tiền.
+  // Nơi gọi đã kiểm quyền, tuần đối soát điểm, hoàn điểm, trả voucher (hủy giao dịch LK…).
+  async refundCompleted(transaction: DatabaseTransaction, checkoutId: string, reason: string, actorUserId: string | null): Promise<void> {
+    const row = (await this.row(transaction, checkoutId, true))!;
+    if (row.status !== "completed" || !row.collect_in_app || Number(row.paid_amount) <= 0) throw new ApiError("BUSINESS_RULE", "instoreCheckoutClosed");
+    await transaction.execute(sql`
+      INSERT INTO marketplace.refunds (checkout_id, payment_id, reason, amount)
+      SELECT ${checkoutId}, p.id, 'transaction_cancelled', ${row.paid_amount}::numeric FROM marketplace.payments p
+      WHERE p.checkout_id = ${checkoutId} AND p.status = 'succeeded' ORDER BY p.completed_at LIMIT 1`);
+    const reversal = await this.payouts.recordCancellation(transaction, row);
+    await transaction.execute(sql`
+      UPDATE instore.checkouts SET status = 'refunded', refunded_at = now(), cancel_reason = ${reason}, cancelled_by_user_id = ${actorUserId},
+        reversal_amount = ${reversal.reversal}, reversal_fee = ${reversal.fee}, reversal_fee_tax = ${reversal.tax}, updated_at = now(), version = version + 1
+      WHERE id = ${checkoutId}`);
+    if (row.buyer_user_id)
+      await notify(transaction, [
+        {
+          userId: row.buyer_user_id,
+          companyId: null,
+          kind: "instore.refund_pending",
+          title: `Đơn ${row.document_no} đã bị hủy. VComm sẽ hoàn ${Math.round(Number(row.paid_amount)).toLocaleString("vi-VN")} đ vào tài khoản ngân hàng của bạn.`,
+          payload: { checkoutId },
+        },
+      ]);
+    await this.emit(transaction, checkoutId, "transaction.cancelled");
   }
 
   // Ca còn đơn chờ chưa xong thì chưa đóng được; đơn quá hạn chưa thanh toán thì đóng luôn (QUYTAC_NGHIEPVU_575).
@@ -578,6 +633,7 @@ export class InstoreCheckoutsService {
       UPDATE instore.checkouts SET status = ${status}, cancel_reason = ${cancellation?.reason ?? null}, cancelled_by_user_id = ${cancellation?.actorUserId ?? null},
         updated_at = now(), version = version + 1
       WHERE id = ${row.id}`);
+    await this.emit(transaction, row.id, `checkout.${status}`);
   }
 
   private async requireBuyer(userId: string): Promise<void> {

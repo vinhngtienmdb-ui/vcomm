@@ -727,6 +727,28 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_72.md`. Người dùng duyệt đặc 
 | Nhật ký gửi tin (bổ sung) | Mục đích mã OTP của tin | Đếm số tin SMS theo mục đích; tin cũ để trống (CONG_VIEC_72) |
 | Thành viên cửa hàng liên kết (bổ sung) | Thời điểm bị đặt lại xác thực | Lần vào tới phải kích hoạt lại bằng mã SMS một lần (CONG_VIEC_72) |
 
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm, CONG_VIEC_73)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_73.md`. Người dùng duyệt đặc tả ngày 2026-11-17 (THAY_DOI_38), nghiệm thu ngày 2026-11-17.
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_205 | Khách mua tại cửa hàng tập đoàn và cửa hàng liên kết chọn số điểm dùng và thanh toán trong ứng dụng VComm, theo hai luồng: cửa hàng quét mã thanh toán động của khách, hoặc khách quét mã QR thanh toán của cửa hàng | Người mua, Thu ngân, Cửa hàng liên kết | Người dùng 2026-11-17 |
+| YCAU_NGHIEPVU_206 | Công ty vận hành sàn thu tiền một nơi, giữ phí sàn và phí cổng, chuyển phần còn lại hằng ngày cho công ty sở hữu cửa hàng tập đoàn hoặc cửa hàng liên kết; hạch toán đúng ở các công ty liên quan | Kế toán, Kế toán trưởng, Cửa hàng liên kết | Người dùng 2026-11-17 |
+| YCAU_NGHIEPVU_207 | VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm cho giao dịch thanh toán trong ứng dụng | Cửa hàng liên kết, Người mua, Kế toán | Người dùng 2026-11-17 |
+| YCAU_NGHIEPVU_208 | Phần mềm bán hàng của cửa hàng liên kết tạo đơn chờ thanh toán qua Open API và nhận kết quả qua webhook | Cửa hàng liên kết, nhà cung cấp phần mềm bán hàng | Người dùng 2026-11-17 |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Mã thanh toán của thiết bị | Băm 12 số đầu, lần kích hoạt Smart OTP mà mã gắn với | Mã động 18 số = 12 số của thiết bị + 6 số Smart OTP; không chứa thông tin cá nhân |
+| Đơn chờ thanh toán (`TT…`) | Nơi bán (quầy và ca tập đoàn, hoặc cửa hàng liên kết và điểm bán), nguồn, người tạo hoặc khóa API, tiền hóa đơn, dòng hàng, mã đơn của phần mềm, cách thu, khách, điểm, voucher, tiền còn lại, phí, trạng thái, hạn 10 phút | Trạng thái: chờ khách, chờ thanh toán, đã thu lỗi ghi sổ, hoàn tất, hết hạn, đã hủy, khách từ chối, đã hoàn tiền |
+| Biểu phí cổng tại cửa hàng | Phương thức của cổng, phần trăm, số tiền cố định, ngày áp dụng | Công ty vận hành sàn cài |
+| Bảng chuyển tiền thu hộ ngày (`CT…`) | Người nhận, ngày, G, H, I, K, L, M, N, tiền chuyển, trạng thái, phiếu chi, phiếu thu | Một bảng mỗi người nhận mỗi ngày |
+| Khoản trừ khác của bảng chuyển tiền | Người nhận, ngày, loại (`ipos_subscription`), số tiền | Dòng do CONG_VIEC_74 ghi |
+| Ủy nhiệm hóa đơn của cửa hàng liên kết | Người bán, mã số thuế, địa chỉ, phương pháp tính thuế, thuế suất mặc định, số văn bản, ngày hiệu lực, hết hạn, tệp PDF, ký hiệu theo năm, việc chờ lập | Hóa đơn ghi người bán là cửa hàng, dòng "Hóa đơn lập theo ủy nhiệm" |
+| Hóa đơn phí sàn tháng | Người nhận, tháng, tổng phí sàn theo thuế suất | Một hóa đơn mỗi tháng mỗi người nhận |
+| Webhook của khóa API | Địa chỉ HTTPS, khóa ký (mã hóa), nhật ký gửi | Thử lại 6 lần |
+
 ## MODULE_17 iPOS (đợt 1: phần mềm bán hàng cho cửa hàng liên kết, CONG_VIEC_74)
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_74.md`. Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm đề xuất ngày 2026-11-17 (THAY_DOI_39). Đợt 2 (khuyến mãi, nhà cung cấp, bán nợ, bàn và món, màn hình phụ, tên miền riêng) cấp mã sau.

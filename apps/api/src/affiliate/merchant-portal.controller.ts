@@ -2,6 +2,9 @@
 // Cửa hàng đang chọn gửi qua header `x-merchant-id` khi người dùng là thành viên của nhiều cửa hàng.
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
+  affiliateWebhookSchema,
+  type AffiliateWebhookDelivery,
+  type AffiliateWebhookSecret,
   type AffiliatePortalConnection,
   affiliateActivationOtpSchema,
   affiliateActivationSchema,
@@ -59,6 +62,7 @@ import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service"
 import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
 import { InstorePayoutsService } from "../instore/payouts.service";
 import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
+import { AffiliateWebhooksService } from "./webhooks.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -78,6 +82,7 @@ export class MerchantPortalController {
     private readonly checkouts: AffiliateCheckoutsService,
     private readonly instorePayouts: InstorePayoutsService,
     private readonly mandatedEinvoices: InstoreEinvoicesService,
+    private readonly webhooks: AffiliateWebhooksService,
   ) {}
 
   // API_329 (CONG_VIEC_73 lát L4; MAN_HINH_174): đơn chờ khách thanh toán qua ứng dụng VComm.
@@ -194,6 +199,35 @@ export class MerchantPortalController {
   }
 
   // API_295 phần cổng cửa hàng (MAN_HINH_232): chủ cửa hàng xem kết nối phần mềm (CONG_VIEC_67).
+  // API_331 (CONG_VIEC_73 lát L7; MAN_HINH_232): chủ cửa hàng cài webhook cho khóa của cửa hàng.
+  @Put("api-keys/:id/webhook")
+  async webhook(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<{ url: string | null; version: number }> {
+    return this.webhooks.configure({ kind: "owner", member: await this.member(request) }, id, affiliateWebhookSchema.parse(body));
+  }
+
+  @Post("api-keys/:id/webhook/rotate-secret")
+  @HttpCode(200)
+  async webhookSecret(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookSecret> {
+    return this.webhooks.rotateSecret({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Post("api-keys/:id/webhook/test")
+  @HttpCode(200)
+  async webhookTest(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.test({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Get("api-keys/:id/webhook/deliveries")
+  async webhookDeliveries(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery[]> {
+    return this.webhooks.deliveries({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Post("webhook-deliveries/:id/resend")
+  @HttpCode(200)
+  async webhookResend(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.resend({ kind: "owner", member: await this.member(request) }, id);
+  }
+
   @Get("api-keys")
   async connection(@Req() request: AuthenticatedRequest): Promise<AffiliatePortalConnection> {
     return this.apiKeys.portalConnection(await this.member(request));

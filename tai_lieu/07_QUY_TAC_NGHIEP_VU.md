@@ -1363,6 +1363,41 @@ Thông báo lỗi mới (vi): "Smart OTP chỉ kích hoạt được trên ứng
 | QUYTAC_NGHIEPVU_495 | Sửa bởi CONG_VIEC_72: cách `otp` theo thời hạn chuyển đổi, tra điểm trả `otpMethod`, `redeemLockedUntil`; mọi cách dùng điểm qua Open API chịu khóa dùng điểm sau khôi phục (QUYTAC_NGHIEPVU_566, 569) |
 | QUYTAC_NGHIEPVU_542 | Sửa bởi CONG_VIEC_72: hết thời hạn chuyển đổi mà khách chưa kích hoạt Smart OTP thì không đổi ra được, phải kích hoạt trước; đổi ra chịu khóa dùng điểm sau khôi phục (QUYTAC_NGHIEPVU_569) |
 
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm, CONG_VIEC_73)
+
+Nội dung đầy đủ: `tai_lieu/cong_viec/CONG_VIEC_73.md` mục 5; quyết định người dùng ở mục 17; điều chỉnh khi lập trình ở mục 18 (kết quả từng lát).
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| QUYTAC_NGHIEPVU_573 | Phạm vi và công tắc: cửa hàng tập đoàn bật "Nhận thanh toán qua ứng dụng VComm" và phí sàn (0 đến 10 %) ở MAN_HINH_166; cửa hàng liên kết bật "Thu hộ qua ứng dụng" (mặc định tắt, hộp xác nhận cảnh báo pháp lý lần đầu), phí thu hộ, tài khoản nhận tiền, do người có `affiliate.manage` sửa. Thu hộ tắt: luồng vẫn chạy cho điểm, voucher, khách trả phần còn lại tại quầy | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_574 | Mã thanh toán động 18 số (12 số của thiết bị + 6 số Smart OTP) chỉ hiện sau khi mở Smart OTP; QR và Code 128; đổi mỗi 30 giây, không cần mạng; máy chủ kiểm như Smart OTP (lệch một bước, mỗi bước một lần, sai 5 lần khóa 15 phút); khóa dùng điểm sau khôi phục chỉ chặn dùng điểm; mã thành viên cũ nhận đến hết thời hạn chuyển đổi | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_575 | Đơn chờ `TT…`: nội dung cố định khi tạo, khóa yêu cầu chống trùng, hạn 10 phút; quầy tập đoàn giữ hàng đến khi xong; mỗi quầy tập đoàn một đơn chờ, mỗi thu ngân cửa hàng liên kết ba đơn chờ; đóng ca bị chặn khi còn đơn chờ; thu ngân, chủ cửa hàng, khóa API hủy được khi chưa hoàn tất | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_576 | Luồng 1: cửa hàng quét mã động, đơn gắn khách, ứng dụng khách tự hiện đơn; một đơn một khách | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_577 | Luồng 2: cửa hàng hiện QR chứa đường dẫn `/tt/<mã>` (128 bit, lưu băm, hết hạn cùng đơn); khách đầu tiên mở được gắn vào đơn | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_578 | Khách chọn điểm, voucher theo giới hạn hiện có; dùng điểm cần mở Smart OTP; trả hết bằng điểm hoàn tất ngay; cách thu tại quầy hoàn tất khi khách bấm "Xác nhận"; khách từ chối thì nhả giữ hàng | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_579 | Thanh toán qua cổng: trừ điểm, voucher khi bấm thanh toán; chỉ nhận kết quả có chữ ký, đúng số tiền, một lần; hết hạn hoàn điểm, voucher; tiền về sau khi đơn đóng thì lập việc chờ hoàn tiền | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_580 | Hoàn tất ở cửa hàng tập đoàn: hóa đơn bán lẻ với dòng thanh toán "Ứng dụng VComm" (không vào tiền ca); lỗi ghi sổ chuyển "Đã thu, lỗi ghi sổ", người có `retail.shift.manage` ghi lại hoặc hủy và hoàn tiền | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_581 | Hoàn tất ở cửa hàng liên kết: giao dịch `LK…` thêm tiền thu hộ, phí sàn, phí cổng; lập hóa đơn ủy nhiệm; gửi webhook | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_582 | Tích điểm giữ như hiện nay; phần trả qua ứng dụng tích như tiền mặt | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_583 | Hủy, hoàn tiền: cửa hàng tập đoàn trả hàng như CONG_VIEC_53, hoàn tay. Cửa hàng liên kết: chủ cửa hàng (cổng, Open API) hủy toàn bộ khi tuần đối soát điểm chưa chốt; thu ngân không hủy được giao dịch thu hộ; lập việc hoàn tiền (MAN_HINH_98), bút toán Nợ 331 / Có 3388, giao dịch đã vào bảng chuyển tiền thì ghi ngược phí và trừ L = G − H − I − K vào bảng sau (phí cổng công ty vận hành sàn chịu); hoàn xong Nợ 3388 / Có 112; hóa đơn ủy nhiệm chưa phát hành chuyển "Đã hủy", đã phát hành lập việc chờ điều chỉnh giảm toàn bộ | Người dùng 2026-11-17 (lát L7) |
+| QUYTAC_NGHIEPVU_584 | Phí sàn = làm tròn (tiền thu qua ứng dụng × tỷ lệ của cửa hàng); tiền điểm không tính phí; phí cổng theo biểu phí chốt lúc thanh toán, trừ vào phần người nhận | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_585 | Bảng chuyển tiền ngày lập 1 giờ sáng: tiền chuyển = G − H − I − K − L + M − N; âm ghi 0, mang sang; không bù trừ với bảng đối soát điểm tuần; kế toán chuyển khoản tay rồi ghi đã chuyển (phiếu chi, phiếu thu); bảng chờ chuyển quá 2 ngày làm việc (bỏ thứ Bảy, Chủ nhật) thì nhắc | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_586 | Dư nợ cửa hàng liên kết trừ tiền thu hộ chờ chuyển sau phí, không âm | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_587 | Hạch toán: công ty vận hành sàn Nợ 112 / Có 331 hoặc 3368; lập bảng Nợ 331 hoặc 3368 / Có 511, 33311, 6418; ghi đã chuyển Nợ 331 hoặc 3368 / Có 112. Công ty sở hữu: Nợ 1368 / Có 131; lập bảng Nợ 6418, 1331 / Có 1368; nhận tiền Nợ 112 / Có 1368. Hủy: Nợ 331 / Có 3388. Hóa đơn phí sàn mỗi tháng mỗi người nhận, trừ phí đã ghi ngược, tổng ≤ 0 thì không lập | Người dùng 2026-11-17; kế toán trưởng xác nhận tài khoản (điểm mở) |
+| QUYTAC_NGHIEPVU_588 | Ủy nhiệm hóa đơn: dữ liệu trong hợp đồng cửa hàng liên kết, ký hiệu riêng theo năm; lập bằng tài khoản nhà cung cấp của công ty vận hành sàn, dòng "Hóa đơn lập theo ủy nhiệm"; thiếu dữ liệu vẫn bán, ghi việc chờ, "Lập bù". Nhà cung cấp MISA chưa hỗ trợ: "Lỗi cài đặt" | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_589 | Nội dung hóa đơn ủy nhiệm: dòng hàng từ đơn hoặc một dòng mặc định; voucher cửa hàng là chiết khấu; điểm, voucher công ty là phương thức thanh toán; người mua theo thông tin khách nhập; khách xem, tải trong lịch sử giao dịch | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_590 | Open API đơn chờ (phạm vi khóa `instore.checkout`): tạo (mã đơn của phần mềm duy nhất theo cửa hàng), gắn mã động, tra theo mã đơn hoặc `TT…`, danh sách, hủy chưa thanh toán, hủy đã thanh toán và hoàn tiền (như chủ cửa hàng); kết quả gồm trạng thái hoàn tiền, hóa đơn | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_591 | Webhook: mỗi khóa một địa chỉ HTTPS, khóa ký hiện một lần; 6 sự kiện; chữ ký HMAC-SHA256 trên "thời điểm.thân"; 2xx trong 10 giây là thành công; thử lại sau 1, 5, 30 phút, 2, 6, 24 giờ; gửi thử, gửi lại | Người dùng 2026-11-17 |
+| QUYTAC_NGHIEPVU_592 | Chống gian lận: quét mã động sai tối đa 10 lần mỗi giờ mỗi thu ngân, khóa API; mở đường dẫn QR sai 20 lần mỗi giờ mỗi người mua; nhật ký thao tác không ghi mã động, khóa ký | Người dùng 2026-11-17 |
+
+## Bổ sung CONG_VIEC_73 (THAY_DOI_38) cho quy tắc đã có
+
+| Quy tắc | Bổ sung |
+|---|---|
+| QUYTAC_NGHIEPVU_394 | Sửa bởi CONG_VIEC_73: giao dịch `LK…` có thêm tiền thu hộ, phí sàn, phí cổng; với đơn thu hộ, dùng điểm, voucher khi khách bấm thanh toán, ghi hoàn tất khi tiền về |
+| QUYTAC_NGHIEPVU_398 | Sửa bởi CONG_VIEC_73: dư nợ trừ tiền thu hộ chờ chuyển (QUYTAC_NGHIEPVU_586) |
+| QUYTAC_NGHIEPVU_400 | Sửa bởi CONG_VIEC_73: hủy giao dịch đã thu hộ lập hoàn tiền, ghi ngược thu hộ (QUYTAC_NGHIEPVU_583); chỉ chủ cửa hàng (cổng) hoặc khóa API |
+
 ## MODULE_17 iPOS (đợt 1: phần mềm bán hàng cho cửa hàng liên kết, CONG_VIEC_74)
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_74.md` mục 5 (quyết định người dùng ở mục 17, 13 điểm đề xuất đã duyệt ở mục 19, điều chỉnh khi lập trình lát L0 đến L7 người dùng đã duyệt ở mục 19a; nội dung dưới đây đã áp các điều chỉnh đó). iPOS là module `apps/api/src/ipos`, chỉ ghi schema `ipos`; gọi thẳng service của cửa hàng liên kết (CONG_VIEC_55, 67), đơn chờ và bảng chuyển tiền (CONG_VIEC_73), công nợ, bút toán, hóa đơn điện tử trong backend, không qua khóa Open API.

@@ -21,6 +21,7 @@ import type {
 import { sql } from "drizzle-orm";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { z } from "zod";
+import type { DatabaseTransaction } from "../instore/checkouts.service";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -554,6 +555,9 @@ export class AffiliateTransactionsService {
     return this.transaction(member, id);
   }
 
+  // Giao dịch có tiền VComm thu hộ (CONG_VIEC_73 lát L7): đơn chờ hủy kèm hoàn tiền, bút toán, việc chờ hóa đơn; đăng ký khi khởi động.
+  collectedCancelHook: ((transaction: DatabaseTransaction, transactionId: string, counter: CounterActor, reason: string) => Promise<void>) | null = null;
+
   // Hủy bởi chủ cửa hàng hoặc phần mềm cửa hàng qua Open API (bổ sung QUYTAC_NGHIEPVU_400, CONG_VIEC_67).
   async cancelFor(counter: CounterActor, id: string, reason: string): Promise<void> {
     await this.database.transaction(async (transaction) => {
@@ -572,8 +576,9 @@ export class AffiliateTransactionsService {
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "completed") throw new ApiError("BUSINESS_RULE", "affiliateTransactionNotCancellable");
-      // Giao dịch có tiền VComm thu hộ: hủy kèm hoàn tiền cho khách qua đơn chờ (CONG_VIEC_73 lát L7), không hủy riêng phần điểm ở đây.
-      if (Number(row.collected_amount) > 0) throw new ApiError("BUSINESS_RULE", "affiliateCollectedNotCancellable");
+      // Giao dịch có tiền VComm thu hộ: hủy toàn bộ kèm hoàn tiền cho khách (CONG_VIEC_73 lát L7).
+      const collected = Number(row.collected_amount) > 0;
+      if (collected && !this.collectedCancelHook) throw new ApiError("BUSINESS_RULE", "affiliateCollectedNotCancellable");
       if (row.settlement_id) throw new ApiError("BUSINESS_RULE", "affiliateWeekSettled");
       if (row.voucher_code_id) await releaseVoucherWithin(transaction, row.voucher_code_id);
       const result = await this.ledger.cancelWithin(transaction, { sourceType: "affiliate_transaction", sourceId: id, companyId: counter.companyId, day: await vietnamToday(transaction) });
@@ -582,6 +587,7 @@ export class AffiliateTransactionsService {
           cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
         WHERE id = ${id}`);
       await this.accounting.record(transaction, await transactionCancelDraft(transaction, id));
+      if (collected) await this.collectedCancelHook!(transaction, id, counter, reason);
       await notify(transaction, [
         {
           userId: row.buyer_user_id,

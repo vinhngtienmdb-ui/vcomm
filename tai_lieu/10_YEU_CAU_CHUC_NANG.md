@@ -2504,6 +2504,24 @@ Yêu cầu phi chức năng:
 - Không ghi mã, khóa, mã khóa vào log, nhật ký thao tác, thông báo lỗi; khóa TOTP mã hóa bằng `secret-box`; mã khóa chỉ lưu trên máy.
 - Thư viện mới `expo-local-authentication` 58.0.2 và `@noble/hashes` 2.4.0 (phụ thuộc trực tiếp của ứng dụng VComm), người dùng duyệt 2026-11-17.
 
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm, CONG_VIEC_73)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_73.md`. Luồng 67.
+
+| Mã | Chức năng | Yêu cầu | Quy tắc | Màn hình | API | Lát |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_247 | Mã thanh toán động trên ứng dụng VComm (QR, Code 128, 18 số), tăng độ sáng; quét mã thay nhập 6 số khi dùng điểm tại quầy tập đoàn | YCAU_NGHIEPVU_205 | QUYTAC_NGHIEPVU_574, 592 | MAN_HINH_276; sửa MAN_HINH_161 | API_327; sửa API_196 | L1, L3 |
+| CHUC_NANG_248 | Đơn chờ thanh toán: tạo, gắn khách (mã động hoặc QR), khách chọn điểm, voucher, cổng, thanh toán, hoàn tất, hết hạn, hủy, từ chối; quầy tập đoàn và cổng cửa hàng liên kết | YCAU_NGHIEPVU_205 | QUYTAC_NGHIEPVU_573, 575 đến 582 | MAN_HINH_277, 278; sửa MAN_HINH_161, 166, 174, 181 | API_327, API_328, API_329 | L1, L2, L4 |
+| CHUC_NANG_249 | Open API đơn chờ thanh toán và webhook kết quả | YCAU_NGHIEPVU_208 | QUYTAC_NGHIEPVU_590, 591, 592 | sửa MAN_HINH_231, 232 | API_330, API_331 | L7 |
+| CHUC_NANG_250 | Thu hộ, phí sàn, phí cổng, bảng chuyển tiền ngày, hạch toán hai công ty, dư nợ, hủy và hoàn tiền, ghi ngược | YCAU_NGHIEPVU_206 | QUYTAC_NGHIEPVU_583 đến 587 | MAN_HINH_279, 280, 281, 282; sửa MAN_HINH_98 | API_332, API_333 | L4, L5, L7 |
+| CHUC_NANG_251 | Hóa đơn điện tử ủy nhiệm cho cửa hàng liên kết, lập bù, hóa đơn phí sàn tháng, xử lý hóa đơn khi hủy | YCAU_NGHIEPVU_207 | QUYTAC_NGHIEPVU_588, 589 | MAN_HINH_279; sửa MAN_HINH_54 | API_334 | L6, L7 |
+
+Yêu cầu phi chức năng:
+- Ghi nhận tiền, hoàn tất đơn, chứng từ, điểm, bút toán trong một giao dịch cơ sở dữ liệu, khóa đơn `FOR UPDATE`.
+- Mã thanh toán của thiết bị lưu băm HMAC-SHA256; khóa ký webhook mã hóa bằng `secret-box`; không ghi mã động, khóa ký vào log, nhật ký thao tác.
+- Service đơn chờ dùng chung cho quầy, cổng, Open API và iPOS (CONG_VIEC_74 gọi trực tiếp trong backend, móc hoàn tất và móc khoản trừ).
+- Thư viện mới: `expo-brightness` 58.0.2 (ứng dụng VComm, người dùng duyệt 2026-11-17); mã vạch Code 128 tự vẽ.
+
 ## MODULE_17 iPOS (đợt 1: phần mềm bán hàng cho cửa hàng liên kết, CONG_VIEC_74)
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_74.md` (điều chỉnh khi lập trình ở mục 19a). Luồng 68 đến 70.

@@ -88,6 +88,7 @@ const checkoutClass: Record<MerchantCheckoutResponse["status"], string> = {
   declined: "loi",
   expired: "trung-tinh",
   cancelled: "canh-bao",
+  refunded: "canh-bao",
 };
 const checkoutOpen = (status: MerchantCheckoutResponse["status"]) => status === "awaiting_buyer" || status === "awaiting_payment";
 

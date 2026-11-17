@@ -923,7 +923,11 @@
     "iposFeeNotPayableByVietqr": "Phiếu phí này không thu bằng chuyển khoản VietQR hoặc đã thu.",
     "iposFeeVietqrNotConfigured": "Công ty vận hành sàn chưa khai tài khoản nhận chuyển khoản. Liên hệ VComm để trả phí.",
     "iposFeeEinvoiceIssued": "Phiếu phí đã có hóa đơn điện tử. Hủy hoặc điều chỉnh hóa đơn trên module hóa đơn điện tử trước khi hủy phiếu.",
-    "iposCheckoutShiftClosed": "Ca bán của đơn chờ đã đóng và quầy chưa mở ca mới. Mở ca tại quầy rồi ghi lại đơn."
+    "iposCheckoutShiftClosed": "Ca bán của đơn chờ đã đóng và quầy chưa mở ca mới. Mở ca tại quầy rồi ghi lại đơn.",
+    "instorePartnerCodeTaken": "Mã đơn của phần mềm đã dùng cho đơn khác của cửa hàng.",
+    "instoreCheckoutPaidUseRefund": "Đơn đã thanh toán: dùng hủy và hoàn tiền (refund).",
+    "instoreCheckoutNotPaid": "Đơn chưa thanh toán xong: dùng hủy đơn (cancel).",
+    "webhookUrlHttps": "Địa chỉ nhận phải bắt đầu bằng https://."
   },
   "login": {
     "title": "Đăng nhập",
@@ -5204,7 +5208,10 @@
     "reason_paid_after_cancel": "Tiền về sau khi đơn đã hủy",
     "reason_duplicate_payment": "Thanh toán trùng",
     "reason_order_cancelled": "Hủy đơn đã thanh toán",
-    "reason_return_received": "Nhận hàng trả"
+    "reason_return_received": "Nhận hàng trả",
+    "instorePlace": "mua tại {place}",
+    "reason_instore_cancelled": "Hủy đơn tại cửa hàng đã thu tiền",
+    "reason_transaction_cancelled": "Cửa hàng hủy giao dịch đã thu hộ"
   },
   "withdrawals": {
     "title": "Rút tiền hoa hồng",
@@ -8772,7 +8779,7 @@
     "members": "Thành viên",
     "inviteSent": "Đã gửi lời mời.",
     "connectionTitle": "Kết nối phần mềm",
-    "connectionHint": "Phần mềm bán hàng của cửa hàng gọi Open API để tra điểm, tích, đổi điểm, dùng voucher, hủy giao dịch. Giao dịch qua API vào chung hạn mức, đối soát tuần, báo cáo của cửa hàng. Khóa chỉ có phạm vi Điểm thưởng.",
+    "connectionHint": "Phần mềm bán hàng của cửa hàng gọi Open API để tra điểm, tích, đổi điểm, dùng voucher, hủy giao dịch. Giao dịch qua API vào chung hạn mức, đối soát tuần, báo cáo của cửa hàng. Khóa có phạm vi Điểm thưởng; khóa có thêm phạm vi đơn chờ thanh toán (instore.checkout) thì phần mềm tạo đơn thanh toán qua ứng dụng VComm và nhận webhook.",
     "connectionEmpty": "Cửa hàng chưa có khóa API. Cấp khóa khi cửa hàng muốn nối phần mềm bán hàng của mình với VComm.",
     "apiKeyIssue": "Cấp khóa",
     "apiKeyEdit": "Sửa khóa",
@@ -8859,7 +8866,10 @@
     "backlogReason_series_missing": "Chưa có ký hiệu của năm",
     "backlogReason_einvoice_off": "Chưa bật hóa đơn điện tử",
     "reissue": "Lập bù",
-    "reissued": "Đã lập hóa đơn số {no} ngày {date}"
+    "reissued": "Đã lập hóa đơn số {no} ngày {date}",
+    "apiKeyInstoreCheckout": "Cho phép đơn chờ thanh toán qua Open API (instore.checkout)",
+    "apiKeyInstoreCheckoutHint": "Phần mềm cửa hàng tạo, tra, hủy, hoàn tiền đơn chờ thanh toán trong ứng dụng VComm và nhận webhook.",
+    "apiKeyWebhook": "Webhook"
   },
   "merchantPortal": {
     "brand": "VComm Liên kết",
@@ -9068,7 +9078,8 @@
     "cancelCheckoutReason": "Thu ngân hủy đơn chờ",
     "menu_payouts": "Tiền thu hộ",
     "payoutsHint": "VComm thu tiền khách trả qua ứng dụng rồi chuyển cho cửa hàng theo bảng mỗi ngày, sau phí thu hộ, thuế và phí cổng. Bảng đối soát điểm tuần giữ nguyên.",
-    "menu_iposSubscription": "Thuê bao và phí"
+    "menu_iposSubscription": "Thuê bao và phí",
+    "checkoutStatus_refunded": "Đã hủy, chờ hoàn tiền"
   },
   "affiliateVoucher": {
     "merchantTitle": "Voucher của cửa hàng",
@@ -9281,7 +9292,9 @@
     "column_merchantOutlet": "Cửa hàng · điểm bán",
     "column_buyer": "Khách",
     "column_einvoice": "Hóa đơn",
-    "einvoicePending": "Đang lập"
+    "einvoicePending": "Đang lập",
+    "kind_late_payments": "Thanh toán sau khi đơn đã đóng",
+    "detail_late_payments": "Khách {phone}: {count} lần thanh toán sau khi đơn chờ hết hạn hoặc bị hủy"
   },
   "apiKeys": {
     "title": "Khóa API đối tác",
@@ -12181,5 +12194,33 @@
     "line_gatewayFee": "Phí cổng",
     "deductionsTitle": "Khoản trừ khác",
     "deduction_ipos_subscription": "Phí thuê bao iPOS"
+  },
+  "affiliateWebhook": {
+    "title": "Webhook của khóa {name}",
+    "hint": "VComm gửi POST JSON đến địa chỉ này khi đơn chờ hoàn tất, hết hạn, bị hủy, bị từ chối, giao dịch bị hủy, đã hoàn tiền. Tiêu đề X-VComm-Signature là HMAC-SHA256 của \"thời điểm.thân\" bằng khóa ký; trả mã 2xx trong 10 giây. Thất bại thì gửi lại sau 1, 5, 30 phút, 2, 6, 24 giờ.",
+    "url": "Địa chỉ nhận (HTTPS)",
+    "saveUrl": "Lưu địa chỉ",
+    "saved": "Đã lưu webhook",
+    "secret": "Khóa ký",
+    "secretSet": "đã cấp lúc {time}",
+    "secretMissing": "chưa cấp",
+    "secretOnce": "Khóa ký chỉ hiện một lần. Sao chép vào phần mềm cửa hàng ngay.",
+    "issue": "Cấp khóa ký",
+    "rotate": "Cấp lại khóa ký",
+    "test": "Gửi thử",
+    "testSucceeded": "Gửi thử thành công",
+    "testFailed": "Gửi thử không thành công: {error}",
+    "deliveries": "Nhật ký gửi",
+    "noDeliveries": "Chưa có lần gửi.",
+    "column_time": "Thời điểm",
+    "column_event": "Sự kiện",
+    "column_status": "Trạng thái",
+    "column_attempts": "Số lần gửi",
+    "column_result": "Kết quả",
+    "status_pending": "Chờ gửi lại",
+    "status_succeeded": "Thành công",
+    "status_failed": "Đã dừng",
+    "nextAttempt": "Gửi lại lúc {time}",
+    "resend": "Gửi lại"
   }
 }

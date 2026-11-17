@@ -3136,6 +3136,30 @@ Sửa màn hình đã có:
 - Trạng thái mỗi màn hình: rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; máy tính, điện thoại.
 - Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.
 
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16: mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (CONG_VIEC_73)
+
+Bản mẫu đã duyệt 2026-11-17: `ban_mau/CONG_VIEC_73_UNG_DUNG.html` (ứng dụng VComm), `ban_mau/CONG_VIEC_73_QUAY_VA_CONG_CUA_HANG.html` (quầy tập đoàn, cổng cửa hàng), `ban_mau/CONG_VIEC_73_QUAN_TRI.html` (web quản trị). Người dùng nghiệm thu 2026-11-17.
+
+| Mã | Tên | Mini app | Nội dung | Bản mẫu |
+|---|---|---|---|---|
+| MAN_HINH_276 | Mã thanh toán | Ứng dụng VComm (`ma-thanh-toan`, từ trang chủ "Thanh toán tại cửa hàng", MAN_HINH_151, 181) | Mở Smart OTP trước; mã QR, mã vạch Code 128, 18 số chia nhóm, đếm 30 giây; nút "Tăng độ sáng"; tự mở đơn khi thu ngân quét | `CONG_VIEC_73_UNG_DUNG.html` |
+| MAN_HINH_277 | Thanh toán tại cửa hàng | Ứng dụng VComm (`thanh-toan-cua-hang/[id]`; đường dẫn QR `tt/[token]`) | Cửa hàng, dòng hàng, tiền hóa đơn, voucher, điểm (tối thiểu, tối đa), cổng, thông tin hóa đơn, tiền còn lại; "Thanh toán", "Xác nhận", "Từ chối"; kết quả | `CONG_VIEC_73_UNG_DUNG.html` |
+| MAN_HINH_278 | Thanh toán qua ứng dụng tại quầy | `web-retail` (hộp thoại `AppPaymentDialog` từ bước thanh toán MAN_HINH_161) | Quét mã động hoặc hiện QR, chờ khách, đếm hạn, hủy, kết quả "Đã thanh toán", in hóa đơn; đơn lỗi ghi sổ: "Ghi lại", "Hủy và hoàn tiền" | `CONG_VIEC_73_QUAY_VA_CONG_CUA_HANG.html` |
+| MAN_HINH_279 | Thu hộ và ủy nhiệm hóa đơn | `web-crm` (thẻ trong chi tiết cửa hàng liên kết) | Công tắc thu hộ (xác nhận pháp lý lần đầu), phí thu hộ, tài khoản nhận tiền; dữ liệu ủy nhiệm, tệp PDF, ký hiệu theo năm, việc chờ lập, "Lập bù" | `CONG_VIEC_73_QUAN_TRI.html` |
+| MAN_HINH_280 | Biểu phí cổng tại cửa hàng | `web-finance` (`/instore-gateway-fees`) | Phần trăm, số tiền cố định theo phương thức của cổng; thuế suất phí sàn, phí thu hộ (ô chọn 0, 5, 8, 10 %) | `CONG_VIEC_73_QUAN_TRI.html` |
+| MAN_HINH_281 | Bảng chuyển tiền thu hộ | `web-finance` (`/instore-payouts`, chi tiết `/instore-payouts/[id]`) | Danh sách, cảnh báo quá hạn; chi tiết G, H, I, K, L, M, N, tiền chuyển, đơn thu hộ, khoản trừ khác; "Ghi đã chuyển"; phiếu thu nháp chọn quỹ ngân hàng | `CONG_VIEC_73_QUAN_TRI.html` |
+| MAN_HINH_282 | Tiền thu hộ | `web-affiliate` (`/payouts`) | Bảng chuyển tiền của cửa hàng, chi tiết, giao dịch | `CONG_VIEC_73_QUAY_VA_CONG_CUA_HANG.html` |
+
+Sửa màn hình đã có:
+- MAN_HINH_161 Bán hàng tại quầy: phương thức "Thanh toán qua ứng dụng VComm" mở MAN_HINH_278; dòng điểm mặc định ô "Mã thanh toán của khách" cho máy quét, liên kết dự phòng nhập mã Smart OTP 6 số.
+- MAN_HINH_166 Cài đặt cửa hàng: "Nhận thanh toán qua ứng dụng VComm", phí sàn.
+- MAN_HINH_174 Quầy cổng cửa hàng: chọn cách khách trả (trong ứng dụng, tại quầy), "Hiện mã QR", quét mã thanh toán; kết quả có phí, tiền VComm chuyển; trạng thái "Đã hoàn tiền"; cột Hóa đơn ở bảng giao dịch.
+- MAN_HINH_181 Cửa hàng liên kết (ứng dụng): quét QR thanh toán mở MAN_HINH_277; nút mở MAN_HINH_276; lịch sử giao dịch có "Xem hóa đơn".
+- MAN_HINH_231 (`web-crm`), MAN_HINH_232 (`web-affiliate`) Kết nối phần mềm: ô phạm vi đơn chờ thanh toán (`instore.checkout`, chỉ web quản trị); khối "Webhook" (địa chỉ, khóa ký hiện một lần, gửi thử, nhật ký gửi, gửi lại).
+- MAN_HINH_98 Hoàn tiền: gồm việc hoàn tiền đơn mua tại cửa hàng (cột cửa hàng), ghi đã hoàn sinh bút toán.
+- MAN_HINH_54 Hóa đơn điện tử: cột "Người bán", bộ lọc "Chỉ hóa đơn lập theo ủy nhiệm", trạng thái "Đã hủy"; thẻ "Chờ xử lý trả hàng" gồm giao dịch `LK…` đã hủy; chi tiết ẩn "Thay thế" cho hóa đơn không có chứng từ nguồn.
+- Trang chủ ứng dụng VComm: nút "Thanh toán tại cửa hàng".
+
 ## MODULE_17 iPOS đợt 1: ứng dụng bán hàng, cổng cửa hàng, ERP (CONG_VIEC_74)
 
 Bản mẫu đã duyệt 2026-11-17: `ban_mau/CONG_VIEC_74_UNG_DUNG_IPOS.html` (ứng dụng iPOS), `ban_mau/CONG_VIEC_74_CONG_CUA_HANG_IPOS.html` (cổng cửa hàng), `ban_mau/CONG_VIEC_74_QUAN_TRI_IPOS.html` (ERP).

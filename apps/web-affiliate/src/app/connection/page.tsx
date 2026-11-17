@@ -2,11 +2,14 @@
 
 // MAN_HINH_232 Kết nối phần mềm (chủ cửa hàng, chỉ xem): khóa API của cửa hàng, số lần gọi, giao dịch qua phần mềm, tin OTP SMS
 // (CONG_VIEC_67; CHUC_NANG_234; API_295). Cấp, thu hồi khóa do công ty vận hành sàn làm.
+// CONG_VIEC_73 lát L7: chủ cửa hàng cài webhook cho khóa có phạm vi instore.checkout (API_331).
 import type { AffiliatePortalConnection } from "contracts";
 import { useTranslations } from "next-intl";
 import { Loaded } from "ui/components/StatusViews";
 import { formatDate, formatDateTime, formatNumber } from "ui/lib/format";
-import { usePortalApi } from "@/lib/portal-api";
+import { AffiliateWebhook } from "ui/components/AffiliateWebhook";
+import { usePortal } from "@/components/PortalShell";
+import { portalFetch, usePortalApi } from "@/lib/portal-api";
 
 const statusClass = { active: "thanh-cong", expired: "canh-bao", revoked: "trung-tinh" } as const;
 
@@ -14,6 +17,7 @@ export default function ConnectionPage() {
   const t = useTranslations("affiliate");
   const keys = useTranslations("apiKeys");
   const { state, reload } = usePortalApi<AffiliatePortalConnection>("/merchant-portal/api-keys");
+  const { notify } = usePortal();
   return (
     <>
       <h1>{t("connectionTitle")}</h1>
@@ -81,6 +85,13 @@ export default function ConnectionPage() {
                   </tbody>
                 </table>
               </div>
+              {data.keys
+                .filter((item) => item.instoreCheckout && item.status !== "revoked")
+                .map((item) => (
+                  <section key={item.id} className="the">
+                    <AffiliateWebhook apiKey={item} basePath="/merchant-portal" fetcher={portalFetch} canManage onSaved={(message) => (notify(message), void reload())} />
+                  </section>
+                ))}
             </>
           )
         }

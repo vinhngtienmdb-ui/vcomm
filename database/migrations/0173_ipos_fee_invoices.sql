@@ -67,14 +67,15 @@ ALTER TABLE finance.debt_items ADD CONSTRAINT debt_items_source_type_check
     CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off', 'collection_statement', 'landed_cost',
         'affiliate_settlement', 'loyalty_partner_settlement', 'instore_payout', 'instore_payout_owner', 'ipos_fee_invoice', 'ipos_fee_invoice_close', 'ipos_fee_deduction'));
 
--- Bút toán: lập phiếu (Nợ 131 / Có 511, 3331), hủy phiếu (bút toán đảo), trừ thu hộ khi bảng chuyển tiền đã chuyển (Nợ 331 / Có 131).
+-- Bút toán: lập phiếu (Nợ 131 / Có 511, 3331), hủy phiếu (bút toán đảo), trừ thu hộ khi vào bảng chuyển tiền (Nợ 331 / Có 131). Gồm mọi giá trị của 0172 (CONG_VIEC_73 lát L7).
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
 ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
     CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement', 'marketplace_payment', 'marketplace_refund',
         'marketplace_commission', 'marketplace_withdrawal', 'payroll', 'payroll_payment', 'marketplace_referral_bonus', 'import_declaration', 'landed_cost', 'loyalty_entry',
         'loyalty_seller_entry', 'loyalty_order_redeem', 'affiliate_transaction', 'affiliate_transaction_cancel', 'affiliate_voucher', 'affiliate_voucher_expire', 'affiliate_settlement',
         'fx_revaluation', 'import_amendment', 'loyalty_partner_exchange', 'loyalty_partner_gift', 'loyalty_partner_gift_cancel', 'loyalty_partner_settlement',
-        'instore_checkout', 'instore_checkout_owner', 'instore_payout', 'instore_payout_owner', 'ipos_fee_invoice', 'ipos_fee_invoice_void', 'ipos_fee_deduction'));
+        'instore_checkout', 'instore_checkout_owner', 'instore_payout', 'instore_payout_owner', 'instore_checkout_cancel', 'instore_refund_receipt', 'instore_refund',
+        'ipos_fee_invoice', 'ipos_fee_invoice_void', 'ipos_fee_deduction'));
 
 -- Vai trò định khoản mới cho công ty đã khởi tạo sổ: phải thu phí thuê bao iPOS (131), doanh thu phí thuê bao iPOS (511 / 5113).
 INSERT INTO accounting.posting_rules (company_id, role, account_id)

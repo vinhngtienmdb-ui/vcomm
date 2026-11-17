@@ -183,6 +183,26 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L6
+- Phạm vi: hóa đơn ủy nhiệm (dữ liệu ủy nhiệm, ký hiệu riêng theo năm, lập khi thu hộ hoàn tất, việc chờ lập, lập bù), hóa đơn phí sàn tháng (việc nền instore-fee-invoices-monthly), nơi xem hóa đơn (database migration 0171, API_334, MAN_HINH_54, 279); đỉnh nhánh `ff5ef24`.
+- Kết quả: c73-instore-einvoices 7/7; toàn bộ kiểm thử API 166 tệp đạt, 1 tệp lỗi do sửa trong lúc chạy, chạy lại cùng hai tệp liên quan 16/16 đạt; kiểm tra kiểu 19/19, lint 4/4; khóa dịch khớp. Với nhà cung cấp MISA, hóa đơn ủy nhiệm báo chưa hỗ trợ (chờ người dùng xác nhận với MISA). Chưa có ảnh ứng dụng mở PDF.
+- Kết luận: Đạt lát L6; người dùng duyệt 2026-11-17, chấp nhận 8 điểm lệch (thuế suất phí chỉ 0, 5, 8, 10 %; phương pháp trực tiếp không tách thuế; văn bản ủy nhiệm không bắt buộc; lập bù ghi ngày lập bù; công ty chưa bật hóa đơn điện tử thì chạy lại việc tháng bằng tay; chặn hóa đơn thay thế với hóa đơn ủy nhiệm và phí sàn).
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 nối thanh toán qua ứng dụng VComm và lát L6
+- Phạm vi: móc hoàn tất "ipos" (máy chủ ghi hóa đơn iPOS khi khách trả qua ứng dụng; commit `e64d521b`, `34f73d35`); đối soát và báo cáo trong ERP (API_357, MAN_HINH_306; commit `d659a5a6`, không database migration).
+- Kết quả: kiểm thử c55, c73, c74 73/73 đạt; kiểm tra kiểu, lint đạt. Luồng khách trả thật thử khi CONG_VIEC_73 xong giao diện liên quan.
+- Kết luận: Đạt; người dùng duyệt 2026-11-17, chấp nhận 6 điều chỉnh.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L5
+- Phạm vi: bảng chuyển tiền ngày, hạch toán, phiếu chi, phiếu thu (kể cả phiếu thu nháp), cảnh báo quá hạn (database migration 0164, API_333, MAN_HINH_281, 282); nhánh đã hợp nhất main v0.13.1; đỉnh nhánh `d6f0396`.
+- Kết quả: toàn bộ kiểm thử API 166 tệp, 928 đạt; kiểm tra kiểu 19/19, lint đạt. Phiếu thu nháp mới có kiểm thử tự động, chưa có ảnh. Khoản ghi ngược L bằng 0 đến lát L7.
+- Kết luận: Đạt lát L5; người dùng duyệt 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_75
+- Phạm vi: kiểu tham số hàm `api()` của `apps/mobile-vcomm`, `apps/mobile-warehouse` (body chỉ nhận FormData, Blob, URLSearchParams; JSON qua `json:`); nhánh `chuc-nang/CONG_VIEC_75-chan-kieu-goi-api` (pull request #200, commit `602cd95`).
+- Kết quả: kiểm tra kiểu có chủ đích bằng tệp tạm truyền body chuỗi: kiểu cũ qua (mã thoát 0), kiểu mới báo TS2322 ở cả hai ứng dụng (mã thoát 2), lời gọi `json:` qua; tệp tạm đã xóa. Hồi quy: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt.
+- Kết luận: Đạt; người dùng nghiệm thu 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – Phát hành 0.13.1
 - Phạm vi: nhánh `phat-hanh/v0.13.1` từ main `56bbc8f`, gộp LOI_15 (pull request #198).
 - Kết quả: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt; CI trên main đạt, tag `v0.13.1`.

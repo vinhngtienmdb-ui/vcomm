@@ -13,6 +13,7 @@ import { financeAudit, requireFinancePermission } from "../finance/finance-conte
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { einvoicePermissions, settingsRow } from "./einvoice-settings.service";
+import { mandateSeriesFor, mandateSupported, mandateUnsupportedError } from "./mandates";
 import { documentItems, EinvoicesService, insertInvoice } from "./einvoices.service";
 
 type Executor = Pick<Database, "execute">;
@@ -43,7 +44,8 @@ export class EinvoiceCorrectionsService {
     const rows = await this.database.execute<{
       id: string;
       status: EinvoiceReturnStatus;
-      return_document_id: string;
+      return_document_id: string | null;
+      affiliate_transaction_id: string | null;
       return_document_no: string | null;
       return_date: string;
       original_invoice_id: string;
@@ -56,9 +58,12 @@ export class EinvoiceCorrectionsService {
       buyer: Party;
       return_amount: string;
     }>(sql`
-      SELECT t.id, t.status, t.return_document_id, r.document_no AS return_document_no, r.document_date::text AS return_date, t.original_invoice_id, t.adjustment_invoice_id,
-        t.buyer_invoice_series, t.buyer_invoice_no, t.buyer_invoice_date::text, t.version, e.currency, e.buyer, (SELECT gross FROM finance.inventory_amounts(r.id))::text AS return_amount
-      FROM finance.einvoice_return_tasks t JOIN inventory.documents r ON r.id = t.return_document_id JOIN finance.einvoices e ON e.id = t.original_invoice_id
+      SELECT t.id, t.status, t.return_document_id, t.affiliate_transaction_id, coalesce(r.document_no, a.document_no) AS return_document_no,
+        coalesce(r.document_date, (a.cancelled_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)::text AS return_date, t.original_invoice_id, t.adjustment_invoice_id,
+        t.buyer_invoice_series, t.buyer_invoice_no, t.buyer_invoice_date::text, t.version, e.currency, e.buyer,
+        (CASE WHEN r.id IS NULL THEN e.total_amount ELSE (SELECT gross FROM finance.inventory_amounts(r.id)) END)::text AS return_amount
+      FROM finance.einvoice_return_tasks t LEFT JOIN inventory.documents r ON r.id = t.return_document_id LEFT JOIN affiliate.transactions a ON a.id = t.affiliate_transaction_id
+      JOIN finance.einvoices e ON e.id = t.original_invoice_id
       WHERE t.company_id = ${actor.companyId} ${status ? sql`AND t.status = ${status}` : sql``}
       ORDER BY t.created_at DESC LIMIT 500`);
     const result: EinvoiceReturnTask[] = [];
@@ -72,6 +77,7 @@ export class EinvoiceCorrectionsService {
         id: row.id,
         status: row.status,
         returnDocumentId: row.return_document_id,
+        affiliateTransactionId: row.affiliate_transaction_id,
         returnDocumentNo: row.return_document_no,
         returnDate: day(row.return_date),
         buyerName: row.buyer.name ?? "",
@@ -91,15 +97,29 @@ export class EinvoiceCorrectionsService {
   // Khóa việc chờ, kiểm hóa đơn gốc hiện hành đã phát hành.
   private async openTask(transaction: Executor, actor: Actor, taskId: string, version: number) {
     const task = (
-      await transaction.execute<{ status: EinvoiceReturnStatus; version: number; return_document_id: string; original_invoice_id: string }>(sql`
-      SELECT status, version, return_document_id, original_invoice_id FROM finance.einvoice_return_tasks WHERE id = ${taskId} AND company_id = ${actor.companyId} FOR UPDATE`)
+      await transaction.execute<{
+        status: EinvoiceReturnStatus;
+        version: number;
+        return_document_id: string | null;
+        affiliate_transaction_id: string | null;
+        original_invoice_id: string;
+      }>(sql`
+      SELECT status, version, return_document_id, affiliate_transaction_id, original_invoice_id FROM finance.einvoice_return_tasks
+      WHERE id = ${taskId} AND company_id = ${actor.companyId} FOR UPDATE`)
     ).rows[0];
     if (!task) throw new ApiError("NOT_FOUND", "notFound");
     if (task.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (task.status !== "open") throw new ApiError("BUSINESS_RULE", "einvoiceReturnResolved");
     const originalId = await currentInvoice(transaction, task.original_invoice_id);
     const original = (
-      await transaction.execute<{ status: EinvoiceStatus; buyer: Party; currency: string }>(sql`SELECT status, buyer, currency FROM finance.einvoices WHERE id = ${originalId} FOR UPDATE`)
+      await transaction.execute<{
+        status: EinvoiceStatus;
+        buyer: Party;
+        seller: { name: string | null; taxCode: string | null; address: string | null };
+        currency: string;
+        template_code: string;
+        mandate_merchant_id: string | null;
+      }>(sql`SELECT status, buyer, seller, currency, template_code, mandate_merchant_id FROM finance.einvoices WHERE id = ${originalId} FOR UPDATE`)
     ).rows[0]!;
     if (original.status !== "issued") throw new ApiError("BUSINESS_RULE", "einvoiceOriginalNotIssued");
     return { task, originalId, original };
@@ -112,12 +132,65 @@ export class EinvoiceCorrectionsService {
       const { task, originalId, original } = await this.openTask(transaction, actor, taskId, version);
       const settings = await settingsRow(transaction, actor.companyId);
       if (!settings) throw new ApiError("BUSINESS_RULE", "einvoiceNotConfigured");
+      if (task.affiliate_transaction_id) {
+        // Hủy giao dịch có hóa đơn ủy nhiệm (CONG_VIEC_73 lát L7): điều chỉnh giảm toàn bộ, người bán là cửa hàng, ký hiệu của cửa hàng.
+        const invoiceDate = vietnamDate(new Date());
+        const series = await mandateSeriesFor(transaction, original.mandate_merchant_id!, Number(invoiceDate.slice(0, 4)));
+        const lines = await transaction.execute<{
+          item_code: string | null;
+          item_name: string;
+          unit_name: string | null;
+          quantity: string;
+          unit_price: string;
+          vat_rate: "0" | "5" | "8" | "10" | "exempt" | "not_declared";
+          net_amount: string;
+          tax_amount: string;
+          total_amount: string;
+          is_promotion: boolean;
+        }>(sql`
+          SELECT item_code, item_name, unit_name, quantity::text, unit_price::text, vat_rate, net_amount::text, tax_amount::text, total_amount::text, is_promotion
+          FROM finance.einvoice_lines WHERE invoice_id = ${originalId} ORDER BY line_no`);
+        const adjusted = await insertInvoice(transaction, {
+          companyId: actor.companyId,
+          sourceDocumentId: null,
+          affiliateTransactionId: task.affiliate_transaction_id,
+          mandateMerchantId: original.mandate_merchant_id!,
+          series,
+          setupError: mandateSupported(settings.provider) ? null : mandateUnsupportedError,
+          kind: "adjustment",
+          relatedInvoiceId: originalId,
+          invoiceDate,
+          settings: { provider: settings.provider, with_tax_code: settings.with_tax_code, template_code: original.template_code },
+          seller: original.seller,
+          buyer: original.buyer,
+          currency: original.currency,
+          items: lines.rows.map((line, index) => ({
+            lineNo: index + 1,
+            itemCode: line.item_code,
+            itemName: line.item_name,
+            unitName: line.unit_name,
+            quantity: -Number(line.quantity),
+            unitPrice: Number(line.unit_price),
+            vatRate: line.vat_rate,
+            netAmount: -Number(line.net_amount),
+            taxAmount: -Number(line.tax_amount),
+            totalAmount: -Number(line.total_amount),
+            isPromotion: line.is_promotion,
+          })),
+          note: "Điều chỉnh giảm toàn bộ do hủy giao dịch",
+        });
+        await transaction.execute(sql`
+          UPDATE finance.einvoice_return_tasks SET status = 'adjusted', adjustment_invoice_id = ${adjusted}, resolved_by = ${actor.userId}, resolved_at = now(), version = version + 1
+          WHERE id = ${taskId}`);
+        await this.auditService.record({ ...financeAudit(actor, "einvoice"), action: "einvoice.adjust_cancel", entityId: adjusted, afterData: { taskId, originalId } }, transaction);
+        return adjusted;
+      }
       const company = (
         await transaction.execute<{ legal_name: string; tax_code: string | null; address: string | null }>(sql`SELECT legal_name, tax_code, address FROM core.companies WHERE id = ${actor.companyId}`)
       ).rows[0]!;
       const id = await insertInvoice(transaction, {
         companyId: actor.companyId,
-        sourceDocumentId: task.return_document_id,
+        sourceDocumentId: task.return_document_id!,
         kind: "adjustment",
         relatedInvoiceId: originalId,
         invoiceDate: vietnamDate(new Date()),
@@ -125,7 +198,7 @@ export class EinvoiceCorrectionsService {
         seller: { name: company.legal_name, taxCode: company.tax_code, address: company.address },
         buyer: original.buyer,
         currency: original.currency,
-        items: await documentItems(transaction, task.return_document_id, "sales_return"),
+        items: await documentItems(transaction, task.return_document_id!, "sales_return"),
         note: "Điều chỉnh giảm do trả lại hàng",
       });
       await transaction.execute(sql`
