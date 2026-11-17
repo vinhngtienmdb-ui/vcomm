@@ -16,6 +16,8 @@
 
 ### Quyết định
 
+- CONG_VIEC_72 (người dùng chốt 2026-11-17): thời hạn chuyển đổi 30 ngày cho mọi khách; Smart OTP mở bằng mã khóa 6 số và vân tay, khuôn mặt (thư viện expo-local-authentication 58.0.2); mất máy khôi phục bằng mật khẩu và SMS kèm khóa dùng điểm 24 giờ; các điểm còn lại theo đề xuất; mẫu ZNS và số tổng đài cấu hình sau. Duyệt đặc tả, bản mẫu (pull request #177). Cấp THAY_DOI_37 và dải mã. Người dùng duyệt lát L1 CONG_VIEC_63.
+- Người dùng đồng ý hợp nhất ngay bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) và phát hành 0.12.0 gồm CONG_VIEC_69, 70.
 - CONG_VIEC_70 (người dùng chốt 2026-11-17): dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế; phí D, E chưa chốt giữ nguyên; vẫn gửi OTP khi vượt hạn mức; giao diện chỉ đổi số tổng. Cấp THAY_DOI_36.
 - CONG_VIEC_63 (người dùng chốt 2026-11-17): bản đầu cho nhân viên nội bộ; hỏi đáp dữ liệu chỉ đọc qua API có sẵn và soạn nội dung sản phẩm cho nhân viên duyệt; cùng quyền dữ liệu người hỏi; lưu hội thoại 90 ngày; che điện thoại, email, số định danh, số tài khoản (không che tên, địa chỉ khách); API Anthropic trực tiếp qua lớp kết nối trung lập, mô hình mặc định claude-sonnet-5-5; hạn mức tiền tháng theo công ty tính USD, mặc định 0 (tắt); xem trước bằng bộ giả lập. Duyệt đặc tả, bản mẫu MAN_HINH_242 đến 245, thư viện @anthropic-ai/sdk 1.4.0 (Apache-2.0).
 - Người dùng nghiệm thu CONG_VIEC_69 (yêu cầu sửa thêm bỏ lọc khóa cũ khi đổi công ty), CONG_VIEC_70; duyệt CONG_VIEC_71 kèm sửa tài liệu 23, 05 mục 4.
