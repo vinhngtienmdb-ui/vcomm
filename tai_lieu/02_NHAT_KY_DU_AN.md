@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng yêu cầu mở thêm phiên: cấp CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ xét hạn mức), CONG_VIEC_71 (dọn tài liệu quản lý sản xuất, cập nhật tài liệu 01); mở lại CONG_VIEC_63 (trợ lý AI). Xóa hai dòng trùng cũ của CONG_VIEC_57, 58 trong tài liệu 03 (bản ghi "chờ phát hành"; dòng đúng là đã phát hành v0.6.0).
 - Phát hành 0.11.0 (pull request #166, commit hợp nhất `4916028`): CONG_VIEC_62 (Dropship), CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn), CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội); THAY_DOI_33, 34, 35. Database migration 0156 gộp ràng buộc phạm vi khóa API. Kiểm thử API 814 đạt. Không thêm thư viện. Chưa triển khai.
 
 ### Vấn đề tồn đọng
