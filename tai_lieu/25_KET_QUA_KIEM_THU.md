@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L1
+- Phạm vi: ghép thiết bị, đăng nhập lần đầu (Smart OTP, SMS dự phòng trong thời hạn chuyển đổi), PIN, thu ngân tự đăng ký và chủ cửa hàng duyệt, quầy theo giới hạn gói (database migration 0166, API_335, 336, 348, 349, MAN_HINH_283, 284, 296, 297); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `153d1b1d`, `5a1e0bf6`).
+- Kết quả: c74-devices 5/5, kiểm thử c74 11/11 sau khi thêm Smart OTP; CI đạt (toàn bộ kiểm thử, quét bảo mật) trên `153d1b1d`; typecheck 20/20, lint 5/5 trên `5a1e0bf6`.
+- Kết luận: Đạt lát L1; người dùng duyệt điểm xem trước 2026-11-17.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L1
 - Phạm vi: mã thanh toán động, khung đơn chờ thanh toán (database migration 0161 schema `instore`, API_327, MAN_HINH_276); nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `dd4e7ee`), đã hợp nhất nhánh CONG_VIEC_72 (`f776efc`).
 - Kết quả: c73-instore-checkouts 8/8 đạt; toàn bộ kiểm thử API 162 tệp, 902 đạt; kiểm tra kiểu api, mobile-vcomm đạt; khóa dịch khớp.
