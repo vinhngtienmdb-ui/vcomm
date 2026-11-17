@@ -9,7 +9,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { iposVietqrPayload } from "contracts";
 import { vietQrData } from "../src/marketplace/payments/gateways/bank-transfer-gateway";
-import { prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
+import { operator, prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
 import { DATABASE, type Database } from "../src/database/database.module";
 import { InstoreCheckoutsService } from "../src/instore/checkouts.service";
 import { startTestApplication } from "./setup-database";
@@ -254,5 +254,69 @@ describe("CONG_VIEC_74 L4 – đơn chờ thanh toán qua ứng dụng VComm", (
     await pool.query("UPDATE affiliate.transactions SET expires_at = now() - interval '1 minute' WHERE status = 'pending'");
     const closed = await ownerPos.post(`/ipos/pos/shifts/${shiftId}/close`, { countedCash: "50000", denominations: null, differenceReason: null, leftCash: "0" });
     expect(closed.status, JSON.stringify(closed.body)).toBe(201);
+  });
+});
+
+describe("CONG_VIEC_74 L6 – doanh thu, đối soát iPOS trong ERP (API_357)", () => {
+  it("KICHBAN_KIEMTHU_797: doanh thu theo điểm bán khớp tổng hóa đơn trừ trả hàng; không có dòng hàng, giá vốn, khách; người ngoài ERP bị chặn", async () => {
+    const revenue = await store.call("get", `/ipos/reports/revenue?from=${store.today}&to=${store.today}`);
+    expect(revenue.status, JSON.stringify(revenue.body)).toBe(200);
+    const expected = (
+      await pool.query(
+        `SELECT (SELECT COALESCE(sum(total), 0) FROM ipos.sales WHERE outlet_id = $1)::numeric - (SELECT COALESCE(sum(amount), 0) FROM ipos.returns WHERE outlet_id = $1) AS net,
+          (SELECT count(*)::int FROM ipos.sales WHERE outlet_id = $1) AS sales`,
+        [store.outletA],
+      )
+    ).rows[0];
+    const row = revenue.body.rows.find((item: { outletId: string }) => item.outletId === store.outletA);
+    expect(row).toMatchObject({ merchantId: store.merchantId, netRevenue: String(Number(expected.net)), salesCount: expected.sales });
+    expect(Number(row.cash) + Number(row.vietqr) + Number(row.vcommApp) + Number(row.pointsVoucher)).toBe(Number(row.grossSales));
+    expect(row.shiftCount).toBeGreaterThan(0);
+    expect(JSON.stringify(revenue.body)).not.toMatch(/"(lines|cost|unitCost|grossProfit|buyer\w*)"/);
+    expect((await store.owner.call("get", `/ipos/reports/revenue?from=${store.today}&to=${store.today}`)).status).toBe(403);
+    expect((await store.call("get", `/ipos/reports/revenue?from=2025-01-01&to=${store.today}`)).status).toBe(400);
+  });
+
+  it("KICHBAN_KIEMTHU_798: đối soát thu hộ, điểm hiện đúng các dòng lệch dựng sẵn; dòng khớp không hiện", async () => {
+    const query = `from=${store.today}&to=${store.today}&merchantId=${store.merchantId}`;
+    // Điểm: giao dịch LK… của ca L4 đã gắn hóa đơn (khớp).
+    let loyalty = (await store.call("get", `/ipos/reconciliation/loyalty?${query}`)).body;
+    expect(loyalty.matched, JSON.stringify(loyalty)).toBe(1);
+    expect(loyalty.mismatches).toEqual([]);
+
+    // Dựng lệch 1 (có thu hộ, không có hóa đơn): đơn chờ iPOS mới, giao dịch LK… đã hủy ở ca L4 sửa thành hoàn tất có tiền thu hộ.
+    const ownerUser = (await pool.query("SELECT user_id FROM affiliate.members WHERE merchant_id = $1 AND role = 'owner'", [store.merchantId])).rows[0].user_id as string;
+    const instore = application.get(InstoreCheckoutsService);
+    const orphan = await application.get<Database>(DATABASE).transaction((transaction) =>
+      instore.create(transaction, {
+        operatorCompanyId: operator,
+        place: { kind: "affiliate", merchantId: store.merchantId, outletId: store.outletA },
+        creator: { source: "ipos", userId: ownerUser },
+        idempotencyKey: randomUUID(),
+        billAmount: "30000",
+        lines: [{ name: "Bánh mì que", unit: "Cái", quantity: "2", unitPrice: "15000", amount: "30000", gift: false }],
+        collectInApp: true,
+      }),
+    );
+    const cancelledLk = (await pool.query("SELECT id, document_no FROM affiliate.transactions WHERE merchant_id = $1 AND status = 'cancelled' AND redeemed_points = 10", [store.merchantId])).rows[0];
+    await pool.query("UPDATE affiliate.transactions SET status = 'completed', cancelled_at = NULL, checkout_id = $2, collected_amount = 20000 WHERE id = $1", [cancelledLk.id, orphan.checkout.id]);
+    await pool.query("UPDATE instore.checkouts SET affiliate_transaction_id = $2 WHERE id = $1", [orphan.checkout.id, cancelledLk.id]);
+    // Dựng lệch 2 (lệch tiền điểm): dòng Điểm của hóa đơn ít hơn tiền điểm của giao dịch.
+    await pool.query("UPDATE ipos.sale_payments SET amount = 19000 WHERE method = 'points' AND amount = 20000 AND affiliate_transaction_id IS NOT NULL AND instore_checkout_id IS NULL");
+
+    const collection = (await store.call("get", `/ipos/reconciliation/collection?${query}`)).body;
+    const kinds = (rows: { kind: string; checkoutNo: string | null; transactionNo: string | null }[]) => rows.map((item) => item.kind).sort();
+    // Đơn chờ của móc hoàn tất (kiểm thử L4) không có LK… thu hộ: hiện "có hóa đơn, thu hộ không còn".
+    expect(kinds(collection.mismatches), JSON.stringify(collection)).toEqual(["collection_cancelled", "missing_invoice"]);
+    expect(collection.mismatches.find((item: { kind: string }) => item.kind === "missing_invoice")).toMatchObject({
+      checkoutNo: orphan.checkout.document_no,
+      transactionNo: cancelledLk.document_no,
+      saleDocumentNo: null,
+      vcommAmount: "20000",
+    });
+    loyalty = (await store.call("get", `/ipos/reconciliation/loyalty?${query}`)).body;
+    expect(kinds(loyalty.mismatches), JSON.stringify(loyalty)).toEqual(["amount_mismatch", "missing_invoice"]);
+    expect(loyalty.mismatches.find((item: { kind: string }) => item.kind === "amount_mismatch")).toMatchObject({ iposAmount: "19000", vcommAmount: "20000" });
+    expect(loyalty.matched).toBe(0);
   });
 });

@@ -1,6 +1,9 @@
 // API_354, API_355: gói và thuê bao iPOS trên ERP (CONG_VIEC_74). Quyền xét tại công ty vận hành sàn; xem dùng `affiliate.view`.
 import { Body, Controller, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  iposErpPeriodQuery,
+  type IposErpRevenue,
+  type IposReconciliation,
   iposBillingSchema,
   iposPlanCreateSchema,
   iposPlanUpdateSchema,
@@ -18,6 +21,7 @@ import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
+import { IposErpService } from "./ipos-erp.service";
 import { IposPlansService } from "./ipos-plans.service";
 import { IposSubscriptionsService } from "./ipos-subscriptions.service";
 
@@ -27,7 +31,24 @@ export class IposController {
     private readonly admin: BuyerAdminService,
     private readonly plans: IposPlansService,
     private readonly subscriptions: IposSubscriptionsService,
+    private readonly erp: IposErpService,
   ) {}
+
+  // API_357: doanh thu, đối soát iPOS trong ERP (chỉ đọc; QUYTAC_NGHIEPVU_626, 627). Phí thuê bao (`/fees`) làm ở lát L7.
+  @Get("ipos/reports/revenue")
+  async revenue(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposErpRevenue> {
+    return this.erp.revenue(await this.viewer(request), iposErpPeriodQuery.parse(query));
+  }
+
+  @Get("ipos/reconciliation/collection")
+  async reconcileCollection(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposReconciliation> {
+    return this.erp.collection(await this.viewer(request), iposErpPeriodQuery.parse(query));
+  }
+
+  @Get("ipos/reconciliation/loyalty")
+  async reconcileLoyalty(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposReconciliation> {
+    return this.erp.loyalty(await this.viewer(request), iposErpPeriodQuery.parse(query));
+  }
 
   private viewer(request: AuthenticatedRequest) {
     return this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");

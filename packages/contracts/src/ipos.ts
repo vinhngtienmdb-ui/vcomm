@@ -1078,3 +1078,62 @@ export interface IposReport {
   shifts: IposPortalShiftRow[];
   stock: { outletName: string; items: number; value: string; negative: number; belowMin: number }[];
 }
+
+// ---------------------------------------------------------------------------
+// ERP: doanh thu, đối soát iPOS (CONG_VIEC_74 L6; CHUC_NANG_260; QUYTAC_NGHIEPVU_626, 627; API_357). Chỉ đọc.
+// ---------------------------------------------------------------------------
+
+export const iposErpPeriodQuery = z.object({
+  from: isoDate,
+  to: isoDate,
+  merchantId: z.string().uuid().optional(),
+});
+
+// Chỉ số tổng theo điểm bán; không có dòng hàng, giá vốn, khách của cửa hàng (QUYTAC_NGHIEPVU_626).
+export interface IposErpRevenueRow {
+  merchantId: string;
+  merchantName: string;
+  outletId: string;
+  outletName: string;
+  netRevenue: string;
+  grossSales: string;
+  returns: string;
+  salesCount: number;
+  cash: string;
+  vietqr: string;
+  vcommApp: string;
+  pointsVoucher: string;
+  shiftCount: number;
+  cashDifference: string;
+}
+export interface IposErpRevenue {
+  rows: IposErpRevenueRow[];
+  totals: Omit<IposErpRevenueRow, "merchantId" | "merchantName" | "outletId" | "outletName">;
+}
+
+// Dòng lệch đối soát. Thu hộ: `missing_invoice` có thu hộ không có hóa đơn iPOS; `collection_cancelled` có hóa đơn mà thu hộ đã hủy;
+// `amount_mismatch` lệch tiền. Điểm, voucher: thêm `invoice_cancelled` hóa đơn đã hủy mà giao dịch điểm còn hiệu lực.
+export const iposMismatchKinds = ["missing_invoice", "collection_cancelled", "transaction_cancelled", "invoice_cancelled", "amount_mismatch"] as const;
+export type IposMismatchKind = (typeof iposMismatchKinds)[number];
+export interface IposMismatchRow {
+  kind: IposMismatchKind;
+  merchantId: string;
+  merchantName: string;
+  outletName: string;
+  occurredAt: string;
+  saleDocumentNo: string | null;
+  saleStatus: "completed" | "cancelled" | null;
+  checkoutNo: string | null;
+  transactionId: string | null;
+  transactionNo: string | null;
+  transactionStatus: string | null;
+  settlementId: string | null;
+  settlementNo: string | null;
+  iposAmount: string | null;
+  vcommAmount: string | null;
+}
+export interface IposReconciliation {
+  matched: number;
+  matchedAmount: string;
+  mismatches: IposMismatchRow[];
+}
