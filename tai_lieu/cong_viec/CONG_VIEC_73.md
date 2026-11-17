@@ -450,9 +450,9 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 | L2 | Database migration 0162; quầy tập đoàn luồng 1, 2 (API_328, MAN_HINH_278, sửa 161, 166); ứng dụng MAN_HINH_277; VNPAY môi trường thử nghiệm hoặc bộ giả lập | Bán tại quầy, khách trả trên ứng dụng, in hóa đơn |
 | L3 | Quét mã động thay nhập 6 số khi dùng điểm tại quầy (cách thu tại quầy) | Dùng điểm tại quầy bằng quét mã |
 | L4 | Database migration 0163; thu hộ cửa hàng liên kết trên cổng (API_329, 332, sửa 174, MAN_HINH_279, 280); phí; dư nợ | Cổng cửa hàng bán qua ứng dụng, giao dịch có thu hộ |
-| L5 | Bảng chuyển tiền ngày, hạch toán hai công ty, hóa đơn phí tháng (API_333, MAN_HINH_281, 282) | Lập bảng, ghi đã chuyển, xem sổ cái |
-| L6 | Database migration 0164; hóa đơn ủy nhiệm (API_334, MAN_HINH_279 phần ủy nhiệm) | Giao dịch có hóa đơn ủy nhiệm trên bộ giả lập |
-| L7 | Open API đơn chờ, webhook (API_330, 331, sửa 231, 232) | Gọi thử API, nhận webhook ở máy nhận thử |
+| L5 | Database migration 0164; bảng chuyển tiền ngày, hạch toán hai công ty, thuế suất phí riêng (API_333, MAN_HINH_281, 282) | Lập bảng, ghi đã chuyển, xem sổ cái |
+| L6 | Database migration 0171; hóa đơn ủy nhiệm (API_334, MAN_HINH_279 phần ủy nhiệm); hóa đơn phí sàn tháng (dời từ L5) | Giao dịch có hóa đơn ủy nhiệm trên bộ giả lập |
+| L7 | Database migration 0172; Open API đơn chờ, webhook (API_330, 331, sửa 231, 232) | Gọi thử API, nhận webhook ở máy nhận thử |
 
 ### Kết quả lát L1 (2026-11-17)
 
@@ -536,15 +536,20 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - MAN_HINH_282: mục "Tiền thu hộ" trên cổng cửa hàng.
 - Kiểm thử:
   - `apps/api/test/c73-instore-payouts.test.ts`: cửa hàng liên kết, thuế suất riêng, mang sang số âm, bút toán, phiếu chi, cổng cửa hàng, nhắc quá hạn.
-  - `apps/api/test/c73-instore-payouts-retail.test.ts`: công ty mẹ vận hành sàn, cửa hàng của công ty bán lẻ; bút toán hai công ty, phiếu chi, phiếu thu.
-- Lệch so với đặc tả, theo đề xuất đang chờ người dùng chọn (gửi điều phối 2026-11-17):
-  - Hóa đơn điện tử phí sàn hằng tháng chưa làm, đề xuất dời sang L6. Lý do: hóa đơn điện tử hiện phải gắn phiếu xuất kho; lập qua đơn bán dịch vụ sẽ ghi doanh thu hai lần.
-  - Cảnh báo bảng quá hạn là thông báo trong ứng dụng cho người có quyền `finance.instore.manage`, kèm dòng cảnh báo trên MAN_HINH_281; trang chủ chưa có cơ chế cảnh báo.
-  - Ngày làm việc chỉ bỏ thứ Bảy, Chủ nhật (không trừ ngày lễ), như hạn hóa đơn điện tử.
-  - Phiếu chi, phiếu thu khi ghi đã chuyển ghi sổ ngay, không qua duyệt, và không kiểm số dư quỹ. Lý do: tiền cổng về ngân hàng không qua phiếu thu nên số dư quỹ trên hệ thống không gồm tiền này; giới hạn có sẵn từ CONG_VIEC_25.
-  - Phiếu thu ở công ty sở hữu vào quỹ ngân hàng của cửa hàng có tiền thu hộ lớn nhất trong bảng. Cửa hàng chưa cài quỹ ngân hàng thì chưa lập phiếu thu; màn hình báo để công ty đó lập tay.
-  - Cửa hàng tập đoàn của chính công ty vận hành sàn: không lập bảng chuyển tiền; tiền cổng ghi Nợ 112 / Có 131; không tính phí sàn.
-  - Khoản ghi ngược L luôn bằng 0 cho đến L7 (hủy, hoàn tiền đơn đã thu).
+  - `apps/api/test/c73-instore-payouts-retail.test.ts`: công ty mẹ vận hành sàn, cửa hàng của công ty bán lẻ; bút toán hai công ty, phiếu chi, phiếu thu nháp và ghi sổ phiếu thu.
+- Lệch so với đặc tả, người dùng đã chọn theo cả 5 đề xuất (2026-11-17):
+  1. Hóa đơn điện tử phí sàn hằng tháng dời sang L6. Lý do: hóa đơn điện tử hiện phải gắn phiếu xuất kho; lập qua đơn bán dịch vụ sẽ ghi doanh thu hai lần.
+  2. Cảnh báo bảng quá hạn: thông báo trong ứng dụng mỗi sáng cho người có quyền `finance.instore.manage`, kèm dòng cảnh báo trên MAN_HINH_281; không sửa trang chủ.
+  3. Ngày làm việc chỉ bỏ thứ Bảy, Chủ nhật (không trừ ngày lễ), như hạn hóa đơn điện tử.
+  4. Phiếu chi khi ghi đã chuyển lập và ghi sổ ngay, không qua duyệt, không kiểm số dư quỹ (tiền cổng về ngân hàng không qua phiếu thu nên số dư quỹ trên hệ thống không gồm tiền này).
+     Phiếu thu ở công ty sở hữu vào quỹ ngân hàng của cửa hàng có tiền thu hộ lớn nhất trong bảng, ghi sổ ngay.
+     Cửa hàng đó chưa cài quỹ ngân hàng thì phiếu thu để nháp:
+     - Quỹ tạm là quỹ tiền mặt của cửa hàng; chưa cấp số, chưa bút toán; công nợ phải thu nội bộ còn nguyên.
+     - Kế toán công ty đó có quyền `finance.instore.manage` chọn quỹ ngân hàng trên MAN_HINH_281 rồi ghi sổ (`POST /finance/instore/payouts/:id/receipt`, thuộc API_333).
+     - Phiếu nháp này không sửa, không gửi ở màn hình phiếu thu chi thường.
+  5. Cửa hàng tập đoàn của chính công ty vận hành sàn: không lập bảng chuyển tiền, không tính phí sàn; tiền cổng ghi Nợ 112 / Có 131.
+- Khoản ghi ngược L luôn bằng 0 cho đến L7 (hủy, hoàn tiền đơn đã thu).
+- Hợp nhất `main` v0.13.1 (LOI_15) vào nhánh; gỡ xung đột ở `cua-hang-lien-ket.tsx`: giữ cách gọi `json:` của LOI_15 và phần nhận mã QR thanh toán, nút mở mã thanh toán của CONG_VIEC_73.
 
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
