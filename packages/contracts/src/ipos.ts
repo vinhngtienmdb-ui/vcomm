@@ -1137,3 +1137,89 @@ export interface IposReconciliation {
   matchedAmount: string;
   mismatches: IposMismatchRow[];
 }
+
+// ---------------------------------------------------------------------------
+// Phí thuê bao iPOS (CONG_VIEC_74 L7; QUYTAC_NGHIEPVU_598 đến 603; API_353, 356; MAN_HINH_301, 305, thẻ Phí của 306).
+// ---------------------------------------------------------------------------
+
+export const iposFeeInvoiceStatuses = ["awaiting", "paid", "voided"] as const;
+export type IposFeeInvoiceStatus = (typeof iposFeeInvoiceStatuses)[number];
+export type IposFeeMethod = "collection_deduction" | "settlement_deduction" | "vietqr";
+
+export interface IposFeeInvoice {
+  id: string;
+  documentNo: string;
+  merchantId: string;
+  merchantCode: string;
+  merchantName: string;
+  outletName: string;
+  planName: string;
+  periodStart: string;
+  periodEnd: string;
+  periodMonths: number;
+  monthlyPrice: string;
+  amount: string;
+  taxPercent: string;
+  taxAmount: string;
+  total: string;
+  paidAmount: string;
+  remaining: string;
+  method: IposFeeMethod;
+  status: IposFeeInvoiceStatus;
+  issuedOn: string;
+  dueOn: string;
+  overdue: boolean;
+  switchedToVietqr: boolean;
+  createdAt: string;
+  version: number;
+}
+
+// Chi tiết: nơi đã trừ (bảng chuyển tiền, bảng đối soát tuần), hóa đơn điện tử, công nợ, bút toán.
+export interface IposFeeInvoiceDetail extends IposFeeInvoice {
+  subscriptionId: string;
+  voidReason: string | null;
+  voidedAt: string | null;
+  deductions: { payoutNo: string | null; businessDate: string; amount: string; transferred: boolean }[];
+  settlementNo: string | null;
+  einvoice: { id: string; invoiceNo: string | null; status: string } | null;
+  debtOpenAmount: string | null;
+  journalNos: string[];
+  canManage: boolean;
+}
+
+export const iposFeeInvoiceListQuerySchema = z.object({
+  status: z.enum(iposFeeInvoiceStatuses).optional(),
+  method: z.enum(["collection_deduction", "settlement_deduction", "vietqr"]).optional(),
+  merchantId: z.string().uuid().optional(),
+  // Kỳ: tháng bắt đầu kỳ dạng YYYY-MM.
+  period: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+  overdue: z.coerce.boolean().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const iposFeeVoidSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const iposFeeReissueSchema = z.object({ periodStart: isoDate }).strict();
+
+// Thẻ Phí của MAN_HINH_306: tổng phải thu, đã thu, còn phải thu, quá hạn theo cách thu.
+export interface IposFeeSummary {
+  rows: { method: IposFeeMethod; invoices: number; total: string; paid: string; remaining: string; overdue: string }[];
+  totals: { invoices: number; total: string; paid: string; remaining: string; overdue: string };
+}
+
+// Cổng cửa hàng (API_353; MAN_HINH_301): thuê bao, phiếu phí, mã VietQR trả phí.
+export interface IposMerchantFeeOverview {
+  billingMethod: IposFeeMethod | "free" | null;
+  freeUntil: string | null;
+  subscriptions: { id: string; outletName: string; planName: string; status: IposSubscriptionStatus; endsOn: string; graceDaysLeft: number | null; monthlyPrice: string }[];
+  invoices: IposFeeInvoice[];
+}
+export interface IposFeeVietqr {
+  documentNo: string;
+  amount: string;
+  content: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  payload: string;
+}

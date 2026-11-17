@@ -141,6 +141,7 @@ import { IposDeviceAuthService } from "./ipos/ipos-device-auth.service";
 import { IposRegistersService } from "./ipos/ipos-registers.service";
 import { IposRegistrationsService } from "./ipos/ipos-registrations.service";
 import { IposErpService } from "./ipos/ipos-erp.service";
+import { IposFeesService } from "./ipos/ipos-fees.service";
 import { IposPlansService } from "./ipos/ipos-plans.service";
 import { IposSubscriptionsService } from "./ipos/ipos-subscriptions.service";
 import { IposCatalogService } from "./ipos/ipos-catalog.service";
@@ -405,6 +406,7 @@ import { UsersService } from "./users/users.service";
     AffiliateMerchantsService,
     IposPlansService,
     IposErpService,
+    IposFeesService,
     IposCatalogService,
     IposImportService,
     IposStockService,

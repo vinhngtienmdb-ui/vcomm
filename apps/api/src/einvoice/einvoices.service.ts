@@ -70,6 +70,8 @@ export async function insertInvoice(
     affiliateTransactionId?: string;
     mandateMerchantId?: string;
     instoreFeeInvoiceId?: string;
+    // Phiếu phí thuê bao iPOS (CONG_VIEC_74 lát L7).
+    iposFeeInvoiceId?: string;
     // Hóa đơn ủy nhiệm: ký hiệu riêng của cửa hàng (null: chưa khai), lỗi cài đặt khi nhà cung cấp chưa hỗ trợ ủy nhiệm.
     series?: string | null;
     setupError?: string | null;
@@ -92,9 +94,9 @@ export async function insertInvoice(
     input.series !== undefined ? input.series : cashRegister ? cashRegister.series : await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
   const setupError = input.setupError ?? (series ? null : "einvoiceSeriesMissing");
   const inserted = await transaction.execute<{ id: string }>(sql`
-    INSERT INTO finance.einvoices (company_id, source_document_id, affiliate_transaction_id, mandate_merchant_id, instore_fee_invoice_id, kind, related_invoice_id, provider, invoice_date,
+    INSERT INTO finance.einvoices (company_id, source_document_id, affiliate_transaction_id, mandate_merchant_id, instore_fee_invoice_id, ipos_fee_invoice_id, kind, related_invoice_id, provider, invoice_date,
       template_code, series, invoice_no, with_tax_code, seller, buyer, currency, net_amount, tax_amount, total_amount, note, status, last_error, due_date, origin, lookup_code)
-    VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.affiliateTransactionId ?? null}, ${input.mandateMerchantId ?? null}, ${input.instoreFeeInvoiceId ?? null},
+    VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.affiliateTransactionId ?? null}, ${input.mandateMerchantId ?? null}, ${input.instoreFeeInvoiceId ?? null}, ${input.iposFeeInvoiceId ?? null},
       ${input.kind}, ${input.relatedInvoiceId}, ${input.settings.provider}, ${input.invoiceDate}::date, ${input.settings.template_code},
       ${series}, ${cashRegister?.invoiceNo ?? null}, ${input.settings.with_tax_code}, ${JSON.stringify(input.seller)}::jsonb, ${JSON.stringify(input.buyer)}::jsonb, ${input.currency},
       ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${input.note}, ${setupError ? "setup_error" : "pending"}, ${setupError},

@@ -2,6 +2,12 @@
 import { Body, Controller, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
   iposErpPeriodQuery,
+  iposFeeInvoiceListQuerySchema,
+  iposFeeReissueSchema,
+  iposFeeVoidSchema,
+  type IposFeeInvoice,
+  type IposFeeInvoiceDetail,
+  type IposFeeSummary,
   type IposErpRevenue,
   type IposReconciliation,
   iposBillingSchema,
@@ -22,6 +28,7 @@ import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { IposErpService } from "./ipos-erp.service";
+import { IposFeesService } from "./ipos-fees.service";
 import { IposPlansService } from "./ipos-plans.service";
 import { IposSubscriptionsService } from "./ipos-subscriptions.service";
 
@@ -32,6 +39,7 @@ export class IposController {
     private readonly plans: IposPlansService,
     private readonly subscriptions: IposSubscriptionsService,
     private readonly erp: IposErpService,
+    private readonly fees: IposFeesService,
   ) {}
 
   // API_357: doanh thu, đối soát iPOS trong ERP (chỉ đọc; QUYTAC_NGHIEPVU_626, 627). Phí thuê bao (`/fees`) làm ở lát L7.
@@ -43,6 +51,34 @@ export class IposController {
   @Get("ipos/reconciliation/collection")
   async reconcileCollection(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposReconciliation> {
     return this.erp.collection(await this.viewer(request), iposErpPeriodQuery.parse(query));
+  }
+
+  // Thẻ Phí của MAN_HINH_306 (QUYTAC_NGHIEPVU_627 khoản 3).
+  @Get("ipos/reconciliation/fees")
+  async reconcileFees(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposFeeSummary> {
+    return this.fees.summary(await this.viewer(request), iposErpPeriodQuery.parse(query));
+  }
+
+  // API_356: phiếu phí thuê bao (MAN_HINH_305).
+  @Get("ipos/fee-invoices")
+  async feeInvoices(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<IposFeeInvoice>> {
+    return this.fees.list(await this.viewer(request), iposFeeInvoiceListQuerySchema.parse(query));
+  }
+
+  @Get("ipos/fee-invoices/:id")
+  async feeInvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposFeeInvoiceDetail> {
+    const canManage = await this.admin.allows(request.auth.userId, clientInfo(request), "ipos.subscription.manage");
+    return this.fees.detail(await this.viewer(request), id, canManage);
+  }
+
+  @Post("ipos/fee-invoices/:id/void")
+  async voidFeeInvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposFeeInvoiceDetail> {
+    return this.fees.void(await this.subscriptionManager(request), id, iposFeeVoidSchema.parse(body));
+  }
+
+  @Post("ipos/subscriptions/:id/fee-invoices")
+  async reissueFeeInvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposFeeInvoiceDetail> {
+    return this.fees.reissue(await this.subscriptionManager(request), id, iposFeeReissueSchema.parse(body).periodStart);
   }
 
   @Get("ipos/reconciliation/loyalty")

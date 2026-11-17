@@ -28,6 +28,7 @@ import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { ResellerSettlementsService } from "../finance/reseller-settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { IposSubscriptionsService } from "../ipos/ipos-subscriptions.service";
+import { IposFeesService } from "../ipos/ipos-fees.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { OfficeTasksService } from "../office/office-tasks.service";
 import { OfficePostsService } from "../office/office-posts.service";
@@ -92,6 +93,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const resellerSettlements = application.get(ResellerSettlementsService);
   const affiliateReports = application.get(AffiliateReportsService);
   const iposSubscriptions = application.get(IposSubscriptionsService);
+  const iposFees = application.get(IposFeesService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
   const attendanceDays = application.get(AttendanceDaysService);
@@ -219,7 +221,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();
       if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
       if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };
-      if (job.name === "ipos-subscriptions-daily") return iposSubscriptions.runDaily();
+      // CONG_VIEC_74 L7: chuyển trạng thái thuê bao rồi lập phiếu phí, nhắc gia hạn.
+      if (job.name === "ipos-subscriptions-daily") return { ...(await iposSubscriptions.runDaily()), ...(await iposFees.runDaily()) };
       if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
       if (job.name === "reseller-settlement-weekly") return resellerSettlements.generateWeekly();
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();

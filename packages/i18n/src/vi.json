@@ -917,7 +917,11 @@
     "einvoiceBacklog_mandate_missing": "Chưa lập được: cửa hàng chưa có dữ liệu ủy nhiệm hóa đơn.",
     "einvoiceBacklog_mandate_inactive": "Chưa lập được: văn bản ủy nhiệm chưa có hiệu lực hoặc đã hết hạn.",
     "einvoiceBacklog_series_missing": "Chưa lập được: cửa hàng chưa có ký hiệu hóa đơn của năm.",
-    "einvoiceBacklog_einvoice_off": "Chưa lập được: công ty vận hành sàn chưa bật hóa đơn điện tử."
+    "einvoiceBacklog_einvoice_off": "Chưa lập được: công ty vận hành sàn chưa bật hóa đơn điện tử.",
+    "iposFeeNotVoidable": "Chỉ hủy được phiếu phí chờ thu chưa thu tiền, chưa vào bảng đối soát tuần hoặc bảng chuyển tiền.",
+    "iposFeeReissueInvalid": "Kỳ này không có phiếu phí đã hủy để lập lại, hoặc cửa hàng đang miễn phí.",
+    "iposFeeNotPayableByVietqr": "Phiếu phí này không thu bằng chuyển khoản VietQR hoặc đã thu.",
+    "iposFeeVietqrNotConfigured": "Công ty vận hành sàn chưa khai tài khoản nhận chuyển khoản. Liên hệ VComm để trả phí."
   },
   "login": {
     "title": "Đăng nhập",

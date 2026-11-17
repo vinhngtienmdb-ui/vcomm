@@ -3,6 +3,8 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  type IposFeeVietqr,
+  type IposMerchantFeeOverview,
   iposCategoryCreateSchema,
   iposCategoryUpdateSchema,
   iposImportMaximumBytes,
@@ -54,6 +56,7 @@ import { IposCatalogService } from "./ipos-catalog.service";
 import { IposImportService } from "./ipos-import.service";
 import { IposStockService } from "./ipos-stock.service";
 import { IposSettingsService } from "./ipos-settings.service";
+import { IposFeesService } from "./ipos-fees.service";
 import { IposReportsService } from "./ipos-reports.service";
 import { IposReturnsService } from "./ipos-returns.service";
 import { IposSalesService } from "./ipos-sales.service";
@@ -89,6 +92,7 @@ export class IposPortalController {
     private readonly stockService: IposStockService,
     private readonly settings: IposSettingsService,
     private readonly reports: IposReportsService,
+    private readonly fees: IposFeesService,
     private readonly shiftsService: IposShiftsService,
     private readonly salesService: IposSalesService,
     private readonly returnsService: IposReturnsService,
@@ -259,6 +263,17 @@ export class IposPortalController {
   }
 
   // API_344: tổng quan.
+  // API_353: thuê bao, phiếu phí, mã VietQR trả phí (MAN_HINH_301; chủ cửa hàng).
+  @Get("subscription")
+  async feeOverview(@Req() request: AuthenticatedRequest): Promise<IposMerchantFeeOverview> {
+    return this.fees.merchantOverview((await this.owner(request)).merchantId);
+  }
+
+  @Get("fee-invoices/:id/vietqr")
+  async feeVietqr(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<IposFeeVietqr> {
+    return this.fees.vietqr((await this.owner(request)).merchantId, id);
+  }
+
   @Get("overview")
   async overview(@Req() request: AuthenticatedRequest): Promise<IposOverview> {
     return this.reports.overview(await this.owner(request));
