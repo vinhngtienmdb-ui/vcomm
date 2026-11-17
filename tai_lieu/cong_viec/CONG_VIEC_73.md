@@ -3,7 +3,7 @@
 - Mô tả: Khách mua tại cửa hàng tập đoàn hoặc cửa hàng liên kết chọn điểm và trả tiền ngay trong ứng dụng VComm qua cổng thanh toán. Hai cách: cửa hàng quét mã thanh toán động trên ứng dụng khách, hoặc khách quét mã QR thanh toán của cửa hàng. Công ty vận hành sàn thu tiền một nơi, chuyển hằng ngày cho công ty sở hữu cửa hàng hoặc cửa hàng liên kết sau khi trừ phí sàn và phí cổng. VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm. Mở Open API đơn chờ thanh toán và webhook để phần mềm bán hàng (iPOS sau này) dùng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu và 16 điểm AI đề xuất (mục 19) ngày 2026-11-17. Người dùng duyệt phần bổ sung API hoàn tiền, tra trạng thái cho iPOS (CONG_VIEC_74) ngày 2026-11-17. Viết mã sau khi CONG_VIEC_72 vào `main`.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu và 16 điểm AI đề xuất (mục 19) ngày 2026-11-17. Người dùng duyệt phần bổ sung API hoàn tiền, tra trạng thái cho iPOS (CONG_VIEC_74) ngày 2026-11-17. Người dùng duyệt cho iPOS gọi thẳng service đơn chờ trong backend và chừa khoản trừ phí thuê bao iPOS trong bảng chuyển tiền (THAY_DOI_39) ngày 2026-11-17; phần bổ sung chờ người dùng xem. Viết mã sau khi CONG_VIEC_72 vào `main`.
 - Nhánh: `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang`.
 - Nguồn: yêu cầu người dùng 2026-11-17; quyết định người dùng 2026-11-17 (mục 17); CONG_VIEC_53 (bán tại quầy, điểm tại quầy), CONG_VIEC_55 (cửa hàng liên kết), CONG_VIEC_67 (Open API cửa hàng liên kết), CONG_VIEC_25, 32, 33 đến 42 (cổng thanh toán), CONG_VIEC_16 (hóa đơn điện tử), CONG_VIEC_19 (đối soát thu hộ cổng), CONG_VIEC_51 (sổ cái điểm, nợ nội bộ), CONG_VIEC_72 (Smart OTP).
 - Mức: Lớn (nhiều module; đổi quy trình, cấu trúc dữ liệu, API đã duyệt; nghiệp vụ tài chính mới).
@@ -93,11 +93,11 @@ Ngoài phạm vi:
 
 ### QUYTAC_NGHIEPVU_575 – Đơn chờ thanh toán
 
-- Số `TT…` (dãy chung). Nội dung cố định khi tạo: nơi bán (quầy và ca của cửa hàng tập đoàn, hoặc điểm bán của cửa hàng liên kết), người tạo (thu ngân hoặc khóa API), tiền hóa đơn, dòng hàng (cửa hàng tập đoàn: bắt buộc, lấy từ giỏ; cửa hàng liên kết: không bắt buộc), mã đơn của đối tác (Open API), cách thu (trong ứng dụng hoặc tại quầy).
+- Số `TT…` (dãy chung). Nội dung cố định khi tạo: nơi bán (quầy và ca của cửa hàng tập đoàn, hoặc điểm bán của cửa hàng liên kết), nguồn (`retail_counter`: quầy tập đoàn; `merchant_portal`: cổng cửa hàng; `open_api`: khóa API; `ipos`: ứng dụng iPOS của CONG_VIEC_74), người tạo (thu ngân của quầy, cổng hoặc iPOS; hoặc khóa API), tiền hóa đơn, dòng hàng (cửa hàng tập đoàn: bắt buộc, lấy từ giỏ; iPOS: bắt buộc, lấy từ hóa đơn iPOS; cổng cửa hàng, Open API: không bắt buộc), mã đơn của đối tác (Open API) hoặc mã hóa đơn iPOS, cách thu (trong ứng dụng hoặc tại quầy).
 - Cửa hàng tập đoàn: giá, khuyến mãi tính như bán tại quầy khi tạo; giữ hàng tại kho bán theo số lượng (CONG_VIEC_05) đến khi hoàn tất, hết hạn hoặc hủy; tiền thay đổi so với lúc xem thì báo như hiện nay.
 - Hạn: 10 phút kể từ khi tạo. Trạng thái: chờ khách, chờ thanh toán (khách đã bấm thanh toán), hoàn tất, hết hạn, đã hủy, khách từ chối.
 - Thu ngân, chủ cửa hàng, khóa API hủy được đơn khi chưa hoàn tất. Đóng ca bị chặn khi ca còn đơn chờ thanh toán.
-- Giới hạn: mỗi quầy tập đoàn một đơn chờ; mỗi thu ngân cửa hàng liên kết ba đơn chờ; mỗi khóa API theo giới hạn tần suất hiện có.
+- Giới hạn: mỗi quầy tập đoàn một đơn chờ; mỗi thu ngân cửa hàng liên kết (cổng hoặc iPOS) ba đơn chờ; mỗi khóa API theo giới hạn tần suất hiện có.
 - Mỗi lần tạo mang khóa yêu cầu duy nhất; gửi lại cùng khóa trả đơn đã tạo.
 
 ### QUYTAC_NGHIEPVU_576 – Luồng 1: cửa hàng quét mã động
@@ -161,7 +161,8 @@ Ngoài phạm vi:
 ### QUYTAC_NGHIEPVU_585 – Bảng chuyển tiền thu hộ ngày
 
 - Việc nền 1 giờ sáng (giờ Việt Nam) lập bảng cho ngày hôm trước, mỗi người nhận một bảng (số `CT…`): người nhận là công ty sở hữu cửa hàng tập đoàn hoặc cửa hàng liên kết có giao dịch thu hộ, hoặc có số mang sang.
-- Số liệu: tiền thu hộ (G), phí sàn (H), thuế giá trị gia tăng của phí sàn (I, thuế suất cài đặt, mặc định 10 %), phí cổng (K), ghi ngược giao dịch đã hủy thuộc bảng trước (L), số mang sang từ bảng trước (M, âm hoặc 0). Tiền chuyển = G − H − I − K − L + M.
+- Số liệu: tiền thu hộ (G), phí sàn (H), thuế giá trị gia tăng của phí sàn (I, thuế suất cài đặt, mặc định 10 %), phí cổng (K), ghi ngược giao dịch đã hủy thuộc bảng trước (L), số mang sang từ bảng trước (M, âm hoặc 0). khoản trừ khác (N, gồm phí thuê bao iPOS theo THAY_DOI_39). Tiền chuyển = G − H − I − K − L + M − N.
+- Khoản trừ khác (N): CONG_VIEC_73 chỉ lập bảng `instore.payout_deductions` và cộng vào công thức; các dòng N (phí thuê bao iPOS) và bút toán của chúng do CONG_VIEC_74 lát L7 ghi. Chưa có dòng thì N = 0.
 - Tiền chuyển âm: bảng ghi 0, số âm mang sang bảng sau.
 - Không bù trừ với bảng đối soát điểm tuần: hai bảng độc lập (người dùng có thể đổi, mục 19). Thu hộ của cửa hàng liên kết không cộng vào bảng tuần.
 - Trạng thái: chờ chuyển, đã chuyển. Kế toán công ty vận hành sàn chuyển khoản tới tài khoản nhận tiền rồi ghi đã chuyển (ngày, số giao dịch ngân hàng); hệ thống lập phiếu chi. Bảng chờ chuyển quá 2 ngày làm việc: cảnh báo trên trang chủ của kế toán.
@@ -280,7 +281,7 @@ Sửa màn hình đã có:
 | Database migration | Bảng, cột | Nội dung |
 |---|---|---|
 | 0161 (L1) | Schema mới `instore` | |
-| 0161 (L1) | `instore.checkouts` | `id`, `document_no` (`TT…`), `operator_company_id`, `kind` (`retail`, `affiliate`), `store_id` hoặc `merchant_id` và `outlet_id`, `register_id`, `shift_id`, `created_by_user_id` hoặc `api_key_id`, `partner_checkout_code`, `idempotency_key`, `bill_amount`, `lines` (jsonb), `collect_in_app`, `qr_token_hash`, `buyer_user_id`, `points`, `points_amount`, `voucher_code_id`, `voucher_amount`, `amount_due`, `status`, `expires_at`, `retail_sale_id`, `affiliate_transaction_id`, `platform_fee_percent`, `platform_fee`, `gateway_fee`, `payout_id`, `buyer_invoice_info` (jsonb), thời điểm; ràng buộc theo `kind`; chỉ mục duy nhất (`merchant_id`, `partner_checkout_code`) |
+| 0161 (L1) | `instore.checkouts` | `id`, `document_no` (`TT…`), `operator_company_id`, `kind` (`retail`, `affiliate`), `store_id` hoặc `merchant_id` và `outlet_id`, `register_id`, `shift_id`, `source` (`retail_counter`, `merchant_portal`, `open_api`, `ipos`), `created_by_user_id` hoặc `api_key_id`, `partner_checkout_code` (Open API, iPOS), `ipos_invoice_id` (trống, khóa ngoại thêm ở CONG_VIEC_74), `idempotency_key`, `bill_amount`, `lines` (jsonb), `collect_in_app`, `qr_token_hash`, `buyer_user_id`, `points`, `points_amount`, `voucher_code_id`, `voucher_amount`, `amount_due`, `status`, `expires_at`, `retail_sale_id`, `affiliate_transaction_id`, `platform_fee_percent`, `platform_fee`, `gateway_fee`, `payout_id`, `buyer_invoice_info` (jsonb), thời điểm; ràng buộc theo `kind`; chỉ mục duy nhất (`merchant_id`, `partner_checkout_code`) |
 | 0161 (L1) | `marketplace.payments` | `order_id` cho phép trống; thêm `checkout_id`; ràng buộc đúng một trong hai |
 | 0161 (L1) | `marketplace.refunds` | thêm `checkout_id`; lý do thêm `instore_cancelled` |
 | 0161 (L1) | `loyalty.smart_otp_devices` | thêm `pay_code_prefix_hash` (duy nhất) |
@@ -288,8 +289,9 @@ Sửa màn hình đã có:
 | 0162 (L2) | `retail.sale_payments`, `retail.return_refunds` | `method` thêm `vcomm_app` (định nghĩa lại ràng buộc theo `main` mới nhất) |
 | 0163 (L4) | `affiliate.merchants` | `collection_enabled`, `collection_fee_percent`, `payout_bank_account_id` |
 | 0163 (L4) | `instore.gateway_fee_rates` | `company_id`, `method`, `percent`, `fixed_amount`, `effective_from` |
-| 0163 (L4) | `instore.payouts` | `document_no` (`CT…`), `operator_company_id`, `recipient_kind`, `recipient_company_id` hoặc `merchant_id`, `business_date`, G, H, I, K, L, M, `amount`, `status`, `transferred_on`, `bank_transaction_no`, bút toán, phiếu chi, phiếu thu; duy nhất (người nhận, ngày) |
-| 0163 (L4) | `affiliate.transactions` | `collected_amount`, `platform_fee`, `gateway_fee`, `checkout_id` |
+| 0163 (L4) | `instore.payouts` | `document_no` (`CT…`), `operator_company_id`, `recipient_kind`, `recipient_company_id` hoặc `merchant_id`, `business_date`, G, H, I, K, L, M, N, `amount`, `status`, `transferred_on`, `bank_transaction_no`, bút toán, phiếu chi, phiếu thu; duy nhất (người nhận, ngày) |
+| 0163 (L4) | `instore.payout_deductions` | `id`, `payout_id` (trống khi chưa vào bảng), người nhận, `business_date`, `kind` (`ipos_subscription`), `amount` (> 0), `reference_id`, `note`; chỉ mục (người nhận, `business_date`). Dòng do CONG_VIEC_74 ghi |
+| 0163 (L4) | `affiliate.transactions` | `collected_amount`, `platform_fee`, `gateway_fee`, `checkout_id`; `source` thêm `ipos` |
 | 0163 (L4) | `affiliate.api_keys` | `webhook_url`, `webhook_secret_encrypted`; bảng `affiliate.webhook_deliveries` |
 | 0164 (L6) | `affiliate.merchant_einvoice_mandates` | dữ liệu QUYTAC_NGHIEPVU_588, tệp, ký hiệu theo năm |
 | 0164 (L6) | `finance.einvoices` | `source_document_id` cho phép trống; thêm `affiliate_transaction_id`, `mandate_id`; ràng buộc đúng một nguồn; chỉ mục duy nhất hóa đơn gốc theo giao dịch |
@@ -365,7 +367,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | TIEUCHI_NGHIEMTHU_551 | Thanh toán qua cổng: chỉ nhận kết quả có chữ ký, đúng số tiền, một lần; hết hạn hoàn điểm, voucher; thanh toán sau hết hạn lập việc chờ hoàn tiền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_552 | Cửa hàng tập đoàn: hóa đơn bán lẻ, đơn bán, phiếu xuất, bút toán, hóa đơn máy tính tiền, điểm đúng; dòng "Ứng dụng VComm" không vào tiền ca; lỗi ghi sổ chuyển trạng thái chờ xử lý | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_553 | Cửa hàng liên kết: giao dịch `LK…` đúng tiền thu hộ, phí; thu hộ tắt thì như cũ; công tắc mặc định tắt, có xác nhận khi bật | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_554 | Phí sàn, phí cổng, bảng chuyển tiền ngày đúng công thức, mang số âm sang, ghi ngược hủy; ghi đã chuyển lập phiếu chi, phiếu thu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_554 | Phí sàn, phí cổng, bảng chuyển tiền ngày đúng công thức (gồm khoản trừ khác N), mang số âm sang, ghi ngược hủy; ghi đã chuyển lập phiếu chi, phiếu thu | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_555 | Bút toán hai công ty đúng tài khoản; hóa đơn phí sàn tháng | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_556 | Dư nợ cửa hàng liên kết trừ tiền thu hộ chờ chuyển | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_557 | Hóa đơn ủy nhiệm: đúng người bán, ký hiệu riêng, dòng ủy nhiệm, dòng hàng, điểm là phương thức thanh toán; thiếu dữ liệu ghi việc chờ, lập bù được; hủy giao dịch tạo việc chờ xử lý hóa đơn | Bắt buộc |
@@ -386,7 +388,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | KICHBAN_KIEMTHU_757 | Kết quả cổng: sai chữ ký, sai số tiền, gửi trùng, thất bại rồi thử lại, thành công sau hết hạn | 551 | Tự động |
 | KICHBAN_KIEMTHU_758 | Hoàn tất tập đoàn: chứng từ, tồn kho, bút toán, hóa đơn máy tính tiền, tiền ca; kỳ khóa rồi ghi lại; hủy và hoàn tiền | 552 | Tự động |
 | KICHBAN_KIEMTHU_759 | Hoàn tất cửa hàng liên kết: thu hộ bật, tắt; cách thu tại quầy; phân quyền cổng | 553 | Tự động |
-| KICHBAN_KIEMTHU_760 | Bảng chuyển tiền: nhiều giao dịch, phí, thuế, hủy sau khi lập, số âm mang sang, ghi đã chuyển, lập trùng ngày | 554 | Tự động |
+| KICHBAN_KIEMTHU_760 | Bảng chuyển tiền: nhiều giao dịch, phí, thuế, hủy sau khi lập, số âm mang sang, khoản trừ khác N (dòng thử trong bảng khoản trừ), ghi đã chuyển, lập trùng ngày | 554 | Tự động |
 | KICHBAN_KIEMTHU_761 | Bút toán hai công ty, hóa đơn phí tháng | 555 | Tự động |
 | KICHBAN_KIEMTHU_762 | Dư nợ trừ thu hộ chờ chuyển, xét hạn mức tích điểm | 556 | Tự động |
 | KICHBAN_KIEMTHU_763 | Hóa đơn ủy nhiệm: đủ dữ liệu, thiếu, hết hiệu lực, lập bù, dòng từ API, một dòng mặc định, hủy | 557 | Tự động |
@@ -403,6 +405,7 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 - Ứng dụng hỏi trạng thái mỗi 2 giây khi đang mở màn hình mã hoặc đơn; dừng khi rời màn hình.
 - Số tiền làm tròn đến đồng; mọi giờ theo giờ Việt Nam.
 - Không thêm thư viện (mục 12).
+- Service dùng chung trong backend (người dùng duyệt 2026-11-17 cho CONG_VIEC_74 gọi thẳng, không qua khóa Open API): `InstoreCheckoutService` với `create`, `attachPayCode`, `get`, `list`, `cancel`, `refund`, nhận tác nhân thống nhất (thu ngân quầy, thành viên cổng, khóa API, thu ngân iPOS kèm điểm bán `affiliate.outlets`). Controller của quầy, cổng, Open API và iPOS chỉ kiểm quyền rồi gọi service; quy tắc nghiệp vụ, khóa yêu cầu, giới hạn đơn chờ nằm trong service. Webhook là cách báo cho phần mềm ngoài; iPOS trong backend nhận kết quả qua sự kiện nội bộ `instore.checkout.*` (cùng nội dung webhook).
 
 ## 16. Thành phần không được thay đổi
 
@@ -475,4 +478,4 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.
-- Ứng dụng iPOS: công việc riêng, dùng Open API của lát L7.
+- Ứng dụng iPOS: công việc riêng (CONG_VIEC_74), gọi service đơn chờ trong backend (mục 15); phí thuê bao iPOS trừ vào bảng chuyển tiền qua `instore.payout_deductions` do CONG_VIEC_74 ghi.
