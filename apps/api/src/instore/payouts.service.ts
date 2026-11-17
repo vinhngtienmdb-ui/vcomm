@@ -90,9 +90,23 @@ const payoutFrom = sql`
   LEFT JOIN finance.payments pay ON pay.id = p.payment_id
   LEFT JOIN finance.payments rec ON rec.id = p.receipt_id`;
 
+// Móc khoản trừ N theo loại (CONG_VIEC_74 đăng ký 'ipos_subscription'): chạy trong giao dịch lập bảng, sau khi gắn dòng vào bảng.
+// Khoản trừ luôn trừ đủ; tiền chuyển âm ghi 0 và mang sang bảng sau (M), nên phần thiếu được trừ ở bảng kế tiếp.
+export type PayoutDeductionHook = (
+  transaction: DatabaseTransaction,
+  payout: { id: string; documentNo: string; operatorCompanyId: string; recipientKind: "merchant" | "retail_company"; recipientId: string; businessDate: string; amount: number },
+  deductions: { id: string; amount: string; referenceId: string | null; businessDate: string }[],
+) => Promise<void>;
+
 @Injectable()
 export class InstorePayoutsService {
   private readonly logger = new Logger("InstorePayouts");
+  private readonly deductionHooks = new Map<string, PayoutDeductionHook>();
+
+  registerDeductionHook(kind: "ipos_subscription", hook: PayoutDeductionHook): void {
+    this.deductionHooks.set(kind, hook);
+  }
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly ledger: LedgerService,
@@ -240,8 +254,18 @@ export class InstorePayoutsService {
       UPDATE instore.checkouts c SET payout_id = ${inserted.id}
       WHERE ${checkoutFilter} AND c.operator_company_id = ${operatorId} AND c.status = 'completed' AND c.collect_in_app AND c.paid_amount > 0 AND c.payout_id IS NULL
         AND (c.paid_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= ${day}::date`);
-    await transaction.execute(sql`
-      UPDATE instore.payout_deductions SET payout_id = ${inserted.id} WHERE ${recipientFilter} AND payout_id IS NULL AND business_date <= ${day}::date`);
+    const stamped = await transaction.execute<{ id: string; kind: string; amount: string; reference_id: string | null; business_date: string }>(sql`
+      UPDATE instore.payout_deductions SET payout_id = ${inserted.id} WHERE ${recipientFilter} AND payout_id IS NULL AND business_date <= ${day}::date
+      RETURNING id, kind, amount::text, reference_id, business_date::text`);
+    for (const [kind, hook] of this.deductionHooks) {
+      const rows = stamped.rows.filter((row) => row.kind === kind);
+      if (rows.length > 0)
+        await hook(
+          transaction,
+          { id: inserted.id, documentNo: inserted.document_no, operatorCompanyId: operatorId, recipientKind: recipient.kind, recipientId, businessDate: day, amount },
+          rows.map((row) => ({ id: row.id, amount: row.amount, referenceId: row.reference_id, businessDate: row.business_date })),
+        );
+    }
 
     // Hạch toán phí khi lập bảng: công ty vận hành sàn Nợ phải trả người nhận / Có doanh thu phí sàn, thuế, Có chi phí phí cổng thu lại;
     // công ty sở hữu cửa hàng tập đoàn Nợ chi phí bán hàng, thuế đầu vào / Có phải thu nội bộ.
