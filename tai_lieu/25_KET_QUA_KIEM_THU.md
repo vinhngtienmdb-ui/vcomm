@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_72
+- Phạm vi: ưu tiên Smart OTP (THAY_DOI_37) lát L1 đến L6, nhánh `chuc-nang/CONG_VIEC_72-uu-tien-smart-otp` (pull request #177, commit `f776efc`; mã cuối `1fc0904`), đã hợp nhất main v0.13.0.
+- Kết quả: c72-authentication-settings (KICHBAN_KIEMTHU_749), c72-smart-otp-activation (734, 735, 736), c72-new-device (739, 740, 741, 743 phần đăng nhập), c72-recovery (742, 744), c72-transition (743 Open API, 748), c72-transition-partner (743 đối tác), c72-merchant-portal (745, 746, 747) đạt; toàn bộ kiểm thử API 161 tệp, 894 đạt trên `1fc0904`; kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform, web-retail đạt; khóa dịch khớp; CI đạt. KICHBAN_KIEMTHU_737, 738 (sinh trắc học, mã khóa trên máy thật) chờ người dùng thử theo đặc tả mục 21.
+- Bảo mật phần B, C: không lỗi Nghiêm trọng, Cao còn mở; đã sửa việc thành viên cổng chưa thiết lập tự đăng ký ứng dụng xác thực sau thời hạn (commit `9e82952`); không ghi mã, khóa vào log; thư viện mới expo-local-authentication 58.0.2, @noble/hashes 2.4.0 (MIT); pnpm audit không mức Cao (1 Thấp, 5 Trung bình có từ trước).
+- Còn mở (không chặn): thử trên máy thật; sinh trắc học không tự tắt khi thêm vân tay mới (người dùng chấp nhận); ba mẫu ZNS và số tổng đài cài sau.
+- Kết luận cổng kiểm thử: Đạt phần tự động; chờ người dùng thử máy thật và nghiệm thu.
+
 ## Lần kiểm thử 2026-11-17 – Phát hành 0.12.0
 
 - Phạm vi: nhánh `phat-hanh/v0.12.0` từ main sau bản sửa LOI_14, gộp CONG_VIEC_69 (`4f132d8`), CONG_VIEC_70 (`a4f9612`) (pull request #179, commit hợp nhất `2c36bb9`). Không xung đột; không database migration mới.
