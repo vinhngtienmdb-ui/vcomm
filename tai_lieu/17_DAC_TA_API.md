@@ -2101,3 +2101,40 @@ Sửa API đã có:
 Mã lỗi mới: `401 DEVICE_VERIFICATION_REQUIRED` (`deviceVerificationRequired`, thêm vào mục 1); `401 UNAUTHENTICATED` `deviceVerificationExpired`; `409 BUSINESS_RULE` với `smartOtpWebNotAllowed`, `smartOtpNotActive`, `smartOtpLocked`, `loyaltyRedeemLocked`, `affiliateSmartOtpRequired`, `partnerSmartOtpActivationRequired`, `merchantPortalSmsDisabled`, `merchantPortalSecurityRequired`, `merchantPortalSecurityBlocked`, `merchantPortalPasswordNotNeeded`, `merchantPortalResetStaff`; lỗi trường `smartOtpCodeInvalid`, `transitionStartFuture`; `423 ACCOUNT_LOCKED` (`mfaResetLocked`, kèm `retryAfterSeconds`) khi quên mật khẩu cổng sai mã 5 lần trong 15 phút. Khóa `smartOtpPreferred` có trong `packages/i18n` nhưng máy chủ hiện không trả (đăng nhập bằng mã SMS của khách đã kích hoạt được xử lý như trên để không lộ trạng thái).
 
 Thông báo trong ứng dụng: `auth.new_device_login`, `auth.smart_otp_recovered`, `auth.smart_otp_revoked`, `auth.smart_otp_reminder`; `loyalty.smart_otp_locked` (như cũ). Nhật ký thao tác: theo tài liệu `07` QUYTAC_NGHIEPVU_572.
+
+## 2za. Mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16, CONG_VIEC_73)
+
+Gốc `/api/v1`. Kiểu dữ liệu: `packages/contracts/src/instore.ts`. Mã nguồn: `apps/api/src/instore/*.controller.ts`, `apps/api/src/retail/retail.controller.ts`, `apps/api/src/affiliate/affiliate.controller.ts`, `merchant-portal.controller.ts`, `buyer-affiliate.controller.ts`.
+
+Người mua (token ứng dụng VComm):
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_327 | `POST /buyer/instore/pay-code`; `GET /buyer/instore/checkouts/pending`; `POST /buyer/instore/checkouts/claim` (`token`); `GET /buyer/instore/checkouts/{id}`; `POST /buyer/instore/checkouts/{id}/pay` (`points`, `voucherCodeId`, `method`, `invoiceInfo`, `smartOtp`); `POST /buyer/instore/checkouts/{id}/decline` | Token ứng dụng; cấp mã chỉ cho thiết bị đang giữ Smart OTP | Mã thanh toán của thiết bị; đơn đang chờ mình (luồng 1); nhận đơn từ QR (luồng 2, 20 lần sai mỗi giờ); thanh toán (trả hướng dẫn cổng hoặc hoàn tất ngay); từ chối |
+| Bổ sung | `POST /buyer/affiliate/transactions/{id}/einvoice-link`; `GET /public/affiliate-einvoices/{token}` | Token ứng dụng; đường dẫn ký có hạn 10 phút | Mở PDF hóa đơn ủy nhiệm của giao dịch của mình |
+
+Nhân viên, cổng cửa hàng:
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_328 | `POST /retail/checkouts`; `GET /retail/checkouts/{id}`; `POST /retail/checkouts/{id}/pay-code`; `POST /retail/checkouts/{id}/cancel`; `POST /retail/checkouts/{id}/retry-posting` | `retail.sale`; ghi lại: `retail.shift.manage` | Đơn chờ ở quầy tập đoàn (giữ hàng, một đơn mỗi quầy) |
+| API_329 | `POST /merchant-portal/checkouts`; `GET /merchant-portal/checkouts/{id}`; `POST …/{id}/pay-code`; `POST …/{id}/cancel` | Thu ngân, chủ cửa hàng | Đơn chờ ở cổng cửa hàng (ba đơn mỗi thu ngân) |
+| API_331 | `PUT /affiliate/api-keys/{id}/webhook` (`url`, `version`); `POST …/webhook/rotate-secret`; `POST …/webhook/test`; `GET …/webhook/deliveries`; `POST /affiliate/webhook-deliveries/{id}/resend`; các đường dẫn tương ứng ở `/merchant-portal/…` | `affiliate.manage`; cổng: chủ cửa hàng | Webhook của khóa API; khóa ký trả một lần |
+| API_332 | `GET`, `PATCH /affiliate/merchants/{id}/collection`; `GET`, `PUT /finance/instore/gateway-fees`; `GET`, `PUT /finance/instore/settings` | `affiliate.manage`; `finance.instore.view`, `finance.instore.manage` | Cài đặt thu hộ (xác nhận pháp lý khi bật lần đầu), biểu phí cổng, thuế suất phí |
+| API_333 | `GET /finance/instore/payouts`, `GET …/{id}`, `POST …/{id}/transferred`, `POST …/{id}/receipt`; `GET /merchant-portal/payouts`, `GET …/{id}` | `finance.instore.view`, `finance.instore.manage`; cổng: chủ cửa hàng | Bảng chuyển tiền; ghi đã chuyển; ghi sổ phiếu thu nháp |
+| API_334 | `GET`, `PUT /affiliate/merchants/{id}/einvoice-mandate`; `POST`, `GET …/einvoice-mandate/file`; `POST /affiliate/transactions/{id}/einvoice` (lập bù); `GET /merchant-portal/transactions/{id}/einvoice.pdf` | `affiliate.manage`; tải PDF: cổng cửa hàng | Ủy nhiệm hóa đơn, lập bù, tải PDF |
+
+Open API (khóa phạm vi `instore.checkout`, gốc `/api/v1/open/instore`; đặc tả CONG_VIEC_73 mục 10 ghi `/open/affiliate`, mã nguồn dùng `/open/instore`):
+
+| Mã | Phương thức, đường dẫn | Mô tả |
+|---|---|---|
+| API_330 | `POST /checkouts` (`partnerCheckoutCode`, `outletId`, `billAmount`, `lines` có `vatRate`, `collectInApp`, `payCode`); `POST /checkouts/{code}/pay-code`; `GET /checkouts` (trạng thái, điểm bán, từ ngày, đến ngày, tối đa 100 dòng); `GET /checkouts/{code}`; `POST /checkouts/{code}/cancel` (chưa thanh toán); `POST /checkouts/{code}/refund` (đã thanh toán: hủy toàn bộ, hoàn tiền; gọi lại khi đã hoàn trả kết quả cũ) | `{code}` là mã đơn của phần mềm hoặc số `TT…`. Kết quả `OpenInstoreCheckout`: trạng thái, số `TT…`, số `LK…`, điểm, voucher, tiền thu hộ, phí sàn, thuế phí, phí cổng, lý do hủy, hoàn tiền (`none`, `pending`, `completed`), hóa đơn điện tử |
+
+Webhook gửi tới phần mềm cửa hàng: POST JSON, tiêu đề `X-VComm-Signature` (HMAC-SHA256 hex của `<thời điểm>.<thân>`), `X-VComm-Timestamp`, `X-VComm-Event-Id`; sự kiện `checkout.completed`, `checkout.expired`, `checkout.cancelled`, `checkout.declined`, `transaction.cancelled`, `refund.completed`; thân chứa `OpenInstoreCheckout`.
+
+Sửa API đã có:
+- API_196 (hóa đơn bán lẻ): nhận `customer.payCode` (18 số) thay `customer.smartOtp` khi dùng điểm; gửi cả hai bị từ chối.
+- Hoàn tiền (MAN_HINH_98): danh sách, ghi đã hoàn gồm việc hoàn tiền của đơn tại cửa hàng (`orderId` có thể trống, thêm `checkoutId`, `placeName`).
+- Hủy giao dịch `LK…` (cổng, Open API của CONG_VIEC_67): hủy được giao dịch đã thu hộ, lập hoàn tiền; thu ngân không hủy được giao dịch thu hộ.
+- Khóa API cửa hàng liên kết: thêm cờ `instoreCheckout`, thông tin webhook.
+- Hóa đơn điện tử: danh sách thêm `sellerName`, `sourceKind`, `mandated`, bộ lọc `mandated`; việc chờ xử lý trả hàng nhận `affiliateTransactionId`.

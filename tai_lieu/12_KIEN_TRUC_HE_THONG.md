@@ -496,3 +496,19 @@ Database migration 0158 đến 0160; không thêm mini app, không thêm hạ t�
 | Bảo mật cổng cửa hàng | `MerchantPortalSecurityService` (`apps/api/src/affiliate/portal-security.service.ts`) dùng lại `MfaService` (ứng dụng xác thực, mã dự phòng); yêu cầu xác thực hai lớp xét theo ứng dụng đăng nhập, không áp cho ứng dụng VComm (`vcomm_app`) | CHUC_NANG_246 |
 | Ứng dụng VComm | `apps/mobile-vcomm/src/lib/smart-otp.ts` (khóa TOTP, băm mã khóa trong `expo-secure-store`), `components/SmartOtpLock.tsx`, `DeviceVerification.tsx`, `SmartOtpRecovery.tsx`, `SmartOtpReminder.tsx`, `app/thiet-bi.tsx`, `app/smart-otp/dat-ma-khoa.tsx` | MAN_HINH_269 đến 272 |
 | Giao diện web | `apps/web-crm`: `/buyer-authentication` (`AuthenticationCard.tsx`), khối `BuyerSecurity.tsx` ở chi tiết người mua; `apps/web-affiliate`: `/bao-mat`, `/quen-mat-khau`, trang đăng nhập | MAN_HINH_273 đến 275 |
+
+## 3zd. Thành phần phụ trợ cho mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16, CONG_VIEC_73)
+
+Database migration 0161 đến 0164, 0171, 0172; schema mới `instore`; không thêm mini app, không thêm hạ tầng. Thư viện mới chỉ ở ứng dụng VComm: `expo-brightness` 58.0.2 (tài liệu `13` mục 13).
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Mã thanh toán | `apps/api/src/instore/pay-code.service.ts` (cấp mã, đọc mã 18 số qua dịch vụ Smart OTP của phần xác thực, giới hạn quét sai trong `instore.attempt_failures`); ứng dụng `apps/mobile-vcomm/src/lib/pay-code.ts` (Code 128 bộ C tự vẽ bằng `react-native-svg`) | CHUC_NANG_247 |
+| Đơn chờ thanh toán | `InstoreCheckoutsService` (`apps/api/src/instore/checkouts.service.ts`): tạo, gắn khách, thanh toán, hoàn tất, hết hạn, hủy, hoàn tiền; bộ xử lý theo loại (`retail`: `apps/api/src/retail/retail-checkouts.service.ts`; `affiliate`: `apps/api/src/affiliate/affiliate-checkouts.service.ts`); móc `registerCompletionHook`, `registerEventHook` (webhook, iPOS) | CHUC_NANG_248 |
+| Cổng thanh toán | Sổ thanh toán `marketplace.payments` nhận `checkout_id`; bộ xử lý kết quả cổng chung rẽ theo đơn VComm hoặc đơn chờ; hoàn tiền `marketplace.refunds` (`RefundsService`) | CHUC_NANG_248, 250 |
+| Bảng chuyển tiền, hạch toán | `InstorePayoutsService` (`apps/api/src/instore/payouts.service.ts`): bút toán nhận tiền, lập bảng, ghi đã chuyển, hủy, hoàn tiền; móc khoản trừ `registerDeductionHook` cho CONG_VIEC_74 | CHUC_NANG_250 |
+| Hóa đơn ủy nhiệm | `InstoreEinvoicesService` (`apps/api/src/instore/mandated-einvoices.service.ts`) dùng lại `EinvoicesService`; `apps/api/src/einvoice/mandates.ts` (nhà cung cấp hỗ trợ ủy nhiệm: bộ giả lập; MISA báo "Lỗi cài đặt") | CHUC_NANG_251 |
+| Open API, webhook | `OpenInstoreCheckoutsService` (`apps/api/src/instore/open-checkouts.service.ts`), `AffiliateWebhooksService` (`apps/api/src/affiliate/webhooks.service.ts`, chữ ký HMAC-SHA256, gửi qua `fetch` thay được khi kiểm thử) | CHUC_NANG_249 |
+| Việc nền (`apps/api/src/jobs/background-jobs.ts`, giờ Việt Nam) | `instore-checkout-expiry` mỗi phút; `instore-payouts-daily` 1 giờ sáng; `instore-payouts-overdue` 8 giờ 5 sáng thứ Hai đến thứ Sáu; `instore-fee-invoices-monthly` 2 giờ sáng ngày 1; `affiliate-webhooks` mỗi phút | CHUC_NANG_248, 249, 250, 251 |
+| Ứng dụng VComm | `app/ma-thanh-toan.tsx` (MAN_HINH_276), `app/thanh-toan-cua-hang/[id].tsx` (MAN_HINH_277), `app/quet-ma-cua-hang.tsx`, `app/tt/[token].tsx` | MAN_HINH_276, 277 |
+| Giao diện web | `apps/web-retail/src/components/AppPaymentDialog.tsx` (MAN_HINH_278); `apps/web-crm`: `AffiliateCollection.tsx`, `AffiliateEinvoiceMandate.tsx` (MAN_HINH_279), `AffiliateApiKeys.tsx` (MAN_HINH_231); `apps/web-finance`: `/instore-gateway-fees` (MAN_HINH_280), `/instore-payouts` (MAN_HINH_281); `apps/web-affiliate`: `/payouts` (MAN_HINH_282), `/connection` (MAN_HINH_232); khối webhook dùng chung `packages/ui/src/components/AffiliateWebhook.tsx` | MAN_HINH_278 đến 282, 231, 232 |

@@ -1024,3 +1024,27 @@ Vai trò khác: quản trị công ty tự gán `ai.chat.use`, `ai.product_conte
 | Đặt lại xác thực cổng cho chủ cửa hàng | Không | Không | Không | Có (MAN_HINH_178) | Không | Không | Không |
 | Thiết lập bảo mật, quên mật khẩu cổng | Không | Không | Không | Không | Của mình | Của mình | Không |
 | Thiết bị đã đăng nhập, kích hoạt, chuyển Smart OTP | Không | Không | Không | Không | Không | Không | Của mình |
+
+## 61. Mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16, CONG_VIEC_73)
+
+- Hai quyền mới của mini app Tài chính – Kế toán (`finance`), danh mục `apps/api/src/permissions/permission-catalog.ts`. Kế toán có `finance.instore.view`; Kế toán trưởng có cả hai; Quản trị tập đoàn, Quản trị công ty có sẵn.
+- Quyền dùng lại: `retail.sale` tạo, hủy đơn chờ ở quầy tập đoàn; `retail.shift.manage` ghi lại đơn "Đã thu, lỗi ghi sổ"; quyền cài đặt cửa hàng (MAN_HINH_166) bật nhận thanh toán qua ứng dụng, phí sàn; `affiliate.manage` cài thu hộ, ủy nhiệm hóa đơn, lập bù, phạm vi `instore.checkout` và webhook của khóa API; quyền hoàn tiền hiện có (MAN_HINH_98) ghi đã hoàn tiền cho đơn tại cửa hàng.
+- Vai trò cổng cửa hàng liên kết: thu ngân, chủ cửa hàng tạo, hủy đơn chờ (thu ngân tối đa ba đơn chờ); chỉ chủ cửa hàng hủy giao dịch đã thu hộ, xem bảng chuyển tiền (MAN_HINH_282), cài webhook của khóa (MAN_HINH_232).
+- Khóa API: phạm vi `instore.checkout` (gán thêm cho khóa `loyalty.member` của cửa hàng liên kết) gọi API_330; hủy đã thanh toán theo cùng quy tắc chủ cửa hàng.
+- Người mua: chỉ thấy, thanh toán đơn đã gắn với mình; mã thanh toán chỉ cấp cho thiết bị đang giữ Smart OTP.
+
+| Quyền | Mini app | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|---|
+| `finance.instore.view` | Tài chính – Kế toán (`finance`) | Công ty | Không | Kế toán, Kế toán trưởng, Quản trị tập đoàn, Quản trị công ty |
+| `finance.instore.manage` | Tài chính – Kế toán (`finance`) | Công ty | Có | Kế toán trưởng, Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | `finance.instore.view` | `finance.instore.manage` | `affiliate.manage` | Chủ cửa hàng | Thu ngân cửa hàng | Khóa API `instore.checkout` | Người mua |
+|---|---|---|---|---|---|---|---|
+| Xem biểu phí cổng, thuế suất phí, bảng chuyển tiền (MAN_HINH_280, 281) | Có | Có | Không | Không | Không | Không | Không |
+| Sửa biểu phí cổng, thuế suất phí; ghi đã chuyển; ghi sổ phiếu thu nháp | Không | Có | Không | Không | Không | Không | Không |
+| Cài thu hộ, ủy nhiệm hóa đơn, lập bù (MAN_HINH_279) | Không | Không | Có | Không | Không | Không | Không |
+| Webhook của khóa (MAN_HINH_231, 232) | Không | Không | Có | Có, khóa của cửa hàng mình | Không | Không | Không |
+| Tạo, hủy đơn chờ chưa thanh toán | Không | Không | Không | Có | Có | Có | Không |
+| Hủy giao dịch đã thu hộ, hoàn tiền | Không | Không | Không | Có | Không | Có | Không |
+| Bảng chuyển tiền của cửa hàng (MAN_HINH_282) | Không | Không | Không | Có | Không | Không | Không |
+| Thanh toán đơn, xem hóa đơn ủy nhiệm | Không | Không | Không | Không | Không | Không | Đơn của mình |

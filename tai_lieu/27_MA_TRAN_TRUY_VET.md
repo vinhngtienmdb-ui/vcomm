@@ -924,3 +924,21 @@ Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229,
 - Mã nguồn không truy được về yêu cầu nào: Không có (`packages/contracts/src/authentication.ts`, phần CONG_VIEC_72 của `packages/contracts/src/index.ts`, `affiliate.ts`, `loyalty-partners.ts`; `apps/api/src/permissions/permission-catalog.ts`; `apps/web-crm/src/components/CrmShell.tsx`; `packages/i18n` phục vụ CHUC_NANG_242 đến 246).
 
 Màn hình MAN_HINH_269 đến 275. API_318, 319, 321 đến 326 (API_320 không dùng – điều chỉnh L4).
+
+## 49. Kiểm tra bao phủ CONG_VIEC_73 – 2026-11-17
+
+| Yêu cầu | Quy tắc | Chức năng | Màn hình, API | Tiêu chí | Kịch bản | Mã nguồn | Tệp kiểm thử |
+|---|---|---|---|---|---|---|---|
+| YCAU_NGHIEPVU_205 | QUYTAC_NGHIEPVU_574, 592 | CHUC_NANG_247 | MAN_HINH_276; sửa MAN_HINH_161; API_327; sửa API_196 | TIEUCHI_NGHIEMTHU_546 | KICHBAN_KIEMTHU_750, 751 | database migration 0161; `apps/api/src/instore/pay-code.service.ts`; `apps/mobile-vcomm/src/app/ma-thanh-toan.tsx`, `lib/pay-code.ts` | `apps/api/test/c73-instore-checkouts.test.ts`, `c73-instore-retail.test.ts` |
+| YCAU_NGHIEPVU_205 | QUYTAC_NGHIEPVU_573, 575 đến 582 | CHUC_NANG_248 | MAN_HINH_277, 278; sửa MAN_HINH_161, 166, 174, 181; API_327, API_328, API_329 | TIEUCHI_NGHIEMTHU_547 đến 553 | KICHBAN_KIEMTHU_752 đến 759 | database migration 0161 đến 0163; `apps/api/src/instore/checkouts.service.ts`, `retail/retail-checkouts.service.ts`, `affiliate/affiliate-checkouts.service.ts`; `apps/web-retail/src/components/AppPaymentDialog.tsx`; `apps/mobile-vcomm/src/app/thanh-toan-cua-hang/[id].tsx` | `c73-instore-checkouts.test.ts`, `c73-instore-retail.test.ts`, `c73-instore-affiliate.test.ts` |
+| YCAU_NGHIEPVU_208 | QUYTAC_NGHIEPVU_590, 591, 592 | CHUC_NANG_249 | sửa MAN_HINH_231, 232; API_330, API_331 | TIEUCHI_NGHIEMTHU_558 | KICHBAN_KIEMTHU_764, 765 | database migration 0172; `apps/api/src/instore/open-checkouts.service.ts`, `affiliate/webhooks.service.ts`; `packages/ui/src/components/AffiliateWebhook.tsx` | `c73-instore-open-api.test.ts` |
+| YCAU_NGHIEPVU_206 | QUYTAC_NGHIEPVU_583 đến 587 | CHUC_NANG_250 | MAN_HINH_279, 280, 281, 282; sửa MAN_HINH_98; API_332, API_333 | TIEUCHI_NGHIEMTHU_553 đến 556 | KICHBAN_KIEMTHU_759 đến 762 | database migration 0163, 0164, 0172; `apps/api/src/instore/payouts.service.ts`, `marketplace/payments/refunds.service.ts`; `apps/web-finance/src/app/instore-payouts`, `instore-gateway-fees`; `apps/web-affiliate/src/app/payouts` | `c73-instore-payouts.test.ts`, `c73-instore-payouts-retail.test.ts`, `c73-instore-refunds.test.ts`, `c73-instore-affiliate.test.ts` |
+| YCAU_NGHIEPVU_207 | QUYTAC_NGHIEPVU_583 (hóa đơn khi hủy), 587 (hóa đơn phí sàn), 588, 589 | CHUC_NANG_251 | MAN_HINH_279; sửa MAN_HINH_54; API_334 | TIEUCHI_NGHIEMTHU_555, 557 | KICHBAN_KIEMTHU_761, 763 | database migration 0171, 0172; `apps/api/src/instore/mandated-einvoices.service.ts`, `einvoice/mandates.ts`; `apps/web-crm/src/components/AffiliateEinvoiceMandate.tsx` | `c73-instore-einvoices.test.ts`, `c73-instore-refunds.test.ts` |
+| YCAU_NGHIEPVU_205 đến 208 | — | CHUC_NANG_247 đến 251 | Tất cả màn hình trên | TIEUCHI_NGHIEMTHU_559 | KICHBAN_KIEMTHU_766, 767 | — | Phân quyền trong các tệp trên; ảnh xem trước L1 đến L7 |
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_205 → CHUC_NANG_247, 248; 206 → 250; 207 → 251; 208 → 249).
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_573, 575 đến 582 → CHUC_NANG_248; 574 → 247; 583 đến 587 → 250; 583, 588, 589 → 251; 590, 591 → 249; 592 → 247, 249).
+- Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_247 → TIEUCHI_NGHIEMTHU_546; 248 → 547 đến 553; 249 → 558; 250 → 553 đến 556; 251 → 555, 557; tất cả → 559).
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_276, 277 ứng dụng VComm; 278 `web-retail`; 279 `web-crm`; 280, 281 `web-finance`; 282 `web-affiliate`; sửa MAN_HINH_54, 98, 161, 166, 174, 181, 231, 232).
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (546 → KICHBAN_KIEMTHU_750, 751; 547 → 752, 753; 548 → 754; 549 → 755; 550 → 756; 551 → 757; 552 → 758; 553 → 759; 554 → 760; 555 → 761; 556 → 762; 557 → 763; 558 → 764, 765; 559 → 766, 767).
+- Kịch bản chưa có kiểm thử chạy được: KICHBAN_KIEMTHU_751 phần sau thời hạn chuyển đổi (chặn mã thành viên cũ chưa làm); KICHBAN_KIEMTHU_767 thủ công.

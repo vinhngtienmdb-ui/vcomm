@@ -1464,3 +1464,18 @@ Kết quả rà soát bảo mật CONG_VIEC_72 (2026-11-17):
 - Không ghi mã Smart OTP, mã SMS, mã khóa, khóa TOTP vào log, nhật ký thao tác, thông báo lỗi; mã SMS chỉ in ra log trên máy phát triển khi chưa cài eSMS (đã có từ trước, chặn khi `NODE_ENV=production`).
 - Thư viện mới `expo-local-authentication` 58.0.2, `@noble/hashes` 2.4.0 (MIT, cố định phiên bản). `pnpm audit --prod`: không có mức Cao (1 Thấp, 5 Trung bình là phụ thuộc có từ trước).
 - Giới hạn đã biết, người dùng chấp nhận 2026-11-17: sinh trắc học không tự tắt khi thêm vân tay, khuôn mặt mới trên máy.
+
+## Kiểm soát mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (CONG_VIEC_73)
+
+- Mã thanh toán động: 12 số của thiết bị lưu băm HMAC-SHA256, 6 số là Smart OTP kiểm như đăng nhập (mỗi bước một lần, sai 5 lần khóa 15 phút); mã chỉ cấp cho thiết bị đang giữ Smart OTP, cấp lại thì mã cũ hết hiệu lực; không chứa số điện thoại, tên.
+- Quét mã sai tối đa 10 lần mỗi giờ mỗi thu ngân, khóa API; mở đường dẫn QR sai tối đa 20 lần mỗi giờ mỗi người mua (`instore.attempt_failures`). Mã QR 128 bit ngẫu nhiên, lưu băm, hết hạn cùng đơn; khách đầu tiên giữ đơn.
+- Kết quả cổng chỉ nhận qua thông báo có chữ ký, đúng số tiền, một lần; trang trả về chỉ để hiển thị.
+- Tiền, chứng từ, điểm, bút toán ghi trong một giao dịch cơ sở dữ liệu, khóa đơn `FOR UPDATE`.
+- Webhook: khóa ký mã hóa bằng `secret-box`, hiện một lần khi cấp; chữ ký HMAC-SHA256 trên thời điểm và thân để máy nhận chống phát lại; chỉ gửi tới địa chỉ HTTPS.
+- Open API: phạm vi `instore.checkout` gán riêng; khóa chỉ thấy đơn của cửa hàng của khóa; hủy đã thanh toán theo cùng quy tắc chủ cửa hàng.
+- Hóa đơn ủy nhiệm: tệp văn bản ủy nhiệm chỉ người có `affiliate.manage` tải; khách mở PDF qua đường dẫn ký có hạn 10 phút.
+- Thu hộ mặc định tắt; bật lần đầu phải xác nhận cảnh báo pháp lý, ghi người, thời điểm xác nhận.
+- Nhật ký thao tác: bật, tắt thu hộ, sửa phí, biểu phí cổng, dữ liệu ủy nhiệm, ghi đã chuyển, cấp lại khóa ký, lập bù hóa đơn; không ghi mã động, khóa ký.
+- Thư viện mới ở ứng dụng VComm: `expo-brightness` 58.0.2 (MIT), người dùng duyệt 2026-11-17.
+- Rủi ro chuyển cho người dùng (đặc tả CONG_VIEC_73 mục 20): hồ sơ pháp lý trung gian thanh toán; tính hợp lệ ủy nhiệm lập hóa đơn; kế toán trưởng xác nhận tài khoản 3388. Không bật thu hộ trên môi trường thật khi chưa xác nhận.
+- Đã sửa trong lúc làm: sửa khóa API cửa hàng liên kết trả lỗi 500 (CONG_VIEC_67, thiếu cột cửa hàng khi đọc khóa).

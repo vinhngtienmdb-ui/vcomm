@@ -6205,3 +6205,28 @@ Dữ liệu chung: dữ liệu mẫu CONG_VIEC_24 (`apps/api/test/marketplace-fi
 | KICHBAN_KIEMTHU_749 | 545 | Tham số: phạm vi giá trị, phiên bản, ngày bắt đầu không sau hôm nay, nhật ký; thống kê đúng số; phân quyền | Tích hợp | `apps/api/test/c72-authentication-settings.test.ts` |
 
 KICHBAN_KIEMTHU_737, 738 là kiểm thử bằng tay trên máy thật qua Expo Go (đặc tả mục 14; lát L2): mã khóa, vân tay, khuôn mặt, đổi vân tay chỉ chạy trên điện thoại thật. `c72-authentication-settings.test.ts` có thêm hai kiểm thử database migration (Smart OTP ở schema `core`, thiết bị tin cậy, trạng thái bảo mật tài khoản, tham số mặc định; kích hoạt ghi nền tảng và lần kích hoạt đầu tiên). Hồi quy (đặc tả mục 18, lát L1): kiểm thử của CONG_VIEC_53, 65, 67 sau khi chuyển bảng Smart OTP sang `core`.
+
+## CHUC_NANG_247 đến CHUC_NANG_251: mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (CONG_VIEC_73)
+
+Dữ liệu chung: dữ liệu mẫu CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); cửa hàng tập đoàn, quầy, ca của CONG_VIEC_53; cửa hàng liên kết, chủ, thu ngân của CONG_VIEC_55; khách kích hoạt Smart OTP và tính mã bằng khóa TOTP trong kiểm thử; cổng VNPAY và nhà cung cấp hóa đơn là bộ giả lập; máy nhận webhook thay bằng hàm giả. Kết quả chạy ngày 2026-11-17: bộ đầy đủ API 169 tệp, 944 ca đạt.
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_750 | 546 | Cấp mã thanh toán; mã đúng, lệch một bước, dùng lại, quét sai vượt giới hạn, mã cũ sau cấp lại; khách đang khóa dùng điểm vẫn định danh được | Tích hợp | `apps/api/test/c73-instore-checkouts.test.ts` |
+| KICHBAN_KIEMTHU_751 | 546 | Mã thành viên cũ trong thời hạn chuyển đổi | Tích hợp | `apps/api/test/c55-transactions.test.ts` (trong thời hạn). Phần sau thời hạn chưa làm, chưa có kiểm thử (mục 20 đặc tả) |
+| KICHBAN_KIEMTHU_752 | 547 | Tạo đơn quầy: tổng đổi so với lúc xem, giữ hàng, trùng khóa, hai yêu cầu cùng lúc, quầy đã có đơn chờ, đóng ca bị chặn | Tích hợp | `apps/api/test/c73-instore-retail.test.ts`, `c73-instore-checkouts.test.ts` |
+| KICHBAN_KIEMTHU_753 | 547 | Hết hạn, hủy, từ chối: nhả giữ hàng, hoàn điểm, trả voucher | Tích hợp | `c73-instore-checkouts.test.ts`, `c73-instore-retail.test.ts`, `c73-instore-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_754 | 548 | Luồng 1: quét đúng, đơn đã có khách, quét sai vượt giới hạn; ba đơn mỗi thu ngân | Tích hợp | `c73-instore-checkouts.test.ts`, `c73-instore-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_755 | 549 | Luồng 2: nhận đơn, người thứ hai, mã sai, mã hết hạn | Tích hợp | `c73-instore-checkouts.test.ts` |
+| KICHBAN_KIEMTHU_756 | 550 | Chọn điểm có voucher, giới hạn tối thiểu, tối đa; dùng điểm cần mã Smart OTP; mã của khách khác, gửi cả hai loại mã ở quầy | Tích hợp | `c73-instore-retail.test.ts`, `c73-instore-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_757 | 551 | Kết quả cổng thành công ghi chứng từ; tiền về sau hạn lập việc chờ hoàn tiền | Tích hợp | `c73-instore-retail.test.ts`, `c73-instore-affiliate.test.ts`; chữ ký, số tiền, gửi trùng dùng kiểm thử khung cổng CONG_VIEC_25 |
+| KICHBAN_KIEMTHU_758 | 552 | Hoàn tất tập đoàn: hóa đơn bán lẻ dòng "Ứng dụng VComm"; lỗi ghi sổ, Cửa hàng trưởng ghi lại, thu ngân không hủy; hủy đơn đã thu lập hoàn tiền | Tích hợp | `c73-instore-retail.test.ts` |
+| KICHBAN_KIEMTHU_759 | 553 | Thu hộ tắt, bật (tài khoản nhận tiền, xác nhận lần đầu); luồng 1 thu hộ; luồng 2 thu tại quầy; móc iPOS | Tích hợp | `c73-instore-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_760 | 554 | Bảng chuyển tiền: thuế suất riêng, khoản trừ khác N làm tiền chuyển âm, mang sang, ghi đã chuyển, quá hạn 2 ngày làm việc; ghi ngược L sau hủy | Tích hợp | `c73-instore-payouts.test.ts`, `c73-instore-refunds.test.ts` |
+| KICHBAN_KIEMTHU_761 | 555 | Bút toán hai công ty (112, 331, 3368, 1368, 131, 511, 33311, 6418, 1331, 3388); hóa đơn phí sàn tháng, trừ phần ghi ngược | Tích hợp | `c73-instore-payouts.test.ts`, `c73-instore-payouts-retail.test.ts`, `c73-instore-einvoices.test.ts`, `c73-instore-refunds.test.ts` |
+| KICHBAN_KIEMTHU_762 | 556 | Dư nợ trừ tiền thu hộ chờ chuyển | Tích hợp | `c73-instore-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_763 | 557 | Hóa đơn ủy nhiệm: đủ dữ liệu, thiếu, hết hiệu lực, MISA, lập bù, dòng có thuế suất, một dòng mặc định, voucher chiết khấu; hủy chưa phát hành, đã phát hành | Tích hợp | `c73-instore-einvoices.test.ts`, `c73-instore-refunds.test.ts` |
+| KICHBAN_KIEMTHU_764 | 558 | Open API: phạm vi khóa, tạo, gửi lại cùng mã, tra theo mã đơn và `TT…`, hủy chưa thanh toán, đã thanh toán phải dùng refund, hoàn tiền gọi lại trả kết quả cũ, trạng thái hoàn tiền | Tích hợp | `c73-instore-open-api.test.ts`; tuần đã chốt dùng `c55-*` |
+| KICHBAN_KIEMTHU_765 | 558 | Webhook: chữ ký, gửi thử, thử lại 1, 5, 30 phút, 2, 6, 24 giờ rồi dừng, gửi lại, khóa ký hiện một lần | Tích hợp | `c73-instore-open-api.test.ts` |
+| KICHBAN_KIEMTHU_766 | 559 | Phân quyền: thu ngân không xem bảng chuyển tiền, không hủy giao dịch thu hộ, không ghi lại đơn lỗi ghi sổ; khóa chưa có phạm vi | Tích hợp | `c73-instore-payouts.test.ts`, `c73-instore-affiliate.test.ts`, `c73-instore-retail.test.ts`, `c73-instore-open-api.test.ts` |
+| KICHBAN_KIEMTHU_767 | 559 | Giao diện ứng dụng (mã, đơn, kết quả), quầy, cổng, quản trị | Thủ công, ảnh xem trước từng lát L1 đến L7 | Thủ công |

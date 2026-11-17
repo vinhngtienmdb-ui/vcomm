@@ -784,3 +784,24 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | TIEUCHI_NGHIEMTHU_543 | CHUC_NANG_246 | Cổng cửa hàng: mật khẩu và mã ứng dụng xác thực (hoặc mã dự phòng), Zalo vẫn hỏi mã; kích hoạt lời mời có thiết lập; hết hạn bỏ SMS; đặt lại xác thực; quên mật khẩu; người mua là thành viên cổng không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_544 | CHUC_NANG_245 | Nhắc kích hoạt: thẻ nhắc, thông báo đúng ngày, một tin ZNS 7 ngày trước hạn khi có mẫu, không gửi trùng | Gọi dịch vụ việc nền | Mong muốn |
 | TIEUCHI_NGHIEMTHU_545 | CHUC_NANG_245 | Tham số chuyển đổi sửa được có nhật ký; thống kê kích hoạt, số tin SMS theo mục đích | Gọi API | Mong muốn |
+
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm, CONG_VIEC_73)
+
+Dữ liệu mẫu: dữ liệu mẫu CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`), cửa hàng tập đoàn CONG_VIEC_53, cửa hàng liên kết CONG_VIEC_55; cổng VNPAY bộ giả lập; nhà cung cấp hóa đơn bộ giả lập. Người dùng nghiệm thu ngày 2026-11-17.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_546 | CHUC_NANG_247 | Mã động: chỉ hiện sau khi mở Smart OTP; đổi mỗi 30 giây, không cần mạng; QR và Code 128 cùng nội dung; máy chủ nhận bước hiện tại, lệch một bước, mỗi bước một lần; sai 5 lần khóa 15 phút; không chứa thông tin cá nhân | Gọi API; ảnh xem trước | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_547 | CHUC_NANG_248 | Đơn chờ: tạo đúng nội dung, khóa yêu cầu không tạo trùng, hạn 10 phút, giữ hàng và nhả khi hết hạn, hủy, từ chối; giới hạn đơn chờ; chặn đóng ca khi còn đơn chờ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_548 | CHUC_NANG_248 | Luồng 1: quét mã động gắn khách, ứng dụng tự hiện đơn; một đơn một khách | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_549 | CHUC_NANG_248 | Luồng 2: QR mở đúng đơn trên ứng dụng; người thứ hai bị chặn; mã hết hạn bị chặn | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_550 | CHUC_NANG_248 | Khách chọn điểm, voucher trong giới hạn hiện có; cần mở Smart OTP khi dùng điểm; khóa dùng điểm sau khôi phục; trả hết bằng điểm hoàn tất ngay | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_551 | CHUC_NANG_248 | Thanh toán qua cổng: chỉ nhận kết quả có chữ ký, đúng số tiền, một lần; hết hạn hoàn điểm, voucher; thanh toán sau hết hạn lập việc chờ hoàn tiền | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_552 | CHUC_NANG_248 | Cửa hàng tập đoàn: hóa đơn bán lẻ, đơn bán, phiếu xuất, bút toán, hóa đơn máy tính tiền, điểm đúng; dòng "Ứng dụng VComm" không vào tiền ca; lỗi ghi sổ chuyển trạng thái chờ xử lý | Gọi API, truy vấn cơ sở dữ liệu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_553 | CHUC_NANG_248, 250 | Cửa hàng liên kết: giao dịch `LK…` đúng tiền thu hộ, phí; thu hộ tắt thì như cũ; công tắc mặc định tắt, có xác nhận khi bật | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_554 | CHUC_NANG_250 | Phí sàn, phí cổng, bảng chuyển tiền ngày đúng công thức (gồm khoản trừ khác N), mang số âm sang, ghi ngược hủy; ghi đã chuyển lập phiếu chi, phiếu thu | Gọi dịch vụ việc nền, gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_555 | CHUC_NANG_250, 251 | Bút toán hai công ty đúng tài khoản; hóa đơn phí sàn tháng | Truy vấn cơ sở dữ liệu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_556 | CHUC_NANG_250 | Dư nợ cửa hàng liên kết trừ tiền thu hộ chờ chuyển | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_557 | CHUC_NANG_251 | Hóa đơn ủy nhiệm: đúng người bán, ký hiệu riêng, dòng ủy nhiệm, dòng hàng, điểm là phương thức thanh toán; thiếu dữ liệu ghi việc chờ, lập bù được; hủy giao dịch tạo việc chờ xử lý hóa đơn | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_558 | CHUC_NANG_249 | Open API và webhook: tạo, gắn mã, tra trạng thái, hủy chưa thanh toán, hủy đã thanh toán và hoàn tiền (chỉ khi tuần chưa chốt), trạng thái hoàn tiền; webhook có chữ ký, thử lại theo lịch, gửi lại, gửi thử; phạm vi khóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_559 | CHUC_NANG_247 đến 251 | Giao diện ứng dụng, quầy, cổng, quản trị chạy được trên bản xem trước; phân quyền từng màn hình | Ảnh xem trước từng lát; gọi API phân quyền | Bắt buộc |
