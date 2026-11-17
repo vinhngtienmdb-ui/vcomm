@@ -105,7 +105,7 @@ function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffilia
     try {
       await api(`/buyer/affiliate/transactions/${request.transactionId}/${action}`, {
         method: "POST",
-        body: JSON.stringify(action === "confirm" ? { points: used, voucherCodeId, ...(code ? { code } : {}) } : code ? { code } : {}),
+        json: action === "confirm" ? { points: used, voucherCodeId, ...(code ? { code } : {}) } : code ? { code } : {},
       });
       onDone(action === "confirm" ? t("affiliateConfirmed") : t("affiliateDeclined"));
     } catch (failure) {
@@ -155,7 +155,7 @@ function MemberCode({ vouchers, onError }: { vouchers: BuyerVoucherCode[]; onErr
   const [code, setCode] = useState<BuyerMemberCode | null>(null);
   const create = useCallback(async () => {
     try {
-      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", body: JSON.stringify({ points: Number(value.replace(/\D/g, "")) || 0, voucherCodeId }) }));
+      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", json: { points: Number(value.replace(/\D/g, "")) || 0, voucherCodeId } }));
     } catch (failure) {
       onError(failure);
     }
@@ -190,7 +190,7 @@ function Vouchers({ offers, mine, onClaimed, onError }: { offers: BuyerVoucherOf
   async function claim(offer: BuyerVoucherOffer) {
     setBusy(offer.id);
     try {
-      await api(`/buyer/affiliate/vouchers/${offer.id}/claim`, { method: "POST", body: "{}" });
+      await api(`/buyer/affiliate/vouchers/${offer.id}/claim`, { method: "POST" });
       onClaimed(offer.pointsPrice ? t("affiliateVoucherClaimedPoints", { points: points(offer.pointsPrice) }) : t("affiliateVoucherClaimed"));
     } catch (failure) {
       onError(failure);
@@ -314,7 +314,7 @@ export default function AffiliateScreen() {
                   .catch(fail);
                 return;
               }
-              api<BuyerAffiliateRequest>("/buyer/affiliate/scan", { method: "POST", body: JSON.stringify({ code }) })
+              api<BuyerAffiliateRequest>("/buyer/affiliate/scan", { method: "POST", json: { code } })
                 .then((request) => setScanned({ request, code }))
                 .catch(fail);
             }}

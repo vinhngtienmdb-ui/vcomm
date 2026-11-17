@@ -183,6 +183,74 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – Phát hành 0.13.1
+- Phạm vi: nhánh `phat-hanh/v0.13.1` từ main `56bbc8f`, gộp LOI_15 (pull request #198).
+- Kết quả: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt; CI trên main đạt, tag `v0.13.1`.
+- Kết luận: Đạt.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L5
+- Phạm vi: trả hàng (một phần với tiền mặt, VietQR; hủy toàn bộ khi có điểm, voucher), báo cáo cửa hàng, xuất Excel (database migration 0170, API_343, 344, 350, 351, MAN_HINH_290, 293, 298 đến 300); commit `99317054`, `98c35afc`, `eed6faaa`.
+- Kết quả: kiểm thử c55, c73, c74 63/63 đạt; kiểm tra kiểu, lint đạt.
+- Kết luận: Đạt lát L5; người dùng duyệt 2026-11-17, chấp nhận 6 điều chỉnh.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L4
+- Phạm vi: thu hộ tại cửa hàng liên kết, voucher trên MAN_HINH_277 (database migration 0163, API_329, 332, MAN_HINH_174, 181, 277, 279, 280); commit `10852e5`, `afc23e3`, `8bbe344`, `3ba2421`.
+- Kết quả: toàn bộ kiểm thử API 164 tệp, 919 đạt; kiểm tra kiểu đạt; khóa dịch khớp; chạy thật trên cổng cửa hàng, web-crm, web-finance, ứng dụng bản web (voucher 30.000 đ, 100 điểm, trả 320.000 đ qua VNPAY giả lập; chuyển cho cửa hàng 310.740 đ).
+- Kết luận: Đạt lát L4; người dùng duyệt 2026-11-17, chấp nhận 7 điểm lệch.
+
+## Lần kiểm thử 2026-11-17 – LOI_15
+- Phạm vi: `apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx` (quét mã, xác nhận, từ chối giao dịch, tạo mã thành viên dùng `json:`; bỏ thân thừa ở nhận voucher); nhánh `sua-loi/LOI_15-gui-du-lieu-cua-hang-lien-ket` (pull request #196, commit `491a7a0`).
+- Kết quả: tái hiện thủ công trên bản web với API thật (Hiện mã thành viên): trước sửa thất bại (400 VALIDATION_FAILED), sau sửa đạt (200, hiện mã QR); kiểm tra mức HTTP các đường scan, confirm, decline, claim đạt; rà mobile-warehouse và các ứng dụng web không có chỗ cùng lỗi. Hồi quy: typecheck 19/19, lint 4/4, kiểm thử API 154 tệp, 875 đạt.
+- Kết luận: Đạt; người dùng nghiệm thu 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L4 (phần làm được)
+- Phạm vi: VietQR, điểm và voucher qua service CONG_VIEC_55, 67, đơn chờ thanh toán (database migration 0169, API_341); nhánh `chuc-nang/CONG_VIEC_74-ipos` (commit `f211aa58`, `a797a703`).
+- Kết quả: kiểm thử c55, c73, c74 60/60 đạt (c74-payments: KICHBAN_KIEMTHU_784, 789 phần tạo, gắn mã, hủy); typecheck 20/20, lint 5/5. Chưa làm: khách trả toàn bộ qua ứng dụng VComm (chờ CONG_VIEC_73 lát L4).
+- Kết luận: Đạt phần đã làm; người dùng duyệt 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L3
+- Phạm vi: quét mã thanh toán 18 số thay mã 6 số khi dùng điểm tại quầy (MAN_HINH_161), nút "Tăng độ sáng" (MAN_HINH_276, expo-brightness 58.0.2); nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (commit `fe84cf6`, `6501064`).
+- Kết quả: toàn bộ kiểm thử API 163 tệp, 912 đạt; kiểm tra kiểu 19/19; khóa dịch khớp; chạy thật trên trình duyệt. Nút tăng độ sáng chỉ kiểm được trên điện thoại thật.
+- Kết luận: Đạt lát L3; người dùng duyệt 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L3
+- Phạm vi: bán hàng tiền mặt, ca, thu chi, đóng ca, giỏ treo, hóa đơn, in và in lại, mở ngăn kéo, cài đặt bán hàng (database migration 0168, API_337 đến 340, 342, 352, MAN_HINH_285 đến 289, 291, 292, 302); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `f1617786`, `d5238fd6`).
+- Kết quả: kiểm thử c74 và c55 39/39 đạt (c74-sales: KICHBAN_KIEMTHU_780 phần tồn âm, 781, 782, 783, 785 ba quầy 300 hóa đơn số liên tục); typecheck 20/20, lint 5/5; cài theo tệp khóa phiên bản đạt; mẫu in 58 mm, 80 mm kiểm bằng bản xem trước chữ (KICHBAN_KIEMTHU_788).
+- Chưa kiểm: chưa dựng bản Android; in thật trên Sunmi T2 (KICHBAN_KIEMTHU_787), ngắt mạng trên máy thật (KICHBAN_KIEMTHU_786), Bluetooth chờ máy thật.
+- Kết luận: Đạt phần tự động lát L3; người dùng duyệt điểm xem trước 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L2
+- Phạm vi: hàng hóa, tồn kho (database migration 0167, API_345, 346, 347, MAN_HINH_294, 295); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `eefdbd7b`).
+- Kết quả: kiểm thử c74 và c55 31/31 đạt (c74-catalog: KICHBAN_KIEMTHU_774, 778 đến 780); typecheck 20/20, lint 5/5; không thêm thư viện.
+- Kết luận: Đạt lát L2; người dùng duyệt điểm xem trước 2026-11-17, chấp nhận 5 điều chỉnh.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L2
+- Phạm vi: quầy cửa hàng tập đoàn nhận thanh toán qua ứng dụng VComm (database migration 0162, API_327 phần thanh toán, API_328, MAN_HINH_277, 278); nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `2e093a2`, `f2beef4`).
+- Kết quả: toàn bộ kiểm thử API 163 tệp, 911 đạt; kiểm tra kiểu toàn dự án đạt; khóa dịch khớp; CI đạt. Chạy thật trên trình duyệt phát hiện và đã sửa: hai yêu cầu tạo đơn cùng lúc ở một quầy gây lỗi hệ thống; màn hình mới gửi sai kiểu dữ liệu. Phát hiện LOI_15 ở mã của CONG_VIEC_55.
+- Kết luận: Đạt lát L2; người dùng duyệt điểm xem trước 2026-11-17, chấp nhận 4 điểm lệch (trừ điểm khi bấm thanh toán; hạch toán ở L5; hoàn tay khi trả hàng, báo cáo ca chưa tách dòng; voucher dời sang L3).
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L1
+- Phạm vi: ghép thiết bị, đăng nhập lần đầu (Smart OTP, SMS dự phòng trong thời hạn chuyển đổi), PIN, thu ngân tự đăng ký và chủ cửa hàng duyệt, quầy theo giới hạn gói (database migration 0166, API_335, 336, 348, 349, MAN_HINH_283, 284, 296, 297); nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `153d1b1d`, `5a1e0bf6`).
+- Kết quả: c74-devices 5/5, kiểm thử c74 11/11 sau khi thêm Smart OTP; CI đạt (toàn bộ kiểm thử, quét bảo mật) trên `153d1b1d`; typecheck 20/20, lint 5/5 trên `5a1e0bf6`.
+- Kết luận: Đạt lát L1; người dùng duyệt điểm xem trước 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L1
+- Phạm vi: mã thanh toán động, khung đơn chờ thanh toán (database migration 0161 schema `instore`, API_327, MAN_HINH_276); nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `dd4e7ee`), đã hợp nhất nhánh CONG_VIEC_72 (`f776efc`).
+- Kết quả: c73-instore-checkouts 8/8 đạt; toàn bộ kiểm thử API 162 tệp, 902 đạt; kiểm tra kiểu api, mobile-vcomm đạt; khóa dịch khớp.
+- Kết luận: Đạt lát L1; người dùng duyệt điểm xem trước 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 lát L0
+- Phạm vi: schema `ipos` (gói, thông tin thu phí, thuê bao; trigger chặn điểm bán của cửa hàng khác), quyền `ipos.plan.manage`, `ipos.subscription.manage`, API_354, 355, việc nền `ipos-subscriptions-daily`, MAN_HINH_303, 304; nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit `de76af95`).
+- Kết quả: c74-subscriptions 5/5 đạt; toàn bộ kiểm thử API 155 tệp, 880 đạt; CI đạt (kiểm tra kiểu, lint, kiểm thử; quét bảo mật).
+- Kết luận: Đạt lát L0; người dùng duyệt điểm xem trước 2026-11-17.
+
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_72
+- Phạm vi: ưu tiên Smart OTP (THAY_DOI_37) lát L1 đến L6, nhánh `chuc-nang/CONG_VIEC_72-uu-tien-smart-otp` (pull request #177, commit `f776efc`; mã cuối `1fc0904`), đã hợp nhất main v0.13.0.
+- Kết quả: c72-authentication-settings (KICHBAN_KIEMTHU_749), c72-smart-otp-activation (734, 735, 736), c72-new-device (739, 740, 741, 743 phần đăng nhập), c72-recovery (742, 744), c72-transition (743 Open API, 748), c72-transition-partner (743 đối tác), c72-merchant-portal (745, 746, 747) đạt; toàn bộ kiểm thử API 161 tệp, 894 đạt trên `1fc0904`; kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform, web-retail đạt; khóa dịch khớp; CI đạt. KICHBAN_KIEMTHU_737, 738 (sinh trắc học, mã khóa trên máy thật) chờ người dùng thử theo đặc tả mục 21.
+- Bảo mật phần B, C: không lỗi Nghiêm trọng, Cao còn mở; đã sửa việc thành viên cổng chưa thiết lập tự đăng ký ứng dụng xác thực sau thời hạn (commit `9e82952`); không ghi mã, khóa vào log; thư viện mới expo-local-authentication 58.0.2, @noble/hashes 2.4.0 (MIT); pnpm audit không mức Cao (1 Thấp, 5 Trung bình có từ trước).
+- Còn mở (không chặn): thử trên máy thật; sinh trắc học không tự tắt khi thêm vân tay mới (người dùng chấp nhận); ba mẫu ZNS và số tổng đài cài sau.
+- Kết luận cổng kiểm thử: Đạt phần tự động; chờ người dùng thử máy thật và nghiệm thu.
+
 ## Lần kiểm thử 2026-11-17 – Phát hành 0.12.0
 
 - Phạm vi: nhánh `phat-hanh/v0.12.0` từ main sau bản sửa LOI_14, gộp CONG_VIEC_69 (`4f132d8`), CONG_VIEC_70 (`a4f9612`) (pull request #179, commit hợp nhất `2c36bb9`). Không xung đột; không database migration mới.
@@ -776,3 +844,4 @@
 | LOI_12 | CONG_VIEC_59: `office/signing/pdf-verification.ts` cắt mọi cặp "00" cuối chuỗi hex /Contents trước khi đọc CMS; chữ ký RSA kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký) bị mất byte nên kiểm tra chữ ký báo sai và lần ký bị đánh thất bại, người dùng phải ký lại. Phát hiện khi dựng phát hành 0.9.0 (3 ca c59-phien-ky lỗi khi chạy toàn bộ) | Trung bình | KICHBAN_KIEMTHU_598, 599, 603 | Sửa trên nhánh phát hành 0.9.0: bỏ việc cắt, bộ đọc DER đã bỏ qua phần đệm; thêm kiểm thử hồi quy | Đã sửa (commit `753f465`, kiểm thử hồi quy trong c59-ky-so-pdf), phát hành v0.9.0 |
 | LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đã sửa (pull request #155, chỉ sửa kiểm thử, hợp nhất vào main 2026-11-12) |
 | LOI_14 | Kiểm thử c57-station-orders, c57-station-delivery, c55-settlements lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam: dữ liệu dựng sẵn lấy "hôm nay" một lần rồi gửi phiếu điều chỉnh giá, giai đoạn điểm thưởng sau khi ngày đã đổi nên bị từ chối ngày hiệu lực đã qua (400). Làm CI đỏ ngẫu nhiên (pull request #165, phát hành 0.11.0). Mã nguồn sản phẩm chạy đúng | Thấp | Kiểm thử của CONG_VIEC_55, 57 | Người dùng chọn 2026-11-17: sửa ngay; kiểm thử không phụ thuộc thời điểm chạy, chỉ sửa kiểm thử; kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example | Đã sửa (pull request #176, chỉ sửa cấu hình kiểm thử: chờ qua 0 giờ giờ Việt Nam trước mỗi tệp; kèm LOYALTY_PARTNER_SIMULATOR trong .env.example; hợp nhất vào main 2026-11-17, có trong v0.12.0) |
+| LOI_15 | Ứng dụng VComm, màn hình cửa hàng liên kết (`apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx`, CONG_VIEC_55): ba lời gọi xác nhận giao dịch, tạo mã hội viên, quét mã truyền `body: JSON.stringify(...)` thay vì `json:` nên không gắn content-type JSON; máy chủ nhận thân rỗng, báo "Dữ liệu không hợp lệ"; khách không dùng điểm được ở cửa hàng liên kết. Phát hiện 2026-11-17 bởi phiên CONG_VIEC_73, phiên điều phối kiểm tra lại trên main | Cao | Kịch bản của CONG_VIEC_55 trên ứng dụng | Sửa ngay (người dùng 2026-11-17): sửa ba lời gọi, thêm kiểm thử, rà các màn hình khác cùng kiểu lỗi, phát hành bản vá 0.13.1; chưa triển khai nên không theo luồng khẩn cấp | Đã sửa (pull request #196, commit `491a7a0`; người dùng nghiệm thu 2026-11-17; đã phát hành v0.13.1, pull request #198; chưa triển khai) |

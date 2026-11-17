@@ -555,7 +555,8 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_734 đến 749; hồi quy đăng nhập, đăng ký, quên mật khẩu, c53 điểm tại quầy, c55, c65, c67; toàn bộ kiểm thử.
 - Mức quy mô: Lớn; làm trong CONG_VIEC_72.
 - Rủi ro: cao (đổi cách xác thực của người mua); giảm bằng thời hạn chuyển đổi, thiết bị tin cậy nạp sẵn, khóa dùng điểm khi khôi phục.
-- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đang làm trong CONG_VIEC_72.
+- Điều chỉnh khi lập trình: xem CONG_VIEC_72 mục 17 (L1, L4, L6, đối chiếu tài liệu); API_320 không dùng.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đã lập trình xong 2026-11-17, chờ nghiệm thu trong CONG_VIEC_72 (pull request #177).
 
 ### THAY_DOI_38: Mua hàng tại cửa hàng thanh toán trong ứng dụng VComm, thu hộ và hóa đơn ủy nhiệm – 2026-11-17
 - Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_73.
@@ -572,7 +573,8 @@
 - Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_74.
 - Nội dung thay đổi: thêm module MODULE_17 iPOS; backend là module `apps/api/src/ipos` trong backend VComm, chỉ ghi schema riêng `ipos` của cơ sở dữ liệu VComm; thêm ứng dụng Expo Android cho quầy và web quản trị cho chủ cửa hàng; iPOS gọi điểm, voucher, đơn chờ thanh toán qua Open API (CONG_VIEC_67, 73).
 - Thành phần bị ảnh hưởng: tài liệu 01 (thêm MODULE_17), 12 (thành phần, schema mới), 13 (ứng dụng mới, thư viện máy in khi được duyệt), 16 (schema `ipos`).
+- Mở rộng 2026-11-17 (người dùng duyệt): thu phí thuê bao sửa quy tắc đã duyệt: bảng đối soát điểm tuần của CONG_VIEC_55 thêm khoản G "Phí thuê bao iPOS"; bảng chuyển tiền thu hộ ngày của CONG_VIEC_73 thêm khoản trừ phí thuê bao; ảnh hưởng thêm tài liệu 07, 09, 14. iPOS gọi thẳng service điểm, voucher, đơn chờ, hoàn tiền trong backend (không dùng khóa Open API); CONG_VIEC_73 cho phép thu ngân iPOS tạo đơn chờ kèm dòng hàng.
 - Kiểm thử cần thực hiện: kiểm thử cô lập dữ liệu giữa các cửa hàng (điều kiện chặn mọi lát sau L0); hồi quy Open API CONG_VIEC_67; toàn bộ kiểm thử.
 - Mức quy mô: Lớn; làm trong CONG_VIEC_74.
 - Rủi ro: dữ liệu cửa hàng ngoài tập đoàn nằm chung cơ sở dữ liệu; giảm bằng schema riêng và kiểm thử cô lập.
-- Trạng thái: Đã phê duyệt hướng kiến trúc 2026-11-17; chờ duyệt đặc tả.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu đợt 1, 13 điểm đề xuất). Đang làm trong CONG_VIEC_74.
