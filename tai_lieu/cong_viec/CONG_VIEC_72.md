@@ -463,6 +463,10 @@ Sửa:
 - Đặt lại xác thực cổng buộc kích hoạt lại bằng SMS một lần.
 - Không ai mở sớm khóa dùng điểm.
 
+Điều chỉnh khi lập trình, người dùng chấp nhận:
+- L1 (2026-11-17): bốn điều chỉnh dữ liệu ở mục 9; mục menu riêng "Xác thực người mua" (MAN_HINH_275).
+- L4 (2026-11-17): khôi phục khi mất máy làm qua đăng nhập bằng mật khẩu rồi gửi mã, kích hoạt trong phiên chờ (dùng API_199), không dùng API_320; bản web chỉ hướng dẫn khôi phục trên ứng dụng điện thoại.
+
 ## 18. Các lát và điểm xem trước
 
 | Lát | Nội dung | Xem trước |

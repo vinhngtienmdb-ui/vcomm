@@ -795,7 +795,9 @@
     "deviceVerificationRequired": "Đây là thiết bị mới. Xác nhận bằng mã Smart OTP để tiếp tục.",
     "deviceVerificationExpired": "Phiên xác nhận thiết bị đã hết 10 phút. Đăng nhập lại.",
     "smartOtpPreferred": "Tài khoản dùng Smart OTP: đăng nhập bằng mật khẩu rồi nhập mã Smart OTP.",
-    "loyaltyRedeemLocked": "Dùng điểm đang tạm khóa do tài khoản vừa khôi phục Smart OTP. Vẫn tích điểm bình thường; thử lại sau thời điểm hết khóa."
+    "loyaltyRedeemLocked": "Dùng điểm đang tạm khóa do tài khoản vừa khôi phục Smart OTP. Vẫn tích điểm bình thường; thử lại sau thời điểm hết khóa.",
+    "affiliateSmartOtpRequired": "Đã hết thời hạn dùng mã SMS. Khách cần kích hoạt Smart OTP trên ứng dụng VComm, hoặc dùng mã thành viên, xác nhận trên ứng dụng.",
+    "partnerSmartOtpActivationRequired": "Kích hoạt Smart OTP để đổi điểm ra đối tác."
   },
   "login": {
     "title": "Đăng nhập",

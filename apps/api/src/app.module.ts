@@ -100,6 +100,7 @@ import { SmartOtpService } from "./auth/smart-otp.service";
 import { AuthenticationSettingsService } from "./auth/authentication-settings.service";
 import { DeviceTrustService } from "./auth/device-trust.service";
 import { BuyerSecurityService } from "./auth/buyer-security.service";
+import { SmartOtpRemindersService } from "./auth/smart-otp-reminders.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -346,6 +347,7 @@ import { UsersService } from "./users/users.service";
     AuthenticationSettingsService,
     DeviceTrustService,
     BuyerSecurityService,
+    SmartOtpRemindersService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,

@@ -272,6 +272,8 @@ export interface BuyerPartnerExchangeQuote {
   minPoints: number | null;
   maxPoints: number | null;
   smartOtpRequired: boolean;
+  // CONG_VIEC_72: false mà smartOtpRequired true thì khách phải kích hoạt Smart OTP trước khi đổi (hết thời hạn chuyển đổi).
+  smartOtpActive: boolean;
 }
 
 export interface BuyerPartnerExchange {

@@ -60,3 +60,9 @@ export const revokeBuyerSmartOtpSchema = z
     version: z.number().int().min(0),
   })
   .strict();
+
+// API_326: chính sách xác thực công khai cho ứng dụng VComm (CONG_VIEC_72): ẩn đăng nhập bằng mã SMS sau thời hạn chuyển đổi.
+export interface BuyerAuthenticationPolicy {
+  transitionEndsOn: string;
+  smsFallbackOpen: boolean;
+}

@@ -27,6 +27,7 @@ import { vietnamToday } from "../../marketplace/shop.service";
 import { creditLot, refundRedeemEntry, spendPointsWithin } from "../ledger.service";
 import { phaseOn } from "../program.service";
 import { assertRedeemAllowed } from "../../auth/account-security";
+import { AuthenticationSettingsService } from "../../auth/authentication-settings.service";
 import { maskName, SmartOtpService } from "../../auth/smart-otp.service";
 import { deviceHashOf, evaluateRedeem } from "../fraud";
 import { lockAccount } from "../tiers";
@@ -132,6 +133,7 @@ export class PartnerExchangesService {
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly connectors: PartnerConnectors,
     private readonly smartOtp: SmartOtpService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
     private readonly ledger: LedgerService,
     private readonly audit: AuditService,
   ) {}
@@ -217,6 +219,8 @@ export class PartnerExchangesService {
     const prepared = await this.prepare(this.database, userId, input.contractId, input.direction, input.partnerUnits);
     const remaining = await this.remaining(this.database, userId, input.contractId, input.direction);
     const smart = input.direction === "outbound" ? await this.smartOtp.state(this.database, userId) : { active: false };
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_569): hết thời hạn chuyển đổi thì đổi ra bắt buộc Smart OTP, kể cả khách chưa kích hoạt.
+    const required = input.direction === "outbound" && (smart.active || !(await this.authenticationSettings.buyerTransitionOpen()));
     return {
       direction: input.direction,
       partnerUnits: input.partnerUnits,
@@ -227,7 +231,8 @@ export class PartnerExchangesService {
       remainingThisMonth: remaining.month,
       minPoints: remaining.minPoints,
       maxPoints: remaining.maxPoints,
-      smartOtpRequired: smart.active,
+      smartOtpRequired: required,
+      smartOtpActive: smart.active,
     };
   }
 
@@ -257,7 +262,9 @@ export class PartnerExchangesService {
     const prepared = await this.prepare(this.database, userId, input.contractId, "outbound", input.partnerUnits);
     // Khóa dùng điểm sau khôi phục Smart OTP áp cả đổi ra đối tác (CONG_VIEC_72; QUYTAC_NGHIEPVU_566).
     await assertRedeemAllowed(this.database, userId);
-    if ((await this.smartOtp.state(this.database, userId)).active) {
+    const smartOtpActive = (await this.smartOtp.state(this.database, userId)).active;
+    if (!smartOtpActive && !(await this.authenticationSettings.buyerTransitionOpen())) throw new ApiError("BUSINESS_RULE", "partnerSmartOtpActivationRequired");
+    if (smartOtpActive) {
       if (!input.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { smartOtp: "required" } });
       await this.smartOtp.verify(userId, input.smartOtp, prepared.terms.company_id);
     }

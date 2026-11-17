@@ -795,7 +795,9 @@
     "deviceVerificationRequired": "This is a new device. Confirm with your Smart OTP code to continue.",
     "deviceVerificationExpired": "The device confirmation has passed 10 minutes. Sign in again.",
     "smartOtpPreferred": "This account uses Smart OTP: sign in with your password, then enter the Smart OTP code.",
-    "loyaltyRedeemLocked": "Point use is paused because Smart OTP was just recovered on this account. Points can still be earned; try again after the pause ends."
+    "loyaltyRedeemLocked": "Point use is paused because Smart OTP was just recovered on this account. Points can still be earned; try again after the pause ends.",
+    "affiliateSmartOtpRequired": "Text codes are no longer available. The customer needs to activate Smart OTP in the VComm app, or use the member code or in-app confirmation.",
+    "partnerSmartOtpActivationRequired": "Activate Smart OTP to exchange points to a partner."
   },
   "login": {
     "title": "Sign in",

@@ -6,6 +6,7 @@ import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import {
   buyerDeviceVerificationSchema,
   type BuyerDeviceItem,
+  type BuyerAuthenticationPolicy,
   buyerLoginSchema,
   buyerOtpVerifySchema,
   buyerPasswordResetSchema,
@@ -35,6 +36,7 @@ import type { Request } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import { AllowDevicePending, Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
 import { DeviceTrustService } from "../auth/device-trust.service";
+import { AuthenticationSettingsService, transitionEndsOn } from "../auth/authentication-settings.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
 import { SalesCareService } from "./sales-care.service";
@@ -49,6 +51,7 @@ export class BuyerController {
     private readonly fraud: LoyaltyFraudService,
     private readonly buyers: BuyerAccountsService,
     private readonly deviceTrust: DeviceTrustService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
     private readonly care: SalesCareService,
     private readonly revenue: SalesRevenueService,
     private readonly proposals: SalesProposalsService,
@@ -116,6 +119,17 @@ export class BuyerController {
   async resetPassword(@Body() body: unknown, @Req() request: Request): Promise<void> {
     const input = buyerPasswordResetSchema.parse(body);
     await this.buyers.resetPassword(input.phone, { code: input.code, smartOtp: input.smartOtp }, input.password, clientInfo(request));
+  }
+
+  // API_326: ngày hết thời hạn chuyển đổi sang Smart OTP, còn dùng mã SMS dự phòng hay không (CONG_VIEC_72). Không lộ thông tin tài khoản.
+  @Public()
+  @Get("authentication-policy")
+  async authenticationPolicy(): Promise<BuyerAuthenticationPolicy> {
+    const settings = await this.authenticationSettings.current();
+    return {
+      transitionEndsOn: transitionEndsOn(settings.transitionStartsOn, settings.buyerTransitionDays),
+      smsFallbackOpen: await this.authenticationSettings.buyerTransitionOpen(),
+    };
   }
 
   // API_318: xác nhận đăng nhập trên thiết bị mới bằng mã Smart OTP (hoặc mã SMS khi chưa kích hoạt, trong thời hạn chuyển đổi) (CONG_VIEC_72).

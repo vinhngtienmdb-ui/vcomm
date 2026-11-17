@@ -64,6 +64,13 @@ export class MessagingService {
     return result.ok;
   }
 
+  // Đã cài đủ khóa eSMS, mã OA và mẫu ZNS của sự kiện (CONG_VIEC_72: chỉ đánh dấu đã nhắc khi gửi được).
+  async znsConfigured(event: ZnsEvent): Promise<boolean> {
+    const templateKey = `esms.template.${event}` as IntegrationSettingKey;
+    const values = await this.settings.getMany(["esms.api_key", "esms.secret_key", "esms.sandbox", "esms.oa_id", templateKey]);
+    return Boolean(this.credentials(values) && values["esms.oa_id"] && values[templateKey]);
+  }
+
   // Tin ZNS theo sự kiện duyệt (CHUC_NANG_26). Thiếu số điện thoại hoặc chưa cài mẫu tin thì bỏ qua, không ghi lỗi.
   async sendZns(userId: string, event: ZnsEvent, data: Record<string, string>): Promise<void> {
     try {

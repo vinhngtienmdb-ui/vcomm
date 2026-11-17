@@ -637,6 +637,8 @@ export interface OpenAffiliateQuote {
   estimatedEarnPoints: number;
   vouchers: { id: string; title: string; discount: string; expiresAt: string }[];
   smartOtpActive: boolean;
+  // CONG_VIEC_72: smart_otp; sms (chưa kích hoạt, trong thời hạn chuyển đổi); unavailable (hết hạn, chưa kích hoạt).
+  otpMethod: "smart_otp" | "sms" | "unavailable";
   // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
   redeemLockedUntil: string | null;
 }
