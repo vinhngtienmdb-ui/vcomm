@@ -31,6 +31,7 @@ import { isUniqueViolation, violatedConstraint } from "../common/database-errors
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
 import { LedgerService } from "../accounting/ledger.service";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
 import { LoyaltyLedgerService, releaseSalePoints } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import { requireOwner, type PortalMember } from "./portal.service";
@@ -209,7 +210,13 @@ export class AffiliateTransactionsService {
     private readonly ledger: LoyaltyLedgerService,
     private readonly audit: AuditService,
     private readonly accounting: LedgerService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
   ) {}
+
+  // Mã thành viên cũ (cách 2) chỉ còn dùng trong thời hạn chuyển đổi của người mua; sau đó khách dùng Mã thanh toán (QUYTAC_NGHIEPVU_574).
+  async assertMemberCodeOpen(): Promise<void> {
+    if (!(await this.authenticationSettings.buyerTransitionOpen())) throw new ApiError("BUSINESS_RULE", "affiliateMemberCodeRetired");
+  }
 
   private async row(executor: Executor, id: string, scope: ReturnType<typeof sql>): Promise<TransactionRow> {
     const row = (await executor.execute<TransactionRow>(sql`SELECT ${transactionColumns} FROM ${transactionFrom} WHERE t.id = ${id} AND ${scope}`)).rows[0];
@@ -348,6 +355,7 @@ export class AffiliateTransactionsService {
     }
 
     // Cách 2: mã thành viên hợp lệ, chưa dùng; hoàn tất ngay với số điểm nhỏ hơn giữa số khách cho phép và số tối đa dùng được.
+    await this.assertMemberCodeOpen();
     const code = readMemberCode(input.memberCode!, new Date());
     const id = await this.database.transaction(async (transaction) => {
       const buyer = (
@@ -707,6 +715,7 @@ export class AffiliateTransactionsService {
   async memberCode(buyerId: string, points: number, voucherCodeId: string | null): Promise<BuyerMemberCode> {
     const buyer = (await this.database.execute(sql`SELECT 1 FROM marketplace.buyer_accounts WHERE user_id = ${buyerId}`)).rows[0];
     if (!buyer) throw new ApiError("FORBIDDEN", "forbidden");
+    await this.assertMemberCodeOpen();
     return issueMemberCode(buyerId, points, voucherCodeId, new Date());
   }
 

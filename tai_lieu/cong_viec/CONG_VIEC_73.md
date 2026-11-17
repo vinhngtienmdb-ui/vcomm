@@ -637,6 +637,14 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
   - Trường hợp tuần đối soát điểm đã chốt dùng kiểm thử sẵn có của CONG_VIEC_55; cảnh báo `late_payments` chưa có kiểm thử tự động.
   - Sửa lỗi sẵn có của CONG_VIEC_67: sửa khóa API trả lỗi 500 (thiếu cột cửa hàng khi đọc khóa).
 
+### Bổ sung sau nghiệm thu (2026-11-17)
+
+- Đối chiếu tài liệu chung phát hiện chưa làm phần chặn mã thành viên cũ sau thời hạn chuyển đổi (QUYTAC_NGHIEPVU_574). Phiên điều phối giao làm trước khi phát hành:
+  - Hết thời hạn chuyển đổi của người mua (QUYTAC_NGHIEPVU_561): API cấp mã thành viên, lập giao dịch cách 2 trên cổng và Open API, tra điểm Open API bằng mã thành viên trả `409 affiliateMemberCodeRetired` "Mã thành viên cũ không còn dùng. Khách mở Mã thanh toán trên ứng dụng VComm."
+  - Ứng dụng VComm ẩn thẻ "Mã thành viên" ở MAN_HINH_181 sau thời hạn (đọc API_326).
+  - Kiểm thử KICHBAN_KIEMTHU_751: `apps/api/test/c55-transactions.test.ts`, `c67-open-affiliate.test.ts`.
+- Open API đơn chờ chạy ở `/api/v1/open/instore` (mục 10 ghi `/open/affiliate`); phiên điều phối giữ đường dẫn này (tài liệu 17).
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
@@ -662,7 +670,6 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
 - Điểm mở (L6): bộ kết nối MISA hiện có không gửi người bán, MISA lấy người bán theo mã số thuế của tài khoản. Hóa đơn ủy nhiệm với MISA ở trạng thái "Lỗi cài đặt" đến khi người dùng có xác nhận từ MISA về cách lập theo ủy nhiệm; khi đó làm bộ kết nối riêng.
 - Điểm mở (L7): kế toán trưởng xác nhận tài khoản 3388 (phải trả hoàn tiền khách) trước khi triển khai.
-- Chưa làm: chặn mã thành viên cũ (cách 2 của CONG_VIEC_55) sau thời hạn chuyển đổi của người mua (QUYTAC_NGHIEPVU_574, KICHBAN_KIEMTHU_751). Hiện mã cũ vẫn được nhận sau thời hạn; ứng dụng đã chuyển sang Mã thanh toán nên khách mới không còn dùng mã cũ. Cần một lát sửa nhỏ trước khi hết thời hạn chuyển đổi.
 - Điểm mở (L6): hóa đơn phí sàn tháng ghi ngày cuối tháng trước nhưng lập lúc 2 giờ sáng ngày 1; người dùng tự xác nhận nhà cung cấp, cơ quan thuế chấp nhận.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.

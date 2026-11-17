@@ -3154,7 +3154,7 @@ Sửa màn hình đã có:
 - MAN_HINH_161 Bán hàng tại quầy: phương thức "Thanh toán qua ứng dụng VComm" mở MAN_HINH_278; dòng điểm mặc định ô "Mã thanh toán của khách" cho máy quét, liên kết dự phòng nhập mã Smart OTP 6 số.
 - MAN_HINH_166 Cài đặt cửa hàng: "Nhận thanh toán qua ứng dụng VComm", phí sàn.
 - MAN_HINH_174 Quầy cổng cửa hàng: chọn cách khách trả (trong ứng dụng, tại quầy), "Hiện mã QR", quét mã thanh toán; kết quả có phí, tiền VComm chuyển; trạng thái "Đã hoàn tiền"; cột Hóa đơn ở bảng giao dịch.
-- MAN_HINH_181 Cửa hàng liên kết (ứng dụng): quét QR thanh toán mở MAN_HINH_277; nút mở MAN_HINH_276; lịch sử giao dịch có "Xem hóa đơn".
+- MAN_HINH_181 Cửa hàng liên kết (ứng dụng): quét QR thanh toán mở MAN_HINH_277; nút mở MAN_HINH_276; lịch sử giao dịch có "Xem hóa đơn"; thẻ "Mã thành viên" cũ ẩn sau thời hạn chuyển đổi của người mua.
 - MAN_HINH_231 (`web-crm`), MAN_HINH_232 (`web-affiliate`) Kết nối phần mềm: ô phạm vi đơn chờ thanh toán (`instore.checkout`, chỉ web quản trị); khối "Webhook" (địa chỉ, khóa ký hiện một lần, gửi thử, nhật ký gửi, gửi lại).
 - MAN_HINH_98 Hoàn tiền: gồm việc hoàn tiền đơn mua tại cửa hàng (cột cửa hàng), ghi đã hoàn sinh bút toán.
 - MAN_HINH_54 Hóa đơn điện tử: cột "Người bán", bộ lọc "Chỉ hóa đơn lập theo ủy nhiệm", trạng thái "Đã hủy"; thẻ "Chờ xử lý trả hàng" gồm giao dịch `LK…` đã hủy; chi tiết ẩn "Thay thế" cho hóa đơn không có chứng từ nguồn.
