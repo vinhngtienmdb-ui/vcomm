@@ -4009,6 +4009,15 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 | 0166 (L1) | `ipos.device_sessions` | `family_id` (chuỗi phiên của `core.sessions`, khóa chính), `device_id`, `member_id`, `created_at` (phiên sống tối đa 12 giờ kể từ đây) |
 | 0166 (L1) | `ipos.cashier_registrations` | `merchant_id`, `user_id`, `phone`, `full_name`, `requested_outlet_ids` (`uuid[]`), `status` (`pending`, `approved`, `rejected`, `expired`), `expires_at` (7 ngày), `decided_by`, `decided_at`, `reason`. Chỉ mục duy nhất (`merchant_id`, `phone`) khi `pending` |
 | 0166 (L1) | `core.sessions`, `core.otp_codes` | Định nghĩa lại ràng buộc: loại phiên thêm `ipos_app` (token làm mới 12 giờ); mục đích OTP thêm `ipos_register`, `ipos_login` (gồm mọi giá trị trên `main`) |
+| 0167 (L2) | `ipos.number_counters` | (`merchant_id`, `kind`) khóa chính; `kind` `item` (mã `SP…`), `receipt` (`PN…`), `adjustment` (`PC…`); `last_number` |
+| 0167 (L2) | `ipos.categories` | `merchant_id`, `parent_id` (hai cấp, kiểm ở máy chủ), `name` (1 đến 100 ký tự, duy nhất không phân biệt hoa thường theo cùng nhóm cha), `sort_order`, `status`, `version` |
+| 0167 (L2) | `ipos.items` | `merchant_id`, `code` (1 đến 30 ký tự; chỉ mục duy nhất (`merchant_id`, `upper(code)`)), `name`, `search_text` (không dấu), `category_id`, `unit`, `price` (đồng, đã gồm thuế), `vat_rate` (`0`, `5`, `8`, `10`, `exempt`), `track_stock`, `attribute1_name`, `attribute2_name`, `status`, `version` |
+| 0167 (L2) | `ipos.item_variants` | `merchant_id`, `item_id`, `code` (duy nhất theo mặt hàng), `attribute1_value`, `attribute2_value`, `price` (trống: giá mặt hàng), `min_quantity`, `status`, `sort_order`. Mặt hàng không thuộc tính có một biến thể mặc định cùng mã |
+| 0167 (L2) | `ipos.item_barcodes` | `merchant_id`, `variant_id`, `barcode` (1 đến 50 ký tự); chỉ mục duy nhất (`merchant_id`, `barcode`) |
+| 0167 (L2) | `ipos.outlet_prices` | (`outlet_id`, `variant_id`) khóa chính, `merchant_id` (trigger kiểm điểm bán), `price` |
+| 0167 (L2) | `ipos.stock_balances` | (`outlet_id`, `variant_id`) khóa chính, `merchant_id`, `quantity` (cho phép âm), `average_cost` (bình quân gia quyền, 4 chữ số thập phân) |
+| 0167 (L2) | `ipos.stock_documents`, `ipos.stock_document_lines` | Phiếu `number` (`PN…`, `PC…`, duy nhất theo cửa hàng), `kind` (`receipt`, `adjustment`), `source` (`manual`, `import`), `note` (bắt buộc với điều chỉnh). Dòng: nhập có `quantity`, `unit_cost`; điều chỉnh có `actual_quantity`; cả hai ghi `before_quantity` |
+| 0167 (L2) | `ipos.stock_moves` | `merchant_id`, `outlet_id`, `variant_id`, `quantity` (khác 0, âm là giảm), `unit_cost`, `balance_after`, `source_type` (`stock_document`; `sale`, `return` dùng từ L3), `source_id`, `source_number`, `created_by`, `occurred_at` |
 
 Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
 

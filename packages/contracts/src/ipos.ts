@@ -283,3 +283,236 @@ export interface IposCashierRegistration {
 }
 export const iposRegistrationApproveSchema = z.object({ outletIds: z.array(z.string().uuid()).min(1).max(50) }).strict();
 export const iposRegistrationRejectSchema = z.object({ reason: reason.nullable() }).strict();
+
+// Lát L2: danh mục hàng (QUYTAC_NGHIEPVU_608), nhập Excel (QUYTAC_NGHIEPVU_610), tồn kho (QUYTAC_NGHIEPVU_611).
+const wholeMoney = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value).trim())
+  .pipe(z.string().regex(/^\d{1,13}$/, "invalidValue"));
+const stockQuantity = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value).trim().replace(",", "."))
+  .pipe(z.string().regex(/^\d{1,11}(\.\d{1,3})?$/, "invalidValue"));
+const unitCost = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value).trim().replace(",", "."))
+  .pipe(z.string().regex(/^\d{1,13}(\.\d{1,4})?$/, "invalidValue"));
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullable()
+    .transform((value) => (value ? value : null));
+export const iposVatRates = ["0", "5", "8", "10", "exempt"] as const;
+export type IposVatRate = (typeof iposVatRates)[number];
+export type IposActiveStatus = "active" | "inactive";
+export const iposItemMaxVariants = 100;
+export const iposImportMaximumRows = 5000;
+export const iposImportMaximumBytes = 5 * 1024 * 1024;
+export const iposImportColumns = ["Mã", "Tên", "Nhóm", "Nhóm con", "Đơn vị tính", "Giá bán", "Thuế suất", "Theo dõi tồn kho", "Mã vạch", "Tồn đầu kỳ", "Giá nhập"] as const;
+
+export const iposCategoryCreateSchema = z
+  .object({ name: z.string().trim().min(1).max(100), parentId: z.string().uuid().nullable(), sortOrder: z.number().int().min(0).max(9999) })
+  .strict();
+export const iposCategoryUpdateSchema = z
+  .object({ name: z.string().trim().min(1).max(100), parentId: z.string().uuid().nullable(), sortOrder: z.number().int().min(0).max(9999), status: z.enum(["active", "inactive"]), version })
+  .strict();
+export interface IposCategory {
+  id: string;
+  parentId: string | null;
+  name: string;
+  sortOrder: number;
+  status: IposActiveStatus;
+  activeItems: number;
+  version: number;
+}
+
+const barcode = z.string().trim().min(1).max(50);
+export const iposVariantInputSchema = z
+  .object({
+    id: z.string().uuid().nullable(),
+    code: z.string().trim().max(30).transform((value) => value.toUpperCase()),
+    attribute1Value: optionalText(50),
+    attribute2Value: optionalText(50),
+    price: wholeMoney.nullable(),
+    minQuantity: stockQuantity.nullable(),
+    barcodes: z.array(barcode).max(20),
+    status: z.enum(["active", "inactive"]),
+  })
+  .strict();
+const itemFields = {
+  name: z.string().trim().min(1).max(200),
+  categoryId: z.string().uuid().nullable(),
+  unit: z.string().trim().min(1).max(20),
+  price: wholeMoney,
+  vatRate: z.enum(iposVatRates),
+  trackStock: z.boolean(),
+  attribute1Name: optionalText(30),
+  attribute2Name: optionalText(30),
+  variants: z.array(iposVariantInputSchema).min(1).max(iposItemMaxVariants),
+};
+export const iposItemCreateSchema = z
+  .object({ code: z.string().trim().max(30).transform((value) => value.toUpperCase()), ...itemFields })
+  .strict();
+export const iposItemUpdateSchema = z
+  .object({ code: z.string().trim().min(1).max(30).transform((value) => value.toUpperCase()), ...itemFields, status: z.enum(["active", "inactive"]), version })
+  .strict();
+export const iposOutletPricesSchema = z
+  .object({ prices: z.array(z.object({ outletId: z.string().uuid(), variantId: z.string().uuid(), price: wholeMoney.nullable() }).strict()).max(5000) })
+  .strict();
+export interface IposItemRow {
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  unit: string;
+  minPrice: string;
+  maxPrice: string;
+  vatRate: IposVatRate;
+  trackStock: boolean;
+  variantCount: number;
+  barcodes: string[];
+  status: IposActiveStatus;
+}
+export interface IposItemPage {
+  items: IposItemRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  // Số biến thể đang bán so với giới hạn mặt hàng của gói (null: không giới hạn).
+  activeVariants: number;
+  maxItems: number | null;
+  planName: string | null;
+}
+export interface IposVariant {
+  id: string;
+  code: string;
+  attribute1Value: string | null;
+  attribute2Value: string | null;
+  price: string | null;
+  minQuantity: string | null;
+  barcodes: string[];
+  status: IposActiveStatus;
+  outletPrices: { outletId: string; price: string }[];
+}
+export interface IposItemDetail {
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string | null;
+  unit: string;
+  price: string;
+  vatRate: IposVatRate;
+  trackStock: boolean;
+  attribute1Name: string | null;
+  attribute2Name: string | null;
+  status: IposActiveStatus;
+  variants: IposVariant[];
+  version: number;
+}
+
+export interface IposImportError {
+  row: number;
+  column: string | null;
+  message: string;
+}
+export interface IposImportResult {
+  rows: number;
+  creates: number;
+  updates: number;
+  openingStockRows: number;
+  errors: IposImportError[];
+  committed: boolean;
+  receiptNumber: string | null;
+}
+
+// Tồn kho.
+export interface IposVariantOption {
+  variantId: string;
+  itemCode: string;
+  variantCode: string;
+  name: string;
+  unit: string;
+}
+export interface IposStockRow {
+  variantId: string;
+  itemId: string;
+  itemCode: string;
+  variantCode: string;
+  name: string;
+  unit: string;
+  quantity: string;
+  minQuantity: string | null;
+  averageCost: string;
+  value: string;
+}
+export const iposStockDocumentKinds = ["receipt", "adjustment"] as const;
+export type IposStockDocumentKind = (typeof iposStockDocumentKinds)[number];
+export const iposStockDocumentSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("receipt"),
+      outletId: z.string().uuid(),
+      note: optionalText(500),
+      lines: z
+        .array(z.object({ variantId: z.string().uuid(), quantity: stockQuantity, unitCost }).strict())
+        .min(1)
+        .max(500),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("adjustment"),
+      outletId: z.string().uuid(),
+      note: z.string().trim().min(1).max(500),
+      lines: z
+        .array(z.object({ variantId: z.string().uuid(), actualQuantity: stockQuantity }).strict())
+        .min(1)
+        .max(500),
+    })
+    .strict(),
+]);
+export type IposStockDocumentInput = z.infer<typeof iposStockDocumentSchema>;
+export interface IposStockDocumentRow {
+  id: string;
+  number: string;
+  kind: IposStockDocumentKind;
+  source: "manual" | "import";
+  outletId: string;
+  outletName: string;
+  note: string | null;
+  lineCount: number;
+  totalCost: string | null;
+  createdByName: string;
+  createdAt: string;
+}
+export interface IposStockDocumentDetail extends IposStockDocumentRow {
+  lines: {
+    variantId: string;
+    itemCode: string;
+    variantCode: string;
+    name: string;
+    unit: string;
+    quantity: string | null;
+    unitCost: string | null;
+    actualQuantity: string | null;
+    beforeQuantity: string;
+  }[];
+}
+export interface IposStockMove {
+  id: string;
+  occurredAt: string;
+  variantId: string;
+  itemCode: string;
+  variantCode: string;
+  name: string;
+  quantity: string;
+  unitCost: string;
+  balanceAfter: string;
+  sourceType: "stock_document" | "sale" | "return";
+  sourceId: string;
+  sourceNumber: string;
+  createdByName: string;
+}

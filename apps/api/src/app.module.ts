@@ -142,6 +142,9 @@ import { IposRegistersService } from "./ipos/ipos-registers.service";
 import { IposRegistrationsService } from "./ipos/ipos-registrations.service";
 import { IposPlansService } from "./ipos/ipos-plans.service";
 import { IposSubscriptionsService } from "./ipos/ipos-subscriptions.service";
+import { IposCatalogService } from "./ipos/ipos-catalog.service";
+import { IposImportService } from "./ipos/ipos-import.service";
+import { IposStockService } from "./ipos/ipos-stock.service";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
@@ -385,6 +388,9 @@ import { UsersService } from "./users/users.service";
     PartnerSettlementsService,
     AffiliateMerchantsService,
     IposPlansService,
+    IposCatalogService,
+    IposImportService,
+    IposStockService,
     IposSubscriptionsService,
     IposDeviceAuthService,
     IposRegistersService,

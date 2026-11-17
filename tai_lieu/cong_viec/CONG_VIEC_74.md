@@ -656,6 +656,12 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | L1 | Chưa gửi tin trong ứng dụng VComm cho người đăng ký khi được duyệt, từ chối | Người dùng chấp nhận làm ở lát sau (2026-11-17) |
 | L1 | Phiên gắn thiết bị theo chuỗi phiên (`family_id`) vì token làm mới đổi mã phiên mỗi lần dùng | Giữ gắn thiết bị qua các lần làm mới |
 | L1 | Danh sách điểm bán để thu ngân chọn khi đăng ký lấy theo mã cửa hàng, không cần OTP | Tên, địa chỉ điểm bán là thông tin công khai của cửa hàng |
+| L2 | Giới hạn mặt hàng của cửa hàng lấy giới hạn lớn nhất trong các thuê bao chưa hủy (một gói không giới hạn thì không giới hạn) | Gói gắn theo điểm bán, còn danh mục dùng chung cả cửa hàng |
+| L2 | Biến thể lưu cùng mặt hàng (`POST`, `PATCH /items`), không có API `/items/{id}/variants` riêng; biến thể bỏ khỏi danh sách thì ngừng bán | Lưu mặt hàng, biến thể, mã vạch trong một giao dịch, kiểm giới hạn một lần |
+| L2 | Chưa có ảnh mặt hàng | Ảnh chỉ để hiện trên máy bán; làm cùng màn hình bán hàng ở lát L3 |
+| L2 | Nhập Excel mỗi dòng là một mặt hàng không thuộc tính; mặt hàng có biến thể sửa trên cổng (dòng trùng mã của mặt hàng có biến thể không nhận mã vạch, tồn đầu kỳ) | Giữ tệp mẫu đơn giản cho cửa hàng nhỏ |
+| L2 | Nhập Excel gửi lại tệp khi ghi (kiểm lại toàn bộ trong cùng giao dịch), máy chủ không giữ tệp | Không lưu tệp của cửa hàng; dữ liệu đổi giữa hai bước vẫn được kiểm |
+| L2 | Tồn âm chỉ phát sinh khi bán (lát L3); cài đặt chặn tồn âm làm cùng `ipos.settings` ở lát L3 | Phiếu điều chỉnh nhận số lượng thực tế ≥ 0 |
 
 ## 20. Rủi ro và điểm chưa xác định
 
