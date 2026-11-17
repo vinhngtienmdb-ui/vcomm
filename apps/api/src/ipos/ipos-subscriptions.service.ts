@@ -18,6 +18,7 @@ import type { z } from "zod";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
+import { IposFeesService } from "./ipos-fees.service";
 import { CLOCK, type Clock, vietnamDate } from "../common/clock";
 import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
@@ -102,6 +103,7 @@ export class IposSubscriptionsService {
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly audit: AuditService,
+    private readonly fees: IposFeesService,
   ) {}
 
   private today(): string {
@@ -345,7 +347,9 @@ export class IposSubscriptionsService {
         UPDATE ipos.subscriptions SET status = 'cancelled', locked_manually = false, status_reason = ${reason}, cancelled_at = now(), updated_by = ${actor.userId},
           updated_at = now(), version = version + 1
         WHERE id = ${subscriptionId}`);
-      await this.record(actor, "ipos_subscription.cancel", "ipos_subscription", subscriptionId, { reason }, transaction);
+      // Không thu kỳ chưa bắt đầu: hủy phiếu chờ thu còn hủy được của các kỳ đó (CONG_VIEC_74 L7).
+      const voidedFees = await this.fees.voidFuturePeriods(transaction, actor, subscriptionId);
+      await this.record(actor, "ipos_subscription.cancel", "ipos_subscription", subscriptionId, { reason, voidedFees }, transaction);
     });
     return this.detail(actor, subscriptionId);
   }

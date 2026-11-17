@@ -195,9 +195,12 @@ export class IposFeesService implements OnModuleInit {
         method: IposFeeMethod | "free";
         status: string;
         free_until: string | null;
+        ends_on: string;
+        first: boolean;
       }>(sql`
         SELECT s.merchant_id, s.outlet_id, s.plan_id, s.period_months, coalesce(s.custom_monthly_price, pl.monthly_price)::text AS monthly_price, pl.tax_percent::text,
-          pl.company_id, m.partner_id, coalesce(b.method, 'vietqr') AS method, s.status, b.free_until::text AS free_until
+          pl.company_id, m.partner_id, coalesce(b.method, 'vietqr') AS method, s.status, b.free_until::text AS free_until, s.ends_on::text AS ends_on,
+          NOT EXISTS (SELECT 1 FROM ipos.fee_invoices f WHERE f.subscription_id = s.id) AS first
         FROM ipos.subscriptions s JOIN ipos.plans pl ON pl.id = s.plan_id JOIN affiliate.merchants m ON m.id = s.merchant_id
         -- Cửa hàng chưa chọn cách thu: thu bằng VietQR.
         LEFT JOIN ipos.merchant_billing b ON b.merchant_id = s.merchant_id
@@ -214,7 +217,11 @@ export class IposFeesService implements OnModuleInit {
     const total = amount + tax;
     const dates = (
       await transaction.execute<{ period_end: string; due_on: string }>(sql`
-        SELECT (${periodStart}::date + make_interval(months => ${sub.period_months}))::date::text AS period_end, (${today}::date + ${iposFeeDueDays}::int)::text AS due_on`)
+        -- Kỳ đầu kết thúc đúng ngày hết hạn đã cấp (thuê bao cấp trước khi có phiếu phí, hết hạn cuối tháng) để không thu chồng ngày đã cấp.
+        SELECT (CASE WHEN ${sub.first} AND ${periodStart}::date < ${sub.ends_on}::date
+            THEN greatest((${periodStart}::date + make_interval(months => ${sub.period_months}))::date, ${sub.ends_on}::date)
+            ELSE (${periodStart}::date + make_interval(months => ${sub.period_months}))::date END)::text AS period_end,
+          (${today}::date + ${iposFeeDueDays}::int)::text AS due_on`)
     ).rows[0]!;
     const inserted = (
       await transaction.execute<{ id: string; document_no: string }>(sql`
@@ -408,46 +415,70 @@ export class IposFeesService implements OnModuleInit {
       const row = (await transaction.execute<FeeRow>(sql`${feeSelect(sql`f.id = ${id} AND f.company_id = ${actor.operatorCompanyId}`)} FOR UPDATE OF f`)).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      // Chỉ hủy phiếu chờ thu chưa thu đồng nào, chưa vào bảng đối soát, khoản trừ chưa vào bảng chuyển tiền.
-      if (row.status !== "awaiting" || Number(row.paid_amount) > 0 || row.settlement_id) throw new ApiError("BUSINESS_RULE", "iposFeeNotVoidable");
-      const gathered = await transaction.execute(sql`SELECT 1 FROM instore.payout_deductions WHERE reference_id = ${id} AND payout_id IS NOT NULL`);
-      if (gathered.rows.length > 0) throw new ApiError("BUSINESS_RULE", "iposFeeNotVoidable");
-      // Đã lập hóa đơn điện tử phí: hủy hoặc điều chỉnh hóa đơn trên module hóa đơn trước, không hủy phiếu ở đây (tránh hai hóa đơn cho một kỳ).
-      const einvoice = await transaction.execute(sql`SELECT 1 FROM finance.einvoices WHERE ipos_fee_invoice_id = ${id} AND kind = 'original'`);
-      if (einvoice.rows.length > 0) throw new ApiError("BUSINESS_RULE", "iposFeeEinvoiceIssued");
-      await transaction.execute(sql`DELETE FROM instore.payout_deductions WHERE reference_id = ${id} AND payout_id IS NULL`);
-      await this.closeDebt(transaction, id, `Hủy phiếu phí: ${input.reason}`);
-      const partner = (await transaction.execute<{ partner_id: string }>(sql`SELECT partner_id FROM affiliate.merchants WHERE id = ${row.merchant_id}`)).rows[0]!.partner_id;
-      if (Number(row.total) > 0) {
-        await this.ledger.record(transaction, {
-          companyId: row.company_id,
-          sourceType: "ipos_fee_invoice_void",
-          sourceId: id,
-          journalNo: row.document_no,
-          date: this.today(),
-          description: `Hủy phiếu phí thuê bao iPOS ${row.document_no}`,
-          lines: [debit("ipos_fee_revenue", Number(row.amount)), debit("vat_output", Number(row.tax_amount)), credit("ipos_fee_receivable", Number(row.total), partner)],
-        });
-      }
-      await transaction.execute(sql`
-        UPDATE ipos.fee_invoices SET status = 'voided', void_reason = ${input.reason}, voided_by = ${actor.userId}, voided_at = now(), version = version + 1 WHERE id = ${id}`);
-      await this.audit.record(
-        {
-          actorUserId: actor.userId,
-          companyId: actor.operatorCompanyId,
-          appCode: "crm",
-          action: "ipos_fee_invoice.void",
-          entityType: "ipos_fee_invoice",
-          entityId: id,
-          afterData: { documentNo: row.document_no, reason: input.reason },
-          ip: actor.client.ip,
-          userAgent: actor.client.userAgent,
-          requestId: actor.client.requestId,
-        },
-        transaction,
-      );
+      const blocked = await this.voidBlocker(transaction, row);
+      if (blocked) throw new ApiError("BUSINESS_RULE", blocked);
+      await this.voidWithin(transaction, actor, row, input.reason);
     });
     return this.detail(actor, id, true);
+  }
+
+  // Chỉ hủy phiếu chờ thu chưa thu đồng nào, chưa vào bảng đối soát, khoản trừ chưa vào bảng chuyển tiền, chưa lập hóa đơn điện tử
+  // (đã lập hóa đơn: hủy, điều chỉnh hóa đơn trên module hóa đơn trước để không có hai hóa đơn cho một kỳ).
+  private async voidBlocker(executor: Executor, row: FeeRow): Promise<"iposFeeNotVoidable" | "iposFeeEinvoiceIssued" | null> {
+    if (row.status !== "awaiting" || Number(row.paid_amount) > 0 || row.settlement_id) return "iposFeeNotVoidable";
+    const gathered = await executor.execute(sql`SELECT 1 FROM instore.payout_deductions WHERE reference_id = ${row.id} AND payout_id IS NOT NULL`);
+    if (gathered.rows.length > 0) return "iposFeeNotVoidable";
+    const einvoice = await executor.execute(sql`SELECT 1 FROM finance.einvoices WHERE ipos_fee_invoice_id = ${row.id} AND kind = 'original'`);
+    if (einvoice.rows.length > 0) return "iposFeeEinvoiceIssued";
+    return null;
+  }
+
+  // Hủy: bỏ khoản trừ chưa vào bảng, đóng công nợ, bút toán đảo, nhật ký thao tác.
+  private async voidWithin(transaction: Executor & Pick<Database, "insert">, actor: BuyerAdminActor, row: FeeRow, reason: string): Promise<void> {
+    await transaction.execute(sql`DELETE FROM instore.payout_deductions WHERE reference_id = ${row.id} AND payout_id IS NULL`);
+    await this.closeDebt(transaction, row.id, `Hủy phiếu phí: ${reason}`);
+    const partner = (await transaction.execute<{ partner_id: string }>(sql`SELECT partner_id FROM affiliate.merchants WHERE id = ${row.merchant_id}`)).rows[0]!.partner_id;
+    if (Number(row.total) > 0) {
+      await this.ledger.record(transaction, {
+        companyId: row.company_id,
+        sourceType: "ipos_fee_invoice_void",
+        sourceId: row.id,
+        journalNo: row.document_no,
+        date: this.today(),
+        description: `Hủy phiếu phí thuê bao iPOS ${row.document_no}`,
+        lines: [debit("ipos_fee_revenue", Number(row.amount)), debit("vat_output", Number(row.tax_amount)), credit("ipos_fee_receivable", Number(row.total), partner)],
+      });
+    }
+    await transaction.execute(sql`
+      UPDATE ipos.fee_invoices SET status = 'voided', void_reason = ${reason}, voided_by = ${actor.userId}, voided_at = now(), version = version + 1 WHERE id = ${row.id}`);
+    await this.audit.record(
+      {
+        actorUserId: actor.userId,
+        companyId: actor.operatorCompanyId,
+        appCode: "crm",
+        action: "ipos_fee_invoice.void",
+        entityType: "ipos_fee_invoice",
+        entityId: row.id,
+        afterData: { documentNo: row.document_no, reason },
+        ip: actor.client.ip,
+        userAgent: actor.client.userAgent,
+        requestId: actor.client.requestId,
+      },
+      transaction,
+    );
+  }
+
+  // Hủy thuê bao (QUYTAC_NGHIEPVU_596 khoản 5: không lập phiếu kỳ sau): hủy phiếu chờ thu của các kỳ chưa bắt đầu còn hủy được; phiếu kỳ đã dùng vẫn phải thu.
+  async voidFuturePeriods(transaction: Executor & Pick<Database, "insert">, actor: BuyerAdminActor, subscriptionId: string): Promise<number> {
+    const rows = await transaction.execute<FeeRow>(sql`
+      ${feeSelect(sql`f.subscription_id = ${subscriptionId} AND f.status = 'awaiting' AND f.period_start > ${this.today()}::date`)} FOR UPDATE OF f`);
+    let voided = 0;
+    for (const row of rows.rows) {
+      if (await this.voidBlocker(transaction, row)) continue;
+      await this.voidWithin(transaction, actor, row, "Hủy thuê bao");
+      voided += 1;
+    }
+    return voided;
   }
 
   // Lập lại phiếu cho kỳ đã hủy (cách thu hiện tại của cửa hàng).

@@ -922,7 +922,8 @@
     "iposFeeReissueInvalid": "Kỳ này không có phiếu phí đã hủy để lập lại, hoặc cửa hàng đang miễn phí.",
     "iposFeeNotPayableByVietqr": "Phiếu phí này không thu bằng chuyển khoản VietQR hoặc đã thu.",
     "iposFeeVietqrNotConfigured": "Công ty vận hành sàn chưa khai tài khoản nhận chuyển khoản. Liên hệ VComm để trả phí.",
-    "iposFeeEinvoiceIssued": "Phiếu phí đã có hóa đơn điện tử. Hủy hoặc điều chỉnh hóa đơn trên module hóa đơn điện tử trước khi hủy phiếu."
+    "iposFeeEinvoiceIssued": "Phiếu phí đã có hóa đơn điện tử. Hủy hoặc điều chỉnh hóa đơn trên module hóa đơn điện tử trước khi hủy phiếu.",
+    "iposCheckoutShiftClosed": "Ca bán của đơn chờ đã đóng và quầy chưa mở ca mới. Mở ca tại quầy rồi ghi lại đơn."
   },
   "login": {
     "title": "Đăng nhập",

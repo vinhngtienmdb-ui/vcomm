@@ -922,7 +922,8 @@
     "iposFeeReissueInvalid": "This period has no voided fee invoice to reissue, or the store is on free billing.",
     "iposFeeNotPayableByVietqr": "This fee invoice is not collected by VietQR transfer or is already paid.",
     "iposFeeVietqrNotConfigured": "The marketplace operator has not set up a receiving bank account. Contact VComm to pay.",
-    "iposFeeEinvoiceIssued": "This fee invoice already has an e-invoice. Cancel or adjust the e-invoice in the e-invoice module before voiding."
+    "iposFeeEinvoiceIssued": "This fee invoice already has an e-invoice. Cancel or adjust the e-invoice in the e-invoice module before voiding.",
+    "iposCheckoutShiftClosed": "The pending order's shift is closed and the register has no open shift. Open a shift, then repost the order."
   },
   "login": {
     "title": "Sign in",

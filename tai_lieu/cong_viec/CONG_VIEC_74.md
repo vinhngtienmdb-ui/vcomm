@@ -704,6 +704,9 @@ Kiểm thử tự động: `apps/api/test/c74-*.test.ts` (tích hợp, PostgreSQ
 | Khép đợt 1 (rà soát mã) | Hủy phiếu phí bị chặn khi phiếu đã có hóa đơn điện tử (`iposFeeEinvoiceIssued`): hủy, điều chỉnh hóa đơn trên module hóa đơn trước | Tránh hai hóa đơn cho một kỳ khi lập lại phiếu |
 | Khép đợt 1 (rà soát mã) | Kỳ đã hủy không tự lập lại bởi việc nền, chỉ lập lại bằng tay (API_356); thuê bao tạm khóa không lập kỳ mới đến khi trả phiếu cũ hoặc mở khóa; miễn phí hết hạn mà chưa chọn cách thu khác thì thu bằng VietQR | Hủy phiếu phải giữ được; không cộng dồn phiếu cho thuê bao đang khóa |
 | Khép đợt 1 (rà soát mã) | Phiếu trừ đối soát tuần đóng công nợ ngay khi gắn vào bảng (không đợi xác nhận); phiếu thu đủ thì bỏ khoản trừ N chưa vào bảng chuyển tiền; bảng có số còn lại 0 ghi phiếu đã thu ngay | Không thu hai lần |
+| Sau trình nghiệm thu (rà soát mức thấp) | Đơn chờ ứng dụng VComm ghi lại sau khi ca lúc tạo đơn đã đóng: hóa đơn vào ca đang mở của cùng quầy; quầy chưa mở ca thì báo `iposCheckoutShiftClosed`, đơn giữ chờ ghi lại | Không đổi biên bản ca đã đóng |
+| Sau trình nghiệm thu (rà soát mức thấp) | Kỳ đầu của thuê bao cấp trước khi có phiếu phí kết thúc đúng ngày hết hạn đã cấp (hết hạn cuối tháng không bị thu chồng) | Không thu chồng ngày đã cấp |
+| Sau trình nghiệm thu (rà soát mức thấp) | Hủy thuê bao tự hủy phiếu chờ thu của các kỳ chưa bắt đầu còn hủy được; phiếu kỳ đã dùng vẫn phải thu | QUYTAC_NGHIEPVU_596 khoản 5: không thu kỳ sau |
 
 ## 20. Rủi ro và điểm chưa xác định
 

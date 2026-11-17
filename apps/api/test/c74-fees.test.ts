@@ -229,3 +229,33 @@ describe("CONG_VIEC_74 L7 – trừ thu hộ", () => {
     ]);
   });
 });
+
+describe("CONG_VIEC_74 – kỳ đầu của thuê bao cũ, hủy thuê bao", () => {
+  it("thuê bao cấp trước khi có phiếu phí, hết hạn cuối tháng: kỳ đầu kết thúc đúng ngày hết hạn; hủy thuê bao thì phiếu kỳ chưa bắt đầu bị hủy, phiếu kỳ đã dùng vẫn chờ thu", async () => {
+    at(store.today);
+    const outlet = await store.call("post", `/affiliate/merchants/${store.merchantId}/outlets`, { name: "Dĩ An 04", address: "4 Nguyễn An Ninh, Dĩ An" });
+    expect(outlet.status, JSON.stringify(outlet.body)).toBe(201);
+    const subscriptionId = await subscribe(outlet.body.id);
+    // Giả lập thuê bao cấp từ trước khi có phiếu phí: bắt đầu 31/01, hết hạn 31/12.
+    await pool.query("UPDATE ipos.subscriptions SET starts_on = '2026-01-31', trial_ends_on = NULL, ends_on = '2026-12-31' WHERE id = $1", [subscriptionId]);
+    const fees = application.get(IposFeesService);
+    at("2026-12-01");
+    await fees.runDaily();
+    const [first] = await invoicesOf(subscriptionId);
+    expect(first).toMatchObject({ period_start: "2026-11-30", period_end: "2026-12-31" });
+    at("2026-12-24");
+    await fees.runDaily();
+    const next = (await invoicesOf(subscriptionId))[1]!;
+    expect(next).toMatchObject({ period_start: "2026-12-31", status: "awaiting" });
+
+    const detail = (await store.call("get", `/ipos/subscriptions/${subscriptionId}`)).body;
+    const cancelled = await store.call("post", `/ipos/subscriptions/${subscriptionId}/cancel`, { reason: "Đóng điểm bán", version: detail.version });
+    expect(cancelled.status, JSON.stringify(cancelled.body)).toBe(201);
+    const after = await invoicesOf(subscriptionId);
+    expect(after.map((row: { period_start: string; status: string }) => [row.period_start, row.status])).toEqual([
+      ["2026-11-30", "awaiting"],
+      ["2026-12-31", "voided"],
+    ]);
+    expect((await pool.query("SELECT count(*)::int AS n FROM instore.payout_deductions WHERE reference_id = $1", [next.id])).rows[0].n).toBe(0);
+  });
+});

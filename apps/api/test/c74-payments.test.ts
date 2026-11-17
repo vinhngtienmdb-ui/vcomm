@@ -320,3 +320,50 @@ describe("CONG_VIEC_74 L6 – doanh thu, đối soát iPOS trong ERP (API_357)",
     expect(loyalty.matched).toBe(0);
   });
 });
+
+describe("CONG_VIEC_74 – đơn chờ ghi lại sau khi ca đã đóng", () => {
+  it("móc hoàn tất: ca lúc tạo đơn đã đóng thì ghi vào ca đang mở của cùng quầy; quầy chưa mở ca thì báo lỗi, không ghi", async () => {
+    // Ca của các kiểm thử L4 đã đóng ở KICHBAN_KIEMTHU_789.
+    const closed = (await pool.query("SELECT id, member_id, register_id FROM ipos.shifts WHERE id = $1 AND closed_at IS NOT NULL", [shiftId])).rows[0];
+    expect(closed).toBeDefined();
+    const deviceId = (await pool.query("SELECT id FROM ipos.devices WHERE register_id = $1 AND revoked_at IS NULL", [closed.register_id])).rows[0].id as string;
+    const ownerUser = (await pool.query("SELECT user_id FROM affiliate.members WHERE id = $1", [closed.member_id])).rows[0].user_id as string;
+    const instore = application.get(InstoreCheckoutsService);
+    const database = application.get<Database>(DATABASE);
+    const lines = [{ variantId: bread.variantId, quantity: "1", unitPrice: "15000", discount: null }];
+    const created = await database.transaction((transaction) =>
+      instore.create(transaction, {
+        operatorCompanyId: operator,
+        place: { kind: "affiliate", merchantId: store.merchantId, outletId: store.outletA },
+        creator: { source: "ipos", userId: ownerUser },
+        idempotencyKey: randomUUID(),
+        billAmount: "15000",
+        lines: [{ name: "Bánh mì que", unit: "Cái", quantity: "1", unitPrice: "15000", amount: "15000", gift: false }],
+        collectInApp: true,
+        saleInput: { ipos: { deviceId, shiftId, memberId: closed.member_id, approvedBy: null, lines, invoiceDiscount: null } },
+      }),
+    );
+    let lk = { id: randomUUID(), documentNo: "LK00000000" };
+    const complete = () =>
+      database.transaction(async (transaction) => {
+        const row = (await instore.find(transaction, created.checkout.id))!;
+        return instore.completionHook("ipos")!(transaction, row, {
+          affiliateTransactionId: lk.id,
+          documentNo: lk.documentNo,
+          points: 0,
+          pointsAmount: "0",
+          voucherAmount: "0",
+          appAmount: "15000",
+          dueAtCounter: "0",
+        });
+      });
+    await expect(complete()).rejects.toMatchObject({ messageKey: "iposCheckoutShiftClosed" });
+    expect((await pool.query("SELECT count(*)::int AS n FROM ipos.sales WHERE idempotency_key = $1", [created.checkout.id])).rows[0].n).toBe(0);
+    const opened = (await ownerPos.post("/ipos/pos/shifts", { openingCash: "0", note: null })).body.id as string;
+    lk = (await ownerPos.post("/ipos/pos/loyalty-transactions", { shiftId: opened, billAmount: "15000", method: "merchant_qr", memberCode: null })).body;
+    const saleId = await complete();
+    expect((await pool.query("SELECT shift_id FROM ipos.sales WHERE id = $1", [saleId])).rows[0].shift_id).toBe(opened);
+    // Biên bản ca đã đóng không đổi: không có hóa đơn mới trong ca cũ.
+    expect((await pool.query("SELECT count(*)::int AS n FROM ipos.sales WHERE shift_id = $1 AND id = $2", [shiftId, saleId])).rows[0].n).toBe(0);
+  });
+});

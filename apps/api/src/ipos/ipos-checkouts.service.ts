@@ -84,10 +84,19 @@ export class IposCheckoutsService implements OnModuleInit {
     if (Number(result.dueAtCounter) > 0) throw new ApiError("BUSINESS_RULE", "iposCheckoutInputMissing");
     const byId = await loadSaleVariants(transaction, device.merchant_id, device.outlet_id, input.lines.map((line) => line.variantId));
     if (byId.size !== new Set(input.lines.map((line) => line.variantId)).size) throw new ApiError("BUSINESS_RULE", "iposItemUnavailable");
+    // Ca lúc tạo đơn đã đóng (đơn ghi lại muộn, ví dụ sau khi thu hộ lỗi ghi chứng từ): ghi vào ca đang mở của cùng quầy để không đổi biên bản ca đã đóng;
+    // quầy không có ca mở thì báo lỗi, đơn giữ trạng thái chờ ghi lại.
+    let shiftId = input.shiftId;
+    const shift = (await transaction.execute<{ closed: boolean }>(sql`SELECT closed_at IS NOT NULL AS closed FROM ipos.shifts WHERE id = ${input.shiftId}`)).rows[0];
+    if (!shift || shift.closed) {
+      const open = (await transaction.execute<{ id: string }>(sql`SELECT id FROM ipos.shifts WHERE register_id = ${device.register_id} AND closed_at IS NULL FOR UPDATE`)).rows[0];
+      if (!open) throw new ApiError("BUSINESS_RULE", "iposCheckoutShiftClosed");
+      shiftId = open.id;
+    }
     const now = this.clock.now();
     const { saleId } = await writeSale(transaction, {
       device: { merchantId: device.merchant_id, outletId: device.outlet_id, registerId: device.register_id, deviceId: input.deviceId },
-      shiftId: input.shiftId,
+      shiftId,
       memberId: input.memberId,
       userId: row.created_by_user_id,
       now,
