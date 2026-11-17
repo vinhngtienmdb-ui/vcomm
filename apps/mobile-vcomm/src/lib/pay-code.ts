@@ -48,3 +48,6 @@ export function code128C(digits: string): number[] {
     .split("")
     .map(Number);
 }
+
+// Mã trong đường dẫn thanh toán của cửa hàng (.../tt/<mã>, QUYTAC_NGHIEPVU_577); mã khác trả null.
+export const checkoutToken = (text: string) => text.trim().match(/\/tt\/([A-Za-z0-9_-]{16,64})(?:[?#].*)?$/)?.[1] ?? null;

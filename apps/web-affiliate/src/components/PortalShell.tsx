@@ -33,6 +33,8 @@ const portalMenu = [
   { href: "/counter", key: "counter", ownerOnly: false },
   { href: "/vouchers", key: "vouchers", ownerOnly: true },
   { href: "/reports", key: "reports", ownerOnly: true },
+  // CONG_VIEC_73 MAN_HINH_282: tiền thu hộ qua ứng dụng VComm.
+  { href: "/payouts", key: "payouts", ownerOnly: true },
   { href: "/store", key: "store", ownerOnly: true },
   { href: "/connection", key: "connection", ownerOnly: true },
 ] as const;

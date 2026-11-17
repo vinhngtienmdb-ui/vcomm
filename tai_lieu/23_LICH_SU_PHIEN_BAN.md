@@ -5,7 +5,29 @@
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.13.0 – 2026-11-17 – Chờ phát hành
+## Phiên bản 0.13.1 – 2026-11-17 – Đã phát hành
+
+- Chức năng mới: không có.
+- Sửa lỗi:
+  - LOI_15 (mức Cao, CONG_VIEC_55): màn hình Cửa hàng liên kết của ứng dụng VComm truyền `body: JSON.stringify(...)` vào hàm gọi API `api()`, hàm này chỉ gắn `content-type: application/json` khi dữ liệu truyền qua `json:`, nên trình duyệt gửi `text/plain`, máy chủ nhận thân rỗng và báo "Dữ liệu không hợp lệ". Người mua không quét được mã cửa hàng, không xác nhận hoặc từ chối được giao dịch, không hiện được mã thành viên. Sửa: quét mã, xác nhận, từ chối giao dịch, tạo mã thành viên chuyển sang `json:`; nhận voucher bỏ `body: "{}"` thừa (API không đọc thân yêu cầu). Đã rà `apps/mobile-warehouse` và các ứng dụng web: không có chỗ cùng lỗi (ứng dụng web dùng `apiFetch` của `packages/ui`, tự gắn `content-type` khi có thân). Chỉ sửa `apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx`.
+- Thay đổi dữ liệu: không có database migration.
+- Thay đổi API: không có.
+- Quyền mới: không có. Phạm vi khóa API mới: không có.
+- Thư viện mới: không có.
+- Biến môi trường mới: không có.
+- Tác vụ nền mới: không có.
+- Thiết lập sau triển khai: không có. Bản vá chỉ đổi ứng dụng VComm (bản di động và bản web); máy chủ API không đổi.
+- Rủi ro: thấp; chỉ đổi cách gửi dữ liệu của 4 lời gọi trên một màn hình. Người dùng ứng dụng di động cần cập nhật bản ứng dụng mới mới hết lỗi.
+- Khả năng tương thích: tương thích ngược với 0.13.0; không đổi cấu trúc dữ liệu, API.
+- Công việc gộp trong phiên bản: LOI_15 (pull request #196, đầu nhánh `491a7a0f`). Nhánh phát hành tạo từ `main` `56bbc8f` (sau khi hợp nhất pull request #197).
+- Kiểm thử:
+  - Tái hiện lỗi trên bản web ứng dụng VComm với API thật trên máy (màn hình Cửa hàng liên kết, nút "Hiện mã thành viên"): trước khi sửa gửi `text/plain`, máy chủ trả 400 `VALIDATION_FAILED`; sau khi sửa gửi `application/json`, máy chủ trả 200 và hiện mã QR. Kiểm tra mức HTTP các đường quét mã, xác nhận, từ chối giao dịch, nhận voucher: đạt. Kết quả ghi ở tài liệu `25`.
+  - Trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER) 154 tệp, 875 kiểm thử đạt.
+- Tag: `v0.13.1` trên commit hợp nhất nhánh `phat-hanh/v0.13.1` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Triển khai: chưa triển khai.
+- Phương án quay lui riêng của phiên bản: triển khai lại tag `v0.13.0` (ứng dụng VComm bản web; bản di động phát hành lại bản dựng từ `v0.13.0`). Không có database migration, biến môi trường, quyền, tác vụ nền cần hoàn tác. Quay lui thì lỗi LOI_15 xuất hiện lại.
+
+## Phiên bản 0.13.0 – 2026-11-17 – Đã phát hành
 
 - Chức năng mới:
   - Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63): nền trợ lý với lớp kết nối mô hình trung lập (Anthropic, bộ giả lập), che điện thoại, email, số định danh, số tài khoản trước khi gửi ra mô hình, thông báo xử lý dữ liệu cá nhân phải xác nhận trước lần dùng đầu, hạn mức chi phí tháng (USD) và số lượt mỗi người mỗi ngày của từng công ty, nhật ký lượt (token, chi phí, không lưu nội dung) (CHUC_NANG_226, MAN_HINH_244); hỏi đáp số liệu trong ngăn trợ lý ở thanh trên mọi mini app web, câu trả lời chạy dòng chảy, mô hình chỉ đọc dữ liệu qua 10 công cụ báo cáo theo đúng quyền của người hỏi, tối đa 8 lần gọi công cụ mỗi lượt (CHUC_NANG_227, MAN_HINH_242); soạn nội dung sản phẩm (tên, mô tả ngắn, mô tả chi tiết) ở trang sản phẩm `web-catalog` (CHUC_NANG_228, MAN_HINH_243); hội thoại riêng từng người giữ 90 ngày, đánh giá Đúng, Sai, thống kê sử dụng không có nội dung hội thoại (CHUC_NANG_229, MAN_HINH_245). Quy tắc QUYTAC_NGHIEPVU_510 đến 523. Mặc định mọi công ty tắt cả hai tính năng, hạn mức 0: không phát sinh chi phí cho đến khi quản trị công ty bật.

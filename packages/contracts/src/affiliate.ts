@@ -147,6 +147,8 @@ export interface MerchantPortalMe {
     merchantStatus: AffiliateMerchantStatus;
     role: AffiliateMemberRole;
     outlets: AffiliateOutlet[];
+    // Cửa hàng đã bật thu hộ qua ứng dụng VComm (CONG_VIEC_73; QUYTAC_NGHIEPVU_573).
+    collectionEnabled: boolean;
   }[];
 }
 export interface MerchantPortalStore extends AffiliateMerchantTerms {
@@ -220,6 +222,18 @@ export interface AffiliateTransactionItem {
   expiresAt: string | null;
   cancelReason: string | null;
   canCancel: boolean;
+  // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6); chỉ có ở chi tiết giao dịch.
+  einvoice?: TransactionEinvoice | null;
+}
+// Hóa đơn điện tử của giao dịch cửa hàng liên kết, lập theo ủy nhiệm (cổng cửa hàng, ứng dụng khách).
+export interface TransactionEinvoice {
+  id: string;
+  status: string;
+  series: string | null;
+  invoiceNo: string | null;
+  invoiceDate: string;
+  totalAmount: string;
+  hasPdf: boolean;
 }
 export interface AffiliateTransactionCreated {
   transaction: AffiliateTransactionItem;
@@ -266,6 +280,8 @@ export interface BuyerAffiliateTransaction {
   earnedPoints: number;
   skipReason: AffiliateSkipReason | null;
   createdAt: string;
+  // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+  einvoice: TransactionEinvoice | null;
 }
 export interface BuyerMemberCode {
   code: string;

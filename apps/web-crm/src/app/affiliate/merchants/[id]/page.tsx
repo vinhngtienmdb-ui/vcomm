@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_178 Cửa hàng liên kết – chi tiết: hợp đồng, trạng thái, điểm bán, thành viên (CONG_VIEC_55; CHUC_NANG_193; API_206);
-// khối Kết nối phần mềm MAN_HINH_231 (CONG_VIEC_67).
+// khối Kết nối phần mềm MAN_HINH_231 (CONG_VIEC_67); khối Thu hộ qua ứng dụng MAN_HINH_279 (CONG_VIEC_73).
 import type { AffiliateMember, AffiliateMerchantDetail, AffiliateOutlet } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -16,6 +16,7 @@ import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 import { AffiliateApiKeys } from "@/components/AffiliateApiKeys";
 import { IposMerchantBlock } from "@/components/IposMerchantBlock";
+import { AffiliateCollection } from "@/components/AffiliateCollection";
 import { merchantStatusClass, TermsFields, termsBody, type TermsForm } from "@/components/AffiliateTerms";
 
 const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
@@ -322,6 +323,7 @@ export default function AffiliateMerchantPage() {
               </form>
             )}
           </section>
+          <AffiliateCollection merchantId={data.id} onSaved={(message) => done(message)} />
           <section className="the">
             <div className="tieu-de">
               <h2>{t("outlets")}</h2>

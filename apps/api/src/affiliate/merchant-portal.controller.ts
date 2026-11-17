@@ -1,6 +1,6 @@
 // API_207: cổng cửa hàng liên kết – kích hoạt lời mời, thông tin của tôi, cửa hàng, nhân viên (CONG_VIEC_55).
 // Cửa hàng đang chọn gửi qua header `x-merchant-id` khi người dùng là thành viên của nhiều cửa hàng.
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
   type AffiliatePortalConnection,
   affiliateActivationOtpSchema,
@@ -39,6 +39,9 @@ import {
   merchantCheckoutCancelSchema,
   merchantCheckoutPayCodeSchema,
   type MerchantCheckoutResponse,
+  instorePayoutListQuerySchema,
+  type InstorePayoutDetail,
+  type InstorePayoutItem,
 } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
@@ -54,6 +57,8 @@ import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
+import { InstorePayoutsService } from "../instore/payouts.service";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -71,6 +76,8 @@ export class MerchantPortalController {
     private readonly apiKeys: AffiliateApiKeysService,
     private readonly security: MerchantPortalSecurityService,
     private readonly checkouts: AffiliateCheckoutsService,
+    private readonly instorePayouts: InstorePayoutsService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
   ) {}
 
   // API_329 (CONG_VIEC_73 lát L4; MAN_HINH_174): đơn chờ khách thanh toán qua ứng dụng VComm.
@@ -88,6 +95,21 @@ export class MerchantPortalController {
   @HttpCode(200)
   async checkoutPayCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
     return this.checkouts.payCode(await this.member(request), id, merchantCheckoutPayCodeSchema.parse(body).code);
+  }
+
+  // API_333 phần cổng cửa hàng (CONG_VIEC_73 lát L5; MAN_HINH_282): chủ cửa hàng xem bảng chuyển tiền thu hộ của cửa hàng.
+  @Get("payouts")
+  async payouts(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<InstorePayoutItem>> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantList(member.merchantId, instorePayoutListQuerySchema.parse(query));
+  }
+
+  @Get("payouts/:id")
+  async payout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<InstorePayoutDetail> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantDetail(member.merchantId, id);
   }
 
   @Post("checkouts/:id/cancel")
@@ -221,7 +243,19 @@ export class MerchantPortalController {
 
   @Get("transactions/:id")
   async transaction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateTransactionItem> {
-    return this.transactions.transaction(await this.member(request), id);
+    const item = await this.transactions.transaction(await this.member(request), id);
+    // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+    return { ...item, einvoice: await this.mandatedEinvoices.invoiceOf(id) };
+  }
+
+  @Get("transactions/:id/einvoice.pdf")
+  async transactionEinvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res({ passthrough: true }) response: Response): Promise<StreamableFile> {
+    // Kiểm phạm vi giao dịch của thành viên trước khi trả tệp.
+    await this.transactions.transaction(await this.member(request), id);
+    const file = await this.mandatedEinvoices.transactionPdf(id);
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename="${file.fileName}"`);
+    return new StreamableFile(file.content);
   }
 
   @Post("transactions/:id/cancel")

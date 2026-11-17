@@ -439,6 +439,15 @@ Kết quả cổng thanh toán: dùng đường dẫn nhận kết quả chung h
 | Mất mạng, khách chưa có ứng dụng | Giữ như hiện nay |
 | Open API cho iPOS | Tra trạng thái, hủy đơn chưa thanh toán, hủy toàn bộ đơn đã thanh toán kèm hoàn tiền; trả một phần hàng cho đơn trả bằng ứng dụng để sau, ngoài phạm vi |
 
+Lựa chọn của người dùng cho lát L6 (2026-11-17):
+
+| Câu | Quyết định |
+|---|---|
+| Người bán trên hóa đơn ủy nhiệm | Làm đủ dữ liệu ủy nhiệm, ký hiệu riêng, lập, gửi nền, lập bù trên bộ giả lập. Nhà cung cấp MISA: hóa đơn ủy nhiệm báo "Lỗi cài đặt: nhà cung cấp chưa hỗ trợ ủy nhiệm", không gửi. Bộ kết nối riêng làm khi người dùng có xác nhận từ MISA (mục 20) |
+| Hóa đơn phí sàn tháng | Một hóa đơn mỗi tháng cho mỗi người nhận; dòng "Phí dịch vụ sàn tháng MM/YYYY" bằng tổng H, mỗi thuế suất một dòng; phí cổng K không lên hóa đơn; không sinh bút toán, không phiếu xuất. Ngày hóa đơn là ngày cuối tháng trước, việc nền 2 giờ sáng ngày 1. Người dùng tự xác nhận việc ngày lập khác ngày hóa đơn |
+| Hủy giao dịch có hóa đơn ủy nhiệm | Việc chờ xử lý hóa đơn làm cùng L7 (hủy, hoàn tiền) |
+| Nơi xem | Công ty vận hành sàn: danh sách hóa đơn điện tử, cột "Người bán", bộ lọc "Lập theo ủy nhiệm". Cổng cửa hàng: số hóa đơn, tải PDF. Khách: lịch sử giao dịch trên ứng dụng, số hóa đơn, tải PDF. MAN_HINH_279: dữ liệu ủy nhiệm, ký hiệu theo năm, việc chờ lập, "Lập bù" |
+
 ## 18. Các lát và điểm xem trước
 
 Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
@@ -450,9 +459,9 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 | L2 | Database migration 0162; quầy tập đoàn luồng 1, 2 (API_328, MAN_HINH_278, sửa 161, 166); ứng dụng MAN_HINH_277; VNPAY môi trường thử nghiệm hoặc bộ giả lập | Bán tại quầy, khách trả trên ứng dụng, in hóa đơn |
 | L3 | Quét mã động thay nhập 6 số khi dùng điểm tại quầy (cách thu tại quầy) | Dùng điểm tại quầy bằng quét mã |
 | L4 | Database migration 0163; thu hộ cửa hàng liên kết trên cổng (API_329, 332, sửa 174, MAN_HINH_279, 280); phí; dư nợ | Cổng cửa hàng bán qua ứng dụng, giao dịch có thu hộ |
-| L5 | Bảng chuyển tiền ngày, hạch toán hai công ty, hóa đơn phí tháng (API_333, MAN_HINH_281, 282) | Lập bảng, ghi đã chuyển, xem sổ cái |
-| L6 | Database migration 0164; hóa đơn ủy nhiệm (API_334, MAN_HINH_279 phần ủy nhiệm) | Giao dịch có hóa đơn ủy nhiệm trên bộ giả lập |
-| L7 | Open API đơn chờ, webhook (API_330, 331, sửa 231, 232) | Gọi thử API, nhận webhook ở máy nhận thử |
+| L5 | Database migration 0164; bảng chuyển tiền ngày, hạch toán hai công ty, thuế suất phí riêng (API_333, MAN_HINH_281, 282) | Lập bảng, ghi đã chuyển, xem sổ cái |
+| L6 | Database migration 0171; hóa đơn ủy nhiệm (API_334, MAN_HINH_279 phần ủy nhiệm); hóa đơn phí sàn tháng (dời từ L5) | Giao dịch có hóa đơn ủy nhiệm trên bộ giả lập |
+| L7 | Database migration 0172; Open API đơn chờ, webhook (API_330, 331, sửa 231, 232) | Gọi thử API, nhận webhook ở máy nhận thử |
 
 ### Kết quả lát L1 (2026-11-17)
 
@@ -485,6 +494,72 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 - Nút "Tăng độ sáng" trên MAN_HINH_276 (thư viện `expo-brightness` 58.0.2, người dùng duyệt, ghi tài liệu 13 mục 13): đặt độ sáng tối đa cho riêng màn hình ứng dụng, bấm lại hoặc rời màn hình thì trả độ sáng cũ; bản web không có nút.
 - Người dùng chọn (2026-11-17): voucher trên MAN_HINH_277 làm ở L4 cùng cửa hàng liên kết, vì quầy tập đoàn chưa có voucher.
 
+### Kết quả lát L4 (2026-11-17)
+
+- Database migration 0163:
+  - `affiliate.merchants` thêm công tắc thu hộ, phí thu hộ, tài khoản nhận tiền, thời điểm và người xác nhận cảnh báo pháp lý.
+  - Bảng mới `instore.gateway_fee_rates`, `instore.payouts` (khung, lập ở L5), `instore.payout_deductions`.
+  - `affiliate.transactions` thêm tiền thu hộ, phí sàn, phí cổng, `checkout_id`; nguồn `ipos`.
+- Máy chủ:
+  - Giao dịch LK… tách hai bước: dùng voucher, điểm (khi khách bấm thanh toán, xác nhận) và tích điểm, ghi hoàn tất, hạch toán (khi tiền về, hoặc ngay khi xác nhận nếu thu tại quầy). Luồng cũ của CONG_VIEC_55 gọi liền hai bước như trước.
+  - Bộ xử lý loại `affiliate` (`apps/api/src/affiliate/affiliate-checkouts.service.ts`); voucher dùng được kèm số điểm tối đa sau voucher.
+  - Phí sàn, phí thu hộ và phí cổng chốt khi tiền về, áp dụng cả quầy tập đoàn.
+  - Móc `registerCompletionHook` cho iPOS (đã gửi tên hàm, kiểu dữ liệu cho phiên CONG_VIEC_74).
+  - Dư nợ cửa hàng trừ tiền thu hộ chờ chuyển sau phí.
+  - API_329; API_332 (thêm `GET /affiliate/merchants/{id}/collection` để màn hình đọc cài đặt); quyền `finance.instore.view`, `finance.instore.manage`.
+- Giao diện:
+  - MAN_HINH_174: chọn cách khách trả, "Hiện mã QR" và quét Mã thanh toán tạo đơn chờ; kết quả có phí, tiền VComm chuyển.
+  - MAN_HINH_279: phần thu hộ.
+  - MAN_HINH_280: biểu phí cổng.
+  - MAN_HINH_277: chọn voucher; đơn thu tại quầy báo số tiền trả tại quầy.
+  - MAN_HINH_181: quét mã QR thanh toán mở MAN_HINH_277; nút mở MAN_HINH_276.
+- Kiểm thử: `apps/api/test/c73-instore-affiliate.test.ts` (cài đặt thu hộ, biểu phí, luồng 1 thu hộ có voucher, điểm, VNPAY, luồng 2 thu tại quầy, hết hạn trả voucher và hoàn điểm, giới hạn ba đơn mỗi thu ngân, móc iPOS).
+- Lệch so với đặc tả, cần người dùng biết:
+  - Cột webhook của khóa API và bảng nhật ký gửi webhook làm ở database migration của L7; liên kết bút toán, phiếu chi, phiếu thu của bảng chuyển tiền làm ở L5 (bảng đặc tả ghi ở 0163). Lý do: chưa đoán trước cấu trúc của lát sau.
+  - Thuế phí thu hộ dùng thuế suất phí dịch vụ đang có của cửa hàng liên kết (10 %); cài đặt thuế suất riêng làm cùng bảng chuyển tiền ở L5.
+  - Hạch toán tiền thu hộ (phải trả cửa hàng, doanh thu phí) làm ở L5; đến lúc đó tiền thu hộ chỉ ghi trên giao dịch, đơn chờ.
+  - Giao dịch LK… có tiền thu hộ chưa hủy được (hủy kèm hoàn tiền làm ở L7); nút hủy LK… cũ báo lỗi cho giao dịch này.
+  - "Hiện mã QR" ở cổng luôn tạo đơn chờ (kể cả cửa hàng tắt thu hộ); máy chủ vẫn nhận mã QR cũ `VCLK1…` nhưng cổng không tạo nữa. Cách số điện thoại giữ như CONG_VIEC_55. Khung mã thành viên trên MAN_HINH_181 giữ trong thời hạn chuyển đổi, thêm nút mở Mã thanh toán.
+  - Giới hạn ba đơn chờ mỗi thu ngân kiểm ở API_329; iPOS tự kiểm khi gọi `InstoreCheckoutsService` trực tiếp.
+
+### Kết quả lát L5 (2026-11-17)
+
+- Database migration 0164:
+  - Bảng mới `instore.settings` (thuế suất phí sàn, phí thu hộ, mặc định 10 %).
+  - `instore.payouts` thêm thuế suất chốt lúc lập, công nợ phải trả và phải thu nội bộ, phiếu chi, phiếu thu.
+  - Hai loại phiếu `instore_payout_payment`, `instore_payout_receipt`.
+  - Nguồn bút toán `instore_checkout`, `instore_checkout_owner`, `instore_payout`, `instore_payout_owner`; nguồn công nợ `instore_payout`, `instore_payout_owner`.
+  - Vai trò tài khoản `instore_fee_revenue` (511, 5113), `instore_payable_internal` (3368), `instore_receivable_internal` (1368). Thuế phí dùng vai trò thuế đầu ra, đầu vào sẵn có; phí cổng dùng vai trò phí thu hộ, phí cổng sẵn có (6418, 6421).
+- Máy chủ (`apps/api/src/instore/payouts.service.ts`):
+  - Hạch toán theo QUYTAC_NGHIEPVU_587:
+    - Tiền cổng về: Nợ 112 / Có 331 (cửa hàng liên kết) hoặc Có 3368 (công ty sở hữu).
+    - Hóa đơn bán lẻ của công ty sở hữu: Nợ 1368 / Có 131.
+    - Lập bảng: công ty vận hành sàn Nợ 331 hoặc 3368 / Có 511, 33311, 6418; công ty sở hữu Nợ 6418, 1331 / Có 1368.
+    - Ghi đã chuyển: phiếu chi Nợ 331 hoặc 3368 / Có 112; phiếu thu Nợ 112 / Có 1368.
+  - Việc nền 1 giờ sáng lập bảng ngày; tiền chuyển âm ghi 0, mang sang; khoản trừ khác N đọc từ `instore.payout_deductions`.
+  - Việc nền 8 giờ 5 sáng ngày làm việc nhắc bảng chờ chuyển quá 2 ngày làm việc.
+  - API_333; `GET`, `PUT /finance/instore/settings` (thuế suất).
+- Giao diện:
+  - MAN_HINH_281: danh sách, cảnh báo quá hạn, chi tiết G đến N, đơn thu hộ, khoản trừ khác, ghi đã chuyển.
+  - MAN_HINH_280: thêm thuế suất phí.
+  - MAN_HINH_282: mục "Tiền thu hộ" trên cổng cửa hàng.
+- Kiểm thử:
+  - `apps/api/test/c73-instore-payouts.test.ts`: cửa hàng liên kết, thuế suất riêng, mang sang số âm, bút toán, phiếu chi, cổng cửa hàng, nhắc quá hạn.
+  - `apps/api/test/c73-instore-payouts-retail.test.ts`: công ty mẹ vận hành sàn, cửa hàng của công ty bán lẻ; bút toán hai công ty, phiếu chi, phiếu thu nháp và ghi sổ phiếu thu.
+- Lệch so với đặc tả, người dùng đã chọn theo cả 5 đề xuất (2026-11-17):
+  1. Hóa đơn điện tử phí sàn hằng tháng dời sang L6. Lý do: hóa đơn điện tử hiện phải gắn phiếu xuất kho; lập qua đơn bán dịch vụ sẽ ghi doanh thu hai lần.
+  2. Cảnh báo bảng quá hạn: thông báo trong ứng dụng mỗi sáng cho người có quyền `finance.instore.manage`, kèm dòng cảnh báo trên MAN_HINH_281; không sửa trang chủ.
+  3. Ngày làm việc chỉ bỏ thứ Bảy, Chủ nhật (không trừ ngày lễ), như hạn hóa đơn điện tử.
+  4. Phiếu chi khi ghi đã chuyển lập và ghi sổ ngay, không qua duyệt, không kiểm số dư quỹ (tiền cổng về ngân hàng không qua phiếu thu nên số dư quỹ trên hệ thống không gồm tiền này).
+     Phiếu thu ở công ty sở hữu vào quỹ ngân hàng của cửa hàng có tiền thu hộ lớn nhất trong bảng, ghi sổ ngay.
+     Cửa hàng đó chưa cài quỹ ngân hàng thì phiếu thu để nháp:
+     - Quỹ tạm là quỹ tiền mặt của cửa hàng; chưa cấp số, chưa bút toán; công nợ phải thu nội bộ còn nguyên.
+     - Kế toán công ty đó có quyền `finance.instore.manage` chọn quỹ ngân hàng trên MAN_HINH_281 rồi ghi sổ (`POST /finance/instore/payouts/:id/receipt`, thuộc API_333).
+     - Phiếu nháp này không sửa, không gửi ở màn hình phiếu thu chi thường.
+  5. Cửa hàng tập đoàn của chính công ty vận hành sàn: không lập bảng chuyển tiền, không tính phí sàn; tiền cổng ghi Nợ 112 / Có 131.
+- Khoản ghi ngược L luôn bằng 0 cho đến L7 (hủy, hoàn tiền đơn đã thu).
+- Hợp nhất `main` v0.13.1 (LOI_15) vào nhánh; gỡ xung đột ở `cua-hang-lien-ket.tsx`: giữ cách gọi `json:` của LOI_15 và phần nhận mã QR thanh toán, nút mở mã thanh toán của CONG_VIEC_73.
+
 ## 19. Điểm AI đề xuất cần người dùng duyệt
 
 1. Đơn chờ hết hạn sau 10 phút; giữ hàng tại quầy tập đoàn trong thời gian chờ.
@@ -508,6 +583,8 @@ Viết mã sau khi CONG_VIEC_72 hợp nhất vào `main`.
 
 - Trung gian thanh toán: công ty vận hành sàn giữ tiền của cửa hàng liên kết. Phiên làm việc không tra cứu pháp lý. Không bật thu hộ cửa hàng liên kết trên môi trường thật khi người dùng chưa xác nhận hồ sơ pháp lý (công tắc mặc định tắt).
 - Ủy nhiệm lập hóa đơn: người dùng xác nhận tính hợp lệ của việc dùng tài khoản nhà cung cấp hóa đơn của VComm và thủ tục thông báo với cơ quan thuế.
+- Điểm mở (L6): bộ kết nối MISA hiện có không gửi người bán, MISA lấy người bán theo mã số thuế của tài khoản. Hóa đơn ủy nhiệm với MISA ở trạng thái "Lỗi cài đặt" đến khi người dùng có xác nhận từ MISA về cách lập theo ủy nhiệm; khi đó làm bộ kết nối riêng.
+- Điểm mở (L6): hóa đơn phí sàn tháng ghi ngày cuối tháng trước nhưng lập lúc 2 giờ sáng ngày 1; người dùng tự xác nhận nhà cung cấp, cơ quan thuế chấp nhận.
 - VNPAY chưa thử với tài khoản môi trường thử nghiệm (giới hạn đã biết của CONG_VIEC_25); lát L2 dùng bộ giả lập nếu chưa có khóa.
 - Phụ thuộc CONG_VIEC_72: nếu đặc tả CONG_VIEC_72 đổi cách lưu khóa Smart OTP trên máy, cập nhật QUYTAC_NGHIEPVU_574 trước khi làm L1.
 - Ứng dụng iPOS: công việc riêng (CONG_VIEC_74), gọi service đơn chờ trong backend (mục 15); phí thuê bao iPOS trừ vào bảng chuyển tiền qua `instore.payout_deductions` do CONG_VIEC_74 ghi.

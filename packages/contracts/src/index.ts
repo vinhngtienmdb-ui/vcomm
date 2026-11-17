@@ -3306,14 +3306,18 @@ export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
 export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
 export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
+// CONG_VIEC_73 (QUYTAC_NGHIEPVU_585, 587): phiếu chi chuyển tiền thu hộ, phiếu thu nhận tiền thu hộ, hệ thống lập khi ghi đã chuyển bảng chuyển tiền.
+export const instorePayoutPaymentKinds = ["instore_payout_receipt", "instore_payout_payment"] as const;
+export type InstorePayoutPaymentKind = (typeof instorePayoutPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind | InstorePayoutPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
   kind === "customer_receipt" ||
   kind === "supplier_refund" ||
   kind === "retail_receipt" ||
   kind === "cash_surplus" ||
   kind === "customs_tax_refund" ||
-  kind === "loyalty_intercompany_receipt";
+  kind === "loyalty_intercompany_receipt" ||
+  kind === "instore_payout_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
@@ -3811,6 +3815,8 @@ export const einvoiceListQuerySchema = z
     from: isoDate.optional(),
     to: isoDate.optional(),
     search: z.string().trim().max(100).optional(),
+    // Lập theo ủy nhiệm thay cửa hàng liên kết (CONG_VIEC_73 lát L6).
+    mandated: z.enum(["true", "false"]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -3830,7 +3836,11 @@ export interface EinvoiceListItem {
   status: EinvoiceStatus;
   overdue: boolean;
   replaced: boolean;
+  // Số phiếu xuất, số giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng).
   sourceDocumentNo: string | null;
+  sourceKind: "document" | "affiliate_transaction" | "fee_invoice";
+  sellerName: string;
+  mandated: boolean;
 }
 export interface EinvoiceParty {
   partnerId?: string | null;
@@ -3868,7 +3878,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   lastError: string | null;
   dueDate: string;
   issuedAt: string | null;
-  sourceDocumentId: string;
+  sourceDocumentId: string | null;
   related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];

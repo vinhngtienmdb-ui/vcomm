@@ -235,3 +235,181 @@ export const instoreGatewayFeesSchema = z
   })
   .strict();
 export type InstoreGatewayFeesRequest = z.input<typeof instoreGatewayFeesSchema>;
+
+// ---------------------------------------------------------------------------
+// Bảng chuyển tiền thu hộ ngày (API_333; MAN_HINH_281, 282). Lát L5.
+// ---------------------------------------------------------------------------
+
+export const instorePayoutListQuerySchema = z
+  .object({
+    recipientKind: z.enum(["merchant", "retail_company"]).optional(),
+    status: z.enum(["pending", "transferred"]).optional(),
+    merchantId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+// G: thu hộ, H: phí sàn, I: thuế phí sàn, K: phí cổng, L: ghi ngược, M: số mang sang (≤ 0), N: khoản trừ khác.
+export interface InstorePayoutItem {
+  id: string;
+  documentNo: string;
+  recipientKind: "merchant" | "retail_company";
+  recipientName: string;
+  recipientCode: string | null;
+  businessDate: string;
+  collectedAmount: string;
+  platformFee: string;
+  platformFeeTax: string;
+  gatewayFee: string;
+  reversalAmount: string;
+  carriedAmount: string;
+  deductionAmount: string;
+  amount: string;
+  feeTaxRate: string;
+  status: "pending" | "transferred";
+  // Chờ chuyển quá 2 ngày làm việc.
+  overdue: boolean;
+  transferredOn: string | null;
+  bankTransactionNo: string | null;
+  paymentNo: string | null;
+  receiptNo: string | null;
+  // Người nhận là công ty tập đoàn mà cửa hàng chưa cài quỹ ngân hàng: phiếu thu đang nháp, chờ kế toán công ty đó chọn quỹ ngân hàng và ghi sổ.
+  receiptDraft: boolean;
+  createdAt: string;
+  version: number;
+}
+export interface InstorePayoutDetail extends InstorePayoutItem {
+  lines: {
+    checkoutId: string;
+    checkoutNo: string;
+    // Số hóa đơn bán lẻ hoặc giao dịch LK…
+    documentNo: string | null;
+    paidAt: string;
+    placeName: string;
+    billAmount: string;
+    collectedAmount: string;
+    platformFee: string;
+    gatewayFee: string;
+  }[];
+  deductions: { id: string; kind: string; businessDate: string; amount: string; note: string | null }[];
+  // Công ty vận hành sàn, người có quyền finance.instore.manage, bảng chờ chuyển.
+  canTransfer: boolean;
+  // Công ty nhận (công ty tập đoàn), người có quyền finance.instore.manage, phiếu thu đang nháp.
+  canPostReceipt: boolean;
+}
+export interface InstorePayoutListResponse {
+  data: InstorePayoutItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+  overdueCount: number;
+}
+
+// Ghi đã chuyển: ngày chuyển, số giao dịch ngân hàng, quỹ chi của công ty vận hành sàn.
+export const instoreTransferredSchema = z
+  .object({
+    transferredOn: z.iso.date(),
+    bankTransactionNo: z.string().trim().min(1).max(100),
+    fundId: z.uuid(),
+    version: z.number().int().min(1),
+  })
+  .strict();
+export type InstoreTransferredRequest = z.input<typeof instoreTransferredSchema>;
+
+// Ghi sổ phiếu thu nháp của bảng chuyển tiền ở công ty nhận: quỹ ngân hàng nhận tiền.
+export const instorePostReceiptSchema = z.object({ fundId: z.uuid(), version: z.number().int().min(1) }).strict();
+export type InstorePostReceiptRequest = z.input<typeof instorePostReceiptSchema>;
+
+// Thuế suất phí sàn, phí thu hộ (mặc định 10 %).
+export const instoreSettingsSchema = z
+  .object({
+    feeTaxRate: z
+      .string()
+      .trim()
+      // Mức hóa đơn điện tử ghi được (lát L6).
+      .regex(/^(0|5|8|10)$/, "invalidValue"),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export interface InstoreSettingsResponse {
+  feeTaxRate: string;
+  version: number;
+  canManage: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Hóa đơn điện tử lập thay cửa hàng liên kết theo ủy nhiệm (lát L6; QUYTAC_NGHIEPVU_588, 589; API_334; MAN_HINH_279).
+// ---------------------------------------------------------------------------
+
+export const einvoiceMandateTaxMethods = ["deduction", "direct"] as const;
+export type EinvoiceMandateTaxMethod = (typeof einvoiceMandateTaxMethods)[number];
+export const einvoiceBacklogReasons = ["mandate_missing", "mandate_inactive", "series_missing", "einvoice_off"] as const;
+export type EinvoiceBacklogReason = (typeof einvoiceBacklogReasons)[number];
+const mandateVatRates = ["0", "5", "8", "10", "exempt", "not_declared"] as const;
+
+// Khấu trừ: hóa đơn giá trị gia tăng, cần thuế suất mặc định; trực tiếp hoặc hộ kinh doanh: hóa đơn bán hàng.
+export const einvoiceMandateSchema = z
+  .object({
+    sellerName: z.string().trim().min(1).max(300),
+    taxCode: z
+      .string()
+      .trim()
+      .regex(/^[0-9]{10}(-[0-9]{3})?$/, "invalidValue"),
+    address: z.string().trim().min(1).max(300),
+    taxMethod: z.enum(einvoiceMandateTaxMethods),
+    defaultVatRate: z.enum(mandateVatRates).nullable(),
+    mandateNo: z.string().trim().min(1).max(100),
+    effectiveFrom: z.iso.date(),
+    expiresOn: z.iso.date().nullable(),
+    // Ký hiệu theo năm: C hoặc K, 2 số cuối của năm, T, 2 chữ cái in hoa.
+    series: z
+      .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().regex(/^[CK][0-9]{2}T[A-Z]{2}$/, "invalidValue") }).strict())
+      .max(20),
+    version: z.number().int().min(0),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.taxMethod === "deduction" && !value.defaultVatRate) context.addIssue({ code: "custom", path: ["defaultVatRate"], message: "required" });
+    if (value.expiresOn && value.expiresOn < value.effectiveFrom) context.addIssue({ code: "custom", path: ["expiresOn"], message: "invalidValue" });
+    value.series.forEach((item, index) => {
+      if (item.series.slice(1, 3) !== String(item.year % 100).padStart(2, "0")) context.addIssue({ code: "custom", path: ["series", index, "series"], message: "einvoiceSeriesYear" });
+      if (value.series.findIndex((other) => other.year === item.year) !== index) context.addIssue({ code: "custom", path: ["series", index, "year"], message: "invalidValue" });
+    });
+  });
+export type EinvoiceMandateRequest = z.input<typeof einvoiceMandateSchema>;
+
+export interface EinvoiceBacklogItem {
+  transactionId: string;
+  documentNo: string;
+  transactionDate: string;
+  amount: string;
+  reason: EinvoiceBacklogReason;
+  createdAt: string;
+}
+
+export interface EinvoiceMandateResponse {
+  merchantId: string;
+  // null: chưa khai dữ liệu ủy nhiệm.
+  mandate: {
+    sellerName: string;
+    taxCode: string;
+    address: string;
+    taxMethod: EinvoiceMandateTaxMethod;
+    defaultVatRate: string | null;
+    mandateNo: string;
+    effectiveFrom: string;
+    expiresOn: string | null;
+    file: { name: string; size: number } | null;
+  } | null;
+  series: { year: number; series: string }[];
+  // Nhà cung cấp hóa đơn của công ty vận hành sàn: MISA chưa hỗ trợ lập theo ủy nhiệm (hóa đơn ở "Lỗi cài đặt").
+  provider: string | null;
+  providerSupportsMandate: boolean;
+  einvoiceEnabled: boolean;
+  backlog: EinvoiceBacklogItem[];
+  canManage: boolean;
+  version: number;
+}

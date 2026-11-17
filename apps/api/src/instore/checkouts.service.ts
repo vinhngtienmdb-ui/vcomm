@@ -30,6 +30,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import type { GatewayNotification } from "../marketplace/payments/payment-gateway";
 import { gatewayAdapter, gatewayConfigured, isOnlineMethod } from "../marketplace/payments/payment-gateway-registry";
 import { claimFailureLimit, PayCodeService, type PayCodeScanner } from "./pay-code.service";
+import { InstorePayoutsService } from "./payouts.service";
 
 type Executor = Pick<Database, "execute">;
 export type DatabaseTransaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
@@ -166,6 +167,7 @@ export class InstoreCheckoutsService {
     private readonly payCodes: PayCodeService,
     private readonly smartOtp: SmartOtpService,
     private readonly authenticationSettings: AuthenticationSettingsService,
+    private readonly payouts: InstorePayoutsService,
   ) {}
 
   registerHandler(kind: InstoreCheckoutKind, handler: CheckoutKindHandler): void {
@@ -443,6 +445,8 @@ export class InstoreCheckoutsService {
         ]);
       return;
     }
+    // Lát L5: công ty vận hành sàn ghi nhận tiền cổng về (Nợ ngân hàng / Có phải trả người nhận) trước khi ghi chứng từ của cửa hàng.
+    await this.payouts.recordGatewayReceipt(transaction, row, result.amount);
     await this.completeWithin(transaction, checkoutId, result.amount);
   }
 

@@ -1,8 +1,13 @@
 // API_206: cửa hàng liên kết trên web quản trị (CONG_VIEC_55). Quyền xét tại công ty vận hành sàn.
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res, StreamableFile, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import type { Response } from "express";
 import {
   affiliateCollectionSchema,
   type AffiliateCollectionResponse,
+  einvoiceMandateSchema,
+  type EinvoiceMandateResponse,
+  type TransactionEinvoice,
   affiliateApiKeyCreateSchema,
   affiliateApiKeyUpdateSchema,
   revokeApiKeySchema,
@@ -51,6 +56,7 @@ import { AffiliateTransactionsService } from "./transactions.service";
 import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
 
 @Controller("affiliate")
 export class AffiliateController {
@@ -64,6 +70,7 @@ export class AffiliateController {
     private readonly apiKeys: AffiliateApiKeysService,
     private readonly portalSecurity: MerchantPortalSecurityService,
     private readonly checkouts: AffiliateCheckoutsService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -102,6 +109,44 @@ export class AffiliateController {
   @Patch("merchants/:id/collection")
   async updateCollection(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateCollectionResponse> {
     return this.checkouts.updateCollection(await this.manager(request), id, affiliateCollectionSchema.parse(body));
+  }
+
+  // API_334 (CONG_VIEC_73 lát L6; MAN_HINH_279): dữ liệu ủy nhiệm hóa đơn, ký hiệu theo năm, tệp văn bản ủy nhiệm, việc chờ lập, lập bù.
+  @Get("merchants/:id/einvoice-mandate")
+  async mandate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<EinvoiceMandateResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.mandatedEinvoices.mandate(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  @Put("merchants/:id/einvoice-mandate")
+  async saveMandate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<EinvoiceMandateResponse> {
+    return this.mandatedEinvoices.saveMandate(await this.manager(request), id, einvoiceMandateSchema.parse(body));
+  }
+
+  @Post("merchants/:id/einvoice-mandate/file")
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 10 * 1024 * 1024 + 1, files: 1 } }))
+  async mandateFile(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: { buffer: Buffer; size: number; originalname?: string } | undefined,
+  ): Promise<EinvoiceMandateResponse> {
+    return this.mandatedEinvoices.saveFile(await this.manager(request), id, file);
+  }
+
+  @Get("merchants/:id/einvoice-mandate/file")
+  async downloadMandateFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res({ passthrough: true }) response: Response): Promise<StreamableFile> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    const file = await this.mandatedEinvoices.file(actor, id);
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename*=UTF-8''${encodeURIComponent(file.fileName)}`);
+    return new StreamableFile(file.content);
+  }
+
+  @Post("transactions/:id/einvoice")
+  @HttpCode(200)
+  async reissueEinvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<TransactionEinvoice> {
+    return this.mandatedEinvoices.reissue(await this.manager(request), id);
   }
 
   @Put("merchants/:id")

@@ -1,7 +1,7 @@
 // MAN_HINH_181 Cửa hàng liên kết trên ứng dụng VComm (CONG_VIEC_55; CHUC_NANG_194; API_209; QUYTAC_NGHIEPVU_395 đến 397):
 // quét mã QR của cửa hàng rồi xác nhận, yêu cầu chờ xác nhận theo số điện thoại, mã thành viên cho thu ngân quét, lịch sử giao dịch.
 // Lát L2 (CHUC_NANG_195; API_211; QUYTAC_NGHIEPVU_401, 402): nhận voucher (đổi bằng điểm, miễn phí), voucher của tôi, chọn voucher khi xác nhận hoặc tạo mã thành viên.
-import type { BuyerAffiliateRequest, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
+import type { BuyerAffiliateRequest, BuyerInstoreCheckout, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import QRCode from "react-native-qrcode-svg";
 import { Button, Card, Field, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
+import { checkoutToken } from "@/lib/pay-code";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
@@ -104,7 +105,7 @@ function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffilia
     try {
       await api(`/buyer/affiliate/transactions/${request.transactionId}/${action}`, {
         method: "POST",
-        body: JSON.stringify(action === "confirm" ? { points: used, voucherCodeId, ...(code ? { code } : {}) } : code ? { code } : {}),
+        json: action === "confirm" ? { points: used, voucherCodeId, ...(code ? { code } : {}) } : code ? { code } : {},
       });
       onDone(action === "confirm" ? t("affiliateConfirmed") : t("affiliateDeclined"));
     } catch (failure) {
@@ -154,7 +155,7 @@ function MemberCode({ vouchers, onError }: { vouchers: BuyerVoucherCode[]; onErr
   const [code, setCode] = useState<BuyerMemberCode | null>(null);
   const create = useCallback(async () => {
     try {
-      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", body: JSON.stringify({ points: Number(value.replace(/\D/g, "")) || 0, voucherCodeId }) }));
+      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", json: { points: Number(value.replace(/\D/g, "")) || 0, voucherCodeId } }));
     } catch (failure) {
       onError(failure);
     }
@@ -189,7 +190,7 @@ function Vouchers({ offers, mine, onClaimed, onError }: { offers: BuyerVoucherOf
   async function claim(offer: BuyerVoucherOffer) {
     setBusy(offer.id);
     try {
-      await api(`/buyer/affiliate/vouchers/${offer.id}/claim`, { method: "POST", body: "{}" });
+      await api(`/buyer/affiliate/vouchers/${offer.id}/claim`, { method: "POST" });
       onClaimed(offer.pointsPrice ? t("affiliateVoucherClaimedPoints", { points: points(offer.pointsPrice) }) : t("affiliateVoucherClaimed"));
     } catch (failure) {
       onError(failure);
@@ -282,6 +283,8 @@ export default function AffiliateScreen() {
           <ConfirmCard key={request.transactionId} request={request} code={null} onDone={done} onError={fail} />
         ))}
         <Button label={t("affiliateScanStore")} onPress={() => (setMessage(null), setScanning(true))} />
+        {/* CONG_VIEC_73: cửa hàng quét Mã thanh toán thay mã thành viên; mã thành viên cũ còn nhận trong thời hạn chuyển đổi. */}
+        <Button label={t("affiliateOpenPayCode")} kind="secondary" onPress={() => router.push("/ma-thanh-toan")} />
         <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />
         <Vouchers offers={offers} mine={mine} onClaimed={(text) => (setMessage({ text, tone: "success" }), reload())} onError={fail} />
         <Card>
@@ -303,7 +306,15 @@ export default function AffiliateScreen() {
             onClose={() => setScanning(false)}
             onCode={(code) => {
               setScanning(false);
-              api<BuyerAffiliateRequest>("/buyer/affiliate/scan", { method: "POST", body: JSON.stringify({ code }) })
+              // Mã QR thanh toán của cửa hàng (CONG_VIEC_73): nhận đơn rồi mở MAN_HINH_277; mã QR cũ của cách 1 xử lý như trước.
+              const token = checkoutToken(code);
+              if (token) {
+                api<BuyerInstoreCheckout>("/buyer/instore/checkouts/claim", { method: "POST", json: { token } })
+                  .then((checkout) => router.push({ pathname: "/thanh-toan-cua-hang/[id]", params: { id: checkout.id } }))
+                  .catch(fail);
+                return;
+              }
+              api<BuyerAffiliateRequest>("/buyer/affiliate/scan", { method: "POST", json: { code } })
                 .then((request) => setScanned({ request, code }))
                 .catch(fail);
             }}

@@ -739,6 +739,7 @@ export class AffiliateTransactionsService {
       earnedPoints: row.earned_points,
       skipReason: row.skip_reason,
       createdAt: iso(row.created_at)!,
+      einvoice: null,
     }));
   }
 }

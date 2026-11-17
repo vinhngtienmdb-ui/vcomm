@@ -7,12 +7,11 @@ import { Text, View } from "react-native";
 import { Button, Notice } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { translator } from "@/lib/i18n";
+import { checkoutToken } from "@/lib/pay-code";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
 
-// Mã trong đường dẫn thanh toán; quét mã khác thì báo không phải mã thanh toán của cửa hàng.
-export const checkoutToken = (text: string) => text.match(/\/tt\/([A-Za-z0-9_-]{16,64})(?:[?#].*)?$/)?.[1] ?? null;
 
 export default function ScanStoreCodeScreen() {
   const [permission, requestPermission] = useCameraPermissions();

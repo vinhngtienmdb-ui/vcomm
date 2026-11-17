@@ -166,6 +166,9 @@ import { InstoreCheckoutsService } from "./instore/checkouts.service";
 import { RetailCheckoutsService } from "./retail/retail-checkouts.service";
 import { AffiliateCheckoutsService } from "./affiliate/affiliate-checkouts.service";
 import { InstoreAdminController } from "./instore/instore-admin.controller";
+import { InstorePayoutsService } from "./instore/payouts.service";
+import { InstoreEinvoicesService } from "./instore/mandated-einvoices.service";
+import { PublicAffiliateEinvoicesController } from "./instore/public-einvoices.controller";
 import { PayCodeService } from "./instore/pay-code.service";
 import { AffiliateApiKeysService } from "./affiliate/api-keys.service";
 import { OpenAffiliateController } from "./affiliate/open-affiliate.controller";
@@ -301,7 +304,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, IposController, IposPosController, IposPortalController, MerchantPortalController, BuyerAffiliateController, BuyerInstoreController, InstoreAdminController, ApiKeysController, OpenApiController, AiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, IposController, IposPosController, IposPortalController, MerchantPortalController, BuyerAffiliateController, BuyerInstoreController, InstoreAdminController, ApiKeysController, OpenApiController, AiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController, PublicAffiliateEinvoicesController],
   providers: [
     AuthService,
     ActivationService,
@@ -422,6 +425,8 @@ import { UsersService } from "./users/users.service";
     InstoreCheckoutsService,
     RetailCheckoutsService,
     AffiliateCheckoutsService,
+    InstorePayoutsService,
+    InstoreEinvoicesService,
     AffiliateVouchersService,
     AffiliateSettlementsService,
     AffiliateReportsService,
