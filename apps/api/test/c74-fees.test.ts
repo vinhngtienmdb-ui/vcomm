@@ -4,6 +4,8 @@ import { messages } from "i18n";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AffiliateSettlementsService } from "../src/affiliate/settlements.service";
+import { DATABASE, type Database } from "../src/database/database.module";
+import { InstorePayoutsService } from "../src/instore/payouts.service";
 import { IposFeesService } from "../src/ipos/ipos-fees.service";
 import { operator, prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
 import { startTestApplication, testClock } from "./setup-database";
@@ -191,5 +193,42 @@ describe("CONG_VIEC_74 L7 – phiếu phí thuê bao iPOS", () => {
     );
     expect(after.rows[0]!.balance).toBe(0);
     expect((await store.call("get", `/ipos/fee-invoices/${invoice.id}`)).body).toMatchObject({ status: "paid", paidAmount: "328900" });
+  });
+});
+
+describe("CONG_VIEC_74 L7 – trừ thu hộ", () => {
+  it("KICHBAN_KIEMTHU_800 phần trừ đủ: phiếu trừ thu hộ thành khoản trừ N của bảng chuyển tiền; bảng đã chuyển thì phiếu đã thu, bút toán Nợ 331 / Có 131", async () => {
+    at(store.today);
+    // Bật thu hộ cho cửa hàng (dữ liệu kiểm thử): tài khoản nhận tiền, xác nhận cảnh báo.
+    const bank = (
+      await pool.query("INSERT INTO crm.partner_bank_accounts (partner_id, bank_name, account_no, account_holder, is_default) VALUES ($1, 'Vietcombank', '0071001234567', 'TAP HOA', true) RETURNING id", [partnerId])
+    ).rows[0].id;
+    await pool.query("UPDATE affiliate.merchants SET collection_enabled = true, collection_fee_percent = 1.5, payout_bank_account_id = $2, collection_acknowledged_at = now() WHERE id = $1", [store.merchantId, bank]);
+    const billing = (await store.call("get", `/affiliate/merchants/${store.merchantId}/ipos`)).body.billing;
+    expect((await store.call("put", `/affiliate/merchants/${store.merchantId}/ipos-billing`, { method: "collection_deduction", freeUntil: null, freeReason: null, version: billing.version })).status).toBe(200);
+    const outlet = await store.call("post", `/affiliate/merchants/${store.merchantId}/outlets`, { name: "Thủ Dầu Một 03", address: "3 Yersin, Thủ Dầu Một" });
+    expect(outlet.status, JSON.stringify(outlet.body)).toBe(201);
+    const subscriptionId = await subscribe(outlet.body.id);
+    const fees = application.get(IposFeesService);
+    expect((await fees.runDaily()).issued).toBe(1);
+    const [invoice] = await invoicesOf(subscriptionId);
+    expect(invoice).toMatchObject({ method: "collection_deduction", total: "328900" });
+    const deduction = (await pool.query("SELECT amount::text, kind, payout_id FROM instore.payout_deductions WHERE reference_id = $1", [invoice.id])).rows;
+    expect(deduction).toEqual([{ amount: "328900.0000", kind: "ipos_subscription", payout_id: null }]);
+    // Bảng chuyển tiền ngày lập phiếu: không có thu hộ nên tiền chuyển 0, bảng ghi đã chuyển ngay; phần thiếu dồn bảng sau (cách của CONG_VIEC_73).
+    const [payoutId] = await application.get(InstorePayoutsService).generateDaily(store.today);
+    const payout = (await pool.query("SELECT deduction_amount::text, amount::text, status FROM instore.payouts WHERE id = $1", [payoutId])).rows[0];
+    expect(payout).toEqual({ deduction_amount: "328900.0000", amount: "0.0000", status: "transferred" });
+    expect(await fees.collectTransferred(application.get<Database>(DATABASE))).toBe(1);
+    expect(await fees.collectTransferred(application.get<Database>(DATABASE))).toBe(0);
+    const detail = (await store.call("get", `/ipos/fee-invoices/${invoice.id}`)).body;
+    expect(detail).toMatchObject({ status: "paid", paidAmount: "328900", debtOpenAmount: "0", deductions: [expect.objectContaining({ amount: "328900", transferred: true })] });
+    const journal = await pool.query<{ debit: string; credit: string }>(
+      "SELECT l.debit::text, l.credit::text FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id WHERE j.source_type = 'ipos_fee_deduction' ORDER BY l.debit DESC",
+    );
+    expect(journal.rows.map((row) => [Number(row.debit), Number(row.credit)])).toEqual([
+      [328900, 0],
+      [0, 328900],
+    ]);
   });
 });

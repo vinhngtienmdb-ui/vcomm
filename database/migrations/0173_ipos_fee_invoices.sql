@@ -65,7 +65,7 @@ CREATE UNIQUE INDEX einvoices_original_ipos_fee_idx ON finance.einvoices (ipos_f
 ALTER TABLE finance.debt_items DROP CONSTRAINT debt_items_source_type_check;
 ALTER TABLE finance.debt_items ADD CONSTRAINT debt_items_source_type_check
     CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off', 'collection_statement', 'landed_cost',
-        'affiliate_settlement', 'loyalty_partner_settlement', 'instore_payout', 'instore_payout_owner', 'ipos_fee_invoice', 'ipos_fee_invoice_close'));
+        'affiliate_settlement', 'loyalty_partner_settlement', 'instore_payout', 'instore_payout_owner', 'ipos_fee_invoice', 'ipos_fee_invoice_close', 'ipos_fee_deduction'));
 
 -- Bút toán: lập phiếu (Nợ 131 / Có 511, 3331), hủy phiếu (bút toán đảo), trừ thu hộ khi bảng chuyển tiền đã chuyển (Nợ 331 / Có 131).
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;

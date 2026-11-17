@@ -145,7 +145,7 @@ export class IposFeesService implements OnModuleInit {
 
   // Kỳ chưa lập phiếu kế tiếp của thuê bao: kỳ đầu bắt đầu ngày hết dùng thử (hoặc ngày bắt đầu), kỳ sau nối tiếp phiếu gần nhất chưa hủy.
   // Kỳ đầu lập khi đến ngày bắt đầu kỳ; kỳ sau lập trước ngày bắt đầu kỳ 7 ngày (QUYTAC_NGHIEPVU_599 khoản 1).
-  async runDaily(): Promise<{ issued: number; switched: number; reminded: number }> {
+  async runDaily(): Promise<{ issued: number; switched: number; deducted: number; reminded: number }> {
     const today = this.today();
     const candidates = await this.database.execute<{ id: string; period_start: string; first: boolean }>(sql`
       WITH last AS (
@@ -164,8 +164,9 @@ export class IposFeesService implements OnModuleInit {
       });
       if (created) issued += 1;
     }
+    const deducted = await this.database.transaction((transaction) => this.collectTransferred(transaction));
     const reminded = await this.remind(today);
-    return { issued, switched: 0, reminded };
+    return { issued, switched: 0, deducted, reminded };
   }
 
   // Lập một phiếu cho kỳ bắt đầu `periodStart`; trả null khi kỳ đã có phiếu chưa hủy hoặc cách thu là miễn phí.
@@ -308,6 +309,51 @@ export class IposFeesService implements OnModuleInit {
       WHERE d.id = f.debt_item_id AND f.status = 'awaiting' AND f.settlement_id IS NULL AND f.paid_amount <> least(f.total, f.total - d.open_amount)
       RETURNING f.id, f.status`);
     for (const row of paid.rows as { id: string; status: string }[]) if (row.status === "paid") await this.extendSubscription(executor, row.id);
+  }
+
+  // Trừ thu hộ (QUYTAC_NGHIEPVU_600): khoản trừ N nằm trong bảng chuyển tiền đã chuyển thì phần đó coi như đã thu: bút toán Nợ phải trả cửa hàng (331) /
+  // Có phải thu phí thuê bao (131), đóng công nợ phần đó bằng khoản ghi có, cộng đã thu. Bảng chuyển tiền thiếu tiền thì phần âm dồn sang bảng sau (cách của CONG_VIEC_73).
+  async collectTransferred(executor: Executor): Promise<number> {
+    const rows = await executor.execute<{ id: string; amount: string; fee_invoice_id: string; company_id: string; partner_id: string; document_no: string; payout_no: string; day: string }>(sql`
+      SELECT d.id, d.amount::text, f.id AS fee_invoice_id, f.company_id, m.partner_id, f.document_no, p.document_no AS payout_no, p.transferred_on::text AS day
+      FROM instore.payout_deductions d JOIN instore.payouts p ON p.id = d.payout_id JOIN ipos.fee_invoices f ON f.id = d.reference_id
+      JOIN affiliate.merchants m ON m.id = f.merchant_id
+      WHERE d.kind = 'ipos_subscription' AND p.status = 'transferred' AND f.status = 'awaiting'
+        AND NOT EXISTS (SELECT 1 FROM accounting.journals j WHERE j.source_type = 'ipos_fee_deduction' AND j.source_id = d.id)
+      ORDER BY p.transferred_on, d.created_at
+      FOR UPDATE OF f`);
+    for (const row of rows.rows) {
+      await this.ledger.record(executor, {
+        companyId: row.company_id,
+        sourceType: "ipos_fee_deduction",
+        sourceId: row.id,
+        journalNo: row.payout_no,
+        date: row.day,
+        description: `Trừ phí thuê bao iPOS ${row.document_no} vào bảng chuyển tiền ${row.payout_no}`,
+        lines: [debit("affiliate_payable", Number(row.amount), row.partner_id), credit("ipos_fee_receivable", Number(row.amount), row.partner_id)],
+      });
+      await this.reduceDebt(executor, row.fee_invoice_id, Number(row.amount), row.id, `Trừ vào bảng chuyển tiền ${row.payout_no}`);
+    }
+    if (rows.rows.length > 0) await this.refreshPaid(executor);
+    return rows.rows.length;
+  }
+
+  // Ghi có một phần công nợ của phiếu (nguồn là dòng khoản trừ để mỗi lần trừ một khoản riêng).
+  private async reduceDebt(executor: Executor, feeInvoiceId: string, amount: number, deductionId: string, note: string): Promise<void> {
+    const debt = (
+      await executor.execute<{ id: string; company_id: string; partner_id: string; document_no: string }>(sql`
+        SELECT d.id, d.company_id, d.partner_id, d.document_no FROM ipos.fee_invoices f JOIN finance.debt_items d ON d.id = f.debt_item_id WHERE f.id = ${feeInvoiceId}`)
+    ).rows[0];
+    if (!debt) return;
+    await this.debts.lockPartner(executor, debt.company_id, "receivable", debt.partner_id);
+    const creditId = (
+      await executor.execute<{ id: string }>(sql`
+        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, original_item_id, document_no, document_date, amount, open_amount, note)
+        VALUES (${debt.company_id}, ${debt.partner_id}, 'receivable', 'credit', 'ipos_fee_deduction', ${deductionId}, ${debt.id}, ${debt.document_no}, ${this.today()}::date,
+          ${amount}, ${amount}, ${note})
+        RETURNING id`)
+    ).rows[0]!.id;
+    await this.debts.matchCredit(executor, creditId, [{ debitItemId: debt.id, amount: null }], false);
   }
 
   // Thu đủ: thuê bao gia hạn đến hết kỳ của phiếu; quá hạn, tạm khóa (không khóa tay) về đang hoạt động.
