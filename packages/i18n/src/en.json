@@ -791,7 +791,10 @@
     "smartOtpWebNotAllowed": "Smart OTP can only be activated in the VComm phone app (iOS, Android).",
     "smartOtpNotActive": "This account has not activated Smart OTP.",
     "smartOtpCodeInvalid": "The Smart OTP code is wrong or already used. Open Smart OTP on the old phone and enter the new code.",
-    "smartOtpLocked": "Smart OTP is locked for 15 minutes after too many wrong codes."
+    "smartOtpLocked": "Smart OTP is locked for 15 minutes after too many wrong codes.",
+    "deviceVerificationRequired": "This is a new device. Confirm with your Smart OTP code to continue.",
+    "deviceVerificationExpired": "The device confirmation has passed 10 minutes. Sign in again.",
+    "smartOtpPreferred": "This account uses Smart OTP: sign in with your password, then enter the Smart OTP code."
   },
   "login": {
     "title": "Sign in",
@@ -4461,7 +4464,28 @@
     "smartOtpTransitionHint": "Activate by the end of {date}: after that, spending points and signing in on a new phone need Smart OTP instead of text messages.",
     "registerSmartOtp": "Activate Smart OTP on this phone",
     "registerSmartOtpHint": "Uses the code you just entered, no extra text message. After creating the account you set a 6-digit lock code.",
-    "registerSmartOtpLater": "You can activate it later in Points → Smart OTP (needs one text code)."
+    "registerSmartOtpLater": "You can activate it later in Points → Smart OTP (needs one text code).",
+    "deviceVerifyTitle": "Confirm new device",
+    "deviceVerifySmartOtp": "Smart OTP code",
+    "deviceVerifySmartOtpHint": "This is a new device. Open Smart OTP on the phone that holds it and enter the 6-digit code. Valid for 10 minutes.",
+    "deviceVerifySmsHint": "This is a new device. Your account has no Smart OTP yet, so confirm with a text code.",
+    "deviceVerifyActivationRequired": "This is a new device and your account has no Smart OTP. Text codes are no longer available; activate Smart OTP on this phone to continue.",
+    "loginByOtpHint": "Only for accounts without Smart OTP, during the transition period. With Smart OTP, sign in with your password.",
+    "resetSmartOtp": "Smart OTP code",
+    "resetSmartOtpPlaceholder": "6 digits from the phone holding Smart OTP",
+    "resetSmartOtpHere": "This phone holds Smart OTP: open it with fingerprint, face or lock code and the code fills in.",
+    "resetSmartOtpTake": "Get the code on this phone",
+    "resetBySms": "No Smart OTP yet? Use a text code",
+    "resetBySmsHint": "Text codes are only sent to accounts without Smart OTP, during the transition period.",
+    "resetBySmartOtp": "Use Smart OTP code",
+    "devicesTitle": "Signed-in devices",
+    "devicesThis": "This phone",
+    "devicesUnknown": "Device",
+    "devicesHoldsSmartOtp": "Holds Smart OTP",
+    "devicesSeen": "First {first} · last {last}",
+    "devicesRemove": "Remove",
+    "devicesRemoveConfirm": "Remove {device}? It will be signed out; next sign-in there needs Smart OTP confirmation.",
+    "devicesHint": "Devices unused for 12 months stop being trusted. See a device you don't know: remove it and change your password."
   },
   "buyers": {
     "title": "Buyer accounts",

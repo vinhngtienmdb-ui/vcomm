@@ -1,9 +1,11 @@
 // API_116 đến 118: đăng ký, đăng nhập, tài khoản người mua trên ứng dụng VComm (CONG_VIEC_23).
 // Người mua không thuộc công ty nào nên các API này không dùng header X-Company-Id.
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Query, Req } from "@nestjs/common";
 import { UuidPipe } from "../common/uuid.pipe";
 import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import {
+  buyerDeviceVerificationSchema,
+  type BuyerDeviceItem,
   buyerLoginSchema,
   buyerOtpVerifySchema,
   buyerPasswordResetSchema,
@@ -31,7 +33,8 @@ import {
 } from "contracts";
 import type { Request } from "express";
 import { clientInfo } from "../auth/auth.controller";
-import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { AllowDevicePending, Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { DeviceTrustService } from "../auth/device-trust.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
 import { SalesCareService } from "./sales-care.service";
@@ -45,6 +48,7 @@ export class BuyerController {
   constructor(
     private readonly fraud: LoyaltyFraudService,
     private readonly buyers: BuyerAccountsService,
+    private readonly deviceTrust: DeviceTrustService,
     private readonly care: SalesCareService,
     private readonly revenue: SalesRevenueService,
     private readonly proposals: SalesProposalsService,
@@ -111,7 +115,34 @@ export class BuyerController {
   @HttpCode(204)
   async resetPassword(@Body() body: unknown, @Req() request: Request): Promise<void> {
     const input = buyerPasswordResetSchema.parse(body);
-    await this.buyers.resetPassword(input.phone, input.code, input.password, clientInfo(request));
+    await this.buyers.resetPassword(input.phone, { code: input.code, smartOtp: input.smartOtp }, input.password, clientInfo(request));
+  }
+
+  // API_318: xác nhận đăng nhập trên thiết bị mới bằng mã Smart OTP (hoặc mã SMS khi chưa kích hoạt, trong thời hạn chuyển đổi) (CONG_VIEC_72).
+  @AllowDevicePending()
+  @RateLimitGroup("otp-verify")
+  @Post("login/device-verification")
+  @HttpCode(204)
+  async verifyDevice(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<void> {
+    await this.buyers.verifyDevice(request.auth.userId, request.auth.sessionId, buyerDeviceVerificationSchema.parse(body), clientInfo(request));
+  }
+
+  @AllowDevicePending()
+  @Post("login/device-verification/sms")
+  @HttpCode(204)
+  async sendDeviceVerificationSms(@Req() request: AuthenticatedRequest): Promise<void> {
+    await this.buyers.sendDeviceVerificationSms(request.auth.userId, request.auth.sessionId);
+  }
+
+  // API_321: thiết bị đã đăng nhập; gỡ thiết bị (CONG_VIEC_72; QUYTAC_NGHIEPVU_564).
+  @Get("devices")
+  async devices(@Req() request: AuthenticatedRequest): Promise<BuyerDeviceItem[]> {
+    return this.deviceTrust.list(request.auth.userId, clientInfo(request).deviceId ?? null);
+  }
+
+  @Delete("devices/:id")
+  async removeDevice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerDeviceItem[]> {
+    return this.deviceTrust.remove(request.auth.userId, id, clientInfo(request));
   }
 
   @Get("me")

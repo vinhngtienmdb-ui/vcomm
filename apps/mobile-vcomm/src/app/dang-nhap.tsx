@@ -1,7 +1,9 @@
 // MAN_HINH_73 Đăng nhập (CHUC_NANG_105; API_117): số điện thoại và mật khẩu, hoặc mã OTP; mã xác thực hai lớp với tài khoản nhân viên bắt buộc.
+// CONG_VIEC_72: thiết bị mới xác nhận bằng Smart OTP; đăng nhập bằng mã SMS chỉ dành cho khách chưa kích hoạt, trong thời hạn chuyển đổi.
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { AuthLayout, TextLink, useAction, useResendTimer } from "@/components/auth";
+import { DeviceVerification } from "@/components/DeviceVerification";
 import { Button, Card, Choice, Field, Muted, Notice } from "@/components/ui";
 import { api } from "@/lib/api";
 import { translator } from "@/lib/i18n";
@@ -28,6 +30,9 @@ export default function LoginScreen() {
       setCodeSent(true);
       timer.start();
     });
+
+  // CONG_VIEC_72: thiết bị mới chờ xác nhận bằng Smart OTP (MAN_HINH_270).
+  if (stage === "device") return <DeviceVerification />;
 
   if (stage === "mfa" || stage === "mfaEnroll")
     return (
@@ -81,6 +86,7 @@ export default function LoginScreen() {
           </>
         ) : (
           <>
+            <Muted>{t("loginByOtpHint")}</Muted>
             {codeSent ? <Muted>{t("otpSentTo", { phone: phone.trim() })}</Muted> : null}
             {codeSent ? <Field label={t("otpCode")} value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" maxLength={6} error={fields.code} /> : null}
             {codeSent ? <Button label={t("login")} busy={busy} disabled={code.length !== 6} onPress={() => void run(async () => void (await signIn("/buyer/login/otp/verify", { phone: phone.trim(), code })))} /> : null}

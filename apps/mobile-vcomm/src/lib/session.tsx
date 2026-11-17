@@ -1,12 +1,15 @@
 // Phiên đăng nhập của ứng dụng VComm: tài khoản người mua (QUYTAC_NGHIEPVU_147).
-import type { AppLoginResponse, BuyerMeResponse, SmartOtpActivationResponse } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, DeviceVerificationMethod, SmartOtpActivationResponse } from "contracts";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { api, ApiFailure, loadStoredSession, setSignedOutHandler, storeTokens } from "./api";
 
 // offline: khởi động không gọi được máy chủ (mất mạng, máy chủ bận); giữ phiên, cho thử lại.
-type Stage = "loading" | "offline" | "signedOut" | "mfa" | "mfaEnroll" | "ready";
+// device: đăng nhập trên thiết bị mới, chờ xác nhận bằng Smart OTP (CONG_VIEC_72; QUYTAC_NGHIEPVU_565).
+type Stage = "loading" | "offline" | "signedOut" | "mfa" | "mfaEnroll" | "device" | "ready";
 type Session = {
   stage: Stage;
+  deviceMethod: DeviceVerificationMethod | null;
+  verifyDevice: (body: { smartOtp: string } | { smsCode: string }) => Promise<void>;
   me: BuyerMeResponse | null;
   // Đăng ký, đăng nhập bằng mật khẩu hoặc OTP đều trả phiên dạng token.
   // Trả phản hồi đăng nhập để màn hình đăng ký lấy khóa Smart OTP kích hoạt kèm (CONG_VIEC_72).
@@ -22,6 +25,7 @@ const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<Stage>("loading");
+  const [deviceMethod, setDeviceMethod] = useState<DeviceVerificationMethod | null>(null);
   const [me, setMe] = useState<BuyerMeResponse | null>(null);
 
   const reload = useCallback(async () => {
@@ -52,8 +56,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           setStage(result.mfaEnrolled ? "mfa" : "mfaEnroll");
           return result;
         }
+        if (result.deviceVerificationRequired) {
+          setDeviceMethod(result.verificationMethod ?? null);
+          setStage("device");
+          return result;
+        }
         await reload();
         return result;
+      },
+      deviceMethod,
+      verifyDevice: async (body) => {
+        await api("/buyer/login/device-verification", { method: "POST", json: body });
+        setDeviceMethod(null);
+        await reload();
       },
       verifyMfa: async (code, backup) => {
         await api("/auth/mfa/verify", { method: "POST", json: backup ? { backupCode: code } : { code } });
@@ -72,7 +87,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setStage("signedOut");
       },
     }),
-    [stage, me, reload],
+    [stage, me, reload, deviceMethod],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

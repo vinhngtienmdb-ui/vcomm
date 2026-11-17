@@ -101,6 +101,8 @@ export const testTimesheet: { data: Map<string, MonthTimesheet> | null; locks: s
   },
 };
 
+export const testDeviceId = "may-kiem-thu-mac-dinh-0001";
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
@@ -135,7 +137,15 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .overrideProvider(PAYROLL_TIMESHEET)
     .useValue(testTimesheet)
     .compile();
-  const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
+  const application = moduleReference.createNestApplication<NestExpressApplication>();
+  // CONG_VIEC_72: ứng dụng VComm luôn gửi mã cài đặt (X-Device-Id); yêu cầu kiểm thử không gửi thì coi như cùng một máy kiểm thử,
+  // để các kiểm thử có trước không vướng xác nhận thiết bị mới. Kiểm thử thiết bị mới tự gửi mã máy khác.
+  application.use((request: { headers: Record<string, string | string[] | undefined> }, _response: unknown, next: () => void) => {
+    // Kiểm thử gửi mã rỗng để giả lập ứng dụng không gửi mã cài đặt.
+    if (request.headers["x-device-id"] === undefined) request.headers["x-device-id"] = testDeviceId;
+    next();
+  });
+  configureApplication(application);
   await application.init();
   return { application, pool };
 }

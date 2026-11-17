@@ -791,7 +791,10 @@
     "smartOtpWebNotAllowed": "Smart OTP chỉ kích hoạt được trên ứng dụng VComm cho điện thoại (iOS, Android).",
     "smartOtpNotActive": "Tài khoản chưa kích hoạt Smart OTP.",
     "smartOtpCodeInvalid": "Mã Smart OTP không đúng hoặc đã dùng. Mở Smart OTP trên máy cũ và nhập mã mới.",
-    "smartOtpLocked": "Smart OTP đang tạm khóa 15 phút do nhập sai mã nhiều lần."
+    "smartOtpLocked": "Smart OTP đang tạm khóa 15 phút do nhập sai mã nhiều lần.",
+    "deviceVerificationRequired": "Đây là thiết bị mới. Xác nhận bằng mã Smart OTP để tiếp tục.",
+    "deviceVerificationExpired": "Phiên xác nhận thiết bị đã hết 10 phút. Đăng nhập lại.",
+    "smartOtpPreferred": "Tài khoản dùng Smart OTP: đăng nhập bằng mật khẩu rồi nhập mã Smart OTP."
   },
   "login": {
     "title": "Đăng nhập",
@@ -4461,7 +4464,28 @@
     "smartOtpTransitionHint": "Kích hoạt trước hết ngày {date}: sau ngày này, dùng điểm và đăng nhập trên máy mới cần Smart OTP thay tin nhắn SMS.",
     "registerSmartOtp": "Kích hoạt Smart OTP trên máy này",
     "registerSmartOtpHint": "Dùng luôn mã bạn vừa nhập, không tốn thêm tin nhắn. Sau khi tạo tài khoản, bạn đặt mã khóa 6 số.",
-    "registerSmartOtpLater": "Bạn kích hoạt sau ở Điểm thưởng → Smart OTP (cần một mã SMS)."
+    "registerSmartOtpLater": "Bạn kích hoạt sau ở Điểm thưởng → Smart OTP (cần một mã SMS).",
+    "deviceVerifyTitle": "Xác nhận thiết bị mới",
+    "deviceVerifySmartOtp": "Mã Smart OTP",
+    "deviceVerifySmartOtpHint": "Đây là thiết bị mới. Mở Smart OTP trên máy đang giữ Smart OTP và nhập mã 6 số. Hiệu lực trong 10 phút.",
+    "deviceVerifySmsHint": "Đây là thiết bị mới. Tài khoản chưa kích hoạt Smart OTP nên xác nhận bằng mã gửi qua tin nhắn.",
+    "deviceVerifyActivationRequired": "Đây là thiết bị mới và tài khoản chưa kích hoạt Smart OTP. Đã hết thời hạn dùng tin nhắn SMS; kích hoạt Smart OTP trên máy này để tiếp tục.",
+    "loginByOtpHint": "Chỉ dành cho tài khoản chưa kích hoạt Smart OTP, trong thời hạn chuyển đổi. Đã có Smart OTP thì đăng nhập bằng mật khẩu.",
+    "resetSmartOtp": "Mã Smart OTP",
+    "resetSmartOtpPlaceholder": "6 số từ máy giữ Smart OTP",
+    "resetSmartOtpHere": "Máy này đang giữ Smart OTP: mở bằng vân tay hoặc mã khóa, mã tự điền.",
+    "resetSmartOtpTake": "Lấy mã trên máy này",
+    "resetBySms": "Chưa kích hoạt Smart OTP? Dùng mã SMS",
+    "resetBySmsHint": "Mã SMS chỉ gửi cho tài khoản chưa kích hoạt Smart OTP, trong thời hạn chuyển đổi.",
+    "resetBySmartOtp": "Dùng mã Smart OTP",
+    "devicesTitle": "Thiết bị đã đăng nhập",
+    "devicesThis": "Máy này",
+    "devicesUnknown": "Thiết bị",
+    "devicesHoldsSmartOtp": "Đang giữ Smart OTP",
+    "devicesSeen": "Lần đầu {first} · gần nhất {last}",
+    "devicesRemove": "Gỡ",
+    "devicesRemoveConfirm": "Gỡ {device}? Thiết bị đó bị đăng xuất; lần sau đăng nhập phải xác nhận bằng Smart OTP.",
+    "devicesHint": "Thiết bị không dùng 12 tháng tự hết tin cậy. Thấy thiết bị lạ: gỡ ngay và đổi mật khẩu."
   },
   "buyers": {
     "title": "Tài khoản người mua",

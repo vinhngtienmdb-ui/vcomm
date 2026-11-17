@@ -98,6 +98,7 @@ import { LoyaltyProgramService } from "./loyalty/program.service";
 import { LoyaltyLedgerService } from "./loyalty/ledger.service";
 import { SmartOtpService } from "./auth/smart-otp.service";
 import { AuthenticationSettingsService } from "./auth/authentication-settings.service";
+import { DeviceTrustService } from "./auth/device-trust.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -342,6 +343,7 @@ import { UsersService } from "./users/users.service";
     LoyaltyLedgerService,
     SmartOtpService,
     AuthenticationSettingsService,
+    DeviceTrustService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,

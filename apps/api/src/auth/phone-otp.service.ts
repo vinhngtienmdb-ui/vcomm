@@ -35,7 +35,9 @@ export class PhoneOtpService {
   // Mã đăng nhập: chỉ gửi cho số đã gắn tài khoản. Mã đặt lại mật khẩu: như mã đăng nhập.
   // Mã đăng ký: chỉ gửi cho số chưa có tài khoản; người gọi đã kiểm tra trước (CONG_VIEC_23).
   // Trả true khi đã giao tin cho dịch vụ nhắn tin (máy phát triển: đã in mã ra log); dùng để tính phí tin nhắn (CONG_VIEC_67).
-  async send(rawPhone: string, purpose: OtpPurpose = "login"): Promise<boolean> {
+  // deliver = false: vẫn ghi mã và tính giới hạn như khi gửi (bên ngoài không phân biệt được) nhưng không gửi tin;
+  // dùng cho khách đã kích hoạt Smart OTP hoặc đã hết thời hạn chuyển đổi (CONG_VIEC_72; QUYTAC_NGHIEPVU_560).
+  async send(rawPhone: string, purpose: OtpPurpose = "login", deliver = true): Promise<boolean> {
     const phone = normalizePhone(rawPhone);
     const now = this.clock.now();
     // Giới hạn tính trên mọi mục đích để không lách bằng cách đổi mục đích.
@@ -57,7 +59,7 @@ export class PhoneOtpService {
         INSERT INTO core.otp_codes (phone, purpose, code_hash, expires_at, created_at)
         VALUES (${phone}, ${purpose}, ${hashCode(code)}, ${new Date(now.getTime() + lifetimeMinutes * 60_000)}, ${now})`);
     });
-    if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return false;
+    if (!deliver || (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email))) return false;
     const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null, "login_otp", purpose);
     // Máy phát triển chưa cài eSMS: in mã ra log để thử đăng nhập. Không bao giờ in trên môi trường thật.
     if (!sent && process.env.NODE_ENV !== "production") {

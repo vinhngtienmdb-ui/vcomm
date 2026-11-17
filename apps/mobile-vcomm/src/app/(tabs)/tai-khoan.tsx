@@ -52,6 +52,7 @@ export default function AccountScreen() {
           <Title>{me.fullName}</Title>
           <Muted>{me.phone}</Muted>
           <Button label={t("addressBook")} kind="secondary" onPress={() => router.push("/so-dia-chi")} />
+          <Button label={t("devicesTitle")} kind="secondary" onPress={() => router.push("/thiet-bi")} />
           <Button label={t("commissionWallet")} kind="secondary" onPress={() => router.push("/vi-hoa-hong")} />
           <Button label={t("bankAccountTitle")} kind="secondary" onPress={() => router.push("/tai-khoan-hoan-tien")} />
           <Button label={t("shoppingWalletTitle")} kind="secondary" onPress={() => router.push("/vi-mua-sam")} />

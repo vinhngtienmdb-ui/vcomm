@@ -7,6 +7,8 @@ import { and, count, eq, gt, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../common/api-error";
 import { MfaService } from "./mfa.service";
+import { deviceHashOf } from "../common/device-hash";
+import { DeviceTrustService, type DeviceVerificationMethod } from "./device-trust.service";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { loginAttempts, sessions, userIdentities, users } from "../database/schema";
@@ -28,6 +30,8 @@ export interface ClientInfo {
   locale?: "vi" | "en";
   // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): mã cài đặt ứng dụng VComm gửi qua tiêu đề X-Device-Id.
   deviceId?: string | null;
+  // Băm thiết bị đã biết (làm mới phiên giữ thiết bị của phiên cũ); không có thì băm từ deviceId.
+  deviceHash?: string | null;
 }
 
 export interface IssuedSession {
@@ -43,6 +47,7 @@ export class AuthService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly audit: AuditService,
     private readonly mfa: MfaService,
+    private readonly deviceTrust: DeviceTrustService,
   ) {}
 
   async login(request: LoginRequest, client: ClientInfo, clientType: SessionClientType = "web"): Promise<{ response: LoginResponse; session: IssuedSession }> {
@@ -83,10 +88,15 @@ export class AuthService {
     identifier: string,
     client: ClientInfo,
     clientType: SessionClientType = "web",
-  ): Promise<{ response: LoginResponse; session: IssuedSession }> {
+  ): Promise<{ response: LoginResponse & { deviceVerificationRequired?: boolean; verificationMethod?: DeviceVerificationMethod | null }; session: IssuedSession }> {
     const now = client.now ?? new Date();
     const mfaEnrolled = await this.mfa.isEnrolled(user.id);
     const needsMfa = user.mfaRequired || mfaEnrolled;
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_565): ứng dụng VComm đăng nhập bằng mật khẩu trên thiết bị chưa tin cậy thì phiên chờ xác nhận.
+    // Mã SMS (đã chứng minh giữ số), Zalo (giữ nguyên theo quyết định người dùng) và tài khoản đã qua xác thực hai lớp không hỏi thêm.
+    const deviceHash = deviceHashOf(client.deviceId);
+    const verificationMethod =
+      clientType === "vcomm_app" && provider === "password" && !needsMfa ? await this.deviceTrust.verificationMethod(this.database, user.id, deviceHash) : null;
     const session = await this.database.transaction(async (transaction) => {
       await transaction.update(users).set({ lastLoginAt: now, loginLockedUntil: null }).where(eq(users.id, user.id));
       await transaction
@@ -94,7 +104,8 @@ export class AuthService {
         .set({ lastUsedAt: now })
         .where(and(eq(userIdentities.userId, user.id), eq(userIdentities.provider, provider)));
       // Bắt buộc xác thực hai lớp hoặc đã tự bật thì phiên chờ nhập mã (QUYTAC_NGHIEPVU_09).
-      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa, clientType);
+      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa, clientType, verificationMethod === null);
+      if (clientType === "vcomm_app" && verificationMethod === null) await this.deviceTrust.trust(transaction, user.id, deviceHash, client);
       await this.audit.record(
         {
           actorUserId: user.id,
@@ -113,7 +124,12 @@ export class AuthService {
     });
     await this.recordAttempt(identifier, user.id, true, null, client, now, provider);
     return {
-      response: { mfaRequired: needsMfa, mfaEnrolled, user: { id: user.id, fullName: user.fullName, locale: user.locale === "en" ? "en" : "vi" } },
+      response: {
+        mfaRequired: needsMfa,
+        mfaEnrolled,
+        user: { id: user.id, fullName: user.fullName, locale: user.locale === "en" ? "en" : "vi" },
+        ...(clientType === "vcomm_app" ? { deviceVerificationRequired: verificationMethod !== null, verificationMethod } : {}),
+      },
       session,
     };
   }
@@ -135,6 +151,8 @@ export class AuthService {
     // Phiên chưa nhập mã xác thực hai lớp không được làm mới: số lần nhập sai đếm theo phiên,
     // làm mới để có phiên mới sẽ đếm lại từ đầu (rà soát CONG_VIEC_23). Hết 15 phút thì đăng nhập lại.
     if (!current.mfaVerified) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    // Phiên chờ xác nhận thiết bị mới cũng không được làm mới (CONG_VIEC_72).
+    if (!current.deviceVerified) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     const active = await this.database.select({ status: users.status }).from(users).where(eq(users.id, current.userId));
     if (active[0]?.status !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
 
@@ -147,7 +165,10 @@ export class AuthService {
         .where(and(eq(sessions.id, current.id), isNull(sessions.revokedAt)))
         .returning({ id: sessions.id });
       if (revoked.length === 0) return null;
-      return this.issueSession(transaction, current.userId, current.familyId, client, now, current.mfaVerified, current.clientType as SessionClientType);
+      // Thiết bị đang đăng nhập được giữ tin cậy; phiên có trước CONG_VIEC_72 chưa có băm thiết bị thì nhận thiết bị đang làm mới (QUYTAC_NGHIEPVU_564).
+      const deviceHash = current.deviceHash ?? deviceHashOf(client.deviceId);
+      if (current.clientType === "vcomm_app") await this.deviceTrust.trust(transaction, current.userId, deviceHash, client);
+      return this.issueSession(transaction, current.userId, current.familyId, { ...client, deviceHash }, now, current.mfaVerified, current.clientType as SessionClientType);
     });
     if (!issued) await this.revokeFamily(current.familyId, now);
     return issued!;
@@ -187,6 +208,7 @@ export class AuthService {
     now: Date,
     mfaVerified = false,
     clientType: SessionClientType = "web",
+    deviceVerified = true,
   ): Promise<IssuedSession> {
     const refreshToken = newRandomToken();
     // Token làm mới 30 ngày trên web, 90 ngày trên các ứng dụng di động (tài liệu 22 mục 3).
@@ -201,6 +223,8 @@ export class AuthService {
         ip: client.ip,
         userAgent: client.userAgent,
         mfaVerified,
+        deviceHash: client.deviceHash !== undefined ? client.deviceHash : deviceHashOf(client.deviceId),
+        deviceVerified,
         expiresAt: refreshExpiresAt,
       })
       .returning({ id: sessions.id });

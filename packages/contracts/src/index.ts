@@ -5,6 +5,7 @@ export const errorCodes = [
   "VALIDATION_FAILED",
   "UNAUTHENTICATED",
   "MFA_REQUIRED",
+  "DEVICE_VERIFICATION_REQUIRED",
   "FORBIDDEN",
   "IP_NOT_ALLOWED",
   "SCOPE_NOT_GRANTED",
@@ -49,7 +50,9 @@ export interface AppTokens {
   accessExpiresAt: string;
   refreshExpiresAt: string;
 }
-export type AppLoginResponse = LoginResponse & { tokens: AppTokens };
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_565): đăng nhập ứng dụng trên thiết bị chưa tin cậy thì phiên chờ xác nhận (API_318).
+export type DeviceVerificationMethod = "smart_otp" | "sms" | "smart_otp_activation";
+export type AppLoginResponse = LoginResponse & { tokens: AppTokens; deviceVerificationRequired?: boolean; verificationMethod?: DeviceVerificationMethod | null };
 export const appRefreshSchema = z.object({ refreshToken: z.string().min(16).max(200) }).strict();
 
 // API_14
@@ -4320,7 +4323,26 @@ export const buyerRegisterSchema = z
   .strict();
 export const buyerLoginSchema = z.object({ phone: vietnamPhone, password: z.string().min(1).max(256) }).strict();
 export const buyerOtpVerifySchema = z.object({ phone: vietnamPhone, code: otpCode }).strict();
-export const buyerPasswordResetSchema = z.object({ phone: vietnamPhone, code: otpCode, password: z.string().max(256) }).strict();
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_568): quên mật khẩu bằng mã Smart OTP; mã SMS chỉ khi chưa kích hoạt và còn thời hạn chuyển đổi.
+export const buyerPasswordResetSchema = z
+  .object({ phone: vietnamPhone, code: otpCode.optional(), smartOtp: otpCode.optional(), password: z.string().max(256) })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.smartOtp), { path: ["code"] });
+// API_318: xác nhận thiết bị mới bằng mã Smart OTP hoặc mã SMS (CONG_VIEC_72).
+export const buyerDeviceVerificationSchema = z
+  .object({ smartOtp: otpCode.optional(), smsCode: otpCode.optional() })
+  .strict()
+  .refine((value) => Boolean(value.smartOtp) !== Boolean(value.smsCode), { path: ["smartOtp"] });
+// API_321: thiết bị đã đăng nhập (CONG_VIEC_72; QUYTAC_NGHIEPVU_564).
+export interface BuyerDeviceItem {
+  id: string;
+  deviceName: string | null;
+  platform: SmartOtpPlatform | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  thisDevice: boolean;
+  holdsSmartOtp: boolean;
+}
 export const buyerSetReferrerSchema = z.object({ referralCode: referralCode.min(1) }).strict();
 export const buyerChangeReferrerSchema = z.object({ referralCode: referralCode.nullable(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
 export const buyerSalesFlagSchema = z.object({ departmentId: z.uuid(), version: z.number().int().min(1) }).strict();
