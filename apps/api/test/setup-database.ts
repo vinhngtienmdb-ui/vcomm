@@ -15,6 +15,9 @@ import { MESSAGE_GATEWAY, type EsmsCredentials, type MessageGateway } from "../s
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
 import { DatabaseTimesheetReader, PAYROLL_TIMESHEET, type MonthTimesheet, type PayrollTimesheetReader } from "../src/hr/payroll-timesheet";
+import { AI_CONFIG, readAiConfig, type AiConfig } from "../src/ai/ai-config";
+import { FakeModelClient } from "../src/ai/fake-model-client";
+import { AI_MODEL_CLIENT } from "../src/ai/model-client";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? "postgres://vcomm_ung_dung:mat_khau_phat_trien@localhost:5432/vcomm_test";
 
@@ -101,6 +104,10 @@ export const testTimesheet: { data: Map<string, MonthTimesheet> | null; locks: s
   },
 };
 
+// Trợ lý AI (CONG_VIEC_63): luôn dùng bộ giả lập, không gọi nhà cung cấp thật. Đổi `provider`, `noticeVersion` để thử từng điều kiện.
+export const testAiConfig: AiConfig = { ...readAiConfig({}), provider: "fake" };
+export const testModel = new FakeModelClient("claude-sonnet-5-5");
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
@@ -112,7 +119,7 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
   await pool.query(
-    "DROP SCHEMA IF EXISTS office CASCADE; DROP SCHEMA IF EXISTS affiliate CASCADE; DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
+    "DROP SCHEMA IF EXISTS ai CASCADE; DROP SCHEMA IF EXISTS office CASCADE; DROP SCHEMA IF EXISTS affiliate CASCADE; DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
   );
   await runMigrations(pool);
   await seedTestData(pool);
@@ -134,6 +141,10 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .useValue(testRateFeed)
     .overrideProvider(PAYROLL_TIMESHEET)
     .useValue(testTimesheet)
+    .overrideProvider(AI_CONFIG)
+    .useValue(testAiConfig)
+    .overrideProvider(AI_MODEL_CLIENT)
+    .useValue(testModel)
     .compile();
   const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
   await application.init();

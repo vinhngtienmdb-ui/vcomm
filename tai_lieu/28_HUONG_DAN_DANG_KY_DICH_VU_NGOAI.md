@@ -363,3 +363,14 @@ Trước khi đánh dấu xong mỗi dòng:
 2. Đã khai báo địa chỉ chuyển hướng cho đúng môi trường (sao chép từ Cài đặt tích hợp).
 3. Đã ghi ngày hết hạn (client secret Microsoft, hợp đồng eSMS) vào lịch.
 4. Đã thử theo cột Kiểm tra; lỗi gửi tin xem ở bảng Tin gửi gần đây. Báo lập trình viên nếu không đạt.
+
+## 8. Anthropic API (trợ lý AI, CONG_VIEC_63)
+
+Dùng cho trợ lý AI (hỏi đáp số liệu, soạn nội dung sản phẩm). Khóa nhập bằng biến môi trường, không nhập ở Cài đặt tích hợp.
+
+1. Đăng ký tài khoản tổ chức tại `https://console.anthropic.com` bằng email công ty; đọc và xác nhận điều khoản thương mại (thời gian giữ dữ liệu, không dùng dữ liệu API để huấn luyện) – ghi kết quả vào hồ sơ chuyển dữ liệu ra nước ngoài (tài liệu `22`).
+2. Nạp tiền hoặc đặt phương thức thanh toán; đặt giới hạn chi tiêu của tổ chức trên trang quản trị của nhà cung cấp (lớp bảo vệ thứ hai ngoài hạn mức của từng công ty trên VComm).
+3. Tạo khóa API riêng cho từng môi trường (phát triển, thử nghiệm, thật). Khóa chỉ hiện một lần.
+4. Môi trường thật, thử nghiệm: lưu khóa vào AWS Secrets Manager và nạp thành biến `ANTHROPIC_API_KEY` cho tiến trình API; đặt `AI_PROVIDER=anthropic`. Máy phát triển: ghi vào `.env` (tệp không commit). Không gửi khóa qua chat, email.
+5. Kiểm tra: mở Nền tảng → Trợ lý AI; mục Nhà cung cấp hiện "Đã cấu hình".
+6. Khi lộ khóa: thu hồi khóa trên trang nhà cung cấp, tạo khóa mới, cập nhật Secrets Manager, khởi động lại API.

@@ -879,3 +879,27 @@ Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút c
 | YCAU_NGHIEPVU_122, 169 | CHUC_NANG_194, 196 | TIEUCHI_NGHIEMTHU_535 | KICHBAN_KIEMTHU_731 đến 733 | `apps/api/src/affiliate/transactions.service.ts` (`merchantExposure`) |
 
 Quy tắc: bổ sung QUYTAC_NGHIEPVU_398, 405, 495 (THAY_DOI_36). Màn hình MAN_HINH_176, 180 chỉ đổi số liệu. Không có tiêu chí chưa có kịch bản, kịch bản chưa tự động, mã nguồn không truy được.
+
+## 45. Kiểm tra bao phủ CONG_VIEC_63 lát L1 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_179, 180, 182, 183 | CHUC_NANG_226 | TIEUCHI_NGHIEMTHU_470 đến 474, 481 (MAN_HINH_244) | KICHBAN_KIEMTHU_653 đến 655, 657 đến 659 | `database/migrations/0136_ai_assistant.sql`; `apps/api/src/ai/` (`ai-config.ts`, `model-client.ts`, `anthropic-model-client.ts`, `fake-model-client.ts`, `redact.ts`, `ai-access.service.ts`, `ai-settings.service.ts`, `ai.controller.ts`); `packages/contracts/src/ai.ts`; `apps/web-platform/src/app/platform/ai-settings/page.tsx` |
+| YCAU_NGHIEPVU_177, 178, 181 | CHUC_NANG_227 đến 229 | TIEUCHI_NGHIEMTHU_475 đến 480 | KICHBAN_KIEMTHU_656, 660 đến 666 | Lát L2, L3 (chưa làm) |
+
+Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 đến 245 (246 đến 249 không dùng). API_273 đến 279 (280 không dùng).
+
+## 46. Kiểm tra bao phủ CONG_VIEC_63 lát L2 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_177, 180, 181, 182 | CHUC_NANG_227, 229 | TIEUCHI_NGHIEMTHU_471, 475 đến 478, 481 (MAN_HINH_242) | KICHBAN_KIEMTHU_656, 660 đến 663 | `database/migrations/0137_ai_conversations.sql`; `apps/api/src/ai/ai-tools.ts`, `ai-chat.service.ts`, `ai.controller.ts`; `apps/api/src/jobs/background-jobs.ts` (`ai-conversation-retention`); `packages/contracts/src/ai.ts`; `packages/ui/src/components/AiPanel.tsx`, `TopBar.tsx`, `lib/api.ts` (`apiStream`, `readEvents`), `styles.css` |
+
+## 47. Kiểm tra bao phủ CONG_VIEC_63 lát L3 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_178 | CHUC_NANG_228 | TIEUCHI_NGHIEMTHU_479, 481 (MAN_HINH_243) | KICHBAN_KIEMTHU_664, 666 | `apps/api/src/ai/ai-content.service.ts`, `ai.controller.ts`; `packages/contracts` (`productContentRequestSchema`, `saveProductSchema.aiAssisted`); `apps/web-catalog/src/components/AiContentDrawer.tsx`, `src/app/products/[id]/page.tsx` |
+| YCAU_NGHIEPVU_181, 182 | CHUC_NANG_229 | TIEUCHI_NGHIEMTHU_480, 481 (MAN_HINH_245) | KICHBAN_KIEMTHU_665, 666 | `apps/api/src/ai/ai-usage.service.ts`, `ai.controller.ts`; `apps/web-platform/src/app/platform/ai-usage/page.tsx`, `src/components/AdminShell.tsx` |
+
+Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229, TIEUCHI_NGHIEMTHU_470 đến 481, KICHBAN_KIEMTHU_653 đến 666 đều có mã nguồn và kiểm thử; không có mã nguồn không truy được về yêu cầu.

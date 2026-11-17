@@ -684,3 +684,24 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_65.md`.
 | Đối tượng | Thuộc tính chính | Ghi chú |
 |---|---|---|
 | Tệp danh mục Facebook (bổ sung cài đặt bán hàng) | Bật hay tắt, mã bí mật, thời điểm tạo mã, thời điểm Facebook lấy gần nhất | CONG_VIEC_68 |
+
+## MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md`. Người dùng chốt phạm vi ngày 2026-11-17 (THAY_DOI_04).
+
+| Mã | Yêu cầu | Người cần |
+|---|---|---|
+| YCAU_NGHIEPVU_177 | Nhân viên hỏi bằng lời về doanh số, tồn kho, công nợ, hoa hồng, đơn bán, sản phẩm; nhận câu trả lời ghi rõ lấy từ báo cáo nào, khoảng thời gian nào; chỉ trong phạm vi dữ liệu người hỏi được xem | Nhân viên có quyền xem các báo cáo, dữ liệu đó |
+| YCAU_NGHIEPVU_178 | Nhân viên phụ trách sản phẩm nhờ AI soạn nháp mô tả sản phẩm, mô tả đăng bán, điểm nổi bật; sửa rồi tự lưu như hiện nay | Nhân viên quản lý sản phẩm |
+| YCAU_NGHIEPVU_179 | Quản trị công ty bật, tắt từng tính năng; đặt hạn mức chi phí mỗi tháng của công ty và số lượt mỗi người mỗi ngày; vượt hạn mức tháng thì khóa đến tháng sau và báo quản trị | Quản trị công ty |
+| YCAU_NGHIEPVU_180 | Điện thoại, email, số định danh, số tài khoản được che trước khi gửi ra mô hình; người dùng đọc và xác nhận thông báo xử lý dữ liệu cá nhân trước lần dùng đầu; công ty có hồ sơ chuyển dữ liệu ra nước ngoài | Quản trị công ty, Nhân viên |
+| YCAU_NGHIEPVU_181 | Hội thoại lưu 90 ngày; người hỏi xem lại, xóa hội thoại của mình; quản trị chỉ xem thống kê, không xem nội dung | Nhân viên, Quản trị công ty |
+| YCAU_NGHIEPVU_182 | Người dùng đánh giá đúng, sai từng câu trả lời; công ty theo dõi token, chi phí từng lượt | Nhân viên, Quản trị công ty |
+| YCAU_NGHIEPVU_183 | Đổi nhà cung cấp, mô hình mà không sửa chức năng nghiệp vụ; kiểm thử không gọi dịch vụ thật | Quản trị hệ thống, đội phát triển |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Cài đặt trợ lý AI | Công ty, bật Hỏi đáp số liệu, bật Soạn nội dung sản phẩm, hạn mức chi phí tháng (USD), số lượt mỗi người mỗi ngày, tháng đã báo vượt hạn mức, phiên bản | CONG_VIEC_63 L1 |
+| Xác nhận thông báo xử lý dữ liệu cá nhân | Người dùng, phiên bản thông báo, thời điểm | CONG_VIEC_63 L1 |
+| Nhật ký lượt | Công ty, người dùng, tính năng, hội thoại, sản phẩm, nhà cung cấp, mô hình, token vào, ra, đọc, ghi bộ nhớ đệm, số lần gọi công cụ, chi phí USD, trạng thái, thời gian xử lý | Không có nội dung; giữ 24 tháng |
+| Hội thoại, tin nhắn, đánh giá | Người dùng, công ty, tiêu đề; vai trò, nội dung đã che, công cụ đã gọi; Đúng, Sai, lý do | CONG_VIEC_63 L2; giữ 90 ngày |

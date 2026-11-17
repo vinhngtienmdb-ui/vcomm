@@ -2030,3 +2030,25 @@ Gốc `/api/v1`:
 | API_317 | `GET /marketplace/product-feed`; `PUT /marketplace/product-feed` (`enabled`, `version`); `POST /marketplace/product-feed/regenerate` (`version`) | xem `marketplace.order.view`; sửa `marketplace.order.manage` | Trả `ProductFeedStatus` (`enabled`, `url` khi có quyền sửa, `tokenCreatedAt`, `lastFetchedAt`, `productCount`, `skippedWithoutImage`, `version`, `canManage`); sai `version` `409 CONFLICT_VERSION`; cửa hàng chưa cài đặt `409 BUSINESS_RULE` |
 
 Biến môi trường: `SHARE_PUBLIC_URL` (địa chỉ công khai trỏ tới máy chủ API), `VCOMM_WEB_URL`, `VCOMM_APP_LINK_BASE`, `APP_STORE_URL`, `GOOGLE_PLAY_URL`, `APPLE_TEAM_ID`, `ANDROID_SHA256_CERT_FINGERPRINTS`; ứng dụng `EXPO_PUBLIC_SHARE_URL`. Ảnh trong thẻ, tệp dùng API hiện có `GET /buyer/shop/images/{id}`. Không sửa API đã có.
+
+## 2y. Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63)
+
+Gốc `/api/v1`, đăng nhập như hiện có, theo công ty đang chọn (`X-Company-Id`).
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_273 | `GET /ai/me`, `POST /ai/me/acknowledge` | Đăng nhập | Trạng thái của tôi: tính năng dùng được và lý do nếu không (QUYTAC_NGHIEPVU_510), lượt còn hôm nay, công ty đã hết hạn mức tháng chưa (không trả số tiền cho người không có `ai.usage.view`), phiên bản thông báo và nội dung, đã xác nhận chưa; xác nhận thông báo (`noticeVersion`) |
+| API_274 | `GET /ai/conversations`, `GET /ai/conversations/{id}`, `DELETE /ai/conversations/{id}` | `ai.chat.use` | Danh sách hội thoại của tôi (phân trang 20), chi tiết kèm tin nhắn, đánh giá; xóa hẳn |
+| API_275 | `POST /ai/conversations/messages` | `ai.chat.use` | Gửi câu hỏi (`conversationId` trống thì tạo hội thoại mới; `content` 1 đến 2.000 ký tự). Kết quả dòng sự kiện máy chủ (`text/event-stream`): `conversation`, `tool` (tên công cụ đang gọi, để hiện "Đang xem báo cáo bán hàng…"), `delta` (chữ), `done` (mã tin nhắn, trạng thái, lượt còn), `error` (mã lỗi). Lỗi trước khi bắt đầu dòng trả mã HTTP thường: `409 AI_QUOTA_EXCEEDED`, `409 AI_DAILY_LIMIT`, `409 AI_BUSY`, `409 AI_NOTICE_REQUIRED`, `403 AI_FEATURE_DISABLED`, `503 AI_NOT_CONFIGURED` |
+| API_276 | `PUT /ai/messages/{id}/feedback`, `DELETE /ai/messages/{id}/feedback` | `ai.chat.use`, tin nhắn của mình | Đánh giá Đúng, Sai (QUYTAC_NGHIEPVU_521); bỏ đánh giá |
+| API_277 | `POST /ai/product-content` | `ai.product_content.use` và quyền sửa sản phẩm | Đầu vào: `productId` (trống khi sản phẩm chưa lưu) và dữ liệu biểu mẫu, `tone`, `length`, `keywords[]`. Kết quả JSON: `description`, `listingDescription`, `highlights[]`, `missing[]` (thông số cần bổ sung), `remainingTurns`. Lỗi hạn mức như API_275 |
+| API_278 | `GET`, `PATCH /ai/settings` | Xem: `ai.settings.manage` hoặc `ai.usage.view`; sửa: `ai.settings.manage` | Cài đặt công ty (QUYTAC_NGHIEPVU_511) kèm `provider`, `model` đang cấu hình (chỉ đọc), `configured` (máy chủ có khóa chưa; không trả khóa), phiên bản thông báo |
+| API_279 | `GET /ai/usage` | `ai.usage.view` hoặc `ai.settings.manage` | Thống kê theo tháng (`month=YYYY-MM`): tổng chi phí, hạn mức, theo ngày, theo tính năng, theo người dùng (tên, số lượt, token, chi phí), số Đúng, Sai theo lý do; xuất Excel dùng cách hiện có của báo cáo |
+
+Mã lỗi thêm vào tài liệu `17` mục 1: `409 AI_QUOTA_EXCEEDED`, `409 AI_DAILY_LIMIT`, `409 AI_BUSY`, `409 AI_NOTICE_REQUIRED`, `403 AI_FEATURE_DISABLED`, `503 AI_NOT_CONFIGURED`, `502 AI_PROVIDER_ERROR`.
+
+L1 có API_273, API_278. Mã lỗi `AI_*` đã thêm vào danh sách mã lỗi chung (`packages/contracts`, mục 1).
+
+L2 có API_274, API_275, API_276. API_275 trả `text/event-stream`, mỗi sự kiện hai dòng `event: <loại>` và `data: <JSON>` (kiểu `AiStreamEvent` trong `packages/contracts`). Lỗi trước khi mở dòng dùng mô hình lỗi chung; hội thoại đủ 40 tin nhắn trả `409 BUSINESS_RULE` (`aiConversationFull`). Lỗi nhà cung cấp trong lúc trả lời là sự kiện `error` (`AI_PROVIDER_ERROR`), lượt vẫn ghi nhật ký.
+
+L3 có API_277 (`productContentRequestSchema`, kết quả `ProductContentResponse`; mô hình từ chối trả `409 BUSINESS_RULE` `aiContentRefused`, kết quả không đúng cấu trúc trả `502 AI_PROVIDER_ERROR`; người thiếu `catalog.product.manage` nhận `403`, sản phẩm của nhà bán hoặc công ty khác `404`) và API_279 (`aiUsageQuerySchema`: `month=YYYY-MM`, `feature`, `format=json|xlsx`; xuất Excel ghi nhật ký thao tác `ai.usage.export`). `saveProductSchema` (API_56, API_57) thêm trường tùy chọn `aiAssisted`, chỉ ghi vào nhật ký thao tác.

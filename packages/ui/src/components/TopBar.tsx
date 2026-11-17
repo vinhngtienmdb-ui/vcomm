@@ -1,18 +1,37 @@
 "use client";
 
 // ThanhTrenCung (tài liệu 15 mục 6): trang chủ, chọn công ty (CHUC_NANG_11), hộp duyệt, thông báo, đăng xuất.
-import type { MeResponse, NotificationItem, NotificationListResponse } from "contracts";
+import type { AiMeResponse, MeResponse, NotificationItem, NotificationListResponse } from "contracts";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, rememberCompany } from "../lib/api";
 import { formatDateTime } from "../lib/format";
 import { Drawer } from "./Dialogs";
+
+// Ngăn trợ lý AI (CONG_VIEC_63) tải riêng khi mở để không làm nặng trang mini app.
+const AiPanel = dynamic(() => import("./AiPanel"), { ssr: false });
 
 export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChange: () => void }) {
   const t = useTranslations("topBar");
   const [loggingOut, setLoggingOut] = useState(false);
   const [notifications, setNotifications] = useState<NotificationListResponse | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const ai = useTranslations("aiAssistant");
+  const [aiStatus, setAiStatus] = useState<AiMeResponse | null>(null);
+  const [showAi, setShowAi] = useState(false);
+
+  // Nút trợ lý chỉ hiện với người có quyền hỏi đáp ở công ty đang chọn (QUYTAC_NGHIEPVU_510).
+  useEffect(() => {
+    let active = true;
+    apiFetch<AiMeResponse>("/ai/me")
+      .then((status) => active && setAiStatus(status))
+      .catch(() => active && setAiStatus(null));
+    return () => {
+      active = false;
+    };
+  }, [me.currentCompanyId]);
+  const aiPermitted = aiStatus?.features.some((feature) => feature.feature === "chat" && feature.permitted) ?? false;
 
   // Số thông báo chưa đọc làm mới mỗi phút.
   const loadNotifications = useCallback(async () => {
@@ -77,6 +96,11 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
         ) : (
           <span style={{ fontSize: 13 }}>{me.companies[0]?.shortName}</span>
         )}
+        {aiPermitted && (
+          <button type="button" className="nut-tro-ly" aria-pressed={showAi} aria-haspopup="dialog" onClick={() => setShowAi((value) => !value)}>
+            ✦ {ai("open")}
+          </button>
+        )}
         <a href="/de-xuat">{t("proposals")}</a>
         <a href="/hop-duyet">{t("approvals")}</a>
         <button type="button" onClick={() => setShowNotifications(true)} aria-haspopup="dialog">
@@ -90,6 +114,7 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
         </button>
       </header>
       {showNotifications && <NotificationsDrawer list={notifications} onClose={() => setShowNotifications(false)} onOpen={(item) => void openNotification(item)} />}
+      {showAi && aiStatus && <AiPanel status={aiStatus} onStatus={setAiStatus} onClose={() => setShowAi(false)} />}
     </>
   );
 }
