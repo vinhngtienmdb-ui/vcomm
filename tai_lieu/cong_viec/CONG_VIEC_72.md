@@ -3,12 +3,12 @@
 - Mô tả: Smart OTP (mã TOTP 6 số tạo trong ứng dụng VComm) thành cách xác thực chính của người mua cho giao dịch dùng điểm, đăng nhập trên thiết bị mới, quên mật khẩu; cổng cửa hàng liên kết đăng nhập bằng mật khẩu và ứng dụng xác thực (TOTP) thay mã SMS. Khách chưa kích hoạt dùng SMS dự phòng trong thời hạn chuyển đổi, sau đó bắt buộc.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu (chưa viết mã).
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, 12 điểm AI đề xuất (mục 17) và thư viện `expo-local-authentication` 58.0.2 ngày 2026-11-17. Đang làm lát L1.
 - Nhánh: `chuc-nang/CONG_VIEC_72-uu-tien-smart-otp`.
 - Nguồn: yêu cầu người dùng 2026-11-17; quyết định người dùng 2026-11-17 (mục 17); CONG_VIEC_53 lát L6 (Smart OTP), CONG_VIEC_55 (cổng cửa hàng), CONG_VIEC_65 (đổi điểm đối tác liên minh), CONG_VIEC_67 (Open API cửa hàng liên kết, THAY_DOI_31), CONG_VIEC_02, 03, 23 (đăng nhập, xác thực hai lớp, tài khoản người mua), CONG_VIEC_60 (mã cài đặt ứng dụng).
 - Mức: Lớn (đổi cách xác thực, sửa cấu trúc dữ liệu và API đã duyệt, thêm thư viện, nhiều module).
 - Thay đổi: THAY_DOI_37.
-- Mã trong bản nháp là ký hiệu tạm (`…_T1`, `…_T2`…); phiên điều phối cấp mã chính thức trước khi viết mã, khi đó thay toàn bộ.
+- Mã do phiên điều phối cấp ngày 2026-11-17 (sổ ghi qua PR #178): YCAU_NGHIEPVU_202 đến 204, QUYTAC_NGHIEPVU_560 đến 572, CHUC_NANG_242 đến 246, TIEUCHI_NGHIEMTHU_536 đến 545, KICHBAN_KIEMTHU_734 đến 749, MAN_HINH_269 đến 274, API_318 đến 325, database migration 0158 đến 0160, Luồng 66.
 
 ## 1. Mục tiêu
 
@@ -65,18 +65,18 @@ Ngoài phạm vi:
 
 ## 4. Yêu cầu nghiệp vụ và chức năng
 
-- YCAU_NGHIEPVU_T1: Người mua xác thực bằng Smart OTP trên ứng dụng VComm cho giao dịch dùng điểm, đăng nhập trên thiết bị mới, quên mật khẩu; SMS chỉ còn cho đăng ký, kích hoạt lần đầu, khôi phục khi mất máy và dự phòng trong thời hạn chuyển đổi.
-- YCAU_NGHIEPVU_T2: Tài khoản cổng cửa hàng liên kết đăng nhập bằng mật khẩu và ứng dụng xác thực (TOTP) thay mã SMS.
-- YCAU_NGHIEPVU_T3: Khách mất máy khôi phục được Smart OTP mà kẻ chiếm SIM không dùng ngay được điểm; chăm sóc khách hàng hỗ trợ khi khách mất cả số điện thoại.
-- CHUC_NANG_T1: Smart OTP có mã khóa và sinh trắc học; kích hoạt trong bước đăng ký; chuyển máy bằng mã máy cũ.
-- CHUC_NANG_T2: Thiết bị tin cậy, đăng nhập trên thiết bị mới, quên mật khẩu bằng Smart OTP.
-- CHUC_NANG_T3: Khôi phục khi mất máy, khóa dùng điểm, chăm sóc khách hàng hủy Smart OTP.
-- CHUC_NANG_T4: Thời hạn chuyển đổi, nhắc kích hoạt, thống kê.
-- CHUC_NANG_T5: Cổng cửa hàng liên kết đăng nhập bằng ứng dụng xác thực.
+- YCAU_NGHIEPVU_202: Người mua xác thực bằng Smart OTP trên ứng dụng VComm cho giao dịch dùng điểm, đăng nhập trên thiết bị mới, quên mật khẩu; SMS chỉ còn cho đăng ký, kích hoạt lần đầu, khôi phục khi mất máy và dự phòng trong thời hạn chuyển đổi.
+- YCAU_NGHIEPVU_203: Tài khoản cổng cửa hàng liên kết đăng nhập bằng mật khẩu và ứng dụng xác thực (TOTP) thay mã SMS.
+- YCAU_NGHIEPVU_204: Khách mất máy khôi phục được Smart OTP mà kẻ chiếm SIM không dùng ngay được điểm; chăm sóc khách hàng hỗ trợ khi khách mất cả số điện thoại.
+- CHUC_NANG_242: Smart OTP có mã khóa và sinh trắc học; kích hoạt trong bước đăng ký; chuyển máy bằng mã máy cũ.
+- CHUC_NANG_243: Thiết bị tin cậy, đăng nhập trên thiết bị mới, quên mật khẩu bằng Smart OTP.
+- CHUC_NANG_244: Khôi phục khi mất máy, khóa dùng điểm, chăm sóc khách hàng hủy Smart OTP.
+- CHUC_NANG_245: Thời hạn chuyển đổi, nhắc kích hoạt, thống kê.
+- CHUC_NANG_246: Cổng cửa hàng liên kết đăng nhập bằng ứng dụng xác thực.
 
 ## 5. Quy tắc nghiệp vụ
 
-### QUYTAC_NGHIEPVU_T1 – Cách xác thực theo luồng
+### QUYTAC_NGHIEPVU_560 – Cách xác thực theo luồng
 
 | Luồng | Khách đã kích hoạt Smart OTP | Khách chưa kích hoạt, trong thời hạn | Khách chưa kích hoạt, hết thời hạn |
 |---|---|---|---|
@@ -93,25 +93,26 @@ Ngoài phạm vi:
 - Khách đã kích hoạt Smart OTP không nhận mã SMS đăng nhập, quên mật khẩu, Open API ngay từ ngày bắt đầu chuyển đổi; SMS chỉ còn trong luồng khôi phục.
 - Màn hình, API không cho biết số điện thoại có tài khoản hay đã kích hoạt Smart OTP hay chưa (giữ QUYTAC_NGHIEPVU_05): người dùng tự chọn "Nhập mã Smart OTP" hoặc "Gửi mã SMS"; máy chủ gửi SMS chỉ khi số có tài khoản, chưa kích hoạt, còn thời hạn, và luôn trả `204`.
 
-### QUYTAC_NGHIEPVU_T2 – Thời hạn chuyển đổi
+### QUYTAC_NGHIEPVU_561 – Thời hạn chuyển đổi
 
 - Tham số (MAN_HINH_86 thẻ "Xác thực"; xem: `marketplace.buyer.view`, sửa: `marketplace.buyer.manage`, đã có, nhạy cảm; ghi nhật ký thao tác):
   - Ngày bắt đầu chuyển đổi: mặc định ngày chạy database migration (ngày triển khai).
   - Số ngày chuyển đổi của người mua: 1 đến 180, mặc định 30.
   - Số ngày chuyển đổi của cổng cửa hàng liên kết: 1 đến 180, mặc định 30.
   - Số giờ khóa dùng điểm sau khôi phục: 0 đến 168, mặc định 24.
+  - Số tổng đài chăm sóc khách hàng: tùy chọn, 8 đến 15 chữ số (quyết định người dùng 2026-11-17: nhập trên web quản trị). Để trống thì thông báo bỏ câu "Gọi tổng đài".
 - Ngày cuối = ngày bắt đầu + số ngày − 1 (30 ngày tính cả ngày bắt đầu, ví dụ 18/11/2026 đến hết 17/12/2026), hết 23:59:59 giờ Việt Nam. Áp cho mọi khách như nhau (không theo ngày đăng ký).
 - Sửa tham số áp ngay; không được đặt ngày bắt đầu sau hôm nay.
 
-### QUYTAC_NGHIEPVU_T3 – Kích hoạt Smart OTP
+### QUYTAC_NGHIEPVU_562 – Kích hoạt Smart OTP
 
 - Chỉ kích hoạt trên ứng dụng điện thoại (iOS, Android). Bản web của ứng dụng không kích hoạt được. Khách đã kích hoạt trên bản web giữ hiệu lực đến hết thời hạn chuyển đổi, được nhắc chuyển sang điện thoại; hết hạn hệ thống tự hủy, ghi nhật ký.
 - Lần đầu (tài khoản chưa từng có Smart OTP): mã SMS mục đích `smart_otp` (như CONG_VIEC_53).
 - Đăng ký mới trên ứng dụng điện thoại: sau khi nhập đúng mã SMS đăng ký, ứng dụng hỏi "Kích hoạt Smart OTP trên máy này" (mặc định chọn), đặt mã khóa, kích hoạt luôn. Không gửi thêm SMS. Khách bỏ qua thì dùng luồng lần đầu sau.
 - Chuyển máy khi máy cũ còn dùng được: trên máy mới (đã đăng nhập), nhập mã Smart OTP đang hiện trên máy cũ; đúng thì máy mới nhận khóa mới, máy cũ mất hiệu lực. Không SMS, không khóa dùng điểm.
-- Mỗi lần kích hoạt bằng mã SMS khi tài khoản đã từng có Smart OTP, hoặc trên thiết bị chưa tin cậy, tính là khôi phục (QUYTAC_NGHIEPVU_T7).
+- Mỗi lần kích hoạt bằng mã SMS khi tài khoản đã từng có Smart OTP, hoặc trên thiết bị chưa tin cậy, tính là khôi phục (QUYTAC_NGHIEPVU_566).
 
-### QUYTAC_NGHIEPVU_T4 – Mã khóa và sinh trắc học
+### QUYTAC_NGHIEPVU_563 – Mã khóa và sinh trắc học
 
 - Kích hoạt xong phải đặt mã khóa 6 số, nhập hai lần cho khớp. Không cho 6 số giống nhau, không cho dãy tăng, giảm liên tiếp (123456, 654321). Không cho trùng 6 số cuối của số điện thoại.
 - Mã khóa chỉ lưu trên máy, băm có muối (PBKDF2-SHA256), trong bộ nhớ an toàn của máy. Không gửi lên máy chủ.
@@ -121,7 +122,7 @@ Ngoài phạm vi:
 - Khách đã kích hoạt trước khi cập nhật: lần mở Smart OTP đầu tiên sau cập nhật phải đặt mã khóa, không phải kích hoạt lại.
 - Đổi mã khóa: nhập mã cũ (hoặc sinh trắc học) rồi đặt mã mới.
 
-### QUYTAC_NGHIEPVU_T5 – Thiết bị tin cậy
+### QUYTAC_NGHIEPVU_564 – Thiết bị tin cậy
 
 - Thiết bị = mã cài đặt ứng dụng (tiêu đề `X-Device-Id`, CONG_VIEC_60); máy chủ chỉ lưu băm HMAC-SHA256.
 - Bản web của ứng dụng: mỗi trình duyệt là một thiết bị.
@@ -129,7 +130,7 @@ Ngoài phạm vi:
   - Thiết bị đang có phiên đăng nhập còn hiệu lực.
   - Thiết bị đã ghi nhận cho tài khoản trong `loyalty.device_links` 12 tháng gần nhất.
 - Thiết bị thành tin cậy khi:
-  - Đăng nhập xác nhận xong (QUYTAC_NGHIEPVU_T6).
+  - Đăng nhập xác nhận xong (QUYTAC_NGHIEPVU_565).
   - Đăng ký xong.
   - Kích hoạt hoặc khôi phục Smart OTP trên máy đó.
   - Đăng nhập Zalo thành công: giữ nguyên Zalo, coi như đã xác nhận.
@@ -140,7 +141,7 @@ Ngoài phạm vi:
   - Chăm sóc khách hàng hủy Smart OTP: mọi thiết bị.
 - Danh sách "Thiết bị đã đăng nhập": tên máy, nền tảng, lần đầu, lần cuối, "Máy này", "Đang giữ Smart OTP".
 
-### QUYTAC_NGHIEPVU_T6 – Đăng nhập trên thiết bị mới
+### QUYTAC_NGHIEPVU_565 – Đăng nhập trên thiết bị mới
 
 - Mật khẩu đúng trên thiết bị chưa tin cậy: cấp phiên chờ xác nhận, chỉ gọi được API xác nhận, hiệu lực 10 phút. Dùng cách phiên chưa qua bước hai của xác thực hai lớp nhân viên.
 - Xác nhận:
@@ -153,7 +154,7 @@ Ngoài phạm vi:
 - Liên kết "Không còn máy giữ Smart OTP" dẫn sang khôi phục.
 - Phiên của tài khoản nhân viên có thư điện tử đăng nhập trên ứng dụng giữ xác thực hai lớp như cũ. Không hỏi thêm Smart OTP khi đã qua xác thực hai lớp.
 
-### QUYTAC_NGHIEPVU_T7 – Khôi phục khi mất máy
+### QUYTAC_NGHIEPVU_566 – Khôi phục khi mất máy
 
 - Còn số điện thoại và nhớ mật khẩu, trên máy mới:
   1. Nhập số điện thoại, mật khẩu, rồi mã SMS mục đích `smart_otp`.
@@ -164,10 +165,10 @@ Ngoài phạm vi:
   - Tích điểm bình thường.
   - Mọi cách dùng điểm báo "Dùng điểm tạm khóa đến <giờ> do vừa khôi phục Smart OTP": quầy, Open API, đổi ra đối tác, đặt hàng dùng điểm, cửa hàng liên kết cách 2, 3.
   - Không ai mở sớm được, kể cả chăm sóc khách hàng (giữ đơn giản, chống lừa đảo qua điện thoại).
-- Quên cả mật khẩu và mất máy, hoặc mất số điện thoại: không tự khôi phục; khách liên hệ chăm sóc khách hàng (QUYTAC_NGHIEPVU_T8).
+- Quên cả mật khẩu và mất máy, hoặc mất số điện thoại: không tự khôi phục; khách liên hệ chăm sóc khách hàng (QUYTAC_NGHIEPVU_567).
 - Giới hạn gửi mã SMS giữ như cũ: 5 mã mỗi giờ mỗi số, tính chung mọi mục đích.
 
-### QUYTAC_NGHIEPVU_T8 – Chăm sóc khách hàng hủy Smart OTP
+### QUYTAC_NGHIEPVU_567 – Chăm sóc khách hàng hủy Smart OTP
 
 - Quyền mới `marketplace.buyer.security` (nhạy cảm), gán mặc định Quản trị tập đoàn, Quản trị công ty tại công ty vận hành sàn.
 - MAN_HINH_80 khối "Bảo mật đăng nhập":
@@ -183,16 +184,16 @@ Ngoài phạm vi:
   - Khách quên mật khẩu: nhân viên hướng dẫn đặt lại bằng SMS. Ngoại lệ có kiểm soát: tài khoản vừa bị chăm sóc khách hàng hủy Smart OTP trong 24 giờ được đặt lại mật khẩu bằng SMS một lần.
   - Kích hoạt lại tính là khôi phục: khóa dùng điểm.
 
-### QUYTAC_NGHIEPVU_T9 – Quên mật khẩu người mua
+### QUYTAC_NGHIEPVU_568 – Quên mật khẩu người mua
 
 - Màn hình hỏi số điện thoại, mã xác thực và mật khẩu mới:
   - "Mã Smart OTP": đọc từ máy giữ Smart OTP; trên chính máy đó, ứng dụng tự điền sau khi mở khóa.
-  - "Gửi mã SMS": chỉ có tác dụng với khách chưa kích hoạt trong thời hạn, hoặc trường hợp ngoại lệ ở QUYTAC_NGHIEPVU_T8.
-- Kiểm mã Smart OTP như QUYTAC_NGHIEPVU_T6, dùng chung bộ đếm sai và khóa.
+  - "Gửi mã SMS": chỉ có tác dụng với khách chưa kích hoạt trong thời hạn, hoặc trường hợp ngoại lệ ở QUYTAC_NGHIEPVU_567.
+- Kiểm mã Smart OTP như QUYTAC_NGHIEPVU_565, dùng chung bộ đếm sai và khóa.
 - Đúng thì làm như hiện nay (QUYTAC_NGHIEPVU_147): đặt mật khẩu, bỏ khóa đăng nhập, thu hồi mọi phiên. Thêm: hết tin cậy mọi thiết bị trừ thiết bị đang làm.
 - Tài khoản có thư điện tử (nhân viên): giữ đặt lại qua thư điện tử như cũ.
 
-### QUYTAC_NGHIEPVU_T10 – Giao dịch dùng điểm
+### QUYTAC_NGHIEPVU_569 – Giao dịch dùng điểm
 
 - Open API (sửa CONG_VIEC_67):
   - Tra điểm trả thêm `otpMethod`: `smart_otp`, `sms` hoặc `unavailable`, và `redeemLockedUntil`.
@@ -202,16 +203,16 @@ Ngoài phạm vi:
   - Tạo giao dịch dùng điểm khi đang khóa: `422 loyaltyRedeemLocked` kèm thời điểm hết khóa.
   - Phí tin OTP (THAY_DOI_31) giữ cách tính; chỉ còn phát sinh trong thời hạn.
 - Đổi ra đối tác liên minh (sửa QUYTAC_NGHIEPVU_542): hết thời hạn mà khách chưa kích hoạt thì báo "Kích hoạt Smart OTP để đổi điểm", nút "Kích hoạt".
-- Mọi cách dùng điểm xét khóa dùng điểm (QUYTAC_NGHIEPVU_T7) trước giới hạn và chống gian lận.
+- Mọi cách dùng điểm xét khóa dùng điểm (QUYTAC_NGHIEPVU_566) trước giới hạn và chống gian lận.
 - Mã Smart OTP sai trong giao dịch dùng chung bộ đếm với đăng nhập, quên mật khẩu: 5 lần khóa 15 phút như CONG_VIEC_53.
 
-### QUYTAC_NGHIEPVU_T11 – Cổng cửa hàng liên kết
+### QUYTAC_NGHIEPVU_570 – Cổng cửa hàng liên kết
 
 - Mọi tài khoản cổng (chủ, thu ngân) đăng nhập bằng:
   - Số điện thoại, mật khẩu, rồi mã 6 số của ứng dụng xác thực (Google Authenticator, Microsoft Authenticator hoặc ứng dụng TOTP bất kỳ), hoặc một mã dự phòng.
   - Hoặc Zalo, rồi mã ứng dụng xác thực.
 - Ứng dụng xác thực dùng lại xác thực hai lớp của nhân viên: TOTP 30 giây, 10 mã dự phòng dùng một lần, sai 5 lần (QUYTAC_NGHIEPVU_09, CHUC_NANG_09).
-- Yêu cầu xác thực hai lớp chỉ áp khi đăng nhập vào cổng cửa hàng. Người là thành viên cổng đồng thời là người mua: đăng nhập ứng dụng VComm vẫn theo QUYTAC_NGHIEPVU_T6, không hỏi mã ứng dụng xác thực.
+- Yêu cầu xác thực hai lớp chỉ áp khi đăng nhập vào cổng cửa hàng. Người là thành viên cổng đồng thời là người mua: đăng nhập ứng dụng VComm vẫn theo QUYTAC_NGHIEPVU_565, không hỏi mã ứng dụng xác thực.
 - Kích hoạt lời mời (sửa QUYTAC_NGHIEPVU_393): mã SMS một lần → đặt mật khẩu (nếu chưa có) → quét mã QR đăng ký ứng dụng xác thực → lưu 10 mã dự phòng → vào cổng.
 - Tài khoản cổng có sẵn khi triển khai:
   - Trong thời hạn: vẫn đăng nhập bằng mã SMS. Mỗi lần vào được dẫn tới "Thiết lập bảo mật" (đặt mật khẩu, đăng ký ứng dụng xác thực), có nút "Để sau" kèm số ngày còn lại.
@@ -223,20 +224,21 @@ Ngoài phạm vi:
   - Ghi nhật ký thao tác.
 - Quên mật khẩu cổng: số điện thoại, mã ứng dụng xác thực hoặc mã dự phòng, mật khẩu mới; thu hồi mọi phiên cổng. Mất cả mật khẩu và ứng dụng xác thực: đặt lại xác thực.
 
-### QUYTAC_NGHIEPVU_T12 – Nhắc kích hoạt và thông báo
+### QUYTAC_NGHIEPVU_571 – Nhắc kích hoạt và thông báo
 
 - Ứng dụng VComm, khách chưa kích hoạt (hoặc đang dùng Smart OTP trên bản web), trong thời hạn:
   - Thẻ nhắc trên trang chủ và trang Điểm thưởng: "Kích hoạt Smart OTP trước <ngày> để tiếp tục dùng điểm và đăng nhập trên máy mới", nút "Kích hoạt", đóng được trong ngày.
   - Thông báo trong ứng dụng vào ngày bắt đầu, 14, 7, 1 ngày trước hạn.
   - Một tin ZNS 7 ngày trước hạn, khi mẫu ZNS "Nhắc kích hoạt Smart OTP" đã cài. Chưa cài thì bỏ qua, không gửi SMS thay. Mỗi khách nhận tối đa một tin.
 - Cổng cửa hàng: dải nhắc trên đầu cổng với tài khoản chưa thiết lập: "Thiết lập bảo mật trước <ngày>".
-- Mẫu ZNS mới cần người dùng đăng ký với eSMS (tài liệu `28`):
-  - "Nhắc kích hoạt Smart OTP".
-  - "Smart OTP chuyển máy".
-  - "Smart OTP bị hủy".
+- Mẫu ZNS mới người dùng đăng ký với eSMS rồi nhập mã mẫu ở Cài đặt tích hợp (tài liệu `28` mục 2.4; quyết định người dùng 2026-11-17: cấu hình sau trên web quản trị):
+  - "Nhắc kích hoạt Smart OTP" (khóa `esms.template.smart_otp_reminder`).
+  - "Smart OTP chuyển máy" (khóa `esms.template.smart_otp_transferred`).
+  - "Smart OTP bị hủy" (khóa `esms.template.smart_otp_revoked`).
+  - Mẫu nào để trống thì chỉ gửi thông báo trong ứng dụng, không gửi SMS thay.
 - Việc nền chạy hằng ngày lúc 9 giờ, giờ Việt Nam; không gửi trùng.
 
-### QUYTAC_NGHIEPVU_T13 – Thống kê và nhật ký
+### QUYTAC_NGHIEPVU_572 – Thống kê và nhật ký
 
 - MAN_HINH_86 thẻ "Xác thực":
   - Số người mua đã kích hoạt trên tổng số người mua đang hoạt động; số kích hoạt trên bản web còn lại.
@@ -258,7 +260,7 @@ Ngoài phạm vi:
 | Đặt lại xác thực cổng cho thu ngân | Chủ cửa hàng (vai trò cổng) |
 | Đặt lại xác thực cổng cho chủ, thu ngân | `affiliate.manage` (đã có) |
 
-## 7. Luồng nghiệp vụ (Luồng_T1)
+## 7. Luồng nghiệp vụ (Luồng 66)
 
 1. Ngày triển khai: database migration ghi ngày bắt đầu; nạp thiết bị tin cậy; nhắc kích hoạt bắt đầu.
 2. Khách mới: đăng ký → mã SMS → kích hoạt Smart OTP và đặt mã khóa luôn.
@@ -274,12 +276,12 @@ Bản mẫu: `tai_lieu/ban_mau/CONG_VIEC_72_SMART_OTP_UNG_DUNG.html` (ứng dụ
 
 | Mã | Tên | Nơi | Ghi chú |
 |---|---|---|---|
-| MAN_HINH_T1 | Mở khóa Smart OTP (đặt mã khóa, nhập mã khóa, sinh trắc học) | Ứng dụng VComm | Hiện khi xem mã, khi giao dịch cần mã trên máy giữ Smart OTP |
-| MAN_HINH_T2 | Xác nhận đăng nhập trên thiết bị mới | Ứng dụng VComm | Sau MAN_HINH_73 |
-| MAN_HINH_T3 | Khôi phục Smart OTP khi mất máy | Ứng dụng VComm | Từ MAN_HINH_T2, MAN_HINH_151 |
-| MAN_HINH_T4 | Thiết bị đã đăng nhập | Ứng dụng VComm | Từ MAN_HINH_76 Tài khoản |
-| MAN_HINH_T5 | Thiết lập bảo mật và nhập mã ứng dụng xác thực | Cổng cửa hàng | Sau đăng nhập, kích hoạt lời mời |
-| MAN_HINH_T6 | Quên mật khẩu cổng cửa hàng | Cổng cửa hàng | Từ trang đăng nhập cổng |
+| MAN_HINH_269 | Mở khóa Smart OTP (đặt mã khóa, nhập mã khóa, sinh trắc học) | Ứng dụng VComm | Hiện khi xem mã, khi giao dịch cần mã trên máy giữ Smart OTP |
+| MAN_HINH_270 | Xác nhận đăng nhập trên thiết bị mới | Ứng dụng VComm | Sau MAN_HINH_73 |
+| MAN_HINH_271 | Khôi phục Smart OTP khi mất máy | Ứng dụng VComm | Từ MAN_HINH_270, MAN_HINH_151 |
+| MAN_HINH_272 | Thiết bị đã đăng nhập | Ứng dụng VComm | Từ MAN_HINH_76 Tài khoản |
+| MAN_HINH_273 | Thiết lập bảo mật và nhập mã ứng dụng xác thực | Cổng cửa hàng | Sau đăng nhập, kích hoạt lời mời |
+| MAN_HINH_274 | Quên mật khẩu cổng cửa hàng | Cổng cửa hàng | Từ trang đăng nhập cổng |
 
 Sửa màn hình đã có:
 - MAN_HINH_151, thẻ Smart OTP:
@@ -302,16 +304,16 @@ Sửa màn hình đã có:
 
 ## 9. Dữ liệu
 
-- Database migration T1 `core_smart_otp`:
+- Database migration 0158 `core_smart_otp`:
   - Chuyển `loyalty.smart_otp_devices` sang `core.smart_otp_devices`, giữ nguyên dữ liệu.
   - Thêm `platform` (`ios`, `android`, `web`; dữ liệu cũ suy theo tên máy), `device_hash`, `redeem_locked_until`, `recovered_at`.
   - Bảng `core.trusted_devices`: `user_id`, `device_hash`, `device_name`, `platform`, `first_seen_at`, `last_seen_at`, `removed_at`; khóa `user_id`, `device_hash`. Nạp từ phiên còn hiệu lực có mã thiết bị và `loyalty.device_links` 12 tháng.
   - `core.sessions` thêm `device_hash`, `device_verified`.
-- Database migration T2 `core_authentication_settings`:
+- Database migration 0159 `core_authentication_settings`:
   - Bảng một dòng `core.authentication_settings`: `transition_starts_on` (mặc định ngày chạy), `buyer_transition_days` 30, `portal_transition_days` 30, `recovery_redeem_lock_hours` 24, `version`.
   - Bảng `core.smart_otp_reminders`: `user_id`, `kind` (`start`, `day_14`, `day_7`, `day_1`, `zns_7`), `sent_at`; khóa `user_id`, `kind`.
   - `core.otp_codes` thêm chỉ mục theo `purpose`, `created_at` cho thống kê.
-- Database migration T3 `merchant_portal_authentication`:
+- Database migration 0160 `merchant_portal_authentication`:
   - Quyền `marketplace.buyer.security` gán vai trò mặc định.
   - Loại thông báo mới.
   - `affiliate.members` thêm `authentication_reset_at` (bắt kích hoạt lại bằng SMS).
@@ -323,14 +325,14 @@ Mới:
 
 | Mã | Đường dẫn | Mô tả |
 |---|---|---|
-| API_T1 | `POST /buyer/login/device-verification` (`smartOtp` hoặc `smsCode`); `POST /buyer/login/device-verification/sms` | Xác nhận thiết bị mới với phiên chờ xác nhận; gửi SMS trả `204` luôn |
-| API_T2 | `POST /buyer/loyalty/smart-otp/transfer` (`code` của máy cũ, `deviceName`, `platform`) | Chuyển Smart OTP sang máy đang dùng, trả khóa một lần |
-| API_T3 | `POST /buyer/loyalty/smart-otp/recovery/otp` (`phone`, `password`); `POST /buyer/loyalty/smart-otp/recovery` (`phone`, `password`, `code`, `deviceName`, `platform`) | Khôi phục khi mất máy; đăng nhập, trả khóa một lần và `redeemLockedUntil` |
-| API_T4 | `GET /buyer/devices`; `DELETE /buyer/devices/{id}` | Thiết bị đã đăng nhập; gỡ thiết bị |
-| API_T5 | `GET /marketplace/buyers/{id}/security`; `POST /marketplace/buyers/{id}/smart-otp/revoke` (`reason`, `version`) | Khối bảo mật đăng nhập; hủy Smart OTP |
-| API_T6 | `GET`, `PUT /marketplace/authentication-settings` | Tham số chuyển đổi, thống kê |
-| API_T7 | `POST /merchant-portal/security/password`; `POST /merchant-portal/password-reset`; dùng lại API_06, 07, 08 cho ứng dụng xác thực | Thiết lập bảo mật cổng, quên mật khẩu cổng |
-| API_T8 | `POST /merchant-portal/members/{id}/reset-authentication` (chủ cửa hàng); `POST /affiliate/merchants/{id}/members/{memberId}/reset-authentication` (`affiliate.manage`) | Đặt lại xác thực cổng |
+| API_318 | `POST /buyer/login/device-verification` (`smartOtp` hoặc `smsCode`); `POST /buyer/login/device-verification/sms` | Xác nhận thiết bị mới với phiên chờ xác nhận; gửi SMS trả `204` luôn |
+| API_319 | `POST /buyer/loyalty/smart-otp/transfer` (`code` của máy cũ, `deviceName`, `platform`) | Chuyển Smart OTP sang máy đang dùng, trả khóa một lần |
+| API_320 | `POST /buyer/loyalty/smart-otp/recovery/otp` (`phone`, `password`); `POST /buyer/loyalty/smart-otp/recovery` (`phone`, `password`, `code`, `deviceName`, `platform`) | Khôi phục khi mất máy; đăng nhập, trả khóa một lần và `redeemLockedUntil` |
+| API_321 | `GET /buyer/devices`; `DELETE /buyer/devices/{id}` | Thiết bị đã đăng nhập; gỡ thiết bị |
+| API_322 | `GET /marketplace/buyers/{id}/security`; `POST /marketplace/buyers/{id}/smart-otp/revoke` (`reason`, `version`) | Khối bảo mật đăng nhập; hủy Smart OTP |
+| API_323 | `GET`, `PUT /marketplace/authentication-settings` | Tham số chuyển đổi, thống kê |
+| API_324 | `POST /merchant-portal/security/password`; `POST /merchant-portal/password-reset`; dùng lại API_06, 07, 08 cho ứng dụng xác thực | Thiết lập bảo mật cổng, quên mật khẩu cổng |
+| API_325 | `POST /merchant-portal/members/{id}/reset-authentication` (chủ cửa hàng); `POST /affiliate/merchants/{id}/members/{memberId}/reset-authentication` (`affiliate.manage`) | Đặt lại xác thực cổng |
 
 Sửa:
 - API_116 `POST /buyer/register`: nhận thêm `smartOtp: { deviceName, platform }` (tùy chọn); trả thêm `smartOtpActivation` (khóa một lần) khi kích hoạt.
@@ -343,7 +345,7 @@ Sửa:
   - `activate` từ bản web: `422 smartOtpWebNotAllowed`; trên thiết bị chưa tin cậy hoặc tài khoản đã từng có Smart OTP thì tính khôi phục.
   - Thêm `POST /buyer/loyalty/smart-otp/lockout`: ứng dụng báo sai mã khóa 5 lần, máy chủ hủy Smart OTP.
 - API_198 tra khách tại quầy: thêm `redeemLockedUntil`; lý do không dùng điểm `redeem_locked`.
-- API_297, tra điểm Open API: như QUYTAC_NGHIEPVU_T10.
+- API_297, tra điểm Open API: như QUYTAC_NGHIEPVU_569.
 - API_307 đổi điểm đối tác: báo giá trả `smartOtpRequired` theo thời hạn; `redeemLockedUntil`.
 - API_178 đặt hàng dùng điểm; API cửa hàng liên kết cách 2, 3: lỗi `loyaltyRedeemLocked` khi đang khóa.
 - API_02, API_03 `/auth/otp/*` gọi từ cổng cửa hàng sau hạn cổng: `422 merchantPortalSmsDisabled`, không gửi SMS.
@@ -363,7 +365,7 @@ Sửa:
 
 ## 12. Phân tích giải pháp có sẵn – CONG_VIEC_72 – 2026-11-17
 
-- Yêu cầu cần đáp ứng: CHUC_NANG_T1 (sinh trắc học).
+- Yêu cầu cần đáp ứng: CHUC_NANG_242 (sinh trắc học).
 - Nguồn đã tìm: mã dự án (không có sẵn); kho npm.
 - Từ khóa đã dùng: "expo local authentication", "react native biometrics".
 - Phương án:
@@ -373,7 +375,7 @@ Sửa:
     - Giấy phép MIT: đã đọc tệp `LICENSE` trong gói ("The MIT License (MIT) Copyright (c) 2015-present 650 Industries, Inc. (aka Expo)").
     - Phụ thuộc duy nhất `invariant`, cũng giấy phép MIT.
     - Có vân tay, khuôn mặt (Face ID cần khai báo `NSFaceIDUsageDescription` qua cấu hình plugin trong `app.json`); chạy được trong Expo Go.
-    - Không có trên bản web, nên bản web không kích hoạt Smart OTP, khớp QUYTAC_NGHIEPVU_T3.
+    - Không có trên bản web, nên bản web không kích hoạt Smart OTP, khớp QUYTAC_NGHIEPVU_562.
   - B. `react-native-biometrics`: cần mã gốc riêng, không hợp quy trình Expo hiện dùng.
   - C. Tự viết mô-đun gốc: không đáng.
 - Đề xuất: A, ghi cố định `"expo-local-authentication": "58.0.2"`. Người dùng đã đồng ý dùng thư viện sinh trắc học của Expo (2026-11-17); chờ người dùng xác nhận phiên bản này khi duyệt đặc tả, sau đó mới cài và ghi vào tài liệu `13`.
@@ -383,37 +385,37 @@ Sửa:
 
 | Mã | Nội dung | Mức |
 |---|---|---|
-| TIEUCHI_NGHIEMTHU_T1 | Kích hoạt Smart OTP: lần đầu bằng SMS; trong bước đăng ký không thêm SMS; bản web không kích hoạt được; chuyển máy bằng mã máy cũ không SMS | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T2 | Mã khóa 6 số (từ chối mã yếu), vân tay, khuôn mặt; sai 5 lần xóa Smart OTP và hủy trên máy chủ; khách cũ đặt mã khóa ở lần mở đầu | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T3 | Đăng nhập mật khẩu trên thiết bị mới cần mã Smart OTP; thiết bị tin cậy không hỏi; thiết bị đang đăng nhập khi triển khai không bị hỏi; gỡ thiết bị thu hồi phiên | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T4 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt không nhận SMS đăng nhập, quên mật khẩu; API không lộ số có tài khoản | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T5 | Khôi phục bằng mật khẩu và SMS: máy cũ mất hiệu lực, khóa mọi cách dùng điểm đúng số giờ, tích điểm vẫn được, thông báo gửi | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T6 | Thời hạn chuyển đổi: trong hạn SMS dự phòng đúng luồng; hết hạn Open API trả `409`, đổi ra đối tác bắt buộc Smart OTP, đăng nhập SMS bị từ chối | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T7 | Chăm sóc khách hàng hủy Smart OTP cần quyền mới, lý do, ghi nhật ký, thu hồi phiên và thiết bị | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T8 | Cổng cửa hàng: mật khẩu và mã ứng dụng xác thực (hoặc mã dự phòng), Zalo vẫn hỏi mã; kích hoạt lời mời có thiết lập; hết hạn bỏ SMS; đặt lại xác thực; quên mật khẩu; người mua là thành viên cổng không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_T9 | Nhắc kích hoạt: thẻ nhắc, thông báo đúng ngày, một tin ZNS 7 ngày trước hạn khi có mẫu, không gửi trùng | Mong muốn |
-| TIEUCHI_NGHIEMTHU_T10 | Tham số chuyển đổi sửa được có nhật ký; thống kê kích hoạt, số tin SMS theo mục đích | Mong muốn |
+| TIEUCHI_NGHIEMTHU_536 | Kích hoạt Smart OTP: lần đầu bằng SMS; trong bước đăng ký không thêm SMS; bản web không kích hoạt được; chuyển máy bằng mã máy cũ không SMS | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_537 | Mã khóa 6 số (từ chối mã yếu), vân tay, khuôn mặt; sai 5 lần xóa Smart OTP và hủy trên máy chủ; khách cũ đặt mã khóa ở lần mở đầu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_538 | Đăng nhập mật khẩu trên thiết bị mới cần mã Smart OTP; thiết bị tin cậy không hỏi; thiết bị đang đăng nhập khi triển khai không bị hỏi; gỡ thiết bị thu hồi phiên | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_539 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt không nhận SMS đăng nhập, quên mật khẩu; API không lộ số có tài khoản | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_540 | Khôi phục bằng mật khẩu và SMS: máy cũ mất hiệu lực, khóa mọi cách dùng điểm đúng số giờ, tích điểm vẫn được, thông báo gửi | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_541 | Thời hạn chuyển đổi: trong hạn SMS dự phòng đúng luồng; hết hạn Open API trả `409`, đổi ra đối tác bắt buộc Smart OTP, đăng nhập SMS bị từ chối | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_542 | Chăm sóc khách hàng hủy Smart OTP cần quyền mới, lý do, ghi nhật ký, thu hồi phiên và thiết bị | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_543 | Cổng cửa hàng: mật khẩu và mã ứng dụng xác thực (hoặc mã dự phòng), Zalo vẫn hỏi mã; kích hoạt lời mời có thiết lập; hết hạn bỏ SMS; đặt lại xác thực; quên mật khẩu; người mua là thành viên cổng không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_544 | Nhắc kích hoạt: thẻ nhắc, thông báo đúng ngày, một tin ZNS 7 ngày trước hạn khi có mẫu, không gửi trùng | Mong muốn |
+| TIEUCHI_NGHIEMTHU_545 | Tham số chuyển đổi sửa được có nhật ký; thống kê kích hoạt, số tin SMS theo mục đích | Mong muốn |
 
 ## 14. Kịch bản kiểm thử
 
 | Mã | Nội dung | Tiêu chí | Cách |
 |---|---|---|---|
-| KICHBAN_KIEMTHU_T1 | Kích hoạt lần đầu bằng SMS; kích hoạt từ bản web bị từ chối | T1 | Tự động |
-| KICHBAN_KIEMTHU_T2 | Đăng ký kèm kích hoạt Smart OTP: chỉ một mã SMS được tạo | T1 | Tự động |
-| KICHBAN_KIEMTHU_T3 | Chuyển máy bằng mã máy cũ: mã cũ hết hiệu lực, không tạo mã SMS, không khóa dùng điểm | T1 | Tự động |
-| KICHBAN_KIEMTHU_T4 | Mã khóa yếu bị từ chối; sai 5 lần gọi hủy; khách cũ đặt mã khóa | T2 | Tự động (giao diện) và thử tay trên máy |
-| KICHBAN_KIEMTHU_T5 | Sinh trắc học bật, tắt, đổi vân tay trên máy | T2 | Thử tay trên máy thật (Expo Go) |
-| KICHBAN_KIEMTHU_T6 | Thiết bị mới: mật khẩu đúng chỉ được phiên chờ xác nhận; gọi API khác trả `401`; mã Smart OTP đúng thì tin cậy, có thông báo; mã dùng lại bị từ chối; sai 5 lần khóa | T3 | Tự động |
-| KICHBAN_KIEMTHU_T7 | Thiết bị có phiên trước triển khai không bị hỏi; gỡ thiết bị thu hồi phiên | T3 | Tự động |
-| KICHBAN_KIEMTHU_T8 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt yêu cầu SMS: trả `204`, không tạo mã | T4 | Tự động |
-| KICHBAN_KIEMTHU_T9 | Khôi phục: mật khẩu sai, mã SMS sai; đúng thì máy cũ hết hiệu lực, khóa 24 giờ ở quầy, Open API, đổi ra đối tác, đặt hàng dùng điểm, cửa hàng liên kết cách 2, 3; tích điểm vẫn được; hết giờ dùng lại được | T5 | Tự động |
-| KICHBAN_KIEMTHU_T10 | Trong và sau thời hạn: đăng nhập SMS, quên mật khẩu SMS, Open API gửi mã, đổi ra đối tác chưa kích hoạt; tham số số ngày đổi thì hạn đổi | T6 | Tự động |
-| KICHBAN_KIEMTHU_T11 | Hủy Smart OTP thiếu quyền `403`, thiếu lý do `422`, đủ thì thu hồi phiên, thiết bị, ghi nhật ký; đặt lại mật khẩu ngoại lệ một lần | T7 | Tự động |
-| KICHBAN_KIEMTHU_T12 | Cổng: đăng nhập mật khẩu và mã ứng dụng xác thực, mã dự phòng, Zalo hỏi mã; tài khoản người mua cùng người không bị hỏi mã ứng dụng xác thực trên ứng dụng | T8 | Tự động |
-| KICHBAN_KIEMTHU_T13 | Cổng: kích hoạt lời mời có thiết lập; trong hạn "Để sau"; hết hạn `/auth/otp/send` từ cổng bị từ chối | T8 | Tự động |
-| KICHBAN_KIEMTHU_T14 | Cổng: đặt lại xác thực (chủ cho thu ngân, quản trị cho chủ, chủ không đặt được cho cửa hàng khác); quên mật khẩu cổng | T8 | Tự động |
-| KICHBAN_KIEMTHU_T15 | Việc nền nhắc: đúng ngày, không trùng, ZNS chỉ khi có mẫu | T9 | Tự động |
-| KICHBAN_KIEMTHU_T16 | Tham số: phạm vi giá trị, ngày bắt đầu không sau hôm nay, nhật ký; thống kê đúng số | T10 | Tự động |
+| KICHBAN_KIEMTHU_734 | Kích hoạt lần đầu bằng SMS; kích hoạt từ bản web bị từ chối | 536 | Tự động |
+| KICHBAN_KIEMTHU_735 | Đăng ký kèm kích hoạt Smart OTP: chỉ một mã SMS được tạo | 536 | Tự động |
+| KICHBAN_KIEMTHU_736 | Chuyển máy bằng mã máy cũ: mã cũ hết hiệu lực, không tạo mã SMS, không khóa dùng điểm | 536 | Tự động |
+| KICHBAN_KIEMTHU_737 | Mã khóa yếu bị từ chối; sai 5 lần gọi hủy; khách cũ đặt mã khóa | 537 | Tự động (giao diện) và thử tay trên máy |
+| KICHBAN_KIEMTHU_738 | Sinh trắc học bật, tắt, đổi vân tay trên máy | 537 | Thử tay trên máy thật (Expo Go) |
+| KICHBAN_KIEMTHU_739 | Thiết bị mới: mật khẩu đúng chỉ được phiên chờ xác nhận; gọi API khác trả `401`; mã Smart OTP đúng thì tin cậy, có thông báo; mã dùng lại bị từ chối; sai 5 lần khóa | 538 | Tự động |
+| KICHBAN_KIEMTHU_740 | Thiết bị có phiên trước triển khai không bị hỏi; gỡ thiết bị thu hồi phiên | 538 | Tự động |
+| KICHBAN_KIEMTHU_741 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt yêu cầu SMS: trả `204`, không tạo mã | 539 | Tự động |
+| KICHBAN_KIEMTHU_742 | Khôi phục: mật khẩu sai, mã SMS sai; đúng thì máy cũ hết hiệu lực, khóa 24 giờ ở quầy, Open API, đổi ra đối tác, đặt hàng dùng điểm, cửa hàng liên kết cách 2, 3; tích điểm vẫn được; hết giờ dùng lại được | 540 | Tự động |
+| KICHBAN_KIEMTHU_743 | Trong và sau thời hạn: đăng nhập SMS, quên mật khẩu SMS, Open API gửi mã, đổi ra đối tác chưa kích hoạt; tham số số ngày đổi thì hạn đổi | 541 | Tự động |
+| KICHBAN_KIEMTHU_744 | Hủy Smart OTP thiếu quyền `403`, thiếu lý do `422`, đủ thì thu hồi phiên, thiết bị, ghi nhật ký; đặt lại mật khẩu ngoại lệ một lần | 542 | Tự động |
+| KICHBAN_KIEMTHU_745 | Cổng: đăng nhập mật khẩu và mã ứng dụng xác thực, mã dự phòng, Zalo hỏi mã; tài khoản người mua cùng người không bị hỏi mã ứng dụng xác thực trên ứng dụng | 543 | Tự động |
+| KICHBAN_KIEMTHU_746 | Cổng: kích hoạt lời mời có thiết lập; trong hạn "Để sau"; hết hạn `/auth/otp/send` từ cổng bị từ chối | 543 | Tự động |
+| KICHBAN_KIEMTHU_747 | Cổng: đặt lại xác thực (chủ cho thu ngân, quản trị cho chủ, chủ không đặt được cho cửa hàng khác); quên mật khẩu cổng | 543 | Tự động |
+| KICHBAN_KIEMTHU_748 | Việc nền nhắc: đúng ngày, không trùng, ZNS chỉ khi có mẫu | 544 | Tự động |
+| KICHBAN_KIEMTHU_749 | Tham số: phạm vi giá trị, ngày bắt đầu không sau hôm nay, nhật ký; thống kê đúng số | 545 | Tự động |
 
 ## 15. Ràng buộc kỹ thuật
 
@@ -437,7 +439,7 @@ Sửa:
 
 1. Áp cho giao dịch điểm (quầy, Open API, đổi ra đối tác), đăng nhập người mua thiết bị mới, quên mật khẩu, đăng nhập cổng cửa hàng bằng ứng dụng xác thực.
 2. Đăng ký và kích hoạt lần đầu vẫn dùng SMS; giữ Zalo, ZNS.
-3. Thời hạn chuyển đổi 30 ngày tính từ ngày triển khai cho mọi khách, tham số sửa được; cổng cửa hàng cũng 30 ngày. Khách đăng ký mới kích hoạt luôn trong bước đăng ký bằng mã SMS đăng ký (nêu ở QUYTAC_NGHIEPVU_T3 để người dùng duyệt).
+3. Thời hạn chuyển đổi 30 ngày tính từ ngày triển khai cho mọi khách, tham số sửa được; cổng cửa hàng cũng 30 ngày. Khách đăng ký mới kích hoạt luôn trong bước đăng ký bằng mã SMS đăng ký (nêu ở QUYTAC_NGHIEPVU_562 để người dùng duyệt).
 4. Mã khóa 6 số và vân tay, khuôn mặt (sinh trắc học khi máy hỗ trợ, không có thì mã khóa; sai 5 lần xóa Smart OTP); dùng thư viện sinh trắc học của Expo sau khi báo phiên bản, giấy phép (mục 12).
 5. Khôi phục: mật khẩu và SMS, kích hoạt ngay, khóa mọi giao dịch dùng điểm 24 giờ (tham số), thông báo trong ứng dụng và ZNS. Mất cả số điện thoại: chăm sóc khách hàng hủy Smart OTP (quyền riêng, nhật ký).
 6. Thiết bị mới cần mật khẩu và Smart OTP từ máy cũ; máy đang đăng nhập coi là đã biết; không kích hoạt Smart OTP trên bản web.
@@ -449,8 +451,8 @@ Sửa:
 12. Khách không có điện thoại thông minh: sau hạn chỉ tích điểm.
 13. Smart OTP đã có giữ nguyên; lần mở đầu sau cập nhật đặt mã khóa.
 
-Điểm AI tự đề xuất trong đặc tả, chờ người dùng duyệt cùng đặc tả:
-- Khách đã kích hoạt không còn nhận SMS đăng nhập, quên mật khẩu ngay từ ngày bắt đầu (QUYTAC_NGHIEPVU_T1).
+Điểm AI tự đề xuất trong đặc tả, người dùng duyệt ngày 2026-11-17 (cùng thư viện `expo-local-authentication` 58.0.2):
+- Khách đã kích hoạt không còn nhận SMS đăng nhập, quên mật khẩu ngay từ ngày bắt đầu (QUYTAC_NGHIEPVU_560).
 - Thiết bị tin cậy hết hạn sau 12 tháng không dùng.
 - Kích hoạt trên bản web giữ hiệu lực đến hết thời hạn rồi tự hủy.
 - Kích hoạt bằng SMS khi đã từng có Smart OTP, hoặc trên thiết bị chưa tin cậy, tính là khôi phục (có khóa dùng điểm).
@@ -463,7 +465,7 @@ Sửa:
 | Lát | Nội dung | Xem trước |
 |---|---|---|
 | L0 | Đặc tả, bản mẫu, mã chính thức | Người dùng duyệt đặc tả, bản mẫu |
-| L1 | Database migration T1 đến T3; chuyển bảng Smart OTP sang `core`; thiết bị tin cậy nạp sẵn; tham số chuyển đổi, thẻ "Xác thực" MAN_HINH_86 | Thẻ Xác thực trên web-crm (ảnh), số liệu kích hoạt; hồi quy CONG_VIEC_53, 65, 67 đạt |
+| L1 | Database migration 0158 đến 0160; chuyển bảng Smart OTP sang `core`; thiết bị tin cậy nạp sẵn; tham số chuyển đổi, thẻ "Xác thực" MAN_HINH_86 | Thẻ Xác thực trên web-crm (ảnh), số liệu kích hoạt; hồi quy CONG_VIEC_53, 65, 67 đạt |
 | L2 | Ứng dụng: mã khóa, sinh trắc học (`expo-local-authentication`), khách cũ đặt mã khóa; kích hoạt trong bước đăng ký; chặn bản web; chuyển máy bằng mã máy cũ | Ảnh ứng dụng (bản web cho phần mã khóa); người dùng thử sinh trắc học trên máy thật qua Expo Go |
 | L3 | Thiết bị mới, thiết bị đã đăng nhập, quên mật khẩu bằng Smart OTP | Ảnh và lệnh gọi thử: đăng nhập máy lạ, nhập mã máy cũ |
 | L4 | Khôi phục khi mất máy, khóa dùng điểm mọi luồng, khối "Bảo mật đăng nhập" MAN_HINH_80, thông báo | Ảnh khôi phục, quầy báo khóa, web-crm hủy Smart OTP |
@@ -474,8 +476,7 @@ Mỗi lát dừng ở điểm xem trước chờ phản hồi. Kết thúc: ch�
 
 ## 19. Điểm chưa xác định
 
-- Mẫu ZNS mới (nhắc kích hoạt, chuyển máy, bị hủy) cần người dùng đăng ký với eSMS; chưa có thì bỏ qua tin ZNS, chỉ thông báo trong ứng dụng.
-- Số tổng đài chăm sóc khách hàng trong thông báo: **CHƯA XÁC ĐỊNH** (lấy từ cài đặt sàn nếu có, không có thì bỏ câu "Gọi tổng đài").
+- Mã mẫu ZNS và số tổng đài: người dùng nhập sau trên web quản trị; chưa có thì chỉ gửi thông báo trong ứng dụng.
 - Không tra cứu pháp lý trong công việc này.
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành

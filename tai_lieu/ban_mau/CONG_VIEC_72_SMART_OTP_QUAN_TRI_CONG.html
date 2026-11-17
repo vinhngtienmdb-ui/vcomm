@@ -42,7 +42,7 @@
 <div class="trang-mau">
   <header>
     <h1>CONG_VIEC_72 – Ưu tiên Smart OTP (web quản trị, cổng cửa hàng liên kết)</h1>
-    <p class="chu-phu">Sửa MAN_HINH_86 (thẻ Xác thực), MAN_HINH_80 (khối Bảo mật đăng nhập), trang đăng nhập cổng, MAN_HINH_177, 178; mới MAN_HINH_T5, T6. Mã tạm chờ phiên điều phối cấp. Số liệu giả.</p>
+    <p class="chu-phu">Sửa MAN_HINH_86 (thẻ Xác thực), MAN_HINH_80 (khối Bảo mật đăng nhập), trang đăng nhập cổng, MAN_HINH_177, 178; mới MAN_HINH_273, 274. Số liệu giả.</p>
   </header>
 
   <h2>1. Web-crm: Cài đặt bán hàng VComm – thẻ "Xác thực" (MAN_HINH_86 sửa)</h2>
@@ -54,6 +54,7 @@
       <label class="truong"><label>Số ngày chuyển đổi – người mua</label><input class="o-nhap" value="30"><span class="chu-phu">1 đến 180</span></label>
       <label class="truong"><label>Số ngày chuyển đổi – cổng cửa hàng liên kết</label><input class="o-nhap" value="30"><span class="chu-phu">1 đến 180</span></label>
       <label class="truong"><label>Khóa dùng điểm sau khôi phục (giờ)</label><input class="o-nhap" value="24"><span class="chu-phu">0 đến 168</span></label>
+      <label class="truong"><label>Số tổng đài chăm sóc khách hàng</label><input class="o-nhap" value="1900 1234"><span class="chu-phu">Tùy chọn; hiện trong thông báo khôi phục, hủy Smart OTP</span></label>
     </div>
     <div class="nhom-nut"><button class="nut chinh" type="button">Lưu</button><span class="chu-phu">Cần quyền <code>marketplace.buyer.manage</code>; người chỉ xem thấy ô khóa.</span></div>
     <h3>Tình hình kích hoạt</h3>
@@ -111,7 +112,7 @@
     </div>
 
     <div class="the-dang-nhap">
-      <h3>3b. Nhập mã ứng dụng xác thực (MAN_HINH_T5)</h3>
+      <h3>3b. Nhập mã ứng dụng xác thực (MAN_HINH_273)</h3>
       <span class="chu-phu">Mở Google Authenticator, Microsoft Authenticator hoặc ứng dụng xác thực bạn đã cài, nhập mã 6 số của "VComm".</span>
       <div class="o-ma" aria-label="Mã ứng dụng xác thực"><input value="7"><input value="3"><input value="0"><input value="1"><input value="9"><input value="2"></div>
       <button class="nut chinh nut-rong" type="button">Xác nhận</button>
@@ -120,7 +121,7 @@
     </div>
 
     <div class="the-dang-nhap" style="width:min(440px,100%)">
-      <h3>3c. Thiết lập bảo mật (MAN_HINH_T5)</h3>
+      <h3>3c. Thiết lập bảo mật (MAN_HINH_273)</h3>
       <ol class="buoc"><li>1. Mật khẩu</li><li class="chon">2. Ứng dụng xác thực</li><li>3. Mã dự phòng</li></ol>
       <div class="khoi-canh-bao thong-tin">Từ 18/12/2026 cổng không đăng nhập bằng mã SMS nữa. Còn 30 ngày.</div>
       <div style="display:flex;gap:var(--khoang-3);align-items:center"><div class="ma-qr" role="img" aria-label="Mã QR đăng ký ứng dụng xác thực"></div><span class="chu-phu">Quét mã bằng ứng dụng xác thực. Không quét được? Nhập khóa: <code>JBSW Y3DP EHPK 3PXP</code></span></div>
@@ -136,7 +137,7 @@
     </div>
 
     <div class="the-dang-nhap" id="quen">
-      <h3>3e. Quên mật khẩu cổng (MAN_HINH_T6)</h3>
+      <h3>3e. Quên mật khẩu cổng (MAN_HINH_274)</h3>
       <label class="truong"><label>Số điện thoại</label><input class="o-nhap" value="0912 345 678"></label>
       <label class="truong"><label>Mã ứng dụng xác thực hoặc mã dự phòng</label><input class="o-nhap" value=""></label>
       <label class="truong"><label>Mật khẩu mới</label><input class="o-nhap" type="password" value=""></label>
