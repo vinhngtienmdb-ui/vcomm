@@ -38,6 +38,7 @@
 
 ### Quyết định
 
+- CONG_VIEC_70 (người dùng chốt 2026-11-17): dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế; phí D, E chưa chốt giữ nguyên; vẫn gửi OTP khi vượt hạn mức; giao diện chỉ đổi số tổng. Cấp THAY_DOI_36.
 - Phát hành 0.10.0 gồm CONG_VIEC_60, 67 ngay; dành database migration 0156 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần. Chưa triển khai.
 - Quy tắc chống gian lận 2 (QUYTAC_NGHIEPVU_476) áp dụng đủ cho chiều đổi điểm ra của CONG_VIEC_65 (làm trong lát L4; phiếu tài liệu 24 lập sau).
 - CONG_VIEC_68: trang chia sẻ do API trả HTML; tên miền qua biến SHARE_PUBLIC_URL; tệp danh mục gồm mọi sản phẩm đang bán, sản phẩm chưa có ảnh không đưa vào; mã bí mật quản lý trên web; không thêm thư viện (người dùng chọn 2026-11-12).
