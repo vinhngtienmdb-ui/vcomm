@@ -8701,7 +8701,7 @@
     "members": "Thành viên",
     "inviteSent": "Đã gửi lời mời.",
     "connectionTitle": "Kết nối phần mềm",
-    "connectionHint": "Phần mềm bán hàng của cửa hàng gọi Open API để tra điểm, tích, đổi điểm, dùng voucher, hủy giao dịch. Giao dịch qua API vào chung hạn mức, đối soát tuần, báo cáo của cửa hàng. Khóa chỉ có phạm vi Điểm thưởng.",
+    "connectionHint": "Phần mềm bán hàng của cửa hàng gọi Open API để tra điểm, tích, đổi điểm, dùng voucher, hủy giao dịch. Giao dịch qua API vào chung hạn mức, đối soát tuần, báo cáo của cửa hàng. Khóa có phạm vi Điểm thưởng; khóa có thêm phạm vi đơn chờ thanh toán (instore.checkout) thì phần mềm tạo đơn thanh toán qua ứng dụng VComm và nhận webhook.",
     "connectionEmpty": "Cửa hàng chưa có khóa API. Cấp khóa khi cửa hàng muốn nối phần mềm bán hàng của mình với VComm.",
     "apiKeyIssue": "Cấp khóa",
     "apiKeyEdit": "Sửa khóa",

@@ -8701,7 +8701,7 @@
     "members": "Members",
     "inviteSent": "Invitation sent.",
     "connectionTitle": "Software connection",
-    "connectionHint": "The store's sales software calls the Open API to quote, earn and redeem points, use vouchers and cancel transactions. API transactions share the store's credit limit, weekly settlement and reports. Keys only have the Loyalty scope.",
+    "connectionHint": "The store's sales software calls the Open API to quote, earn and redeem points, use vouchers and cancel transactions. API transactions share the store's credit limit, weekly settlement and reports. Keys have the Loyalty scope; keys that also have the in-store checkout scope (instore.checkout) let the software create in-app payment checkouts and receive webhooks.",
     "connectionEmpty": "The store has no API key. Issue one when the store wants to connect its sales software to VComm.",
     "apiKeyIssue": "Issue key",
     "apiKeyEdit": "Edit key",
