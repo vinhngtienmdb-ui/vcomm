@@ -1,10 +1,10 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-17
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04 (2026-11-09); THAY_DOI_30 (2026-11-12); CONG_VIEC_71 (2026-11-17, mục 4 theo thực tế phát hành)
 
 ## 1. Phạm vi sản phẩm
 
@@ -61,7 +61,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 | MODULE_13 Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ |
 | MODULE_14 Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách |
 | MODULE_15 Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn |
-| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI (quản lý sản xuất bỏ theo THAY_DOI_30) |
+| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI (quản lý sản xuất đã bỏ theo THAY_DOI_30) |
 
 ## 3. Phạm vi ngoài
 
@@ -77,19 +77,31 @@ VComm gồm ba khối, ra mắt lần lượt:
 
 ## 4. Phạm vi phiên bản
 
+Các phiên bản đã phát hành, chưa triển khai lên môi trường thật (chi tiết: tài liệu `23`):
+
 | Phiên bản | Nội dung |
 |---|---|
-| 0.1 | Mini app Nền tảng (gồm thông báo ZNS, biểu mẫu đề xuất theo THAY_DOI_04) |
-| 0.2 | Sản phẩm và Nhà bán, Kho, ứng dụng kho |
-| 0.3 | Mua hàng, Bán hàng, giao dịch nội bộ |
-| 0.4 | Tài chính – Kế toán |
-| 0.5 | Khách hàng và Đối tác, Nhân sự, ứng dụng nhân viên kinh doanh |
-| 1.0 | Hệ thống quản trị doanh nghiệp chạy thật cho mọi công ty con |
-| 2.x | Sàn thương mại điện tử cộng đồng |
-| 3.x | Điểm thưởng và cửa hàng liên kết |
-| 4.x | Văn phòng số (MODULE_13) |
-| 5.x | Bán lẻ tại quầy và trạm giao hàng (MODULE_14) |
-| 6.x | Phân tích dữ liệu (MODULE_15), mở rộng kinh doanh (MODULE_16) |
+| 0.1.0 | Mini app Nền tảng (MODULE_01) |
+| 0.2.0 | Nền tảng hoàn thiện: đăng nhập Google, Microsoft, Zalo, số điện thoại; thông báo ZNS; biểu mẫu đề xuất (THAY_DOI_04) |
+| 0.3.0 | Sản phẩm (MODULE_02 phần Sản phẩm), Kho, Mua hàng trong nước, Bán hàng, giao dịch nội bộ, Tài chính – Kế toán, Khách hàng và Đối tác (phần tối thiểu); Sàn thương mại điện tử phần lõi (MODULE_09) |
+| 0.4.0 | Đơn vị vận chuyển và cổng thanh toán (MODULE_09); ứng dụng kho; Nhân sự phần 1 đến 3; báo cáo quản trị phần 1 (MODULE_15) |
+| 0.5.0 | Nhập khẩu (MODULE_04); Nhân sự phần 4; Cộng đồng phần 1 (MODULE_10); Điểm thưởng phần 1 (MODULE_11); Bán lẻ tại quầy L0 đến L5 (MODULE_14) |
+| 0.6.0 | Bán lẻ tại quầy L6; trạm giao hàng O2O; kế hoạch mua theo ngân sách (MODULE_14); thành phần Kinh doanh của ứng dụng VComm (MODULE_07) |
+| 0.7.0 | Cửa hàng liên kết phần 1 (MODULE_12); Open API cho đối tác (MODULE_16) |
+| 0.8.0 | Văn phòng số phần 1 (MODULE_13); kế toán ngoại tệ và thuế hải quan (MODULE_06) |
+| 0.9.0 | Văn phòng số phần 2 (MODULE_13); Open API khách hàng do đối tác tạo (MODULE_16) |
+| 0.10.0 | Điểm thưởng phần 2 (MODULE_11); cửa hàng liên kết qua Open API (MODULE_12) |
+| 0.11.0 | Dropship (MODULE_16); Điểm thưởng phần 3 (MODULE_11); chia sẻ sản phẩm lên mạng xã hội (MODULE_09) |
+
+Các mốc tiếp theo:
+
+| Phiên bản | Nội dung | Ngày dự kiến |
+|---|---|---|
+| Triển khai lần đầu | Đưa phiên bản đã phát hành lên môi trường thật | **CHƯA XÁC ĐỊNH** |
+| 1.0 | Hệ thống quản trị doanh nghiệp chạy thật cho mọi công ty con | **CHƯA XÁC ĐỊNH** |
+| Sau 1.0 | Phần còn lại của phạm vi mục 2 (gồm trợ lý AI, CONG_VIEC_63); thứ tự phiên bản **CHƯA XÁC ĐỊNH** | **CHƯA XÁC ĐỊNH** |
+
+Kế hoạch ban đầu gom module theo phiên bản (0.2 đến 0.5 cho các mini app quản trị; 2.x sàn; 3.x điểm thưởng và cửa hàng liên kết; 4.x văn phòng số; 5.x bán lẻ tại quầy; 6.x phân tích dữ liệu và mở rộng kinh doanh) không còn dùng: các module đã phát hành dần, xen kẽ trong 0.3.0 đến 0.11.0.
 
 ## 5. Danh sách ưu tiên
 

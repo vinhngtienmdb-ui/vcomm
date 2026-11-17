@@ -52,6 +52,11 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_61: Open API cho đối tác (MODULE_16).
   { code: "platform.api_key.manage", appCode: "platform", nameVi: "Cấp, sửa, thu hồi khóa API đối tác", nameEn: "Manage partner API keys", isSensitive: true },
   { code: "platform.api_log.view", appCode: "platform", nameVi: "Xem nhật ký gọi API đối tác", nameEn: "View partner API call log", isSensitive: false },
+  // CONG_VIEC_63: trợ lý AI (MODULE_16).
+  { code: "ai.chat.use", appCode: "platform", nameVi: "Dùng trợ lý AI hỏi đáp số liệu", nameEn: "Use AI assistant for data questions", isSensitive: false },
+  { code: "ai.product_content.use", appCode: "platform", nameVi: "Dùng AI soạn nội dung sản phẩm", nameEn: "Use AI to draft product content", isSensitive: false },
+  { code: "ai.settings.manage", appCode: "platform", nameVi: "Cài đặt trợ lý AI, hạn mức chi phí", nameEn: "Manage AI assistant settings and budget", isSensitive: true },
+  { code: "ai.usage.view", appCode: "platform", nameVi: "Xem thống kê sử dụng trợ lý AI", nameEn: "View AI assistant usage", isSensitive: false },
   // CONG_VIEC_04: mini app Sản phẩm (MODULE_02).
   { code: "catalog.category.manage", appCode: "catalog", nameVi: "Quản lý ngành hàng, đơn vị tính (toàn tập đoàn)", nameEn: "Manage categories and units (group)", isSensitive: false },
   { code: "catalog.product.view", appCode: "catalog", nameVi: "Xem sản phẩm", nameEn: "View products", isSensitive: false },
@@ -256,6 +261,10 @@ const companyAdminPermissions = [
   "platform.proposal_template.manage",
   "platform.api_key.manage",
   "platform.api_log.view",
+  "ai.chat.use",
+  "ai.product_content.use",
+  "ai.settings.manage",
+  "ai.usage.view",
   ...analyticsPermissions.filter((code) => code !== "analytics.access"),
   "catalog.product.view",
   "catalog.product.manage",

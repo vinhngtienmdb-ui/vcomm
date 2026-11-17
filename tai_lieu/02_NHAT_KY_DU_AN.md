@@ -9,17 +9,33 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.12.0 (pull request #179, commit hợp nhất `2c36bb9`): CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ, THAY_DOI_36). Kiểm thử API 817 đạt. Không database migration mới, không thư viện mới. Chưa triển khai; khi triển khai báo trước các cửa hàng có phí mỗi tin OTP lớn hơn 0.
+- Hợp nhất bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) vào main trước phát hành 0.12.0.
+- Người dùng nghiệm thu CONG_VIEC_63 (trợ lý AI, MODULE_16 phần 3) lát L1 đến L3, pull request #172 (commit `fb28075`; kiểm thử 872/872): ngăn trợ lý trên mọi mini app web, hỏi đáp số liệu chỉ đọc qua 10 công cụ theo quyền người hỏi, soạn nội dung sản phẩm, cài đặt và hạn mức theo công ty, thống kê sử dụng; database migration 0136, 0137; thư viện @anthropic-ai/sdk 1.4.0. Không dùng MAN_HINH_246 đến 249, API_280, database migration 0138, 0139.
+- CONG_VIEC_72: người dùng duyệt lát L1, L2; thêm thư viện @noble/hashes 2.4.0; cấp thêm MAN_HINH_275.
+- CONG_VIEC_69, 70 trình nghiệm thu (pull request #173, #174); CONG_VIEC_71 dọn tài liệu (pull request #170; commit đầu lệch mẫu commit, giữ nguyên; quy ước Git ghi loại `tai-lieu` trong khi lịch sử dùng `docs`, cần thống nhất sau); CONG_VIEC_63 lập đặc tả, bản mẫu (pull request #172).
 - Cấp LOI_14 (kiểm thử lỗi khi chạy qua 0 giờ giờ Việt Nam), mở phiên sửa.
+- Người dùng yêu cầu mở thêm phiên: cấp CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ xét hạn mức), CONG_VIEC_71 (dọn tài liệu quản lý sản xuất, cập nhật tài liệu 01); mở lại CONG_VIEC_63 (trợ lý AI). Xóa hai dòng trùng cũ của CONG_VIEC_57, 58 trong tài liệu 03 (bản ghi "chờ phát hành"; dòng đúng là đã phát hành v0.6.0).
 - Phát hành 0.11.0 (pull request #166, commit hợp nhất `4916028`): CONG_VIEC_62 (Dropship), CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn), CONG_VIEC_68 (chia sẻ sản phẩm lên mạng xã hội); THAY_DOI_33, 34, 35. Database migration 0156 gộp ràng buộc phạm vi khóa API. Kiểm thử API 814 đạt. Không thêm thư viện. Chưa triển khai.
 
 ### Quyết định
 
-- Người dùng 2026-11-17: sửa ngay LOI_14 kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example; chưa triển khai 0.4.0 đến 0.11.0; giữ tạm dừng CONG_VIEC_63.
+- CONG_VIEC_74 (người dùng chốt 2026-11-17, trả lời trực tiếp trong phiên iPOS, thay quyết định chọn theo đề xuất trước đó): MODULE_17 iPOS là module trong backend VComm, dùng chung cơ sở dữ liệu trong schema riêng `ipos`; luôn cần mạng; dùng tài khoản thành viên cửa hàng liên kết; thu phí thuê bao cấu hình theo cửa hàng; đối soát, báo cáo trong ERP; phát hành hai đợt (đợt 2 gồm khuyến mãi, nhà cung cấp, công nợ khách, bàn và món, màn hình phụ, tên miền riêng); máy thử Sunmi T2. Ghi THAY_DOI_39, cấp dải mã đợt 1. Người dùng xác nhận các chuỗi dạng khóa trong kho V-com-ERP là dữ liệu giả.
+- CONG_VIEC_73: người dùng duyệt đặc tả, bản mẫu và 16 điểm đề xuất (pull request #183; đơn chờ hết hạn 10 phút; không kết hợp tiền mặt với phần trả trong ứng dụng; tiền điểm không tính phí sàn; bảng chuyển tiền ngày tách khỏi bảng đối soát điểm tuần; tiền chuyển âm mang sang bảng sau; webhook thử lại 6 lần trong 32 giờ; tự vẽ mã vạch). Ghi THAY_DOI_38, cấp dải mã. Hợp nhất bản thu hồi khóa API iPOS ghi cứng của kho V-com-ERP (pull request #3 của kho đó; kiểm thử tự động lỗi do thiếu thông tin Supabase, lỗi giống trên main của kho đó); giữ kho công khai theo người dùng.
+- CONG_VIEC_73 (người dùng chốt 2026-11-17): khách chọn điểm trên ứng dụng; thu một nơi rồi chia hai luồng tiền, phí phần trăm theo cửa hàng, chuyển tiền theo ngày trừ phí sàn và phí cổng; VComm thu hộ, lập hóa đơn thay cửa hàng liên kết theo ủy nhiệm; cổng VNPAY trước; các điểm khác theo đề xuất. Kho V-com-ERP không có mã ứng dụng iPOS (phiên điều phối đọc kho công khai): người dùng chọn xây mới iPOS dạng ứng dụng riêng, mở CONG_VIEC_74 (chưa bắt đầu, làm sau CONG_VIEC_73).
+- Người dùng yêu cầu quy trình mua hàng tại cửa hàng bằng ứng dụng VComm (2026-11-17): cửa hàng quét mã động của khách hoặc khách quét QR thanh toán do iPOS sinh ra; chọn điểm dùng; thanh toán trong ứng dụng; áp cho cửa hàng tập đoàn, cửa hàng liên kết dùng iPOS, cửa hàng liên kết dùng cổng VComm; iPOS do VComm viết; mã động thay nhập mã Smart OTP. Mở CONG_VIEC_73. CONG_VIEC_72: người dùng duyệt lát L3, chọn tự ẩn thẻ đăng nhập SMS sau hạn (cấp API_326).
+- CONG_VIEC_72 (người dùng chốt 2026-11-17): thời hạn chuyển đổi 30 ngày cho mọi khách; Smart OTP mở bằng mã khóa 6 số và vân tay, khuôn mặt (thư viện expo-local-authentication 58.0.2); mất máy khôi phục bằng mật khẩu và SMS kèm khóa dùng điểm 24 giờ; các điểm còn lại theo đề xuất; mẫu ZNS và số tổng đài cấu hình sau. Duyệt đặc tả, bản mẫu (pull request #177). Cấp THAY_DOI_37 và dải mã. Người dùng duyệt lát L1 CONG_VIEC_63.
+- Người dùng đồng ý hợp nhất ngay bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) và phát hành 0.12.0 gồm CONG_VIEC_69, 70.
+- CONG_VIEC_70 (người dùng chốt 2026-11-17): dư nợ xét hạn mức cửa hàng liên kết cộng phí tin OTP chưa vào bảng kèm thuế; phí D, E chưa chốt giữ nguyên; vẫn gửi OTP khi vượt hạn mức; giao diện chỉ đổi số tổng. Cấp THAY_DOI_36.
+- CONG_VIEC_63 (người dùng chốt 2026-11-17): bản đầu cho nhân viên nội bộ; hỏi đáp dữ liệu chỉ đọc qua API có sẵn và soạn nội dung sản phẩm cho nhân viên duyệt; cùng quyền dữ liệu người hỏi; lưu hội thoại 90 ngày; che điện thoại, email, số định danh, số tài khoản (không che tên, địa chỉ khách); API Anthropic trực tiếp qua lớp kết nối trung lập, mô hình mặc định claude-sonnet-5-5; hạn mức tiền tháng theo công ty tính USD, mặc định 0 (tắt); xem trước bằng bộ giả lập. Duyệt đặc tả, bản mẫu MAN_HINH_242 đến 245, thư viện @anthropic-ai/sdk 1.4.0 (Apache-2.0).
+- Người dùng nghiệm thu CONG_VIEC_69 (yêu cầu sửa thêm bỏ lọc khóa cũ khi đổi công ty), CONG_VIEC_70; duyệt CONG_VIEC_71 kèm sửa tài liệu 23, 05 mục 4.
+- Người dùng yêu cầu ưu tiên Smart OTP thay SMS, Zalo truyền thống (2026-11-17): áp cho xác thực giao dịch điểm, đăng nhập người mua, quên mật khẩu, cổng cửa hàng liên kết; khách chưa kích hoạt dùng SMS dự phòng trong thời hạn chuyển đổi rồi bắt buộc; giữ đăng nhập Zalo và thông báo ZNS. Mở CONG_VIEC_72.
+- Người dùng 2026-11-17: sửa ngay LOI_14 kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example; chưa triển khai 0.4.0 đến 0.11.0; giữ tạm dừng CONG_VIEC_63 (sau đó người dùng mở lại cùng ngày).
 
 ### Vấn đề tồn đọng
 
-- Kiểm thử lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam (c57-station-orders, c57-station-delivery, c55-settlements: dữ liệu dựng sẵn lấy "hôm nay" một lần); đề xuất cấp LOI riêng, chờ người dùng quyết định.
-- LOYALTY_PARTNER_SIMULATOR (CONG_VIEC_65) chưa có trong .env.example.
+- CONG_VIEC_63: thử với mô hình thật khi có khóa Anthropic (tài liệu 28 mục 8); rà bản nháp thông báo xử lý dữ liệu cá nhân, hồ sơ chuyển dữ liệu ra nước ngoài trước khi bật; mạng môi trường thật cần cho phép đi ra api.anthropic.com.
+- CONG_VIEC_72: người dùng thử vân tay, khuôn mặt, mã khóa trên điện thoại thật bằng Expo Go trước khi nghiệm thu; đăng ký ba mẫu ZNS mới với eSMS và nhập số tổng đài chăm sóc khách hàng trước khi triển khai.
 
 ## 2026-11-16
 

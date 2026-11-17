@@ -2,10 +2,73 @@
 
 - Mô tả: Các phiên bản đã phát hành, nội dung và phương án quay lui riêng của từng phiên bản.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-16
+- Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.11.0 – 2026-11-16 – Chờ phát hành
+## Phiên bản 0.13.0 – 2026-11-17 – Chờ phát hành
+
+- Chức năng mới:
+  - Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63): nền trợ lý với lớp kết nối mô hình trung lập (Anthropic, bộ giả lập), che điện thoại, email, số định danh, số tài khoản trước khi gửi ra mô hình, thông báo xử lý dữ liệu cá nhân phải xác nhận trước lần dùng đầu, hạn mức chi phí tháng (USD) và số lượt mỗi người mỗi ngày của từng công ty, nhật ký lượt (token, chi phí, không lưu nội dung) (CHUC_NANG_226, MAN_HINH_244); hỏi đáp số liệu trong ngăn trợ lý ở thanh trên mọi mini app web, câu trả lời chạy dòng chảy, mô hình chỉ đọc dữ liệu qua 10 công cụ báo cáo theo đúng quyền của người hỏi, tối đa 8 lần gọi công cụ mỗi lượt (CHUC_NANG_227, MAN_HINH_242); soạn nội dung sản phẩm (tên, mô tả ngắn, mô tả chi tiết) ở trang sản phẩm `web-catalog` (CHUC_NANG_228, MAN_HINH_243); hội thoại riêng từng người giữ 90 ngày, đánh giá Đúng, Sai, thống kê sử dụng không có nội dung hội thoại (CHUC_NANG_229, MAN_HINH_245). Quy tắc QUYTAC_NGHIEPVU_510 đến 523. Mặc định mọi công ty tắt cả hai tính năng, hạn mức 0: không phát sinh chi phí cho đến khi quản trị công ty bật.
+- Sửa lỗi: không có.
+- Ghép giữa các công việc (hợp nhất, không rebase): nhánh `chuc-nang/CONG_VIEC_63-tro-ly-ai` tạo từ `main` trước khi phát hành 0.12.0 (cách 31 commit). Xung đột ở 5 tệp, đều giữ cả hai phía: `.env.example` (biến `LOYALTY_PARTNER_SIMULATOR` của `main` và nhóm biến `AI_*`), tài liệu `11`, `21` (mục CONG_VIEC_70 và mục CONG_VIEC_63), tài liệu `index` (dòng CONG_VIEC_70 và CONG_VIEC_63), tài liệu `27` (giữ mục 44 của CONG_VIEC_70, đánh lại ba mục kiểm tra bao phủ của CONG_VIEC_63 từ 44 đến 46 thành 45 đến 47, sửa tham chiếu trong `CONG_VIEC_63.md`). Mã nguồn hợp nhất tự động không xung đột. `pnpm-lock.yaml` hợp nhất tự động, `pnpm install --frozen-lockfile` đạt.
+- Thay đổi dữ liệu: database migration `0136_ai_assistant.sql` (lược đồ `ai`; bảng `ai.settings`, `ai.notice_acknowledgements`, `ai.usage_events`), `0137_ai_conversations.sql` (bảng `ai.conversations`, `ai.messages`, `ai.feedback`, `ai.active_turns`). Chỉ tạo mới, không sửa bảng có sẵn; khóa ngoại tới `core.companies`, `core.users`, `catalog.products`.
+- Thứ tự database migration: hai tệp có số nhỏ hơn database migration mới nhất đã chạy trên môi trường đang dùng 0.12.0 (`0156`). Bộ chạy database migration (`apps/api/src/database/run-migrations.ts`) chạy mọi tệp chưa có trong bảng `public.schema_migrations` theo thứ tự tên, không so với số lớn nhất đã chạy, nên khi nâng cấp sẽ chạy `0136`, rồi `0137`, sau `0156`. Đã thử trên nhánh phát hành: cơ sở dữ liệu trống chạy đủ 129 tệp; cơ sở dữ liệu đã chạy 127 tệp của `main` (0.12.0) chạy thêm đúng `0136`, `0137`, chạy lại lần nữa không còn tệp mới; lược đồ của hai cách (`pg_dump -s`) giống hệt nhau. Không đổi số tệp.
+- Thay đổi API: thêm API_273 đến API_279 (gốc `/api/v1/ai`): trạng thái của tôi và xác nhận thông báo, hội thoại, gửi câu hỏi (kết quả `text/event-stream`), đánh giá, soạn nội dung sản phẩm, cài đặt công ty, thống kê. Mã lỗi mới: `409 AI_QUOTA_EXCEEDED`, `409 AI_DAILY_LIMIT`, `409 AI_BUSY`, `409 AI_NOTICE_REQUIRED` và các mã khác ở tài liệu `17`. Không đổi API có sẵn.
+- Quyền mới: `ai.chat.use`, `ai.product_content.use`, `ai.settings.manage` (nhạy cảm), `ai.usage.view`; gán sẵn cho vai trò hệ thống Quản trị tập đoàn, Quản trị công ty (đồng bộ danh mục quyền khi khởi động API). Vai trò khác không được gán sẵn: quản trị công ty tự gán `ai.chat.use`, `ai.product_content.use` cho người cần dùng. Phạm vi khóa API mới: không có.
+- Thư viện mới: `@anthropic-ai/sdk` 1.4.0 cho `apps/api` (giấy phép Apache-2.0, người dùng duyệt 2026-11-17).
+- Biến môi trường mới (`.env.example`): `AI_PROVIDER` (trống: trợ lý báo chưa cấu hình; `fake`: bộ giả lập, không gọi mạng; `anthropic`: gọi Anthropic), `ANTHROPIC_API_KEY` (khóa bí mật, môi trường thật lấy từ AWS Secrets Manager), `AI_MODEL` (mặc định `claude-sonnet-5-5`), `AI_CHAT_EFFORT` (mặc định `medium`), `AI_CONTENT_EFFORT` (mặc định `low`), `AI_PRICE_INPUT`, `AI_PRICE_OUTPUT`, `AI_PRICE_CACHE_READ`, `AI_PRICE_CACHE_WRITE` (USD mỗi triệu token, mặc định 2; 10; 0,1; 2,5), `AI_NOTICE_VERSION` (mặc định 1; tăng thì mọi người phải xác nhận lại thông báo).
+- Tác vụ nền mới: `ai-conversation-retention` (BullMQ, 1 giờ 30 phút hằng ngày giờ Việt Nam): xóa hội thoại trợ lý AI không có tin nhắn mới quá 90 ngày (kèm tin nhắn, đánh giá), nhật ký lượt quá 24 tháng (QUYTAC_NGHIEPVU_520).
+- Thiết lập sau triển khai:
+  - Khóa Anthropic: đăng ký tài khoản tổ chức, xác nhận điều khoản thương mại, đặt giới hạn chi tiêu của tổ chức, tạo khóa riêng cho môi trường thật theo tài liệu `28` mục 8; nạp khóa vào AWS Secrets Manager thành biến `ANTHROPIC_API_KEY` của tiến trình API, đặt `AI_PROVIDER=anthropic`, khởi động lại API. Không ghi khóa vào tệp `.env` commit, chat, email. Chưa có khóa thì để trống `AI_PROVIDER`: trợ lý báo "chưa cấu hình", các chức năng khác không ảnh hưởng.
+  - Mạng: cho phép máy chủ API đi ra `api.anthropic.com` cổng 443 (HTTPS).
+  - Máy chủ trung gian đứng trước API (proxy, cân bằng tải): không gom đệm dòng sự kiện của API_275 (`text/event-stream`). API đã gửi tiêu đề `X-Accel-Buffering: no`; máy chủ trung gian khác Nginx cần tắt gom đệm, nén cho đường dẫn `/api/v1/ai/conversations/messages` và đặt thời gian chờ đọc đủ dài cho một lượt (mỗi lần gọi mô hình chờ tối đa 60 giây, một lượt có thể gồm nhiều lần gọi khi mô hình dùng công cụ). Kiểm tra: hỏi một câu, chữ phải hiện dần, không hiện một lần ở cuối.
+  - Trước khi bật trợ lý cho người dùng thật: người dùng hoặc tư vấn pháp lý rà và hoàn thiện bản nháp thông báo xử lý dữ liệu cá nhân và hồ sơ chuyển dữ liệu cá nhân ra nước ngoài ở tài liệu `22` (mục Trợ lý AI); sửa nội dung thông báo thì tăng `AI_NOTICE_VERSION`. Sau đó quản trị từng công ty bật tính năng, nhập hạn mức tháng và gán quyền dùng.
+- Rủi ro:
+  - Chưa thử với mô hình thật (kiểm thử và xem trước chỉ dùng bộ giả lập); lần bật đầu cần thử vài câu hỏi trên môi trường thử nghiệm với khóa thật trước khi bật cho công ty.
+  - Câu trả lời của mô hình có thể sai; giao diện ghi rõ và luôn có liên kết tới báo cáo nguồn.
+  - Dữ liệu (đã che điện thoại, email, số định danh, số tài khoản; tên, địa chỉ khách cá nhân không che) được gửi ra nhà cung cấp ở nước ngoài: chỉ bật sau khi hoàn tất thông báo và hồ sơ chuyển dữ liệu ra nước ngoài.
+  - Chi phí: mỗi công ty bị chặn ở hạn mức tháng; đặt thêm giới hạn chi tiêu của tổ chức trên trang nhà cung cấp làm lớp bảo vệ thứ hai. Đơn giá `AI_PRICE_*` phải khớp bảng giá của mô hình đang dùng, nếu không chi phí ghi nhận sẽ lệch.
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.12.0).
+- Khả năng tương thích: tương thích ngược với 0.12.0; chỉ thêm lược đồ, bảng, API, quyền mới; không đổi cấu trúc dữ liệu, API có sẵn. Không đặt biến `AI_*` thì hệ thống chạy như 0.12.0 (trợ lý báo chưa cấu hình).
+- Công việc gộp trong phiên bản: CONG_VIEC_63 (pull request #172, đầu nhánh `fb280750`). Nhánh phát hành tạo từ `main` `6142e104` (sau khi hợp nhất pull request #181).
+- Đánh lại số mục tài liệu trùng khi gộp: tài liệu `27` mục kiểm tra bao phủ của CONG_VIEC_63 thành 45, 46, 47 (trùng mục 44 của CONG_VIEC_70). Mã định danh của CONG_VIEC_63 không trùng.
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10382 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER) 154 tệp, 875 kiểm thử đạt (CONG_VIEC_63 thêm 4 tệp `c63-ai-access`, `c63-ai-chat`, `c63-ai-content`, `c63-ai-redact`); kiểm thử chỉ dùng bộ giả lập mô hình, không gọi Anthropic.
+- Tag: `v0.13.0` trên commit hợp nhất nhánh `phat-hanh/v0.13.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.12.0`.
+  - Database migration: giữ nguyên lược đồ `ai` và bảng `public.schema_migrations` (mã 0.12.0 không đọc lược đồ `ai`, không lỗi khi có). Không xóa dữ liệu khi quay lui; khi triển khai lại 0.13.0 thì không phải chạy lại `0136`, `0137`. Chỉ khi cần dọn hẳn (đã quyết định bỏ trợ lý AI): sao lưu cơ sở dữ liệu, chạy `DROP SCHEMA ai CASCADE` và `DELETE FROM public.schema_migrations WHERE file_name IN ('0136_ai_assistant.sql', '0137_ai_conversations.sql')`.
+  - Quyền: các dòng quyền `ai.*` còn lại trong danh mục quyền và vai trò sau khi quay lui; mã 0.12.0 không kiểm các quyền này nên không ảnh hưởng.
+  - Biến môi trường: bỏ hoặc để trống `AI_PROVIDER` (0.12.0 không đọc biến `AI_*`); thu hồi khóa Anthropic nếu không dùng tiếp.
+  - Tác vụ nền: lịch `ai-conversation-retention` còn trong Redis; bộ xử lý tác vụ nền của 0.12.0 gặp tên việc lạ thì bỏ qua, không lỗi. Không bắt buộc làm gì; muốn dọn thì xóa lịch này (BullMQ `removeJobScheduler`).
+  - Sau khi quay lui: báo các công ty đã bật trợ lý rằng tính năng tạm ngừng; hội thoại, nhật ký lượt vẫn giữ trong cơ sở dữ liệu.
+
+## Phiên bản 0.12.0 – 2026-11-17 – Đã phát hành
+
+- Chức năng mới:
+  - Phí tin nhắn OTP chưa chốt tính vào dư nợ của cửa hàng liên kết (MODULE_12, CONG_VIEC_70, THAY_DOI_36): dư nợ xét hạn mức nợ cộng phí tin nhắn OTP SMS đã gửi nhưng chưa vào bảng đối soát tuần, kèm thuế giá trị gia tăng (F + làm tròn (F × 10 %)); tin gửi trước khi triển khai mà chưa vào bảng cũng tính; khi lập bảng tuần, phí tin chuyển vào số còn lại của bảng, không tính hai lần. Dư nợ mới dùng chung cho xét tích điểm tại quầy và qua Open API, báo cáo cổng cửa hàng (MAN_HINH_176), báo cáo công ty (MAN_HINH_180), cảnh báo và thông báo dư nợ từ 80 % hạn mức (QUYTAC_NGHIEPVU_398, 405). Phí dịch vụ, thuế của giao dịch chưa chốt vẫn chỉ tính khi lập bảng; gửi OTP SMS vẫn không xét hạn mức, quá hạn (QUYTAC_NGHIEPVU_495 giữ nguyên). Không đổi giao diện.
+- Sửa lỗi:
+  - Nhật ký gọi Open API lọc sẵn theo khóa (MODULE_16, CONG_VIEC_69, chỉ giao diện): liên kết "Nhật ký gọi" ở khối khóa API của cửa hàng liên kết (`web-crm`) và đối tác liên minh điểm mở màn hình nhật ký gọi (MAN_HINH_226, `web-platform`) đã lọc theo khóa đó (`/platform/api-call-logs?apiKeyId=<mã khóa>`, kiểm tra dạng uuid); chọn "Tất cả khóa" để xóa lọc; mã khóa không thuộc công ty đang chọn thì bỏ lọc, không hiện danh sách rỗng sai.
+- Ghép giữa các công việc, thứ tự hợp nhất 69, 70 (hợp nhất, không rebase): cả hai hợp nhất tự động không xung đột (CONG_VIEC_69 chỉ sửa giao diện `web-crm`, `web-platform`; CONG_VIEC_70 sửa `apps/api/src/affiliate/transactions.service.ts`, thêm kiểm thử và tài liệu). `pnpm-lock.yaml` không đổi (không thêm thư viện).
+- Thay đổi dữ liệu: không có database migration mới (số `0157` không dùng, CONG_VIEC_70 trả lại). Không đổi bảng, ràng buộc; dư nợ đọc `affiliate.sms_charges` (dòng `settlement_id` trống) qua chỉ mục có sẵn `sms_charges_unsettled_idx`.
+- Thay đổi API: không thêm, không đổi cấu trúc API. API_213 (báo cáo, cảnh báo cửa hàng liên kết) trả `exposure` theo dư nợ mới; xét tích điểm của giao dịch tại quầy và giao dịch qua Open API cửa hàng liên kết (gốc `/api/v1/open/affiliate`) theo dư nợ mới.
+- Quyền mới: không có. Phạm vi khóa API mới: không có.
+- Thư viện mới: không có. Biến môi trường mới: không có. Tác vụ nền mới: không có.
+- Thiết lập sau triển khai: không có.
+- Rủi ro:
+  - Sau triển khai, cửa hàng liên kết có phí mỗi tin OTP lớn hơn 0 (`affiliate.merchants.sms_fee`) và đang có tin chưa vào bảng đối soát thấy dư nợ tăng ngay, có thể bị chặn tích điểm sớm hơn và nhận cảnh báo dư nợ từ 80 % hạn mức. Trước khi triển khai, báo trước các cửa hàng này (người dùng nhắc khi nghiệm thu CONG_VIEC_70 ngày 2026-11-17).
+  - Dư nợ tạm tính làm tròn thuế trên phí tin, bảng đối soát làm tròn thuế trên tổng phí dịch vụ và phí tin, nên dư nợ có thể lệch 1 đồng giữa trước và sau khi lập bảng (người dùng chấp nhận).
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.11.0).
+- Khả năng tương thích: tương thích ngược với 0.11.0; không đổi cấu trúc dữ liệu, API, quyền.
+- Công việc gộp trong phiên bản: CONG_VIEC_69 (pull request #173, đầu nhánh `4f132d86`), CONG_VIEC_70 (#174, THAY_DOI_36, đầu nhánh `a4f96123`). Nhánh phát hành tạo từ `main` sau khi hợp nhất LOI_14 (pull request #176, sửa cấu hình kiểm thử).
+- Đánh lại số mục tài liệu trùng khi gộp: không cần (CONG_VIEC_69 không thêm mục tài liệu; mã định danh của CONG_VIEC_70 không trùng).
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10207 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER, đã có LOI_14 chờ qua 0 giờ) 150 tệp, 817 kiểm thử đạt (CONG_VIEC_70 thêm `c70-sms-exposure.test.ts`, 3 kiểm thử). Lần chạy đầu bị lỗi khóa chết (`deadlock detected`) khi chạy database migration do một lần chạy thử cũ còn chạy song song trên cùng cơ sở dữ liệu kiểm thử; dừng hết rồi chạy lại một lần duy nhất thì đạt toàn bộ, không phải lỗi mã.
+- Tag: `v0.12.0` trên commit hợp nhất nhánh `phat-hanh/v0.12.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.11.0`.
+  - Database migration: không có database migration mới nên không cần làm gì với cơ sở dữ liệu.
+  - Sau khi quay lui: dư nợ trở lại cách tính của 0.11.0 (không cộng phí tin chưa chốt); phí tin vẫn ghi trong `affiliate.sms_charges` và vào bảng đối soát tuần như cũ. Báo lại các cửa hàng đã được báo trước về thay đổi dư nợ.
+
+## Phiên bản 0.11.0 – 2026-11-16 – Đã phát hành
 
 - Chức năng mới:
   - Mở rộng kinh doanh phần 2 – Dropship (MODULE_16, CONG_VIEC_62, THAY_DOI_35): loại kho Dropship (mỗi công ty tối đa một kho đang hoạt động); sản phẩm dropship gắn nhà cung cấp với tồn khai báo, không bán quá tồn; xác nhận đơn bán có hàng dropship tự lập đơn mua cho nhà cung cấp, theo dõi giao (Chờ giao, Đang giao, Đã giao, Giao thất bại, Đã hủy), ghi sổ kho, công nợ, hóa đơn, bút toán như hàng trong kho; trả hàng dropship về nhà cung cấp hoặc về kho công ty; đối soát nhà cung cấp (xuất tệp Excel); Open API cho nhà cung cấp (phạm vi khóa mới `dropship.supplier`: xem đơn, báo trạng thái giao, cập nhật tồn); chiều người bán dropship: cờ người bán trên hồ sơ khách hàng, đơn người bán gửi qua Open API có thu hộ, vận đơn với đơn vị vận chuyển đã kết nối hoặc nhập tay, phiếu giao in danh nghĩa người bán, bảng đối soát người bán hằng tuần (tiền hàng, trả hàng, thu hộ, phí giao, thuế phí giao) với đơn bán dịch vụ phí giao và phiếu chi hoàn tiền khi công ty phải trả.
@@ -65,7 +128,7 @@
   - Trước khi quay lui: thu hồi mọi khóa API phạm vi `dropship.supplier` và `loyalty.partner` (bản 0.10.0 không có phạm vi này, màn hình Khóa API không hiển thị đúng); báo nhà cung cấp, người bán dropship và đối tác liên minh ngừng gọi API; xử lý xong đơn mua dropship đang giao và giao dịch đổi điểm đối tác đang chờ (bản 0.10.0 không có tác vụ hỏi lại); chốt hoặc báo người dùng Tài chính về bảng đối soát người bán, bảng đối soát đối tác liên minh chưa xác nhận (bản 0.10.0 không có tác vụ lập bảng). Phiếu xuất, công nợ, bút toán, phiếu thu chi đã ghi vẫn còn trong sổ. Bản 0.10.0 không biết cột `inventory.warehouses.kind`: ngừng kho loại Dropship trước khi quay lui để không bán, xuất từ kho này như kho thường. Tắt tệp danh mục Facebook trong Commerce Manager (bản 0.10.0 không có đường dẫn tệp); đường dẫn `/s/` đã chia sẻ sẽ trả `404`.
   - Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.11.0.
 
-## Phiên bản 0.10.0 – 2026-11-16 – Chờ phát hành
+## Phiên bản 0.10.0 – 2026-11-16 – Đã phát hành
 
 - Chức năng mới:
   - Điểm thưởng phần 2 (MODULE_11, CONG_VIEC_60): liên minh điểm trong tập đoàn với kiểu chia chi phí điểm theo giai đoạn chương trình (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu) và hạch toán theo kiểu; bảng đối soát điểm nội bộ hằng tháng giữa công ty vận hành sàn và từng công ty con (đối chiếu sổ, hai bên xác nhận hoặc khiếu nại, phiếu thu, phiếu chi nội bộ cho số thuần); mã cài đặt ứng dụng VComm (chỉ lưu băm) liên kết thiết bị với tài khoản; bốn quy tắc chống gian lận nâng cao (nhiều tài khoản trên một thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, giao dịch bất thường theo nhân viên) với ba mức xử lý; vụ việc gian lận; báo cáo liên minh và báo cáo gian lận.
@@ -92,7 +155,7 @@
   - Mã nguồn: triển khai lại tag `v0.9.0`.
   - Database migration: bản 0.9.0 không đọc các bảng đối soát điểm nội bộ, thiết bị, quy tắc và vụ việc gian lận, khóa API cửa hàng liên kết, phí tin nhắn và cột mới; giữ nguyên khi quay lui mã. Các ràng buộc `finance.payments_kind_check`, `loyalty.document_points_skip_reason_check`, `affiliate.transactions_skip_reason_check`, `affiliate.transactions_method_check`, `core.otp_codes_purpose_check` chỉ thêm giá trị nên bản 0.9.0 vẫn ghi được. `core.api_keys.channel_id` cho phép trống chỉ với khóa `loyalty.member`: trước khi quay lui thu hồi mọi khóa cửa hàng liên kết (bản 0.9.0 giả định khóa luôn có kênh bán). `affiliate.transactions.cashier_user_id` cho phép trống cho giao dịch qua API: bản 0.9.0 vẫn đọc được nhưng không hiện người thu ngân cho các giao dịch này. Ràng buộc `net_amount` mới của `affiliate.settlements` có thành phần phí tin mặc định 0 nên bảng đối soát tuần do bản 0.9.0 lập vẫn thỏa. Trước khi quay lui: chốt hoặc báo người dùng Tài chính về bảng đối soát điểm nội bộ đang chờ xác nhận (bản 0.9.0 không có tác vụ lập, nhắc bảng đối soát), phiếu thu chi nội bộ điểm đã ghi vẫn còn trong sổ; báo cửa hàng liên kết ngừng gọi API (bản 0.9.0 không có API cửa hàng liên kết). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.10.0.
 
-## Phiên bản 0.9.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.9.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Văn phòng số phần 2 (MODULE_13, CONG_VIEC_59): chữ ký số qua lớp kết nối nhà cung cấp ký số từ xa (giai đoạn này chỉ có bộ giả lập, bị chặn ở môi trường chính thức), tài khoản ký số của người dùng, chữ ký số của công ty, danh sách chứng thư gốc tin cậy; trình ký tài liệu PDF nhiều người ký theo thứ tự (người dùng, chữ ký công ty, đối tác ký qua đường dẫn), ký theo chuẩn PAdES, kiểm tra chữ ký số trong PDF; kho hợp đồng (loại hợp đồng, hợp đồng, phụ lục, duyệt, ký qua phiên ký, nhập hợp đồng đã ký, thanh lý, chấm dứt, nhắc hạn); công văn đi ký số rồi phát hành không cần bản quét; hợp đồng lao động, phụ lục của Nhân sự ký số.
@@ -123,7 +186,7 @@
   - Mã nguồn: triển khai lại tag `v0.8.0`.
   - Database migration: bản 0.8.0 không đọc các bảng ký số, phiên ký, kho hợp đồng, `crm.open_api_customers` và cột mới; giữ nguyên khi quay lui mã. Ràng buộc `office.files_owner_type_check`, `office.signing_requests_source_type_check` chỉ thêm giá trị nên bản 0.8.0 vẫn ghi được. `crm.partners_check1` nới cho khách cá nhân không có số căn cước do đối tác tạo: bản 0.8.0 không tạo loại khách này nhưng vẫn đọc được; sửa hồ sơ khách đó ở bản 0.8.0 không bị chặn bởi ràng buộc. Trước khi quay lui: báo người dùng Văn phòng số tải về tệp đã ký, hợp đồng cần dùng; phiên ký đang chờ dừng lại (bản 0.8.0 không có tác vụ nền ký số); thu hồi hoặc báo đối tác ngừng dùng phạm vi `customer.write` (bản 0.8.0 không có API khách hàng; đơn Open API đã tạo vẫn còn nhưng không hiện người nhận). Quay lui về 0.8.0 làm mất bản sửa LOI_10, LOI_11, LOI_12. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.9.0.
 
-## Phiên bản 0.8.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.8.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Văn phòng số phần 1 (MODULE_13, ứng dụng mới `apps/web-office`, CONG_VIEC_52): quản lý công việc (giao việc, chủ trì, phối hợp, theo dõi, việc con một cấp, hạn, ưu tiên, tiến độ, bình luận, tệp, lịch sử, việc liên công ty trong tập đoàn, nhắc hạn); quy trình công việc theo mẫu có phiên bản, rẽ nhánh, song song, gộp, lặp có giới hạn; công văn đến (vào sổ, số đến, trình, giao xử lý) và công văn đi (soạn theo thể thức Nghị định 30/2020/NĐ-CP, trình ký qua luồng duyệt chung, văn thư cấp số, phát hành, gửi sang công ty khác trong tập đoàn thành công văn đến), xuất PDF và Word, xuất sổ; bảng tin nội bộ (đối tượng, hẹn giờ đăng, ghim, xác nhận đã đọc, thu hồi, bình luận).
@@ -149,7 +212,7 @@
   - Mã nguồn: triển khai lại tag `v0.7.0`; gỡ ứng dụng `apps/web-office` khỏi máy chủ, bỏ chuyển tiếp `/office`.
   - Database migration: bản 0.7.0 không đọc schema `office`, các bảng ngoại tệ, đánh giá lại, thuế hải quan, tờ khai bổ sung và cột ngoại tệ mới; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0106` đến `0108`) chỉ thêm giá trị nên bản 0.7.0 vẫn ghi được. Trước khi quay lui: báo kế toán dừng lập phiếu ngoại tệ, phiếu nộp thuế hải quan, đánh giá lại (bản 0.7.0 không có chức năng cho các phiếu loại `currency_purchase`, `customs_tax_payment`, `customs_tax_refund`; bút toán đã ghi sổ vẫn nằm trong sổ cái); báo người dùng Văn phòng số tải về công văn, tệp cần dùng. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.8.0.
 
-## Phiên bản 0.7.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.7.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Cửa hàng liên kết phần 1 (MODULE_12, ứng dụng mới `apps/web-affiliate`, CONG_VIEC_55, THAY_DOI_27, THAY_DOI_29): hợp đồng cửa hàng liên kết với đối tác ngoài tập đoàn (tỷ lệ tích, phí dịch vụ, hạn mức nợ, trần mỗi giao dịch, hạn thanh toán), điểm bán, chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại và mã OTP; tích, dùng điểm và voucher tại quầy bằng mã QR động của cửa hàng, mã QR động của khách hoặc số điện thoại kèm xác nhận trên ứng dụng VComm; hủy giao dịch trước khi chốt tuần; voucher ba loại qua duyệt; đối soát tuần có bù trừ, công nợ, chặn tích khi vượt hạn mức hoặc quá hạn; hạch toán ở công ty vận hành sàn; báo cáo cửa hàng, cảnh báo bất thường; danh sách giao dịch và nguồn bút toán riêng (THAY_DOI_29); đăng nhập Zalo cho cổng cửa hàng.
@@ -175,7 +238,7 @@
   - Database migration: bản 0.6.0 không đọc schema `affiliate`, bảng `core.api_keys`, nhật ký gọi API, cột đơn bán qua API; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0103` đến `0105`) chỉ thêm giá trị nên bản 0.6.0 vẫn ghi được. Trước khi quay lui: thu hồi mọi khóa API đang dùng và báo đối tác; chốt và đối soát hết giao dịch cửa hàng liên kết, báo cửa hàng tạm dừng (bản 0.6.0 không có cổng cửa hàng). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.7.0.
   - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-camera` là bản dựng mới; quay lui bằng bản dựng của 0.6.0 trên kho ứng dụng hoặc cập nhật qua mạng.
 
-## Phiên bản 0.6.0 – 2026-11-12 – Chờ phát hành
+## Phiên bản 0.6.0 – 2026-11-12 – Đã phát hành
 
 - Chức năng mới:
   - Kế hoạch mua theo ngân sách (MODULE_14 phần 3, mini app `apps/web-purchasing`, CONG_VIEC_58): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng qua luồng duyệt; số đã dùng, số còn được mua theo tháng, quý, năm; cảnh báo ngân sách trong đơn mua, đơn vượt hoặc chưa có ngân sách phải duyệt; phiếu điều chỉnh tăng, giảm, chuyển ngân sách có duyệt.
@@ -202,7 +265,7 @@
   - Database migration: bản 0.5.0 không đọc bảng, cột mới (trạm, ghi chú chăm sóc, ngân sách mua, `loyalty.smart_otp_devices`, `retail.sales.loyalty_user_id`, `marketplace.orders.fulfillment_mode`, `station_id`, `sales_staff_user_id`); giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0110`, `0111`, `0119`) chỉ thêm giá trị nên bản 0.5.0 vẫn ghi được. Trước khi quay lui: tắt phương thức `pay_at_station`, xử lý hết đơn của trạm đang ở trạng thái `ready_for_pickup` (bản 0.5.0 không hiển thị, không chuyển được trạng thái này). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.6.0.
   - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-clipboard`, `otpauth` là bản dựng mới; quay lui bằng bản dựng của 0.5.0 trên kho ứng dụng hoặc cập nhật qua mạng.
 
-## Phiên bản 0.5.0 – 2026-11-11 – Chờ phát hành
+## Phiên bản 0.5.0 – 2026-11-11 – Đã phát hành
 
 - Chức năng mới:
   - Nhân sự phần 4 (MODULE_08, mini app `apps/web-hr`, CONG_VIEC_54): nhu cầu tuyển dụng qua luồng duyệt, tin tuyển dụng, trang tuyển dụng công khai, ứng viên, phỏng vấn, đề nghị nhận việc, lưu giữ dữ liệu ứng viên; đánh giá hiệu suất (mẫu, kỳ, phiếu, hiệu chỉnh, công bố).

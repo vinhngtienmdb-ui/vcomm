@@ -14,6 +14,7 @@ import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch, apiUpload, selectedCompanyId } from "ui/lib/api";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { AiContentDrawer, useProductContentStatus } from "@/components/AiContentDrawer";
 import { ProductPrices } from "@/components/ProductPrices";
 
 type Tracking = "none" | "lots" | "serials";
@@ -96,6 +97,10 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
     ],
   );
   const [specifications, setSpecifications] = useState(product?.specifications ?? []);
+  // CONG_VIEC_63: soạn nội dung bằng AI (MAN_HINH_243); đánh dấu đã dùng để ghi nhật ký thao tác khi lưu.
+  const [aiStatus, aiMe] = useProductContentStatus();
+  const [composing, setComposing] = useState(false);
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
@@ -152,6 +157,7 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
           barcodes: variant.barcodes.filter((barcode) => barcode.barcode.trim()),
         })),
         ...(product ? { version: product.version } : {}),
+        ...(aiAssisted ? { aiAssisted: true } : {}),
       };
       const saved = product
         ? await apiFetch<ProductResponse>(`/catalog/products/${product.id}`, { method: "PATCH", body: JSON.stringify(body) })
@@ -283,10 +289,44 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
             </>
           )}
         </div>
+        {editable && aiStatus && aiMe && (
+          <button type="button" className="nut phu" style={{ justifySelf: "start" }} onClick={() => setComposing(true)}>
+            ✦ {t("aiCompose")}
+          </button>
+        )}
         <Field id="mo-ta" label={t("description")} error={fieldError("description")}>
           <textarea id="mo-ta" className={inputClass("description")} rows={3} maxLength={5000} value={description} disabled={!editable} onChange={(event) => setDescription(event.target.value)} />
         </Field>
       </section>
+
+      {composing && aiStatus && aiMe && (
+        <AiContentDrawer
+          status={aiStatus}
+          me={aiMe}
+          request={() => ({
+            productId: product?.id ?? null,
+            product: {
+              name: name.trim() || (product?.name ?? "-"),
+              categoryName: (() => {
+                const category = categories.find((item) => item.id === categoryId);
+                return category ? (locale === "en" ? category.nameEn : category.nameVi) : null;
+              })(),
+              brand: brand.trim() || null,
+              origin: origin.trim() || null,
+              description: description.trim() || null,
+              units: productUnits.map(unitName).filter(Boolean),
+              options: parseOptions(optionDrafts),
+              specifications: specifications.filter((item) => item.name.trim() && item.value.trim()),
+            },
+          })}
+          onUse={(part, text) => {
+            setDescription((current) => (part === "description" ? text : [current.trim(), text].filter(Boolean).join("\n")).slice(0, 5000));
+            setAiAssisted(true);
+            notify(t("aiUsed"));
+          }}
+          onClose={() => setComposing(false)}
+        />
+      )}
 
       <section className="the">
         <h2>{t("conversions")}</h2>

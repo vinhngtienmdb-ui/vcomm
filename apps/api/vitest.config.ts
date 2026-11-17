@@ -5,5 +5,6 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [swc.vite({ module: { type: "es6" } })],
   // Mỗi tệp kiểm thử dựng lại cơ sở dữ liệu thử và chạy toàn bộ database migration trong beforeAll; mặc định 10 giây không đủ trên CI (LOI_05).
-  test: { include: ["test/**/*.test.ts"], fileParallelism: false, testTimeout: 30000, hookTimeout: 60000 },
+  // Tệp kiểm thử bắt đầu sát 0 giờ giờ Việt Nam thì chờ sang ngày mới (LOI_14, test/day-boundary.setup.mts).
+  test: { include: ["test/**/*.test.ts"], setupFiles: ["test/day-boundary.setup.mts"], fileParallelism: false, testTimeout: 30000, hookTimeout: 60000 },
 });

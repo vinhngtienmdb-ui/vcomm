@@ -262,5 +262,5 @@ Kiểm thử tự động: `apps/api/test/c67-*.test.ts`.
 | Kiểm thử hồi quy | Toàn bộ kiểm thử `apps/api` sau khi hợp nhất `main` (0.9.0, bản sửa LOI_13): kết quả ghi trong tin trình nghiệm thu; kiểm tra kiểu `api`, `web-crm`, `web-affiliate`, `web-platform` đạt |
 | Bảo mật | Tài liệu `22` mục cửa hàng liên kết qua Open API: không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thêm thư viện; CI "Quét bảo mật" đạt |
 | Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
-| Chưa làm, ghi nhận | Phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức (đặc tả không yêu cầu); liên kết Nhật ký gọi mở màn hình chung, chưa lọc sẵn theo khóa |
+| Chưa làm, ghi nhận | Phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức (đặc tả không yêu cầu; làm trong CONG_VIEC_70, THAY_DOI_36); liên kết Nhật ký gọi mở màn hình chung, chưa lọc sẵn theo khóa |
 

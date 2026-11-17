@@ -83,7 +83,7 @@
 | MODULE_13 Văn phòng số (mới) | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ | MOD-20 đến MOD-24 |
 | MODULE_14 Bán lẻ tại quầy và trạm giao hàng (mới) | Bán hàng tại quầy (POS) cho cửa hàng, siêu thị tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách (Open-to-Buy) | MOD-12, MOD-16; `specs/018-o2o-tach-hai-san-pham` |
 | MODULE_15 Phân tích dữ liệu (mới) | Báo cáo quản trị toàn tập đoàn | MOD-01 |
-| MODULE_16 Mở rộng kinh doanh (mới) | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất | MOD-07 (Dropship); `vcomm_ai_integration_guide.md` |
+| MODULE_16 Mở rộng kinh doanh (mới) | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất (đã bỏ theo THAY_DOI_30, 2026-11-12) | MOD-07 (Dropship); `vcomm_ai_integration_guide.md` |
 
 - Thành phần bị ảnh hưởng:
   - Tài liệu `04` mục 8 (yêu cầu cấp cao), `05` mục 1, 2, 3, 4, 5 (phạm vi, phạm vi ngoài, phiên bản, ưu tiên), `01` mục 4, 5, 6 (danh sách module, mốc, rủi ro), `13` mục 5 (chi phí hạ tầng tăng khi thêm module).
@@ -527,3 +527,52 @@
 - Mức quy mô: Nhỏ trong CONG_VIEC_62 (chưa phát hành; giảm thay đổi cấu trúc dữ liệu dùng chung).
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_62 lát L4, L5, nghiệm thu 2026-11-16, đã phát hành v0.11.0 2026-11-17, chờ triển khai.
+
+### THAY_DOI_36: Phí tin nhắn OTP chưa chốt tính vào dư nợ xét hạn mức cửa hàng liên kết – 2026-11-17
+- Lý do: THAY_DOI_31 đưa phí tin OTP vào bảng đối soát tuần nhưng dư nợ xét hạn mức (QUYTAC_NGHIEPVU_398) chỉ tính phí này sau khi lập bảng; trong tuần cửa hàng gửi nhiều tin có thể vượt hạn mức mà vẫn được tích điểm. Tồn đọng của CONG_VIEC_67.
+- Nội dung thay đổi (người dùng chốt 2026-11-17): dư nợ = như cũ + (F + làm tròn(F × thuế suất)) với F là tổng đơn giá các tin SMS chưa vào bảng đối soát; tin đã vào bảng không tính trùng; tin gửi trước khi triển khai mà chưa vào bảng cũng tính. Áp cho xét tích điểm (tại quầy, Open API), báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo dư nợ từ 80 %. Gửi OTP không xét hạn mức hay quá hạn. Phí dịch vụ D, thuế E của giao dịch chưa chốt giữ nguyên (không vào dư nợ). Giao diện chỉ đổi số dư nợ tổng.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (QUYTAC_NGHIEPVU_398, 405; MAN_HINH_176, 180 chỉ đổi số liệu); CONG_VIEC_67 (QUYTAC_NGHIEPVU_495); transactions.service.ts `merchantExposure`.
+- Dữ liệu, API, giao diện, quyền: không đổi bảng, không database migration, không đổi API, giao diện, quyền.
+- Ảnh hưởng chức năng cũ: cửa hàng không dùng SMS hoặc phí mỗi tin bằng 0 giữ nguyên số liệu; cửa hàng có tin chưa chốt thấy dư nợ tăng, có thể bị chặn tích sớm hơn.
+- Kiểm thử cần thực hiện: c55-transactions, c55-reports, c55-settlements (KICHBAN_KIEMTHU_539, 540, 544, 546), c67-open-affiliate (KICHBAN_KIEMTHU_697, 700, 701); KICHBAN_KIEMTHU_731 đến 733 mới; hồi quy toàn bộ.
+- Mức quy mô: Vừa (đổi quy tắc nghiệp vụ đã duyệt); làm trong CONG_VIEC_70.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-17. Đã làm trong CONG_VIEC_70, nghiệm thu 2026-11-17; đã phát hành v0.12.0 2026-11-17, chờ triển khai.
+
+### THAY_DOI_37: Ưu tiên Smart OTP thay tin nhắn SMS – 2026-11-17
+- Lý do: giảm chi phí tin SMS và rủi ro chiếm SIM; người dùng yêu cầu và chốt ngày 2026-11-17 (CONG_VIEC_72).
+- Nội dung thay đổi:
+  - Smart OTP (mã TOTP trong ứng dụng VComm, mở bằng mã khóa 6 số hoặc vân tay, khuôn mặt; sai mã khóa 5 lần thì xóa Smart OTP trên máy) là cách xác thực chính cho: giao dịch dùng điểm tại quầy, cửa hàng liên kết qua Open API, đổi ra đối tác liên minh; đăng nhập người mua trên thiết bị mới (mật khẩu và Smart OTP); quên mật khẩu.
+  - Khách đã kích hoạt không nhận SMS đăng nhập, quên mật khẩu. Khách chưa kích hoạt dùng SMS dự phòng trong thời hạn chuyển đổi 30 ngày tính cả ngày triển khai (tham số), sau đó bắt buộc; sau hạn Open API không gửi SMS (409), khách không có điện thoại thông minh chỉ tích điểm.
+  - Đăng ký mới kích hoạt Smart OTP luôn bằng mã SMS đăng ký. Chuyển máy bằng mã của máy cũ, không SMS. Không kích hoạt trên bản web; Smart OTP đang có trên bản web giữ đến hết thời hạn rồi tự hủy. Thiết bị tin cậy hết hạn sau 12 tháng không dùng.
+  - Khôi phục khi mất máy bằng mật khẩu và SMS (kể cả kích hoạt bằng SMS trên thiết bị chưa tin cậy khi tài khoản đã từng có Smart OTP): khóa mọi giao dịch dùng điểm 24 giờ (tham số, không ai mở sớm), thông báo trong ứng dụng và ZNS. Chăm sóc khách hàng hủy Smart OTP bằng quyền mới `marketplace.buyer.security` (ghi nhật ký); sau đó khách được đặt lại mật khẩu bằng SMS một lần trong 24 giờ.
+  - Cổng cửa hàng liên kết: mọi tài khoản đăng nhập bằng số điện thoại, mật khẩu và ứng dụng xác thực (TOTP, 10 mã dự phòng, dùng lại xác thực hai lớp nhân viên, chỉ áp khi đăng nhập cổng); đăng nhập Zalo vẫn hỏi mã; thời hạn 30 ngày; đặt lại bởi chủ cửa hàng và người có `affiliate.manage`, người được đặt lại kích hoạt lại bằng mã SMS một lần.
+  - Nhắc kích hoạt trong ứng dụng và một tin ZNS 7 ngày trước hạn. Ba mẫu ZNS mới (nhắc kích hoạt, chuyển máy, bị hủy) và số tổng đài chăm sóc khách hàng là cấu hình nhập sau; chưa có thì chỉ gửi thông báo trong ứng dụng.
+  - Giữ đăng nhập Zalo và thông báo ZNS hiện có.
+- Thành phần bị ảnh hưởng: CONG_VIEC_02, 03, 23 (đăng nhập, PhoneOtpService, quên mật khẩu; API_02, 03, 116, 117; MAN_HINH_73, 74, 75); CONG_VIEC_53 lát L6 (QUYTAC_NGHIEPVU_379, API_198, 199, MAN_HINH_151); CONG_VIEC_55 (QUYTAC_NGHIEPVU_393, MAN_HINH_177, 178, đăng nhập cổng); CONG_VIEC_65 (QUYTAC_NGHIEPVU_542, API_307, MAN_HINH_265); CONG_VIEC_67 (API_297) và THAY_DOI_31 (phí tin chỉ phát sinh trong thời hạn); CONG_VIEC_24 (MAN_HINH_80, 86; API_178).
+- Dữ liệu, API, giao diện, quyền: bảng Smart OTP chuyển từ schema loyalty sang core; bảng thiết bị tin cậy; tham số chuyển đổi ở thẻ "Xác thực" của MAN_HINH_86 (xem `marketplace.buyer.view`, sửa `marketplace.buyer.manage`); database migration 0158 đến 0160; API_318 đến 325, sửa API_02, 03, 116, 117, 178, 198, 199, 297, 307; MAN_HINH_269 đến 274; quyền mới `marketplace.buyer.security`; thư viện mới `expo-local-authentication` 58.0.2 (MIT).
+- Ảnh hưởng chức năng cũ: khách đã kích hoạt Smart OTP giữ nguyên, lần mở đầu sau cập nhật đặt mã khóa; thiết bị đang đăng nhập coi là tin cậy; khách chưa kích hoạt dùng như cũ đến hết thời hạn.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_734 đến 749; hồi quy đăng nhập, đăng ký, quên mật khẩu, c53 điểm tại quầy, c55, c65, c67; toàn bộ kiểm thử.
+- Mức quy mô: Lớn; làm trong CONG_VIEC_72.
+- Rủi ro: cao (đổi cách xác thực của người mua); giảm bằng thời hạn chuyển đổi, thiết bị tin cậy nạp sẵn, khóa dùng điểm khi khôi phục.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đang làm trong CONG_VIEC_72.
+
+### THAY_DOI_38: Mua hàng tại cửa hàng thanh toán trong ứng dụng VComm, thu hộ và hóa đơn ủy nhiệm – 2026-11-17
+- Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_73.
+- Nội dung thay đổi: mã thanh toán động thay nhập mã Smart OTP; đơn chờ thanh toán tại quầy cửa hàng tập đoàn, cổng cửa hàng liên kết, Open API; khách chọn điểm và trả trong ứng dụng qua VNPAY (cổng khác theo khung); công ty vận hành sàn thu hộ, trừ phí sàn và phí cổng, chuyển phần còn lại theo ngày cho công ty sở hữu cửa hàng hoặc cửa hàng liên kết; VComm lập hóa đơn điện tử thay cửa hàng liên kết theo ủy nhiệm; webhook cho phần mềm cửa hàng. iPOS là CONG_VIEC_74.
+- Thành phần bị ảnh hưởng: CONG_VIEC_53 mục 2 (cổng thanh toán tại quầy vào phạm vi), QUYTAC_NGHIEPVU_373, 374, 377, 379; CONG_VIEC_55 mục 2 (thanh toán tiền hóa đơn qua VComm vào phạm vi), QUYTAC_NGHIEPVU_394, 396, 398 (dư nợ), 400; CONG_VIEC_67 Open API (phạm vi khóa mới `instore.checkout`, đơn chờ); CONG_VIEC_25, 32 sổ thanh toán (đơn chờ tại cửa hàng); CONG_VIEC_16 (lập hóa đơn thay người bán khác theo ủy nhiệm); CONG_VIEC_72 QUYTAC_NGHIEPVU_560, 569 (thêm mã thanh toán động; chỉ dùng lại mã của CONG_VIEC_72).
+- Dữ liệu, API, giao diện, quyền: database migration 0161 đến 0164; API_327 đến 334; MAN_HINH_276 đến 282; quyền mới `finance.instore.view`, `finance.instore.manage` (nhạy cảm; mặc định Kế toán trưởng, Quản trị công ty tại công ty vận hành sàn); không thêm thư viện (tự vẽ mã vạch Code 128).
+- Không đổi: bảng đối soát điểm tuần (A đến F), cách 3 số điện thoại, đặt hàng VComm.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_750 đến 767; hồi quy KICHBAN_KIEMTHU_514, 515, 517, 519, 533 đến 546, 693 đến 704, 734 đến 749, 376 đến 378, kịch bản cổng của CONG_VIEC_33 đến 42, kịch bản hóa đơn điện tử của CONG_VIEC_16; toàn bộ kiểm thử.
+- Mức quy mô: Lớn (MODULE_06, 09, 11, 12, 14, 16); làm trong CONG_VIEC_73.
+- Rủi ro: trung gian thanh toán khi thu hộ cửa hàng liên kết (công tắc theo cửa hàng mặc định tắt đến khi người dùng xác nhận hồ sơ pháp lý); ủy nhiệm lập hóa đơn (người dùng xác nhận tính hợp lệ, thủ tục với cơ quan thuế); tài khoản kế toán do kế toán trưởng xác nhận trước lát L4; phụ thuộc CONG_VIEC_72.
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu, 16 điểm đề xuất). Đang làm trong CONG_VIEC_73.
+
+### THAY_DOI_39: Thêm phần mềm bán hàng iPOS (MODULE_17) vào kiến trúc – 2026-11-17
+- Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_74.
+- Nội dung thay đổi: thêm module MODULE_17 iPOS; backend là module `apps/api/src/ipos` trong backend VComm, chỉ ghi schema riêng `ipos` của cơ sở dữ liệu VComm; thêm ứng dụng Expo Android cho quầy và web quản trị cho chủ cửa hàng; iPOS gọi điểm, voucher, đơn chờ thanh toán qua Open API (CONG_VIEC_67, 73).
+- Thành phần bị ảnh hưởng: tài liệu 01 (thêm MODULE_17), 12 (thành phần, schema mới), 13 (ứng dụng mới, thư viện máy in khi được duyệt), 16 (schema `ipos`).
+- Kiểm thử cần thực hiện: kiểm thử cô lập dữ liệu giữa các cửa hàng (điều kiện chặn mọi lát sau L0); hồi quy Open API CONG_VIEC_67; toàn bộ kiểm thử.
+- Mức quy mô: Lớn; làm trong CONG_VIEC_74.
+- Rủi ro: dữ liệu cửa hàng ngoài tập đoàn nằm chung cơ sở dữ liệu; giảm bằng schema riêng và kiểm thử cô lập.
+- Trạng thái: Đã phê duyệt hướng kiến trúc 2026-11-17; chờ duyệt đặc tả.

@@ -8,7 +8,8 @@
 // tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172),
 // hết hạn, nhắc hạn voucher cửa hàng liên kết lúc 0 giờ 20 phút (CHUC_NANG_195), lập bảng đối soát cửa hàng liên kết 1 giờ thứ Hai (CHUC_NANG_196),
 // nhắc hẹn chăm sóc khách lúc 7 giờ (CHUC_NANG_205), lập bảng đối soát người bán dropship 2 giờ thứ Hai (CHUC_NANG_225),
-// hỏi lại đối tác liên minh giao dịch đổi điểm chờ kết quả mỗi 5 phút (CHUC_NANG_237).
+// hỏi lại đối tác liên minh giao dịch đổi điểm chờ kết quả mỗi 5 phút (CHUC_NANG_237),
+// xóa hội thoại trợ lý AI quá 90 ngày, nhật ký lượt quá 24 tháng lúc 1 giờ 30 phút (CHUC_NANG_229).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -49,6 +50,7 @@ import { ApiCallLogsService } from "../open-api/api-call-logs.service";
 import { CandidatesService } from "../hr/candidates.service";
 import { ReviewsService } from "../hr/reviews.service";
 import { SmartOtpRemindersService } from "../auth/smart-otp-reminders.service";
+import { AiChatService } from "../ai/ai-chat.service";
 
 const queueName = "nen-tang";
 const einvoiceQueueName = "hoa-don-dien-tu";
@@ -89,6 +91,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const recruitment = application.get(RecruitmentService);
   const jobOffers = application.get(JobOffersService);
   const candidates = application.get(CandidatesService);
+  const aiChat = application.get(AiChatService);
   const reviews = application.get(ReviewsService);
   const apiCallLogs = application.get(ApiCallLogsService);
   const partnerExchanges = application.get(PartnerExchangesService);
@@ -116,6 +119,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   // Tuyển dụng (CONG_VIEC_54): đóng tin quá hạn nộp, đề nghị hết hạn lúc 0 giờ 10 phút; xóa ứng viên đến hạn lúc 1 giờ.
   await queue.upsertJobScheduler("hr-recruitment-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-recruitment-daily" });
   await queue.upsertJobScheduler("hr-candidate-erasure", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-candidate-erasure" });
+  // Trợ lý AI (CONG_VIEC_63; QUYTAC_NGHIEPVU_520).
+  await queue.upsertJobScheduler("ai-conversation-retention", { pattern: "30 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "ai-conversation-retention" });
   // Đánh giá hiệu suất (CONG_VIEC_54): nhắc quá hạn lúc 8 giờ.
   await queue.upsertJobScheduler("hr-review-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-review-reminders" });
   // Tự hoàn tất đơn VComm hết hạn trả hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_162).
@@ -182,6 +187,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "hr-timesheet-confirmation") return timesheets.autoConfirm();
       if (job.name === "hr-recruitment-daily") return { ...(await recruitment.runDaily()), expiredOffers: await jobOffers.expireDue() };
       if (job.name === "hr-candidate-erasure") return candidates.eraseDue();
+      if (job.name === "ai-conversation-retention") return aiChat.purgeExpired();
       if (job.name === "hr-review-reminders") return reviews.sendReminders();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "station-order-hold") return stationOrders.expireDue();
