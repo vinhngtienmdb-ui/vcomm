@@ -567,3 +567,12 @@
 - Mức quy mô: Lớn (MODULE_06, 09, 11, 12, 14, 16); làm trong CONG_VIEC_73.
 - Rủi ro: trung gian thanh toán khi thu hộ cửa hàng liên kết (công tắc theo cửa hàng mặc định tắt đến khi người dùng xác nhận hồ sơ pháp lý); ủy nhiệm lập hóa đơn (người dùng xác nhận tính hợp lệ, thủ tục với cơ quan thuế); tài khoản kế toán do kế toán trưởng xác nhận trước lát L4; phụ thuộc CONG_VIEC_72.
 - Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu, 16 điểm đề xuất). Đang làm trong CONG_VIEC_73.
+
+### THAY_DOI_39: Thêm phần mềm bán hàng iPOS (MODULE_17) vào kiến trúc – 2026-11-17
+- Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_74.
+- Nội dung thay đổi: thêm module MODULE_17 iPOS; backend là module `apps/api/src/ipos` trong backend VComm, chỉ ghi schema riêng `ipos` của cơ sở dữ liệu VComm; thêm ứng dụng Expo Android cho quầy và web quản trị cho chủ cửa hàng; iPOS gọi điểm, voucher, đơn chờ thanh toán qua Open API (CONG_VIEC_67, 73).
+- Thành phần bị ảnh hưởng: tài liệu 01 (thêm MODULE_17), 12 (thành phần, schema mới), 13 (ứng dụng mới, thư viện máy in khi được duyệt), 16 (schema `ipos`).
+- Kiểm thử cần thực hiện: kiểm thử cô lập dữ liệu giữa các cửa hàng (điều kiện chặn mọi lát sau L0); hồi quy Open API CONG_VIEC_67; toàn bộ kiểm thử.
+- Mức quy mô: Lớn; làm trong CONG_VIEC_74.
+- Rủi ro: dữ liệu cửa hàng ngoài tập đoàn nằm chung cơ sở dữ liệu; giảm bằng schema riêng và kiểm thử cô lập.
+- Trạng thái: Đã phê duyệt hướng kiến trúc 2026-11-17; chờ duyệt đặc tả.
