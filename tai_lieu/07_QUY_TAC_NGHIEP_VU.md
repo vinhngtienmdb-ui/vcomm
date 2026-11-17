@@ -1251,6 +1251,15 @@ Trạng thái giao của đơn mua dropship, vận đơn đơn người bán, b�
 | QUYTAC_NGHIEPVU_403 | Bảng đối soát thêm phí tin nhắn F (tổng phí các tin trong tuần) và số tin; E = làm tròn ((D + F) × thuế suất); số còn lại = A + D + F + E − B − C (cộng phần thiếu, điều chỉnh); cửa hàng chỉ có tin nhắn trong tuần vẫn lập bảng |
 | QUYTAC_NGHIEPVU_404 | Phí tin nhắn hạch toán như phí dịch vụ: Có 511 (`affiliate_fee_revenue`), thuế Có 3331 |
 
+## Bổ sung CONG_VIEC_70 (THAY_DOI_36) cho quy tắc cửa hàng liên kết
+
+| Quy tắc | Bổ sung |
+|---|---|
+| QUYTAC_NGHIEPVU_398 | Dư nợ cộng phí tin nhắn OTP chưa vào bảng đối soát kèm thuế: F + làm tròn (F × thuế suất của bảng đối soát); tin gửi trước khi triển khai mà chưa vào bảng cũng tính; khi lập bảng, phí tin chuyển vào số còn lại của bảng, không tính hai lần. Phí dịch vụ D, thuế E của giao dịch chưa chốt giữ nguyên (chỉ tính khi lập bảng) |
+| QUYTAC_NGHIEPVU_405 | Dư nợ, hạn mức còn lại trên báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo dư nợ từ 80 % hạn mức gồm phí tin chưa chốt; không đổi giao diện |
+| QUYTAC_NGHIEPVU_495 | Gửi OTP SMS không xét hạn mức, quá hạn thanh toán (người dùng chọn 2026-11-17) |
+
+
 ## MODULE_11 Điểm thưởng (phần 3: đối tác liên minh điểm ngoài tập đoàn, CONG_VIEC_65)
 
 Nội dung đầy đủ: đặc tả `cong_viec/CONG_VIEC_65.md` mục 5 (quyết định người dùng 2026-11-12, 2026-11-16 ở mục 17; đề xuất AI đã duyệt ở mục 18). Đổi ra: điểm VComm thành điểm đối tác; đổi vào: điểm đối tác thành điểm VComm.

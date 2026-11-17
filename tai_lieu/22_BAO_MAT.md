@@ -1347,6 +1347,8 @@ Kết quả rà soát bảo mật CONG_VIEC_62 (2026-11-16, rà soát độc l�
 
 Kết quả rà soát bảo mật CONG_VIEC_67 (2026-11-12): không phát hiện lỗi mức Nghiêm trọng, Cao; không thêm thư viện.
 
+Kết quả rà soát bảo mật CONG_VIEC_70 (2026-11-17): dư nợ cộng phí tin nhắn chưa chốt; không thêm điểm tiếp nhận, dữ liệu, quyền, thư viện; truy vấn tham số hóa, lọc theo cửa hàng. Phí tin làm dư nợ tăng nên bơm SMS không giúp cửa hàng tích thêm; gửi OTP vẫn bị chặn bởi số tin mỗi ngày theo khóa.
+
 ### Đối tác liên minh điểm ngoài tập đoàn (MODULE_11 phần 3, CONG_VIEC_65)
 
 | Điểm tiếp nhận | Xác thực | Kiểm soát |

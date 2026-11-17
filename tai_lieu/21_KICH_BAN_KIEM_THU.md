@@ -6147,3 +6147,11 @@ Dữ liệu chung: `apps/api/test/c65-fixture.ts` trên dữ liệu mẫu CONG_V
 | KICHBAN_KIEMTHU_726 | 532 | Tắt mặc định; sai phiên bản `409`; bật tạo mã; tắt `404`; bật lại giữ mã; tạo lại mã thì mã cũ `404`; mã sai dạng, sai đuôi `404`; nhật ký không có mã | Tích hợp | như trên |
 | KICHBAN_KIEMTHU_727 | 532 | Nhân viên không quyền `403`; người chỉ xem không có `url`, bật, tạo lại `403`; người mua `403` | Tích hợp | như trên |
 | KICHBAN_KIEMTHU_728 | 533 | Thẻ tắt, bật, chỉ xem, hộp xác nhận; vi, en; 1360, 390 điểm ảnh; lưu thẻ Bán hàng rồi tắt tệp không lỗi phiên bản | Giao diện (ảnh chụp, trình duyệt) | Ảnh xem trước lát L2 |
+
+## CHUC_NANG_194, CHUC_NANG_196: Phí tin nhắn chưa chốt vào dư nợ của cửa hàng liên kết (CONG_VIEC_70)
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_731 | 535 | Tin phí 0 đồng: dư nợ không đổi, giao dịch tích bình thường; 20 tin × 1.000 đồng: dư nợ 24.000 (gồm thuế 2.000); giao dịch dùng 10 điểm vượt hạn mức 10.000: không tích, lý do `credit_limit`, vẫn trừ điểm | Tích hợp | `apps/api/test/c70-sms-exposure.test.ts` |
+| KICHBAN_KIEMTHU_732 | 535 | Lập bảng tuần với tin tuần trước: 25 tin, F 20.000, thuế 2.000, số còn lại 22.000; dư nợ không đổi; đang vượt hạn mức vẫn gửi OTP SMS `204`, tin mới cộng 1.100 | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_733 | 535 | Báo cáo cổng cửa hàng, báo cáo công ty: dư nợ 14.000, còn lại 0, 140,0 %; cảnh báo `credit_usage` cùng số; thông báo chủ cửa hàng một lần mỗi ngày | Tích hợp | như trên |

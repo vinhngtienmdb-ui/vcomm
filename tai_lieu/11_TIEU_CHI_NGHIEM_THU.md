@@ -744,3 +744,9 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | TIEUCHI_NGHIEMTHU_531 | CHUC_NANG_241 | Tệp danh mục đúng cột Facebook, mỗi phân loại một dòng, giá, còn hàng mới nhất sau 5 phút; không có sản phẩm ngừng bán, chưa có ảnh; đúng chuẩn CSV | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_532 | CHUC_NANG_241 | Tắt, sai mã, mã cũ `404`; bật, tắt, tạo lại mã chỉ `marketplace.order.manage`, sai phiên bản `409`, nhật ký không có mã; người chỉ xem không thấy đường dẫn | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_533 | CHUC_NANG_241 | Thẻ Tệp danh mục Facebook đủ trạng thái tắt, bật, đang tải, lỗi, chỉ xem; vi, en; 1360 và 390 điểm ảnh | Ảnh chụp | Bắt buộc |
+
+## MODULE_12 Cửa hàng liên kết (phí tin nhắn chưa chốt vào dư nợ, CONG_VIEC_70)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_535 | CHUC_NANG_194, CHUC_NANG_196 | Dư nợ cộng phí tin OTP chưa vào bảng đối soát kèm thuế; vượt hạn mức thì không tích, vẫn dùng điểm; phí 0 đồng giữ nguyên dư nợ; lập bảng không tính trùng; báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo 80 % cùng dư nợ; vẫn gửi OTP khi vượt hạn mức | Gọi API | Bắt buộc |
