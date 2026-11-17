@@ -166,6 +166,15 @@ export async function activateInvitedMember(executor: Executor, memberId: string
   if (!updated.rowCount) throw new ApiError("BUSINESS_RULE", "affiliateMemberStatusInvalid");
 }
 
+// Đặt mã điểm bán dùng trong số hóa đơn iPOS (CONG_VIEC_74, QUYTAC_NGHIEPVU_619): 2 đến 10 ký tự, duy nhất trong cửa hàng. Trả false khi trùng mã.
+export async function setOutletCode(executor: Executor, merchantId: string, outletId: string, code: string): Promise<boolean> {
+  const taken = await executor.execute(sql`SELECT 1 FROM affiliate.outlets WHERE merchant_id = ${merchantId} AND code = ${code} AND id <> ${outletId}`);
+  if (taken.rows.length > 0) return false;
+  const updated = await executor.execute(sql`UPDATE affiliate.outlets SET code = ${code}, updated_at = now() WHERE id = ${outletId} AND merchant_id = ${merchantId}`);
+  if (!updated.rowCount) throw new ApiError("NOT_FOUND", "notFound");
+  return true;
+}
+
 @Injectable()
 export class AffiliateMerchantsService {
   constructor(

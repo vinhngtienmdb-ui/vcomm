@@ -1,4 +1,4 @@
-// API_345 đến 349: cổng cửa hàng nhóm iPOS – danh mục hàng, nhập Excel, tồn kho, quyền vào, quầy, mã ghép, thiết bị, duyệt thu ngân tự đăng ký (CONG_VIEC_74).
+// API_345 đến 349, 352: cổng cửa hàng nhóm iPOS – danh mục hàng, nhập Excel, tồn kho, quyền vào, quầy, mã ghép, thiết bị, duyệt thu ngân tự đăng ký (CONG_VIEC_74).
 // Danh mục, tồn kho, quầy, thiết bị, duyệt thu ngân chỉ chủ cửa hàng; thu ngân xem được quyền vào nhóm iPOS của điểm bán được gán.
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -10,6 +10,9 @@ import {
   iposItemUpdateSchema,
   iposOutletPricesSchema,
   iposStockDocumentSchema,
+  iposOutletCodeSchema,
+  iposSettingsSchema,
+  type IposSettingsPage,
   type IposCategory,
   type IposImportResult,
   type IposItemDetail,
@@ -39,6 +42,7 @@ import { z } from "zod";
 import { IposCatalogService } from "./ipos-catalog.service";
 import { IposImportService } from "./ipos-import.service";
 import { IposStockService } from "./ipos-stock.service";
+import { IposSettingsService } from "./ipos-settings.service";
 import { IposRegistersService } from "./ipos-registers.service";
 import { IposRegistrationsService } from "./ipos-registrations.service";
 
@@ -66,6 +70,7 @@ export class IposPortalController {
     private readonly catalog: IposCatalogService,
     private readonly imports: IposImportService,
     private readonly stockService: IposStockService,
+    private readonly settings: IposSettingsService,
   ) {}
 
   private member(request: AuthenticatedRequest) {
@@ -214,5 +219,21 @@ export class IposPortalController {
   @Get("stock-moves")
   async moves(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<IposStockMove[]> {
     return this.stockService.moves(await this.owner(request), movesQuery.parse(query));
+  }
+
+  // API_352: cài đặt bán hàng, mã điểm bán.
+  @Get("settings")
+  async settingsPage(@Req() request: AuthenticatedRequest): Promise<IposSettingsPage> {
+    return this.settings.page(await this.owner(request));
+  }
+
+  @Put("settings")
+  async saveSettings(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IposSettingsPage> {
+    return this.settings.save(await this.owner(request), iposSettingsSchema.parse(body));
+  }
+
+  @Put("outlets/:id/code")
+  async outletCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<IposSettingsPage> {
+    return this.settings.saveOutletCode(await this.owner(request), id, iposOutletCodeSchema.parse(body).code);
   }
 }

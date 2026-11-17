@@ -516,3 +516,267 @@ export interface IposStockMove {
   sourceNumber: string;
   createdByName: string;
 }
+
+// Lát L3: cài đặt bán hàng (API_352), đồng bộ danh mục (API_337), ca (API_338), giỏ treo (API_339), hóa đơn (API_340), duyệt tại chỗ (API_342).
+export const iposPaperWidths = [58, 80] as const;
+export interface IposSalesSettings {
+  vietqrBankBin: string | null;
+  vietqrAccountNo: string | null;
+  vietqrAccountName: string | null;
+  cashierMaxDiscountPercent: string;
+  returnDays: number;
+  cashierCanReturn: boolean;
+  blockNegativeStock: boolean;
+  receiptFooter: string | null;
+  paperWidth: 58 | 80;
+  version: number | null;
+}
+export interface IposSettingsPage {
+  settings: IposSalesSettings;
+  outlets: { id: string; name: string; code: string | null; subscribed: boolean }[];
+}
+export const iposSettingsSchema = z
+  .object({
+    vietqrBankBin: z.string().trim().regex(/^\d{6}$/, "invalidValue").nullable(),
+    vietqrAccountNo: z.string().trim().regex(/^[0-9A-Za-z]{4,19}$/, "invalidValue").nullable(),
+    vietqrAccountName: z
+      .string()
+      .trim()
+      .min(1)
+      .max(50)
+      .transform((value) => value.toUpperCase())
+      .nullable(),
+    cashierMaxDiscountPercent: z
+      .union([z.string(), z.number()])
+      .transform((value) => String(value).trim().replace(",", "."))
+      .pipe(z.string().regex(/^(100(\.0{1,2})?|\d{1,2}(\.\d{1,2})?)$/, "invalidValue")),
+    returnDays: z.number().int().min(0).max(365),
+    cashierCanReturn: z.boolean(),
+    blockNegativeStock: z.boolean(),
+    receiptFooter: optionalText(200),
+    paperWidth: z.union([z.literal(58), z.literal(80)]),
+    version: version.nullable(),
+  })
+  .strict()
+  .refine((value) => [value.vietqrBankBin, value.vietqrAccountNo, value.vietqrAccountName].every((part) => part === null) || [value.vietqrBankBin, value.vietqrAccountNo, value.vietqrAccountName].every((part) => part !== null), {
+    message: "required",
+    path: ["vietqrAccountNo"],
+  });
+export const iposOutletCodeSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .transform((value) => value.toUpperCase())
+      .pipe(z.string().regex(/^[A-Z0-9]{2,10}$/, "invalidValue")),
+  })
+  .strict();
+
+// Danh mục trên máy bán: giá đã áp giá riêng của điểm bán. `since` trống thì tải toàn bộ.
+export interface IposCatalogVariant {
+  variantId: string;
+  itemId: string;
+  itemCode: string;
+  variantCode: string;
+  name: string;
+  unit: string;
+  price: string;
+  vatRate: IposVatRate;
+  trackStock: boolean;
+  categoryId: string | null;
+  barcodes: string[];
+  active: boolean;
+}
+export interface IposPosContext {
+  merchantName: string;
+  outletName: string;
+  outletAddress: string;
+  outletCode: string | null;
+  registerName: string;
+  cashierMaxDiscountPercent: string;
+  blockNegativeStock: boolean;
+  receiptFooter: string | null;
+  paperWidth: 58 | 80;
+}
+export interface IposCatalog {
+  serverTime: string;
+  full: boolean;
+  categories: { id: string; parentId: string | null; name: string; sortOrder: number }[];
+  variants: IposCatalogVariant[];
+  context: IposPosContext;
+}
+
+// Ca.
+export const iposCashMovementCategories = ["handover", "expense", "other"] as const;
+export type IposCashMovementCategory = (typeof iposCashMovementCategories)[number];
+export interface IposShift {
+  id: string;
+  registerId: string;
+  registerName: string;
+  memberId: string;
+  memberName: string;
+  openedAt: string;
+  openingCash: string;
+  openingNote: string | null;
+  closedAt: string | null;
+  closedByName: string | null;
+}
+export interface IposCurrentShift {
+  shift: IposShift | null;
+  // Ca khác đang mở ở quầy này (người khác), để báo thay vì cho mở ca mới.
+  otherOpenShift: { memberName: string; openedAt: string } | null;
+  suggestedOpeningCash: string | null;
+  subscriptionStatus: IposSubscriptionStatus | null;
+}
+export const iposOpenShiftSchema = z.object({ openingCash: wholeMoney, note: optionalText(500) }).strict();
+export const iposCashMovementSchema = z
+  .object({ direction: z.enum(["in", "out"]), category: z.enum(iposCashMovementCategories), amount: wholeMoney, reason: z.string().trim().min(1).max(200) })
+  .strict();
+export const iposCloseShiftSchema = z
+  .object({
+    countedCash: wholeMoney,
+    denominations: z.record(z.string().regex(/^\d{1,9}$/), z.number().int().min(0).max(100000)).nullable(),
+    differenceReason: optionalText(500),
+    leftCash: wholeMoney,
+  })
+  .strict();
+export interface IposCashMovement {
+  id: string;
+  direction: "in" | "out";
+  category: IposCashMovementCategory;
+  amount: string;
+  reason: string;
+  memberName: string;
+  createdAt: string;
+}
+export interface IposShiftReport {
+  shift: IposShift;
+  salesCount: number;
+  revenue: string;
+  revenueByMethod: { method: IposPaymentMethod; amount: string }[];
+  cashSales: string;
+  cashRefunds: string;
+  cashIn: string;
+  cashOut: string;
+  systemCash: string;
+  countedCash: string | null;
+  difference: string | null;
+  differenceReason: string | null;
+  leftCash: string | null;
+  handedOver: string | null;
+  movements: IposCashMovement[];
+}
+
+// Giỏ treo: máy bán lưu nguyên giỏ dạng JSON (tối đa 200 dòng).
+export interface IposHeldCart {
+  slot: number;
+  label: string;
+  payload: unknown;
+  memberName: string;
+  updatedAt: string;
+}
+export const iposHeldCartSchema = z
+  .object({ label: z.string().trim().min(1).max(50), payload: z.object({ lines: z.array(z.unknown()).max(200) }).passthrough() })
+  .strict();
+
+// Hóa đơn.
+export const iposPaymentMethods = ["cash", "vietqr", "vcomm_app", "points", "voucher"] as const;
+export type IposPaymentMethod = (typeof iposPaymentMethods)[number];
+const discountSchema = z
+  .object({
+    type: z.enum(["percent", "amount"]),
+    value: z
+      .union([z.string(), z.number()])
+      .transform((value) => String(value).trim().replace(",", "."))
+      .pipe(z.string().regex(/^\d{1,13}(\.\d{1,2})?$/, "invalidValue")),
+  })
+  .strict()
+  .refine((value) => value.type === "amount" || Number(value.value) <= 100, { message: "invalidValue", path: ["value"] })
+  .refine((value) => value.type === "percent" || /^\d+$/.test(value.value), { message: "invalidValue", path: ["value"] });
+export type IposDiscountInput = z.infer<typeof discountSchema>;
+export const iposSaleCreateSchema = z
+  .object({
+    idempotencyKey: z.string().uuid(),
+    shiftId: z.string().uuid(),
+    lines: z
+      .array(
+        z
+          .object({
+            variantId: z.string().uuid(),
+            quantity: z
+              .union([z.string(), z.number()])
+              .transform((value) => String(value).trim().replace(",", "."))
+              .pipe(z.string().regex(/^\d{1,4}(\.\d{1,3})?$/, "invalidValue"))
+              .refine((value) => Number(value) > 0, "invalidValue"),
+            unitPrice: wholeMoney,
+            discount: discountSchema.nullable(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    invoiceDiscount: discountSchema.nullable(),
+    payments: z.array(z.object({ method: z.literal("cash"), tendered: wholeMoney }).strict()).length(1),
+    approvalCode: z.string().regex(/^\d{6}$/, "invalidValue").nullable(),
+  })
+  .strict();
+export type IposSaleCreateInput = z.infer<typeof iposSaleCreateSchema>;
+export interface IposSaleLine {
+  lineNo: number;
+  variantId: string;
+  itemCode: string;
+  variantCode: string;
+  name: string;
+  unit: string;
+  quantity: string;
+  unitPrice: string;
+  gross: string;
+  discount: string;
+  allocatedDiscount: string;
+  amount: string;
+  vatRate: IposVatRate;
+}
+export interface IposSalePayment {
+  method: IposPaymentMethod;
+  amount: string;
+  tendered: string | null;
+}
+export interface IposSale {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  merchantName: string;
+  outletName: string;
+  outletAddress: string;
+  registerName: string;
+  memberName: string;
+  lines: IposSaleLine[];
+  subtotal: string;
+  lineDiscount: string;
+  invoiceDiscount: string;
+  total: string;
+  taxes: { vatRate: IposVatRate; amount: string; tax: string }[];
+  payments: IposSalePayment[];
+  change: string;
+  discountApprovedByName: string | null;
+  printCount: number;
+  status: "completed" | "cancelled";
+  receiptFooter: string | null;
+}
+export interface IposSaleRow {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  total: string;
+  lineCount: number;
+  memberName: string;
+  status: "completed" | "cancelled";
+}
+export const iposPrintLogSchema = z.object({ reprint: z.boolean() }).strict();
+export const iposApprovalSchema = z.object({ memberId: z.string().uuid(), pin: z.string().regex(/^\d{6}$/, "invalidValue"), purpose: z.enum(["discount", "return"]) }).strict();
+export interface IposApproval {
+  approvalCode: string;
+  approverName: string;
+  expiresAt: string;
+}
+export const iposDrawerEventSchema = z.object({ reason: optionalText(200) }).strict();
