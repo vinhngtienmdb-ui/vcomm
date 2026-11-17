@@ -153,7 +153,7 @@ export class MfaService {
     const result = await this.database.execute<{ failures: number }>(sql`
       SELECT count(*)::int AS failures FROM core.login_attempts WHERE user_id = ${userId} AND failure_reason = ${reason} ${window}`);
     if ((result.rows[0]?.failures ?? 0) >= maximumWrongCodes) {
-      if (typeof scope !== "string") throw new ApiError("ACCOUNT_LOCKED", "mfaTooManyAttempts", { retryAfterSeconds: scope.windowMinutes * 60 });
+      if (typeof scope !== "string") throw new ApiError("ACCOUNT_LOCKED", "mfaResetLocked", { retryAfterSeconds: scope.windowMinutes * 60 });
       await this.database.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE id = ${scope} AND revoked_at IS NULL`);
       throw new ApiError("UNAUTHENTICATED", "mfaTooManyAttempts");
     }

@@ -811,7 +811,8 @@
     "merchantPortalSecurityBlocked": "This account has no security setup and the SMS period has ended. Ask the store owner (cashiers) or VComm (owners) to reset authentication, then use the Activate tab.",
     "merchantPortalSmsDisabled": "The store portal no longer accepts SMS sign-in. Sign in with your password and authenticator code.",
     "merchantPortalPasswordNotNeeded": "This account already has a password.",
-    "merchantPortalResetStaff": "This is a staff account with mandatory two-step verification; it cannot be reset from the store portal."
+    "merchantPortalResetStaff": "This is a staff account with mandatory two-step verification; it cannot be reset from the store portal.",
+    "mfaResetLocked": "Too many wrong codes. Try again in 15 minutes."
   },
   "login": {
     "title": "Sign in",

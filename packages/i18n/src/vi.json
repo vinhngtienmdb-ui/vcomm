@@ -811,7 +811,8 @@
     "merchantPortalSecurityBlocked": "Tài khoản chưa thiết lập bảo mật và đã hết thời hạn dùng mã SMS. Nhờ chủ cửa hàng (thu ngân) hoặc VComm (chủ cửa hàng) đặt lại xác thực, rồi vào thẻ Kích hoạt.",
     "merchantPortalSmsDisabled": "Cổng cửa hàng không còn đăng nhập bằng mã SMS. Đăng nhập bằng mật khẩu và mã ứng dụng xác thực.",
     "merchantPortalPasswordNotNeeded": "Tài khoản đã có mật khẩu.",
-    "merchantPortalResetStaff": "Tài khoản này là tài khoản nhân viên bắt buộc xác thực hai lớp, không đặt lại được từ cổng cửa hàng."
+    "merchantPortalResetStaff": "Tài khoản này là tài khoản nhân viên bắt buộc xác thực hai lớp, không đặt lại được từ cổng cửa hàng.",
+    "mfaResetLocked": "Nhập sai mã quá 5 lần. Thử lại sau 15 phút."
   },
   "login": {
     "title": "Đăng nhập",

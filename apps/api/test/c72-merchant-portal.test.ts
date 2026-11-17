@@ -187,6 +187,8 @@ describe("CONG_VIEC_72 lát L6 cổng cửa hàng liên kết", () => {
     // Mã dự phòng cũng dùng được; sai 5 lần trong 15 phút (tính cả lần sai ở trên) thì tạm khóa.
     expect((await forgot({ phone: "0912333444", backupCode: renewed.backupCodes[1], password: "MatKhauQuen2@2026" })).status).toBe(204);
     for (let attempt = 0; attempt < 4; attempt += 1) expect((await forgot({ phone: "0912333444", code: "000000", password: "MatKhauQuen3@2026" })).status).toBe(400);
-    expect((await forgot({ phone: "0912333444", code: authenticatorCode(renewed.secret), password: "MatKhauQuen3@2026" })).status).toBe(423);
+    const locked = await forgot({ phone: "0912333444", code: authenticatorCode(renewed.secret), password: "MatKhauQuen3@2026" });
+    expect(locked.status).toBe(423);
+    expect(locked.body.error.message).toBe("Nhập sai mã quá 5 lần. Thử lại sau 15 phút.");
   });
 });
