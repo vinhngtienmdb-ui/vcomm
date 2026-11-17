@@ -103,7 +103,7 @@ beforeAll(async () => {
     .query({ ...parameters, vnp_SecureHashType: "HmacSHA512", vnp_SecureHash: signedQuery(parameters, secret).hash });
   expect(ipn.body.RspCode).toBe("00");
   expect((await cashier.call("get", `/retail/checkouts/${checkout.body.id}`, { companyId: retail })).body.status).toBe("completed");
-  [payoutId] = await application.get(InstorePayoutsService).generateDaily(today);
+  payoutId = (await application.get(InstorePayoutsService).generateDaily(today))[0]!;
   // Đơn dùng để đối chiếu bút toán của từng bước.
   process.env.C73_CHECKOUT = checkout.body.id;
 });

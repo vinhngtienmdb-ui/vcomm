@@ -14,6 +14,7 @@ export const financeMenu = [
   { href: "/collection-statements", key: "collections", permission: "finance.collection.view" },
   { href: "/loyalty-settlements", key: "loyaltySettlements", permission: "loyalty.settlement.view" },
   // CONG_VIEC_73 MAN_HINH_280: biểu phí cổng tại cửa hàng (công ty vận hành sàn).
+  { href: "/instore-payouts", key: "instorePayouts", permission: "finance.instore.view" },
   { href: "/instore-gateway-fees", key: "instoreGatewayFees", permission: "finance.instore.view" },
   // CONG_VIEC_62 MAN_HINH_240: đối soát tuần người bán dropship.
   { href: "/reseller-settlements", key: "resellerSettlements", permission: "finance.debt.view" },

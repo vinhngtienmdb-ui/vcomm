@@ -2,11 +2,11 @@
 
 // MAN_HINH_280 Biểu phí cổng tại cửa hàng (CONG_VIEC_73 lát L4; QUYTAC_NGHIEPVU_584; API_332): công ty vận hành sàn cài tỷ lệ, số tiền cố định
 // cho từng phương thức trực tuyến đang bật. Sửa là thêm mức áp dụng từ ngày (không sửa lùi); phí chốt vào đơn lúc tiền về.
-import type { InstoreGatewayFeesRequest, InstoreGatewayFeesResponse } from "contracts";
+import type { InstoreGatewayFeesRequest, InstoreGatewayFeesResponse, InstoreSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
-import { FormError, useSubmit } from "ui/components/Form";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
@@ -14,6 +14,44 @@ import { formatDate, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
 type Draft = { percent: string; fixedAmount: string; effectiveFrom: string };
+
+// Thuế suất phí sàn, phí thu hộ (CONG_VIEC_73 lát L5; mặc định 10 %): dùng khi lập bảng chuyển tiền.
+function FeeTaxRate() {
+  const t = useTranslations("instoreGatewayFees");
+  const { notify } = useAdmin();
+  const { state, reload } = useApi<InstoreSettingsResponse>("/finance/instore/settings");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const [rate, setRate] = useState("");
+  const data = state.kind === "ready" ? state.data : null;
+  useEffect(() => {
+    if (data) setRate(data.feeTaxRate);
+  }, [data]);
+  if (!data) return null;
+  return (
+    <form
+      className="the"
+      style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-3)", alignItems: "flex-end" }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void run(async () => {
+          await apiFetch("/finance/instore/settings", { method: "PUT", body: JSON.stringify({ feeTaxRate: rate, version: data.version }) });
+          await reload();
+          notify(t("saved"));
+        });
+      }}
+    >
+      <Field id="thue-suat-phi" label={t("feeTaxRate")} hint={t("feeTaxRateHint")} error={fields.feeTaxRate}>
+        <input id="thue-suat-phi" className={inputClass("feeTaxRate")} inputMode="decimal" disabled={!data.canManage} value={rate} onChange={(event) => setRate(event.target.value)} style={{ maxWidth: "8rem" }} />
+      </Field>
+      <FormError text={formError} />
+      {data.canManage && (
+        <button type="submit" className={`nut phu${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || rate === data.feeTaxRate}>
+          {t("save")}
+        </button>
+      )}
+    </form>
+  );
+}
 
 export default function InstoreGatewayFeesPage() {
   const t = useTranslations("instoreGatewayFees");
@@ -41,6 +79,7 @@ export default function InstoreGatewayFeesPage() {
         <HistoryLink entityType="instore_gateway_fee" />
       </div>
       <p className="chu-thich">{t("hint")}</p>
+      <FeeTaxRate />
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.rows.length === 0 ? (

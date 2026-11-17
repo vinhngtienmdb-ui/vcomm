@@ -379,7 +379,7 @@ export class InstorePayoutsService {
     return row;
   }
 
-  private async detailOf(row: PayoutRow): Promise<InstorePayoutDetail> {
+  private async detailOf(row: PayoutRow, canTransfer = false): Promise<InstorePayoutDetail> {
     const today = await vietnamToday(this.database);
     const lines = await this.database.execute<{
       id: string;
@@ -413,11 +413,13 @@ export class InstorePayoutsService {
         gatewayFee: String(Number(line.gateway_fee)),
       })),
       deductions: deductions.rows.map((line) => ({ id: line.id, kind: line.kind, businessDate: line.business_date, amount: String(Number(line.amount)), note: line.note })),
+      canTransfer: canTransfer && row.status === "pending",
     };
   }
 
-  async detail(actor: Actor, id: string): Promise<InstorePayoutDetail> {
-    return this.detailOf(await this.row(id, (await this.scopeOf(actor.companyId)).where));
+  async detail(actor: Actor, id: string, canManage = false): Promise<InstorePayoutDetail> {
+    const scope = await this.scopeOf(actor.companyId);
+    return this.detailOf(await this.row(id, scope.where), scope.isOperator && canManage);
   }
 
   // Cổng cửa hàng (MAN_HINH_282): chủ cửa hàng xem bảng của cửa hàng mình.
@@ -514,7 +516,7 @@ export class InstorePayoutsService {
         transaction,
       );
     });
-    return this.detail(actor, id);
+    return this.detail(actor, id, true);
   }
 
   // Việc nền mỗi sáng: nhắc kế toán công ty vận hành sàn các bảng chờ chuyển quá 2 ngày làm việc (một lần mỗi ngày).

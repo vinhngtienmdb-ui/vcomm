@@ -39,7 +39,8 @@ export class InstoreAdminController {
 
   @Get("payouts/:id")
   async payout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") requested?: string): Promise<InstorePayoutDetail> {
-    return this.payouts.detail(await this.actor(request, requested, "finance.instore.view", "finance.instore.manage"), id);
+    const actor = await this.actor(request, requested, "finance.instore.view", "finance.instore.manage");
+    return this.payouts.detail(actor, id, (await this.permissionService.dataScope(actor.userId, actor.companyId, "finance.instore.manage")) !== null);
   }
 
   @Post("payouts/:id/transferred")

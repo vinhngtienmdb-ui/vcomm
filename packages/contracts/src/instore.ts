@@ -295,6 +295,8 @@ export interface InstorePayoutDetail extends InstorePayoutItem {
     gatewayFee: string;
   }[];
   deductions: { id: string; kind: string; businessDate: string; amount: string; note: string | null }[];
+  // Công ty vận hành sàn, người có quyền finance.instore.manage, bảng chờ chuyển.
+  canTransfer: boolean;
 }
 export interface InstorePayoutListResponse {
   data: InstorePayoutItem[];
