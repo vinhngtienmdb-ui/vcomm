@@ -95,7 +95,7 @@ function Loyalty({ shiftId, total, value, onChange }: { shiftId: string; total: 
   );
 }
 
-function VcommApp({ create, onClose }: { create: () => Promise<IposVcommCheckout>; onClose: () => void }) {
+function VcommApp({ create, onClose, onPaid }: { create: () => Promise<IposVcommCheckout>; onClose: () => void; onPaid: (sale: IposSale) => void }) {
   const [checkout, setCheckout] = useState<IposVcommCheckout | null>(null);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -113,6 +113,16 @@ function VcommApp({ create, onClose }: { create: () => Promise<IposVcommCheckout
     const timer = setInterval(() => void api<IposVcommCheckout>(`/ipos/pos/vcomm-checkouts/${checkout.id}`).then(setCheckout), pollMs);
     return () => clearInterval(timer);
   }, [checkout]);
+  // Khách trả xong trên ứng dụng VComm: máy chủ đã ghi hóa đơn (móc hoàn tất); tải hóa đơn để in như thanh toán tại quầy.
+  const saleId = checkout?.saleId ?? null;
+  const onPaidRef = useRef(onPaid);
+  onPaidRef.current = onPaid;
+  useEffect(() => {
+    if (!saleId) return;
+    void api<IposSale>(`/ipos/pos/sales/${saleId}`)
+      .then((sale) => onPaidRef.current(sale))
+      .catch((failure: unknown) => setError(failure instanceof Error ? failure.message : String(failure)));
+  }, [saleId]);
   if (error && !checkout) return <Notice text={error} />;
   if (!checkout) return <Muted>{t("creatingCheckout")}</Muted>;
   const open = ["awaiting_buyer", "awaiting_payment"].includes(checkout.status);
@@ -219,7 +229,7 @@ export function PaymentDialog({
     <Overlay title={t("paymentTitle")} onClose={busy ? undefined : close} width={720}>
       <Choice label="" value={tab} options={[{ value: "counter", label: t("payAtCounter") }, { value: "app", label: t("payInApp") }]} onChange={setTab} />
       {tab === "app" ? (
-        <VcommApp create={createCheckout} onClose={close} />
+        <VcommApp create={createCheckout} onClose={close} onPaid={onPaid} />
       ) : (
         <View style={{ gap: space[3] }}>
           <Text style={styles.total}>{t("amountDue", { amount: money(due) })}</Text>

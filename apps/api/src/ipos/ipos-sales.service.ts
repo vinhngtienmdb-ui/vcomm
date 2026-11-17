@@ -46,6 +46,92 @@ export async function linkableLoyalty(executor: Executor, actor: IposPosActor, i
   return row;
 }
 
+export type SaleVariant = { id: string; item_code: string; variant_code: string; name: string; unit: string; price: string; vat_rate: IposVatRate; track_stock: boolean; active: boolean };
+
+// Biến thể của các dòng hóa đơn kèm giá tại điểm bán (giá riêng điểm bán, giá biến thể, giá mặt hàng).
+export async function loadSaleVariants(executor: Executor, merchantId: string, outletId: string, variantIds: string[]): Promise<Map<string, SaleVariant>> {
+  const variants = await executor.execute<SaleVariant>(sql`
+    SELECT v.id, i.code AS item_code, v.code AS variant_code, i.unit, i.vat_rate, i.track_stock, (v.status = 'active' AND i.status = 'active') AS active,
+      i.name || COALESCE(' – ' || v.attribute1_value, '') || COALESCE(' / ' || v.attribute2_value, '') AS name,
+      COALESCE(op.price, v.price, i.price)::text AS price
+    FROM ipos.item_variants v JOIN ipos.items i ON i.id = v.item_id
+    LEFT JOIN ipos.outlet_prices op ON op.variant_id = v.id AND op.outlet_id = ${outletId}
+    WHERE v.merchant_id = ${merchantId} AND v.id IN (${sql.join(variantIds.map((variantId) => sql`${variantId}`), sql`, `)})`);
+  return new Map(variants.rows.map((row) => [row.id, row]));
+}
+
+export interface SaleWriteContext {
+  device: { merchantId: string; outletId: string; registerId: string; deviceId: string };
+  shiftId: string;
+  memberId: string;
+  userId: string;
+  now: Date;
+  idempotencyKey: string;
+  lines: IposSaleCreateInput["lines"];
+  byId: Map<string, SaleVariant>;
+  totals: IposTotals;
+  approvedBy: string | null;
+  blockNegativeStock: boolean;
+}
+
+// Ghi hóa đơn, dòng hàng, trừ tồn (chưa ghi dòng thanh toán). Dùng khi máy bán ghi hóa đơn và khi đơn chờ ứng dụng VComm hoàn tất (móc của CONG_VIEC_73).
+export async function writeSale(transaction: Executor, context: SaleWriteContext): Promise<{ saleId: string; documentNo: string }> {
+  const today = vietnamDate(context.now);
+  // Số hóa đơn `<mã điểm bán>-<YYMMDD>-<4 số>`; khóa dòng đếm theo (điểm bán, ngày) nên nhiều quầy cùng lúc không trùng (QUYTAC_NGHIEPVU_619).
+  const outlet = (await transaction.execute<{ code: string | null }>(sql`SELECT code FROM affiliate.outlets WHERE id = ${context.device.outletId}`)).rows[0]!;
+  if (!outlet.code) throw new ApiError("BUSINESS_RULE", "iposOutletCodeMissing");
+  const sequence = await transaction.execute<{ last_number: number }>(sql`
+    INSERT INTO ipos.document_sequences (outlet_id, day, kind, last_number) VALUES (${context.device.outletId}, ${today}, 'sale', 1)
+    ON CONFLICT (outlet_id, day, kind) DO UPDATE SET last_number = ipos.document_sequences.last_number + 1
+    RETURNING last_number`);
+  const documentNo = `${outlet.code}-${today.slice(2).replaceAll("-", "")}-${String(sequence.rows[0]!.last_number).padStart(4, "0")}`;
+  const sale = await transaction.execute<{ id: string }>(sql`
+    INSERT INTO ipos.sales (merchant_id, outlet_id, register_id, device_id, shift_id, member_id, document_no, idempotency_key, subtotal, line_discount,
+      invoice_discount, total, discount_approved_by, sold_at)
+    VALUES (${context.device.merchantId}, ${context.device.outletId}, ${context.device.registerId}, ${context.device.deviceId}, ${context.shiftId}, ${context.memberId}, ${documentNo},
+      ${context.idempotencyKey}, ${context.totals.subtotal}, ${context.totals.lineDiscount}, ${context.totals.invoiceDiscount}, ${context.totals.total}, ${context.approvedBy}, ${context.now})
+    RETURNING id`);
+  const saleId = sale.rows[0]!.id;
+
+  // Trừ tồn mặt hàng theo dõi tồn kho; khóa dòng tồn theo thứ tự biến thể. Chặn tồn âm theo cài đặt (QUYTAC_NGHIEPVU_611 khoản 2).
+  const tracked = [...new Set(context.lines.filter((line) => context.byId.get(line.variantId)!.track_stock).map((line) => line.variantId))].sort();
+  const balances = new Map<string, { quantity: number; averageCost: string }>();
+  if (tracked.length > 0) {
+    await transaction.execute(sql`
+      INSERT INTO ipos.stock_balances (outlet_id, variant_id, merchant_id)
+      SELECT ${context.device.outletId}::uuid, id, ${context.device.merchantId}::uuid FROM unnest(ARRAY[${sql.join(tracked.map((variantId) => sql`${variantId}::uuid`), sql`, `)}]) AS id
+      ON CONFLICT (outlet_id, variant_id) DO NOTHING`);
+    const rows = await transaction.execute<{ variant_id: string; quantity: string; average_cost: string }>(sql`
+      SELECT variant_id, quantity::text, average_cost::text FROM ipos.stock_balances
+      WHERE outlet_id = ${context.device.outletId} AND variant_id IN (${sql.join(tracked.map((variantId) => sql`${variantId}`), sql`, `)})
+      ORDER BY variant_id FOR UPDATE`);
+    for (const row of rows.rows) balances.set(row.variant_id, { quantity: Number(row.quantity), averageCost: row.average_cost });
+    if (context.blockNegativeStock) {
+      const needed = new Map<string, number>();
+      for (const line of context.lines) if (balances.has(line.variantId)) needed.set(line.variantId, (needed.get(line.variantId) ?? 0) + Number(line.quantity));
+      for (const [variantId, quantity] of needed) if (balances.get(variantId)!.quantity < quantity - 1e-9) throw new ApiError("BUSINESS_RULE", "iposStockNegativeBlocked");
+    }
+  }
+  for (const [index, line] of context.lines.entries()) {
+    const variant = context.byId.get(line.variantId)!;
+    const amounts = context.totals.lines[index]!;
+    const balance = balances.get(line.variantId);
+    await transaction.execute(sql`
+      INSERT INTO ipos.sale_lines (sale_id, line_no, variant_id, item_code, variant_code, name, unit, quantity, unit_price, gross, discount, allocated_discount, amount, vat_rate, unit_cost)
+      VALUES (${saleId}, ${index + 1}, ${line.variantId}, ${variant.item_code}, ${variant.variant_code}, ${variant.name}, ${variant.unit}, ${line.quantity}, ${line.unitPrice},
+        ${amounts.gross}, ${amounts.discount}, ${amounts.allocated}, ${amounts.amount}, ${variant.vat_rate}, ${balance?.averageCost ?? null})`);
+    if (!balance) continue;
+    const updated = await transaction.execute<{ quantity: string }>(sql`
+      UPDATE ipos.stock_balances SET quantity = quantity - ${line.quantity}::numeric, updated_at = now()
+      WHERE outlet_id = ${context.device.outletId} AND variant_id = ${line.variantId} RETURNING quantity::text`);
+    await transaction.execute(sql`
+      INSERT INTO ipos.stock_moves (merchant_id, outlet_id, variant_id, quantity, unit_cost, balance_after, source_type, source_id, source_number, created_by, occurred_at)
+      VALUES (${context.device.merchantId}, ${context.device.outletId}, ${line.variantId}, ${`-${line.quantity}`}, ${balance.averageCost}, ${updated.rows[0]!.quantity}, 'sale',
+        ${saleId}, ${documentNo}, ${context.userId}, ${context.now})`);
+  }
+  return { saleId, documentNo };
+}
+
 @Injectable()
 export class IposSalesService {
   constructor(
@@ -68,25 +154,7 @@ export class IposSalesService {
       await requireSelling(transaction, actor, today);
       const shift = await openShiftOf(transaction, actor, input.shiftId);
       const settings = await loadSettings(transaction, actor.device.merchantId);
-      const variantIds = input.lines.map((line) => line.variantId);
-      const variants = await transaction.execute<{
-        id: string;
-        item_code: string;
-        variant_code: string;
-        name: string;
-        unit: string;
-        price: string;
-        vat_rate: IposVatRate;
-        track_stock: boolean;
-        active: boolean;
-      }>(sql`
-        SELECT v.id, i.code AS item_code, v.code AS variant_code, i.unit, i.vat_rate, i.track_stock, (v.status = 'active' AND i.status = 'active') AS active,
-          i.name || COALESCE(' – ' || v.attribute1_value, '') || COALESCE(' / ' || v.attribute2_value, '') AS name,
-          COALESCE(op.price, v.price, i.price)::text AS price
-        FROM ipos.item_variants v JOIN ipos.items i ON i.id = v.item_id
-        LEFT JOIN ipos.outlet_prices op ON op.variant_id = v.id AND op.outlet_id = ${actor.device.outletId}
-        WHERE v.merchant_id = ${actor.device.merchantId} AND v.id IN (${sql.join(variantIds.map((variantId) => sql`${variantId}`), sql`, `)})`);
-      const byId = new Map(variants.rows.map((row) => [row.id, row]));
+      const byId = await loadSaleVariants(transaction, actor.device.merchantId, actor.device.outletId, input.lines.map((line) => line.variantId));
       // Giá khi thanh toán lấy theo máy chủ; khác giá trên máy thì báo để máy đồng bộ lại (QUYTAC_NGHIEPVU_609).
       for (const line of input.lines) {
         const variant = byId.get(line.variantId);
@@ -114,58 +182,19 @@ export class IposSalesService {
       const cashAmount = due - vietqrAmount;
       if (cashAmount > 0 && (!cash || Number(cash.tendered) < cashAmount)) throw new ApiError("BUSINESS_RULE", "iposTenderedTooLow");
 
-      // Số hóa đơn `<mã điểm bán>-<YYMMDD>-<4 số>`; khóa dòng đếm theo (điểm bán, ngày) nên nhiều quầy cùng lúc không trùng (QUYTAC_NGHIEPVU_619).
-      const outlet = (await transaction.execute<{ code: string | null }>(sql`SELECT code FROM affiliate.outlets WHERE id = ${actor.device.outletId}`)).rows[0]!;
-      if (!outlet.code) throw new ApiError("BUSINESS_RULE", "iposOutletCodeMissing");
-      const sequence = await transaction.execute<{ last_number: number }>(sql`
-        INSERT INTO ipos.document_sequences (outlet_id, day, kind, last_number) VALUES (${actor.device.outletId}, ${today}, 'sale', 1)
-        ON CONFLICT (outlet_id, day, kind) DO UPDATE SET last_number = ipos.document_sequences.last_number + 1
-        RETURNING last_number`);
-      const documentNo = `${outlet.code}-${today.slice(2).replaceAll("-", "")}-${String(sequence.rows[0]!.last_number).padStart(4, "0")}`;
-      const sale = await transaction.execute<{ id: string }>(sql`
-        INSERT INTO ipos.sales (merchant_id, outlet_id, register_id, device_id, shift_id, member_id, document_no, idempotency_key, subtotal, line_discount,
-          invoice_discount, total, discount_approved_by, sold_at)
-        VALUES (${actor.device.merchantId}, ${actor.device.outletId}, ${actor.device.registerId}, ${actor.device.deviceId}, ${shift.id}, ${actor.memberId}, ${documentNo},
-          ${input.idempotencyKey}, ${totals.subtotal}, ${totals.lineDiscount}, ${totals.invoiceDiscount}, ${totals.total}, ${approvedBy}, ${now})
-        RETURNING id`);
-      const saleId = sale.rows[0]!.id;
-
-      // Trừ tồn mặt hàng theo dõi tồn kho; khóa dòng tồn theo thứ tự biến thể. Chặn tồn âm theo cài đặt (QUYTAC_NGHIEPVU_611 khoản 2).
-      const tracked = [...new Set(input.lines.filter((line) => byId.get(line.variantId)!.track_stock).map((line) => line.variantId))].sort();
-      const balances = new Map<string, { quantity: number; averageCost: string }>();
-      if (tracked.length > 0) {
-        await transaction.execute(sql`
-          INSERT INTO ipos.stock_balances (outlet_id, variant_id, merchant_id)
-          SELECT ${actor.device.outletId}::uuid, id, ${actor.device.merchantId}::uuid FROM unnest(ARRAY[${sql.join(tracked.map((variantId) => sql`${variantId}::uuid`), sql`, `)}]) AS id
-          ON CONFLICT (outlet_id, variant_id) DO NOTHING`);
-        const rows = await transaction.execute<{ variant_id: string; quantity: string; average_cost: string }>(sql`
-          SELECT variant_id, quantity::text, average_cost::text FROM ipos.stock_balances
-          WHERE outlet_id = ${actor.device.outletId} AND variant_id IN (${sql.join(tracked.map((variantId) => sql`${variantId}`), sql`, `)})
-          ORDER BY variant_id FOR UPDATE`);
-        for (const row of rows.rows) balances.set(row.variant_id, { quantity: Number(row.quantity), averageCost: row.average_cost });
-        if (settings.blockNegativeStock) {
-          const needed = new Map<string, number>();
-          for (const line of input.lines) if (balances.has(line.variantId)) needed.set(line.variantId, (needed.get(line.variantId) ?? 0) + Number(line.quantity));
-          for (const [variantId, quantity] of needed) if (balances.get(variantId)!.quantity < quantity - 1e-9) throw new ApiError("BUSINESS_RULE", "iposStockNegativeBlocked");
-        }
-      }
-      for (const [index, line] of input.lines.entries()) {
-        const variant = byId.get(line.variantId)!;
-        const amounts = totals.lines[index]!;
-        const balance = balances.get(line.variantId);
-        await transaction.execute(sql`
-          INSERT INTO ipos.sale_lines (sale_id, line_no, variant_id, item_code, variant_code, name, unit, quantity, unit_price, gross, discount, allocated_discount, amount, vat_rate, unit_cost)
-          VALUES (${saleId}, ${index + 1}, ${line.variantId}, ${variant.item_code}, ${variant.variant_code}, ${variant.name}, ${variant.unit}, ${line.quantity}, ${line.unitPrice},
-            ${amounts.gross}, ${amounts.discount}, ${amounts.allocated}, ${amounts.amount}, ${variant.vat_rate}, ${balance?.averageCost ?? null})`);
-        if (!balance) continue;
-        const updated = await transaction.execute<{ quantity: string }>(sql`
-          UPDATE ipos.stock_balances SET quantity = quantity - ${line.quantity}::numeric, updated_at = now()
-          WHERE outlet_id = ${actor.device.outletId} AND variant_id = ${line.variantId} RETURNING quantity::text`);
-        await transaction.execute(sql`
-          INSERT INTO ipos.stock_moves (merchant_id, outlet_id, variant_id, quantity, unit_cost, balance_after, source_type, source_id, source_number, created_by, occurred_at)
-          VALUES (${actor.device.merchantId}, ${actor.device.outletId}, ${line.variantId}, ${`-${line.quantity}`}, ${balance.averageCost}, ${updated.rows[0]!.quantity}, 'sale',
-            ${saleId}, ${documentNo}, ${actor.userId}, ${now})`);
-      }
+      const { saleId } = await writeSale(transaction, {
+        device: actor.device,
+        shiftId: shift.id,
+        memberId: actor.memberId,
+        userId: actor.userId,
+        now,
+        idempotencyKey: input.idempotencyKey,
+        lines: input.lines,
+        byId,
+        totals,
+        approvedBy,
+        blockNegativeStock: settings.blockNegativeStock,
+      });
       if (cash || cashAmount > 0) {
         await transaction.execute(sql`INSERT INTO ipos.sale_payments (sale_id, method, amount, tendered) VALUES (${saleId}, 'cash', ${cashAmount}, ${cash?.tendered ?? String(cashAmount)})`);
       }

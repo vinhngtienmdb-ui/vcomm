@@ -905,7 +905,8 @@
     "instoreFeeDatePast": "Ngày áp dụng không được trước hôm nay.",
     "affiliateCollectionAccountRequired": "Chọn tài khoản nhận tiền trước khi bật thu hộ.",
     "affiliateCollectionAcknowledge": "Bật thu hộ lần đầu cần xác nhận đã đọc cảnh báo: thu hộ tiền của cửa hàng có thể là hoạt động trung gian thanh toán.",
-    "affiliateCollectedNotCancellable": "Giao dịch có tiền VComm thu hộ chưa hủy được ở đây; hủy và hoàn tiền cho khách sẽ có ở bản sau."
+    "affiliateCollectedNotCancellable": "Giao dịch có tiền VComm thu hộ chưa hủy được ở đây; hủy và hoàn tiền cho khách sẽ có ở bản sau.",
+    "iposCheckoutInputMissing": "Đơn chờ thiếu dữ liệu giỏ hàng của máy bán iPOS, không ghi được hóa đơn."
   },
   "login": {
     "title": "Đăng nhập",

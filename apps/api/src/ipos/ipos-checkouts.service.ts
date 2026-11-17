@@ -1,23 +1,33 @@
 // Máy bán iPOS: khách VComm dùng điểm, voucher tại quầy (service giao dịch của CONG_VIEC_55, 67) và đơn chờ thanh toán qua ứng dụng VComm
 // (InstoreCheckoutsService của CONG_VIEC_73) (CONG_VIEC_74; CHUC_NANG_258; QUYTAC_NGHIEPVU_614, 616, 617; API_341).
 // Giao dịch điểm, đơn chờ ghi vào `ipos.shift_links` theo ca để chặn đóng ca khi còn dở.
-import { Inject, Injectable } from "@nestjs/common";
-import type { IposLoyaltyTransaction, IposVcommCheckout, iposLoyaltyCreateSchema, iposVcommCheckoutCreateSchema } from "contracts";
+import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
+import type { IposLoyaltyTransaction, IposSaleCreateInput, IposVcommCheckout, iposLoyaltyCreateSchema, iposVcommCheckoutCreateSchema } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { AffiliateTransactionsService, maskName, type CounterActor } from "../affiliate/transactions.service";
 import { ApiError } from "../common/api-error";
 import { CLOCK, vietnamDate, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
-import { InstoreCheckoutsService, type CheckoutRow } from "../instore/checkouts.service";
+import { InstoreCheckoutsService, type AffiliateCheckoutResult, type CheckoutRow, type DatabaseTransaction } from "../instore/checkouts.service";
 import type { Executor } from "./ipos-catalog.service";
 import type { IposPosActor } from "./ipos-device-context";
-import { computeTotals } from "./ipos-sales.service";
+import { computeTotals, loadSaleVariants, writeSale } from "./ipos-sales.service";
 import { loadSettings } from "./ipos-settings.service";
 import { consumeApproval, openShiftOf, requireSelling } from "./ipos-shifts.service";
 
 // Địa chỉ trang ứng dụng VComm cho mã QR thanh toán (như quầy bán lẻ của CONG_VIEC_73).
 const appWebBase = () => (process.env.VCOMM_WEB_URL?.trim() || "http://localhost:8083").replace(/\/+$/, "");
+
+// Giỏ lưu trong đơn chờ lúc tạo (`instore.checkouts.sale_input.ipos`).
+type IposCheckoutSaleInput = {
+  deviceId: string;
+  shiftId: string;
+  memberId: string;
+  approvedBy?: string | null;
+  lines: IposSaleCreateInput["lines"];
+  invoiceDiscount: IposSaleCreateInput["invoiceDiscount"];
+};
 
 type LoyaltyRow = {
   id: string;
@@ -35,13 +45,76 @@ type LoyaltyRow = {
 };
 
 @Injectable()
-export class IposCheckoutsService {
+export class IposCheckoutsService implements OnModuleInit {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly transactions: AffiliateTransactionsService,
     private readonly checkouts: InstoreCheckoutsService,
   ) {}
+
+  onModuleInit(): void {
+    this.checkouts.registerCompletionHook("ipos", (transaction, row, result) => this.complete(transaction, row, result));
+  }
+
+  // Móc hoàn tất của CONG_VIEC_73: đơn chờ do máy bán tạo đã được khách trả qua ứng dụng VComm (thu hộ). Chạy trong giao dịch hoàn tất, sau khi ghi `LK…`:
+  // ghi hóa đơn iPOS theo giỏ lưu lúc tạo đơn (giá đã chốt lúc tạo), dòng thanh toán ứng dụng VComm, điểm, voucher; gắn hóa đơn vào ca.
+  // Lỗi ở đây làm đơn thu hộ chuyển "paid_unposted" (CONG_VIEC_73 ghi lại, hủy hoàn tiền).
+  private async complete(transaction: DatabaseTransaction, row: CheckoutRow, result: AffiliateCheckoutResult): Promise<string | null> {
+    const input = (row.sale_input as { ipos?: IposCheckoutSaleInput } | null)?.ipos;
+    if (!input) throw new ApiError("BUSINESS_RULE", "iposCheckoutInputMissing");
+    // Đã ghi (gọi lại sau lỗi) thì trả hóa đơn cũ.
+    const found = (await transaction.execute<{ id: string }>(sql`SELECT id FROM ipos.sales WHERE device_id = ${input.deviceId} AND idempotency_key = ${row.id}`)).rows[0];
+    if (found) return found.id;
+    const device = (
+      await transaction.execute<{ merchant_id: string; outlet_id: string; register_id: string }>(sql`
+        SELECT r.merchant_id, r.outlet_id, d.register_id FROM ipos.devices d JOIN ipos.registers r ON r.id = d.register_id WHERE d.id = ${input.deviceId}`)
+    ).rows[0];
+    if (!device || device.merchant_id !== row.merchant_id || device.outlet_id !== row.outlet_id || !row.created_by_user_id) {
+      throw new ApiError("BUSINESS_RULE", "iposCheckoutInputMissing");
+    }
+    const totals = computeTotals(
+      input.lines.map((line) => ({ quantity: line.quantity, unitPrice: Number(line.unitPrice), discount: line.discount })),
+      input.invoiceDiscount,
+    );
+    // Tiền giỏ phải đúng tiền đơn; ứng dụng VComm + điểm + voucher + tiền thu tại quầy phải đủ tiền hóa đơn.
+    const paid = Number(result.appAmount) + Number(result.pointsAmount) + Number(result.voucherAmount) + Number(result.dueAtCounter);
+    if (totals.total !== Number(row.bill_amount) || paid !== totals.total) throw new ApiError("BUSINESS_RULE", "iposLoyaltyAmountMismatch");
+    // iPOS chỉ tạo đơn thu hộ; đơn thu tại quầy dùng giao dịch điểm (API_341) nên không có tiền còn thu.
+    if (Number(result.dueAtCounter) > 0) throw new ApiError("BUSINESS_RULE", "iposCheckoutInputMissing");
+    const byId = await loadSaleVariants(transaction, device.merchant_id, device.outlet_id, input.lines.map((line) => line.variantId));
+    if (byId.size !== new Set(input.lines.map((line) => line.variantId)).size) throw new ApiError("BUSINESS_RULE", "iposItemUnavailable");
+    const now = this.clock.now();
+    const { saleId } = await writeSale(transaction, {
+      device: { merchantId: device.merchant_id, outletId: device.outlet_id, registerId: device.register_id, deviceId: input.deviceId },
+      shiftId: input.shiftId,
+      memberId: input.memberId,
+      userId: row.created_by_user_id,
+      now,
+      idempotencyKey: row.id,
+      lines: input.lines,
+      byId,
+      totals,
+      approvedBy: input.approvedBy ?? null,
+      // Khách đã trả tiền: không chặn vì tồn âm.
+      blockNegativeStock: false,
+    });
+    const payments: [string, string][] = [
+      ["vcomm_app", result.appAmount],
+      ["points", result.pointsAmount],
+      ["voucher", result.voucherAmount],
+    ];
+    for (const [method, amount] of payments) {
+      if (Number(amount) <= 0) continue;
+      await transaction.execute(sql`
+        INSERT INTO ipos.sale_payments (sale_id, method, amount, affiliate_transaction_id, instore_checkout_id)
+        VALUES (${saleId}, ${method}, ${amount}, ${result.affiliateTransactionId}, ${row.id})`);
+    }
+    const skip = (await transaction.execute<{ skip_reason: string | null }>(sql`SELECT skip_reason FROM affiliate.transactions WHERE id = ${result.affiliateTransactionId}`)).rows[0];
+    await transaction.execute(sql`UPDATE ipos.sales SET buyer_user_id = ${row.buyer_user_id}, loyalty_skip_reason = ${skip?.skip_reason ?? null} WHERE id = ${saleId}`);
+    await transaction.execute(sql`UPDATE ipos.shift_links SET sale_id = ${saleId} WHERE instore_checkout_id = ${row.id}`);
+    return saleId;
+  }
 
   private async counter(executor: Executor, actor: IposPosActor, requestId: string | null): Promise<CounterActor> {
     const company = (await executor.execute<{ company_id: string }>(sql`SELECT company_id FROM affiliate.merchants WHERE id = ${actor.device.merchantId}`)).rows[0]!;
@@ -125,9 +198,10 @@ export class IposCheckoutsService {
         input.invoiceDiscount,
       );
       if (totals.total <= 0) throw new ApiError("BUSINESS_RULE", "iposCheckoutZero");
+      let approvedBy: string | null = null;
       if (actor.role !== "owner" && totals.discountPercent > Number(settings.cashierMaxDiscountPercent) + 1e-9) {
         if (!input.approvalCode) throw new ApiError("BUSINESS_RULE", "iposDiscountNeedsApproval");
-        await consumeApproval(transaction, actor.device.deviceId, input.approvalCode, "discount", now);
+        approvedBy = await consumeApproval(transaction, actor.device.deviceId, input.approvalCode, "discount", now);
       }
       const company = (await transaction.execute<{ company_id: string }>(sql`SELECT company_id FROM affiliate.merchants WHERE id = ${actor.device.merchantId}`)).rows[0]!;
       const created = await this.checkouts.create(transaction, {
@@ -146,7 +220,7 @@ export class IposCheckoutsService {
         })),
         collectInApp: true,
         // Dữ liệu để iPOS ghi hóa đơn khi đơn hoàn tất (móc hoàn tất của CONG_VIEC_73 lát L4).
-        saleInput: { ipos: { deviceId: actor.device.deviceId, shiftId: shift.id, memberId: actor.memberId, lines: input.lines, invoiceDiscount: input.invoiceDiscount } },
+        saleInput: { ipos: { deviceId: actor.device.deviceId, shiftId: shift.id, memberId: actor.memberId, approvedBy, lines: input.lines, invoiceDiscount: input.invoiceDiscount } },
       });
       if (created.created) await transaction.execute(sql`INSERT INTO ipos.shift_links (shift_id, instore_checkout_id) VALUES (${shift.id}, ${created.checkout.id})`);
       return { checkout: created.checkout, qrToken: created.created ? created.qrToken : null };
@@ -174,7 +248,8 @@ export class IposCheckoutsService {
       expiresAt: new Date(row.expires_at).toISOString(),
       buyerName: maskName(buyer?.full_name ?? null),
       saleId: sale?.ipos_invoice_id ?? null,
-      completionAvailable: false,
+      // Máy chủ đã nối móc hoàn tất; màn hình chờ khách trả trên máy bán nối khi CONG_VIEC_73 xong giao diện lát L4.
+      completionAvailable: true,
     };
   }
 

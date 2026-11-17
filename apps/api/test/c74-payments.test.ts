@@ -3,12 +3,15 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { messages } from "i18n";
 import { createHash, randomUUID } from "node:crypto";
+import { sql } from "drizzle-orm";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { iposVietqrPayload } from "contracts";
 import { vietQrData } from "../src/marketplace/payments/gateways/bank-transfer-gateway";
 import { prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
+import { DATABASE, type Database } from "../src/database/database.module";
+import { InstoreCheckoutsService } from "../src/instore/checkouts.service";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -191,12 +194,53 @@ describe("CONG_VIEC_74 L4 – khách VComm dùng điểm, voucher", () => {
 });
 
 describe("CONG_VIEC_74 L4 – đơn chờ thanh toán qua ứng dụng VComm", () => {
+  it("TIEUCHI_NGHIEMTHU_578 phần máy chủ: đơn chờ do máy bán tạo hoàn tất qua móc \"ipos\" ghi hóa đơn có dòng Ứng dụng VComm và Điểm, trừ tồn, gắn ca; gọi lại không ghi thêm", async () => {
+    const lines = [{ variantId: bread.variantId, quantity: "1", unitPrice: "15000", discount: null }];
+    const created = await ownerPos.post("/ipos/pos/vcomm-checkouts", { idempotencyKey: randomUUID(), shiftId, lines, invoiceDiscount: null, approvalCode: null });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body).toMatchObject({ completionAvailable: true, saleId: null });
+    // Phần khách trả qua cổng là của CONG_VIEC_73; ở đây gọi móc như handler "affiliate" làm sau khi ghi LK… (giao dịch LK… lấy một giao dịch QR cửa hàng của máy bán).
+    const lk = (await ownerPos.post("/ipos/pos/loyalty-transactions", { shiftId, billAmount: "15000", method: "merchant_qr", memberCode: null })).body;
+    const before = Number((await pool.query("SELECT quantity FROM ipos.stock_balances WHERE variant_id = $1", [bread.variantId])).rows[0]?.quantity ?? 0);
+    const instore = application.get(InstoreCheckoutsService);
+    const complete = () =>
+      application.get<Database>(DATABASE).transaction(async (transaction) => {
+        const row = (await instore.find(transaction, created.body.id))!;
+        const invoiceId = await instore.completionHook("ipos")!(transaction, row, {
+          affiliateTransactionId: lk.id,
+          documentNo: lk.documentNo,
+          points: 5,
+          pointsAmount: "5000",
+          voucherAmount: "0",
+          appAmount: "10000",
+          dueAtCounter: "0",
+        });
+        await transaction.execute(sql`UPDATE instore.checkouts SET ipos_invoice_id = ${invoiceId} WHERE id = ${row.id}`);
+        return invoiceId;
+      });
+    const saleId = await complete();
+    expect(saleId).toEqual(expect.any(String));
+    expect(await complete()).toBe(saleId);
+    const view = await ownerPos.get(`/ipos/pos/vcomm-checkouts/${created.body.id}`);
+    expect(view.body.saleId).toBe(saleId);
+    const sale = (await ownerPos.get(`/ipos/pos/sales/${saleId}`)).body;
+    expect(sale).toMatchObject({ total: "15000", documentNo: expect.stringMatching(/-\d{6}-\d{4}$/) });
+    expect(sale.payments.map((payment: { method: string; amount: string }) => [payment.method, payment.amount]).sort()).toEqual([
+      ["points", "5000"],
+      ["vcomm_app", "10000"],
+    ]);
+    const after = Number((await pool.query("SELECT quantity FROM ipos.stock_balances WHERE variant_id = $1", [bread.variantId])).rows[0]?.quantity ?? 0);
+    expect(before - after).toBe(1);
+    expect((await pool.query("SELECT sale_id FROM ipos.shift_links WHERE instore_checkout_id = $1", [created.body.id])).rows[0].sale_id).toBe(saleId);
+    expect((await pool.query("SELECT count(*)::int AS n FROM ipos.sales WHERE idempotency_key = $1", [created.body.id])).rows[0].n).toBe(1);
+  });
+
   it("KICHBAN_KIEMTHU_789 phần đã làm được: tạo đơn TT… có mã QR, gửi lại cùng khóa không tạo mới, mã động sai bị từ chối, hủy; đơn đang chờ chặn đóng ca", async () => {
     const lines = [{ variantId: bread.variantId, quantity: "1", unitPrice: "15000", discount: null }];
     const key = randomUUID();
     const created = await ownerPos.post("/ipos/pos/vcomm-checkouts", { idempotencyKey: key, shiftId, lines, invoiceDiscount: null, approvalCode: null });
     expect(created.status, JSON.stringify(created.body)).toBe(201);
-    expect(created.body).toMatchObject({ status: "awaiting_buyer", billAmount: "15000", qrUrl: expect.stringContaining("/tt/"), completionAvailable: false, saleId: null });
+    expect(created.body).toMatchObject({ status: "awaiting_buyer", billAmount: "15000", qrUrl: expect.stringContaining("/tt/"), completionAvailable: true, saleId: null });
     expect(created.body.documentNo).toMatch(/^TT\d{8}$/);
     const again = await ownerPos.post("/ipos/pos/vcomm-checkouts", { idempotencyKey: key, shiftId, lines, invoiceDiscount: null, approvalCode: null });
     expect(again.body).toMatchObject({ id: created.body.id, qrUrl: null });

@@ -61,12 +61,12 @@ async function refresh(): Promise<boolean> {
   return refreshing;
 }
 
-export async function api<T>(path: string, init: RequestInit & { json?: unknown; withSession?: boolean } = {}, retried = false): Promise<T> {
+export async function api<T>(path: string, init: Omit<RequestInit, "body"> & { body?: FormData | Blob | URLSearchParams; json?: unknown; withSession?: boolean } = {}, retried = false): Promise<T> {
   const headers: Record<string, string> = { "accept-language": "vi", ...(init.headers as Record<string, string> | undefined) };
   if (deviceKey) headers[iposDeviceHeader] = deviceKey;
   const withSession = init.withSession ?? true;
   if (withSession && tokens) headers.authorization = `Bearer ${tokens.accessToken}`;
-  let body = init.body;
+  let body: BodyInit | undefined = init.body;
   if (init.json !== undefined) {
     headers["content-type"] = "application/json";
     body = JSON.stringify(init.json);

@@ -905,7 +905,8 @@
     "instoreFeeDatePast": "The effective date cannot be before today.",
     "affiliateCollectionAccountRequired": "Choose the payout bank account before enabling collection.",
     "affiliateCollectionAcknowledge": "Enabling collection for the first time requires confirming the warning: collecting money for the store may be a payment intermediary activity.",
-    "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release."
+    "affiliateCollectedNotCancellable": "Transactions with money collected by VComm cannot be cancelled here yet; cancellation with refund comes in a later release.",
+    "iposCheckoutInputMissing": "The pending order is missing the iPOS cart data; the invoice cannot be recorded."
   },
   "login": {
     "title": "Sign in",
