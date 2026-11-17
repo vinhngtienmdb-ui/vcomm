@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.13.0 – 2026-11-17 – Chờ phát hành
+## Phiên bản 0.13.0 – 2026-11-17 – Đã phát hành
 
 - Chức năng mới:
   - Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63): nền trợ lý với lớp kết nối mô hình trung lập (Anthropic, bộ giả lập), che điện thoại, email, số định danh, số tài khoản trước khi gửi ra mô hình, thông báo xử lý dữ liệu cá nhân phải xác nhận trước lần dùng đầu, hạn mức chi phí tháng (USD) và số lượt mỗi người mỗi ngày của từng công ty, nhật ký lượt (token, chi phí, không lưu nội dung) (CHUC_NANG_226, MAN_HINH_244); hỏi đáp số liệu trong ngăn trợ lý ở thanh trên mọi mini app web, câu trả lời chạy dòng chảy, mô hình chỉ đọc dữ liệu qua 10 công cụ báo cáo theo đúng quyền của người hỏi, tối đa 8 lần gọi công cụ mỗi lượt (CHUC_NANG_227, MAN_HINH_242); soạn nội dung sản phẩm (tên, mô tả ngắn, mô tả chi tiết) ở trang sản phẩm `web-catalog` (CHUC_NANG_228, MAN_HINH_243); hội thoại riêng từng người giữ 90 ngày, đánh giá Đúng, Sai, thống kê sử dụng không có nội dung hội thoại (CHUC_NANG_229, MAN_HINH_245). Quy tắc QUYTAC_NGHIEPVU_510 đến 523. Mặc định mọi công ty tắt cả hai tính năng, hạn mức 0: không phát sinh chi phí cho đến khi quản trị công ty bật.

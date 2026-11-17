@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.13.0 (pull request #185, commit hợp nhất `dd23de1`, tag `v0.13.0`): CONG_VIEC_63 (trợ lý AI). Kiểm thử API 875 đạt; database migration 0136, 0137 chạy đúng trên cơ sở dữ liệu trống và khi nâng cấp từ main; thư viện @anthropic-ai/sdk 1.4.0. Chưa triển khai.
+- Hợp nhất sổ: pull request #184 (THAY_DOI_38, dải mã CONG_VIEC_73), #186 (THAY_DOI_39, dải mã đợt 1 CONG_VIEC_74). Người dùng duyệt lát L5 CONG_VIEC_72 và phần bổ sung API_330 của CONG_VIEC_73 (trả một phần hàng để sau).
 - Phát hành 0.12.0 (pull request #179, commit hợp nhất `2c36bb9`): CONG_VIEC_69 (nhật ký gọi lọc theo khóa), CONG_VIEC_70 (phí tin nhắn OTP chưa chốt vào dư nợ, THAY_DOI_36). Kiểm thử API 817 đạt. Không database migration mới, không thư viện mới. Chưa triển khai; khi triển khai báo trước các cửa hàng có phí mỗi tin OTP lớn hơn 0.
 - Hợp nhất bản sửa LOI_14 (pull request #176, chỉ sửa cấu hình kiểm thử) vào main trước phát hành 0.12.0.
 - Người dùng nghiệm thu CONG_VIEC_63 (trợ lý AI, MODULE_16 phần 3) lát L1 đến L3, pull request #172 (commit `fb28075`; kiểm thử 872/872): ngăn trợ lý trên mọi mini app web, hỏi đáp số liệu chỉ đọc qua 10 công cụ theo quyền người hỏi, soạn nội dung sản phẩm, cài đặt và hạn mức theo công ty, thống kê sử dụng; database migration 0136, 0137; thư viện @anthropic-ai/sdk 1.4.0. Không dùng MAN_HINH_246 đến 249, API_280, database migration 0138, 0139.
