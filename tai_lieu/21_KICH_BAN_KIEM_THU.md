@@ -6155,3 +6155,28 @@ Dữ liệu chung: `apps/api/test/c65-fixture.ts` trên dữ liệu mẫu CONG_V
 | KICHBAN_KIEMTHU_731 | 535 | Tin phí 0 đồng: dư nợ không đổi, giao dịch tích bình thường; 20 tin × 1.000 đồng: dư nợ 24.000 (gồm thuế 2.000); giao dịch dùng 10 điểm vượt hạn mức 10.000: không tích, lý do `credit_limit`, vẫn trừ điểm | Tích hợp | `apps/api/test/c70-sms-exposure.test.ts` |
 | KICHBAN_KIEMTHU_732 | 535 | Lập bảng tuần với tin tuần trước: 25 tin, F 20.000, thuế 2.000, số còn lại 22.000; dư nợ không đổi; đang vượt hạn mức vẫn gửi OTP SMS `204`, tin mới cộng 1.100 | Tích hợp | như trên |
 | KICHBAN_KIEMTHU_733 | 535 | Báo cáo cổng cửa hàng, báo cáo công ty: dư nợ 14.000, còn lại 0, 140,0 %; cảnh báo `credit_usage` cùng số; thông báo chủ cửa hàng một lần mỗi ngày | Tích hợp | như trên |
+
+## CHUC_NANG_226 đến CHUC_NANG_229: trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63)
+
+| Mã | Tiêu chí | Kịch bản | Loại |
+|---|---|---|---|
+| KICHBAN_KIEMTHU_653 | 470 | Công ty mới đọc cài đặt mặc định; bật, đặt hạn mức; sửa với `version` cũ nhận `409`; nhật ký thao tác | Tích hợp |
+| KICHBAN_KIEMTHU_654 | 470 | `GET /ai/me` với từng điều kiện thiếu (chưa cấu hình, tắt, hạn mức 0, không quyền) trả đúng lý do | Tích hợp |
+| KICHBAN_KIEMTHU_655 | 471 | Bảng 30 chuỗi mẫu: điện thoại nhiều dạng, email, CCCD, CMND, STK; số tiền "48.600.000", số đơn "DB-2026-001502", mã vạch 13 số không bị che | Đơn vị |
+| KICHBAN_KIEMTHU_656 | 471 | Bộ giả lập ghi lại yêu cầu: kết quả công cụ có trường `phone`, `email` của khách tới mô hình đã là nhãn che | Tích hợp |
+| KICHBAN_KIEMTHU_657 | 472 | Gửi khi chưa xác nhận `409`; xác nhận; tăng phiên bản cấu hình thì `409` lại | Tích hợp |
+| KICHBAN_KIEMTHU_658 | 473 | Hạn mức 0,10 USD, bộ giả lập trả token để mỗi lượt 0,06 USD: lượt 1, 2 chạy, lượt 3 `409`; một thông báo; đổi đồng hồ sang tháng sau dùng lại; tăng hạn mức dùng lại | Tích hợp |
+| KICHBAN_KIEMTHU_659 | 473, 474 | Giới hạn 2 lượt mỗi ngày: lượt 3 `409 AI_DAILY_LIMIT`, người khác vẫn được; mỗi lượt một dòng nhật ký đúng chi phí; trạng thái `refusal`, `error` từ bộ giả lập cũng ghi | Tích hợp |
+| KICHBAN_KIEMTHU_660 | 475 | Bộ giả lập yêu cầu gọi công cụ báo cáo bán hàng: so kết quả công cụ với `GET /analytics/sales` cùng tham số; người chỉ có quyền tồn kho: danh sách công cụ gửi mô hình không có báo cáo bán hàng | Tích hợp |
+| KICHBAN_KIEMTHU_661 | 476 | Đọc dòng sự kiện: thứ tự `conversation`, `tool`, `delta`, `done`; bộ giả lập gọi công cụ 9 lần thì dừng ở 8; kết quả 120 dòng cắt còn 50 | Tích hợp |
+| KICHBAN_KIEMTHU_662 | 477 | Người B đọc, xóa hội thoại của A `404`; hai yêu cầu song song `409 AI_BUSY`; tác vụ dọn với đồng hồ giả: 91 ngày xóa, 89 ngày giữ, nhật ký lượt còn | Tích hợp |
+| KICHBAN_KIEMTHU_663 | 478 | Đánh giá Đúng, đổi Sai có lý do, Sai không lý do `422`, bỏ đánh giá; người khác `404` | Tích hợp |
+| KICHBAN_KIEMTHU_664 | 479 | Soạn nội dung với bộ giả lập trả kết quả có cấu trúc; kiểm độ dài, "[cần bổ sung]"; thiếu quyền `403`; sản phẩm nhà bán `404`; lưu sản phẩm có cờ AI thì nhật ký thao tác ghi chú | Tích hợp |
+| KICHBAN_KIEMTHU_665 | 480 | Tạo nhật ký lượt, đánh giá mẫu cho hai người, hai tính năng; so số liệu `GET /ai/usage`; người có `ai.usage.view` gọi API_274 với hội thoại người khác `404`; tải Excel | Tích hợp |
+| KICHBAN_KIEMTHU_666 | 481 | Playwright với máy chủ dùng bộ giả lập: mở ngăn, xác nhận thông báo, hỏi, đánh giá; soạn nội dung, Dùng; cài đặt, thống kê; sáu trạng thái; đổi ngôn ngữ; 1360 và 390 điểm ảnh | Giao diện |
+
+L1: KICHBAN_KIEMTHU_653, 654, 655, 657, 658, 659 trong `apps/api/test/c63-ai-access.test.ts`, `c63-ai-redact.test.ts`. KICHBAN_KIEMTHU_656 (kết quả công cụ đã che khi tới mô hình) cần công cụ đọc dữ liệu, làm ở L2.
+
+L2: KICHBAN_KIEMTHU_656, 660 đến 663 trong `apps/api/test/c63-ai-chat.test.ts` (11 kiểm thử, bộ giả lập theo kịch bản). KICHBAN_KIEMTHU_666 phần MAN_HINH_242: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh) – hội thoại có nguồn, đánh giá, hỏi trực tiếp với bộ giả lập, thông báo lần đầu.
+
+L3: KICHBAN_KIEMTHU_664, 665 trong `apps/api/test/c63-ai-content.test.ts` (6 kiểm thử). KICHBAN_KIEMTHU_666 phần MAN_HINH_243, 245: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh, không lỗi trang, không cuộn ngang).

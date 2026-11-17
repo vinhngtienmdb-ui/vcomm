@@ -22,6 +22,9 @@ export const adminMenu = [
   // CONG_VIEC_61: Open API cho đối tác (MAN_HINH_224 đến 226).
   { href: "/platform/api-keys", key: "apiKeys", permission: "platform.api_key.manage" },
   { href: "/platform/api-call-logs", key: "apiCallLogs", permission: "platform.api_log.view" },
+  // CONG_VIEC_63: trợ lý AI (MAN_HINH_244).
+  { href: "/platform/ai-settings", key: "aiSettings", permission: "ai.settings.manage" },
+  { href: "/platform/ai-usage", key: "aiUsage", permission: "ai.usage.view" },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

@@ -464,3 +464,17 @@ Schema `loyalty` (database migration 0150 đến 0153); mã nguồn `apps/api/sr
 | Giao diện | `apps/web-crm`: `/loyalty/partners`, `/loyalty/partners/[id]` (`LoyaltyPartnerForm.tsx`, `LoyaltyPartnerApiKeys.tsx`), `/loyalty/partner-exchanges`, `/loyalty/partner-gifts`, `/loyalty/partner-settlements`, `/loyalty/partner-settlements/[id]`; menu `CrmShell` nhóm Điểm thưởng; `apps/mobile-vcomm`: `doi-tac-lien-minh.tsx`, `doi-diem-doi-tac/[id].tsx`, lối vào ở `diem-thuong.tsx` | MAN_HINH_258 đến MAN_HINH_265; sửa MAN_HINH_151, MAN_HINH_147 |
 
 Biến môi trường mới: `LOYALTY_PARTNER_SIMULATOR` (`on` chỉ ở máy phát triển, kiểm thử, môi trường thử nghiệm; môi trường thật không đặt). Phát hành lên môi trường thật bị chặn cho tới khi có bộ chuyển đổi thật của từng đối tác (công việc sau).
+
+## 3zb. Thành phần phụ trợ cho MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+| Thành phần | Công nghệ | Ghi chú |
+|---|---|---|
+| Lớp kết nối mô hình | `apps/api/src/ai/model-client.ts` (giao diện `AiModelClient`); `anthropic-model-client.ts` dùng `@anthropic-ai/sdk` 1.4.0, dòng chảy, mô hình dự phòng phía nhà cung cấp khi bị từ chối; `fake-model-client.ts` cho kiểm thử, xem trước | Chọn bằng `AI_PROVIDER`; phần nghiệp vụ không nhập SDK. Đổi nhà cung cấp: thêm một cài đặt của giao diện |
+| Che dữ liệu | `apps/api/src/ai/redact.ts` | Một chỗ duy nhất cho mọi chuỗi đi ra mô hình |
+| Điều kiện dùng, hạn mức, nhật ký lượt | `ai-access.service.ts`, schema `ai` | Hạn mức tính từ `ai.usage_events` theo tháng giờ Việt Nam |
+| Cấu hình | Biến môi trường `AI_PROVIDER`, `ANTHROPIC_API_KEY`, `AI_MODEL` (mặc định `claude-sonnet-5-5`), `AI_CHAT_EFFORT`, `AI_CONTENT_EFFORT`, `AI_PRICE_*`, `AI_NOTICE_VERSION` (`.env.example`) | Khóa môi trường thật trong AWS Secrets Manager |
+| Hỏi đáp số liệu (L2) | `ai-tools.ts` (10 công cụ chỉ đọc gọi dịch vụ báo cáo, đơn bán, sản phẩm, tồn kho bằng tác nhân người hỏi), `ai-chat.service.ts` (vòng gọi mô hình – công cụ, tối đa 8 lần gọi công cụ), API_275 trả `text/event-stream` | Khóa một lượt mỗi người bằng bảng `ai.active_turns` (dùng được khi chạy nhiều tiến trình API) |
+| Soạn nội dung, thống kê (L3) | `ai-content.service.ts` (một lần gọi mô hình, kết quả có cấu trúc theo JSON Schema, không công cụ), `ai-usage.service.ts` (tổng hợp từ `ai.usage_events`, `ai.feedback`; xuất Excel bằng bộ xuất của báo cáo quản trị) | Bộ giả lập trả bản nháp mẫu khi yêu cầu có lược đồ kết quả |
+| Tác vụ nền | `ai-conversation-retention` (`30 1 * * *`, giờ Việt Nam): xóa hội thoại quá 90 ngày, nhật ký lượt quá 24 tháng, khóa lượt treo | QUYTAC_NGHIEPVU_520 |
+| Giao diện | `packages/ui`: `TopBar` (nút), `AiPanel` (ngăn, tải riêng bằng `next/dynamic`), `apiStream`, `readEvents` | Mọi mini app web dùng AppShell có ngăn trợ lý |
+| Kết nối ra ngoài | `api.anthropic.com` qua HTTPS | Mạng của máy chủ API cần cho phép đi ra địa chỉ này; máy chủ đứng trước API (proxy) không được gom đệm dòng sự kiện (`X-Accel-Buffering: no`) |

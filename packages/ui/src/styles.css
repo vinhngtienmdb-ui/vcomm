@@ -228,3 +228,28 @@ td a { white-space: nowrap; }
 .thanh-han-muc { height: 10px; border-radius: var(--bo-tron); background: var(--mau-nen); border: 1px solid var(--mau-vien); overflow: hidden; }
 .thanh-han-muc span { display: block; height: 100%; background: var(--mau-thanh-cong); }
 .thanh-han-muc.vuot span { background: var(--mau-loi); }
+
+/* Ngăn trợ lý AI (CONG_VIEC_63, MAN_HINH_242): bên phải, không che thao tác ở trang phía sau trên màn hình rộng. */
+.ngan-tro-ly { position: fixed; top: 0; right: 0; bottom: 0; z-index: 40; width: min(440px, 100%); background: var(--mau-be-mat); border-left: 1px solid var(--mau-vien); box-shadow: var(--bong-noi); display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+.ngan-tro-ly .dau-ngan { display: flex; flex-wrap: wrap; align-items: center; gap: var(--khoang-2); padding: var(--khoang-3) var(--khoang-4); border-bottom: 1px solid var(--mau-vien); }
+.ngan-tro-ly .dau-ngan h2 { margin: 0; font-size: 17px; flex: 1; white-space: nowrap; }
+.ngan-tro-ly .dau-ngan .nut { padding: 4px 10px; font-size: 13px; }
+.ngan-tro-ly .ds-hoi-thoai { display: flex; gap: var(--khoang-2); padding: var(--khoang-2) var(--khoang-4); border-bottom: 1px solid var(--mau-vien); overflow-x: auto; font-size: 13px; }
+.ngan-tro-ly .ds-hoi-thoai button { white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; padding: 4px 10px; border-radius: var(--bo-tron); border: 1px solid var(--mau-vien); background: var(--mau-be-mat); color: var(--mau-chu-phu); font: inherit; cursor: pointer; }
+.ngan-tro-ly .ds-hoi-thoai button[aria-current="true"] { border-color: var(--mau-chinh); color: var(--mau-chinh); font-weight: 700; }
+.ngan-tro-ly .dong-tin { padding: var(--khoang-4); display: grid; gap: var(--khoang-3); align-content: start; overflow-y: auto; }
+.ngan-tro-ly .tin { max-width: 92%; padding: var(--khoang-3); border-radius: var(--bo-vua); font-size: 14px; line-height: 21px; overflow-wrap: anywhere; }
+.ngan-tro-ly .tin.cua-toi { justify-self: end; background: var(--mau-chinh-nhat); white-space: pre-wrap; }
+.ngan-tro-ly .tin.tro-ly { justify-self: start; background: var(--mau-nen); border: 1px solid var(--mau-vien); }
+.ngan-tro-ly .tin p { margin: 0 0 var(--khoang-1); }
+.ngan-tro-ly .tin ul { margin: var(--khoang-1) 0; padding-left: 18px; }
+.ngan-tro-ly .tin pre { margin: var(--khoang-1) 0; white-space: pre-wrap; font-size: 12px; }
+.ngan-tro-ly .nguon { margin-top: var(--khoang-2); padding-top: var(--khoang-2); border-top: 1px dashed var(--mau-vien); font-size: 12px; line-height: 17px; color: var(--mau-chu-phu); }
+.ngan-tro-ly .danh-gia { display: flex; flex-wrap: wrap; gap: var(--khoang-2); align-items: center; margin-top: var(--khoang-2); font-size: 12px; color: var(--mau-chu-phu); }
+.ngan-tro-ly .danh-gia button { font: inherit; padding: 2px 10px; border-radius: var(--bo-tron); border: 1px solid var(--mau-vien-o-nhap); background: var(--mau-be-mat); color: var(--mau-chu); cursor: pointer; }
+.ngan-tro-ly .danh-gia button[aria-pressed="true"] { background: var(--mau-chinh); border-color: var(--mau-chinh); color: #fff; }
+.ngan-tro-ly .dang-goi { font-size: 13px; color: var(--mau-thong-tin); }
+.ngan-tro-ly .o-hoi { border-top: 1px solid var(--mau-vien); padding: var(--khoang-3) var(--khoang-4); display: grid; gap: var(--khoang-2); }
+.ngan-tro-ly .goi-y { display: flex; flex-wrap: wrap; gap: var(--khoang-2); }
+.ngan-tro-ly .goi-y button { font: inherit; font-size: 13px; padding: 4px 10px; border-radius: var(--bo-tron); border: 1px solid var(--mau-chinh); color: var(--mau-chinh); background: var(--mau-be-mat); cursor: pointer; }
+.thanh-tren .nut-tro-ly[aria-pressed="true"] { background: rgba(255,255,255,.28); }

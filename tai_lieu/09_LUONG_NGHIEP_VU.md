@@ -1356,3 +1356,28 @@ Sơ đồ: đặc tả `cong_viec/CONG_VIEC_65.md` mục 7.
 Luồng 65: người mua bấm "Chia sẻ sản phẩm" → đường dẫn `/s/<mã sản phẩm>?ref&ctv` → dán lên Facebook, Zalo, Messenger → mạng xã hội đọc thẻ Open Graph (ảnh, tên, giá) → người nhận bấm → tên miền đã liên kết với ứng dụng đã cài thì mở thẳng ứng dụng; không thì trang chia sẻ với nút Mở ứng dụng, Xem trên web, Tải ứng dụng → ứng dụng hoặc bản web xử lý như đường dẫn `/r/`, `/p/`, `/san-pham/` (QUYTAC_NGHIEPVU_434, 325). Song song: quản trị bật tệp danh mục, dán đường dẫn vào Commerce Manager, lịch hằng giờ → Facebook lấy tệp tạo từ giá, tồn mới nhất → Facebook Shop, quảng cáo danh mục liên kết về trang chia sẻ.
 
 Ngoại lệ: sản phẩm ngừng bán thì trang báo "Sản phẩm không còn bán.", lần lấy tệp sau sản phẩm rời danh mục; tạo lại mã thì Commerce Manager báo lỗi lấy tệp đến khi dán đường dẫn mới.
+
+## MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+### Luồng 60 (trợ lý AI)
+
+```mermaid
+flowchart LR
+  A[Quản trị bật tính năng, nhập hạn mức MAN_HINH_244] --> B[Nhân viên mở trợ lý MAN_HINH_242]
+  B --> C{Đã xác nhận thông báo?}
+  C -- Chưa --> D[Hộp thông báo, bấm Đồng ý] --> E
+  C -- Rồi --> E{Còn hạn mức tháng, lượt hôm nay?}
+  E -- Không --> F[Báo đã hết, ngày mở lại]
+  E -- Có --> G[Che dữ liệu câu hỏi, gửi mô hình kèm công cụ theo quyền]
+  G --> H{Mô hình gọi công cụ?}
+  H -- Có --> I[Gọi dịch vụ hiện có bằng Actor người hỏi, cắt, che kết quả] --> G
+  H -- Không --> J[Trả lời dòng chảy, nguồn, công cụ đã gọi]
+  J --> K[Ghi nhật ký lượt: token, chi phí]
+  K --> L{Tổng tháng vượt hạn mức lần đầu?}
+  L -- Có --> M[Thông báo quản trị]
+  J --> N[Người dùng đánh giá Đúng, Sai]
+```
+
+Soạn nội dung: Biểu mẫu sản phẩm → Soạn bằng AI (MAN_HINH_243) → chọn giọng, độ dài, từ khóa → kiểm hạn mức (như trên) → kết quả ba phần → Dùng (điền biểu mẫu) hoặc Viết lại → người dùng bấm Lưu của biểu mẫu.
+
+Ngoại lệ: nhà cung cấp lỗi, quá tải, hết thời gian → báo "Trợ lý tạm thời không phản hồi, thử lại sau", ghi nhật ký lượt trạng thái lỗi (chi phí theo token đã báo, nếu có); người dùng rời trang giữa lượt → máy chủ vẫn hoàn tất, lưu câu trả lời để xem lại.

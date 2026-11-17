@@ -983,3 +983,22 @@ Không thêm quyền.
 | Nút "Chia sẻ sản phẩm" tạo đường dẫn `/s/` | Không | Có (có mã giới thiệu hoặc mã cộng tác viên) | Không | Không |
 | Tải tệp danh mục | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật | Khi có mã bí mật |
 | Thẻ Tệp danh mục Facebook (MAN_HINH_86) | Không | Không | Xem trạng thái, không thấy đường dẫn | Xem, bật, tắt, sao chép, tạo lại mã |
+
+## 59. Trợ lý AI (MODULE_16 phần 3, CONG_VIEC_63)
+
+| Quyền | Mini app | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|---|
+| `ai.chat.use` | Nền tảng | Công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+| `ai.product_content.use` | Nền tảng | Công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+| `ai.settings.manage` | Nền tảng | Công ty | Có | Quản trị tập đoàn, Quản trị công ty |
+| `ai.usage.view` | Nền tảng | Công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+
+Vai trò khác: quản trị công ty tự gán `ai.chat.use`, `ai.product_content.use` cho vai trò hoặc người cần dùng (mặc định không gán, để công ty chủ động kiểm soát chi phí).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Có `ai.chat.use` | Có `ai.product_content.use` và quyền sửa sản phẩm | Có `ai.usage.view` |
+|---|---|---|---|---|---|
+| CHUC_NANG_226 Sửa cài đặt | Mọi công ty | Công ty mình | Không | Không | Không |
+| CHUC_NANG_227 Hỏi đáp | Có | Có | Có, dữ liệu theo quyền của mình | Không | Không |
+| CHUC_NANG_228 Soạn nội dung | Có | Có | Không | Có | Không |
+| CHUC_NANG_229 Hội thoại, đánh giá | Chỉ của mình | Chỉ của mình | Chỉ của mình | — | Không |
+| CHUC_NANG_229 Thống kê | Mọi công ty | Công ty mình | Không | Không | Công ty được gán (không nội dung) |

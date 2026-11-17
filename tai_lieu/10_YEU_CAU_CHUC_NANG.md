@@ -2472,3 +2472,16 @@ Yêu cầu phi chức năng:
 | CHUC_NANG_241 | Tệp danh mục sản phẩm CSV theo chuẩn Facebook Commerce Manager tạo khi được gọi; thẻ Tệp danh mục Facebook ở Cài đặt bán hàng VComm | YCAU_NGHIEPVU_200, 201 | Sửa MAN_HINH_86 | API_316, API_317 |
 
 Yêu cầu phi chức năng: trang chia sẻ không có script, mọi giá trị được thoát ký tự, Content-Security-Policy chặt, giữ tạm 5 phút ở trình duyệt; giới hạn 300 lần mỗi phút mỗi địa chỉ cho trang chia sẻ; so mã bí mật theo thời gian không đổi; tệp danh mục giữ tạm 5 phút trong tiến trình.
+
+## MODULE_16 Mở rộng kinh doanh (phần 3: trợ lý AI, CONG_VIEC_63)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md`.
+
+| Mã | Chức năng | Yêu cầu | Màn hình | API | Lát |
+|---|---|---|---|---|---|
+| CHUC_NANG_226 | Nền trợ lý: lớp kết nối mô hình trung lập (Anthropic, giả lập), che dữ liệu cá nhân, kiểm hạn mức, ghi nhật ký lượt; cài đặt công ty; thông báo xử lý dữ liệu cá nhân | YCAU_NGHIEPVU_179, 180, 182, 183 | MAN_HINH_244 | API_273, API_278 | L1 |
+| CHUC_NANG_227 | Hỏi đáp số liệu: hội thoại, gọi công cụ đọc dữ liệu theo quyền người hỏi, trả lời dạng dòng chảy, ghi nguồn | YCAU_NGHIEPVU_177, 180 | MAN_HINH_242 | API_274, API_275 | L2 |
+| CHUC_NANG_228 | Soạn nháp nội dung sản phẩm | YCAU_NGHIEPVU_178 | MAN_HINH_243 | API_277 | L3 |
+| CHUC_NANG_229 | Lịch sử, xóa hội thoại, tự xóa sau 90 ngày; đánh giá đúng, sai; thống kê sử dụng, chi phí | YCAU_NGHIEPVU_181, 182 | MAN_HINH_242, MAN_HINH_245 | API_274, API_276, API_279 | L2, L3 |
+
+Yêu cầu phi chức năng: kiểm thử không gọi nhà cung cấp thật (bộ giả lập); mỗi lần gọi mô hình hết thời gian 60 giây, thử lại 2 lần cho lỗi tạm thời; trả lời hỏi đáp dạng dòng chảy; lời nhắc hệ thống cố định để dùng bộ nhớ đệm của nhà cung cấp.
