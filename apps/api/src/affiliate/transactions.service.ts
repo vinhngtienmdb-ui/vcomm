@@ -34,7 +34,7 @@ import { LoyaltyLedgerService } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import { requireOwner, type PortalMember } from "./portal.service";
 import { transactionCancelDraft, transactionDraft } from "./postings";
-import { merchantOverdue } from "./settlements.service";
+import { feeTaxRate, merchantOverdue } from "./settlements.service";
 import { releaseVoucherWithin, usableCodes, useVoucherWithin } from "./vouchers.service";
 
 type Executor = Pick<Database, "execute">;
@@ -176,19 +176,22 @@ async function merchantTerms(executor: Executor, merchantId: string, lock = fals
 }
 
 // Dư nợ của cửa hàng (QUYTAC_NGHIEPVU_398): phải thu còn mở của bảng đối soát (bảng chưa xác nhận: số còn lại; đã xác nhận: công nợ phải thu còn mở)
-// + (tiền điểm tích − tiền công ty phải trả) của giao dịch chưa chốt, không âm.
+// + (tiền điểm tích − tiền công ty phải trả) của giao dịch chưa chốt
+// + phí tin nhắn OTP chưa vào bảng đối soát kèm thuế: F + làm tròn (F × thuế suất) (CONG_VIEC_70, THAY_DOI_36); không âm.
 export async function merchantExposure(executor: Executor, merchantId: string): Promise<number> {
   const row = (
-    await executor.execute<{ total: string }>(sql`
+    await executor.execute<{ total: string; sms_fee: string }>(sql`
       SELECT (
         coalesce((SELECT sum(CASE WHEN status = 'completed' THEN earned_amount - redeemed_amount - voucher_payable ELSE shortfall_amount END)
           FROM affiliate.transactions WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND status IN ('completed', 'cancelled')), 0)
         + coalesce((SELECT sum(net_amount) FROM affiliate.settlements WHERE merchant_id = ${merchantId} AND status IN ('awaiting_confirmation', 'disputed')), 0)
         + coalesce((SELECT sum(d.open_amount) FROM affiliate.settlements s JOIN finance.debt_items d ON d.id = s.debt_item_id
           WHERE s.merchant_id = ${merchantId} AND s.status = 'confirmed' AND d.side = 'receivable'), 0)
-      )::text AS total`)
+      )::text AS total,
+      (SELECT coalesce(sum(unit_price), 0) FROM affiliate.sms_charges WHERE merchant_id = ${merchantId} AND settlement_id IS NULL)::text AS sms_fee`)
   ).rows[0]!;
-  return Math.max(Number(row.total), 0);
+  const smsFee = Number(row.sms_fee);
+  return Math.max(Number(row.total) + smsFee + Math.round((smsFee * feeTaxRate) / 100), 0);
 }
 
 @Injectable()

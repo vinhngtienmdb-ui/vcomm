@@ -871,3 +871,11 @@ Luồng 64. Màn hình MAN_HINH_258 đến 265.
 | YCAU_NGHIEPVU_200, 201 | CHUC_NANG_241 | TIEUCHI_NGHIEMTHU_531 đến 533 | KICHBAN_KIEMTHU_725 đến 728 | `database/migrations/0154_facebook_product_feed.sql`; `apps/api/src/marketplace/product-feed.service.ts`, `product-feed.controller.ts`; `apps/web-crm/src/app/store-settings/page.tsx`; `packages/contracts` (`ProductFeedStatus`) |
 
 Quy tắc: QUYTAC_NGHIEPVU_552 đến 559 (552 thay đường dẫn trong nút của QUYTAC_NGHIEPVU_434 theo THAY_DOI_33). Luồng 65. Màn hình MAN_HINH_266; sửa MAN_HINH_86, 201 (267, 268 không dùng). API_314 đến 317.
+
+## 44. Kiểm tra bao phủ CONG_VIEC_70 – 2026-11-17
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_122, 169 | CHUC_NANG_194, 196 | TIEUCHI_NGHIEMTHU_535 | KICHBAN_KIEMTHU_731 đến 733 | `apps/api/src/affiliate/transactions.service.ts` (`merchantExposure`) |
+
+Quy tắc: bổ sung QUYTAC_NGHIEPVU_398, 405, 495 (THAY_DOI_36). Màn hình MAN_HINH_176, 180 chỉ đổi số liệu. Không có tiêu chí chưa có kịch bản, kịch bản chưa tự động, mã nguồn không truy được.

@@ -260,7 +260,7 @@ export function AffiliateApiKeys({
                             </button>
                           </span>
                         )}{" "}
-                        <a href="/platform/api-call-logs">{t("apiKeyLogs")}</a>
+                        <a href={`/platform/api-call-logs?apiKeyId=${item.id}`}>{t("apiKeyLogs")}</a>
                       </td>
                     </tr>
                   ))}

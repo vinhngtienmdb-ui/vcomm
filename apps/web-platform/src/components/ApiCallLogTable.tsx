@@ -3,7 +3,7 @@
 // Bảng nhật ký gọi API đối tác (MAN_HINH_226 và thẻ Nhật ký gọi của MAN_HINH_225; API_259).
 import { apiCallResults, type ApiCallLogItem, type ApiKeyItem, type PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
@@ -12,11 +12,12 @@ import { useApi } from "ui/lib/use-api";
 const toIso = (value: string) => (value ? new Date(value).toISOString() : "");
 const tone = (status: number) => (status < 400 ? "thanh-cong" : status === 429 || status < 500 ? "canh-bao" : "loi");
 
-export function ApiCallLogTable({ apiKeyId }: { apiKeyId?: string }) {
+// apiKeyId: khóa cố định (thẻ trong chi tiết khóa), không hiện ô lọc khóa. initialApiKeyId: giá trị đầu của ô lọc khóa, người dùng đổi hoặc xóa được.
+export function ApiCallLogTable({ apiKeyId, initialApiKeyId }: { apiKeyId?: string; initialApiKeyId?: string }) {
   const t = useTranslations("apiCallLogs");
   const common = useTranslations("common");
   const keys = useApi<ApiKeyItem[]>(apiKeyId ? null : "/platform/api-keys");
-  const [filters, setFilters] = useState({ apiKeyId: apiKeyId ?? "", result: "", from: "", to: "", path: "" });
+  const [filters, setFilters] = useState({ apiKeyId: apiKeyId ?? initialApiKeyId ?? "", result: "", from: "", to: "", path: "" });
   const [page, setPage] = useState(1);
   const parameters = new URLSearchParams({ page: String(page), pageSize: "50" });
   if (filters.apiKeyId) parameters.set("apiKeyId", filters.apiKeyId);
@@ -29,6 +30,11 @@ export function ApiCallLogTable({ apiKeyId }: { apiKeyId?: string }) {
     setFilters((current) => ({ ...current, [key]: value }));
     setPage(1);
   };
+  // Khóa đặt sẵn từ địa chỉ không thuộc công ty đang chọn (đổi công ty sau khi mở liên kết): bỏ lọc khóa (CONG_VIEC_69).
+  const unknownKey = !apiKeyId && keys.state.kind === "ready" && filters.apiKeyId !== "" && !keys.state.data.some((key) => key.id === filters.apiKeyId);
+  useEffect(() => {
+    if (unknownKey) change("apiKeyId", "");
+  }, [unknownKey]);
   const filtered = Boolean(filters.result || filters.from || filters.to || filters.path || (!apiKeyId && filters.apiKeyId));
   const headings = [t("time"), ...(apiKeyId ? [] : [t("key")]), t("method"), t("pathColumn"), t("status"), t("errorCode"), t("duration"), t("ip"), t("requestId")];
 
