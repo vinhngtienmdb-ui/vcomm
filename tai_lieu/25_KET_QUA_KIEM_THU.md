@@ -183,6 +183,11 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-17 – CONG_VIEC_73 lát L7 và nghiệm thu toàn bộ
+- Phạm vi: hủy và hoàn tiền giao dịch thu hộ, ghi ngược L, Open API đơn chờ (API_330), webhook (API_331), hoàn tiền đơn tại cửa hàng trên MAN_HINH_98 (database migration 0172); toàn bộ lát L1 đến L7, nhánh `chuc-nang/CONG_VIEC_73-mua-hang-tai-cua-hang` (pull request #183, commit `62797ed`).
+- Kết quả: toàn bộ kiểm thử API một tiến trình 169 tệp, 944 đạt; TIEUCHI_NGHIEMTHU_546 đến 559 có mã và kiểm thử. Sửa thêm lỗi sẵn có của CONG_VIEC_67 (sửa khóa API trả 500).
+- Kết luận: Đạt; người dùng nghiệm thu 2026-11-17, chấp nhận 7 điểm lệch.
+
 ## Lần kiểm thử 2026-11-17 – CONG_VIEC_74 đợt 1 (trình nghiệm thu)
 - Phạm vi: lát L0 đến L7 iPOS đợt 1, nhánh `chuc-nang/CONG_VIEC_74-ipos` (pull request #188, commit cuối `3a12751d`); lát L7 thu phí thuê bao (database migration 0173, API_353, 356, 357 phần phí, MAN_HINH_301, 305, thẻ Phí MAN_HINH_306, khoản G bảng đối soát tuần, khoản trừ N bảng chuyển tiền).
 - Kết quả: toàn bộ kiểm thử API một tiến trình 174 tệp, 971 đạt (trước khi sửa theo rà soát); sau sửa chạy lại c16, c55, c73, c74 19 tệp, 102 đạt; kiểm tra kiểu, lint toàn dự án đạt. Tự rà soát mã lát L5 đến L7: 13 điểm, đã sửa 10, còn 3 điểm mức thấp. Bảo mật phần B, C: không SQL ghép dữ liệu người dùng, mọi endpoint mới kiểm quyền và phạm vi cửa hàng; KICHBAN_KIEMTHU_802 không thấy PIN, mã ghép, OTP, khóa thiết bị trong nhật ký; pnpm audit không mức Cao (1 Thấp, 5 Trung bình trong @expo/cli, chỉ dùng khi dựng).

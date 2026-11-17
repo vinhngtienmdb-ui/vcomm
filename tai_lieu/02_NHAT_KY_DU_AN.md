@@ -30,6 +30,7 @@
 
 ### Quyết định
 
+- Người dùng nghiệm thu CONG_VIEC_73 (pull request #183), chờ phát hành sau CONG_VIEC_72. Người dùng chọn thử CONG_VIEC_74 đợt 1 trên Sunmi T2 rồi mới nghiệm thu.
 - CONG_VIEC_73: duyệt lát L6 (hóa đơn ủy nhiệm, hóa đơn phí sàn tháng), chấp nhận 8 điểm lệch, trong đó văn bản ủy nhiệm không bắt buộc để lập hóa đơn và thuế suất phí chỉ còn 0, 5, 8, 10 %. CONG_VIEC_74: thử luồng khách trả qua ứng dụng VComm trên máy phát triển đạt.
 - CONG_VIEC_73: duyệt lát L5; lát L6 hóa đơn ủy nhiệm làm đủ trên bộ giả lập, với MISA chờ người dùng xác nhận khả năng ủy nhiệm; hóa đơn phí sàn tháng ghi ngày cuối tháng trước. CONG_VIEC_74: duyệt nối thanh toán phía máy chủ và lát L6; cấp database migration 0173 cho L7.
 - Người dùng nghiệm thu CONG_VIEC_75 (pull request #200), phát hành cùng bản kế tiếp. CONG_VIEC_73 lát L5: theo 5 đề xuất (hóa đơn phí sàn tháng dời sang L6; cảnh báo bằng thông báo trong ứng dụng; ngày làm việc bỏ thứ Bảy, Chủ nhật; phiếu chi ghi sổ ngay; cửa hàng của công ty vận hành sàn không lập bảng chuyển tiền). CONG_VIEC_74: duyệt lát L5.
