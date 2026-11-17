@@ -527,3 +527,14 @@
 - Mức quy mô: Nhỏ trong CONG_VIEC_62 (chưa phát hành; giảm thay đổi cấu trúc dữ liệu dùng chung).
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-16. Đã làm trong CONG_VIEC_62 lát L4, L5, nghiệm thu 2026-11-16, đã phát hành v0.11.0 2026-11-17, chờ triển khai.
+
+### THAY_DOI_36: Phí tin nhắn OTP chưa chốt tính vào dư nợ xét hạn mức cửa hàng liên kết – 2026-11-17
+- Lý do: THAY_DOI_31 đưa phí tin OTP vào bảng đối soát tuần nhưng dư nợ xét hạn mức (QUYTAC_NGHIEPVU_398) chỉ tính phí này sau khi lập bảng; trong tuần cửa hàng gửi nhiều tin có thể vượt hạn mức mà vẫn được tích điểm. Tồn đọng của CONG_VIEC_67.
+- Nội dung thay đổi (người dùng chốt 2026-11-17): dư nợ = như cũ + (F + làm tròn(F × thuế suất)) với F là tổng đơn giá các tin SMS chưa vào bảng đối soát; tin đã vào bảng không tính trùng; tin gửi trước khi triển khai mà chưa vào bảng cũng tính. Áp cho xét tích điểm (tại quầy, Open API), báo cáo cổng cửa hàng, báo cáo công ty, cảnh báo dư nợ từ 80 %. Gửi OTP không xét hạn mức hay quá hạn. Phí dịch vụ D, thuế E của giao dịch chưa chốt giữ nguyên (không vào dư nợ). Giao diện chỉ đổi số dư nợ tổng.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (QUYTAC_NGHIEPVU_398, 405; MAN_HINH_176, 180 chỉ đổi số liệu); CONG_VIEC_67 (QUYTAC_NGHIEPVU_495); transactions.service.ts `merchantExposure`.
+- Dữ liệu, API, giao diện, quyền: không đổi bảng, không database migration, không đổi API, giao diện, quyền.
+- Ảnh hưởng chức năng cũ: cửa hàng không dùng SMS hoặc phí mỗi tin bằng 0 giữ nguyên số liệu; cửa hàng có tin chưa chốt thấy dư nợ tăng, có thể bị chặn tích sớm hơn.
+- Kiểm thử cần thực hiện: c55-transactions, c55-reports, c55-settlements (KICHBAN_KIEMTHU_539, 540, 544, 546), c67-open-affiliate (KICHBAN_KIEMTHU_697, 700, 701); KICHBAN_KIEMTHU_731 đến 733 mới; hồi quy toàn bộ.
+- Mức quy mô: Vừa (đổi quy tắc nghiệp vụ đã duyệt); làm trong CONG_VIEC_70.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-17. Đang làm trong CONG_VIEC_70.
