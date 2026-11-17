@@ -26,6 +26,7 @@ import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { ResellerSettlementsService } from "../finance/reseller-settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
+import { IposSubscriptionsService } from "../ipos/ipos-subscriptions.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { OfficeTasksService } from "../office/office-tasks.service";
 import { OfficePostsService } from "../office/office-posts.service";
@@ -82,6 +83,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const affiliateSettlements = application.get(AffiliateSettlementsService);
   const resellerSettlements = application.get(ResellerSettlementsService);
   const affiliateReports = application.get(AffiliateReportsService);
+  const iposSubscriptions = application.get(IposSubscriptionsService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
   const attendanceDays = application.get(AttendanceDaysService);
@@ -129,6 +131,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("loyalty-settlement-monthly", { pattern: "0 2 1 * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-monthly" });
   await queue.upsertJobScheduler("loyalty-settlement-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-reminders" });
   // Voucher hết hạn, nhắc hạn; báo dư nợ từ 80 % hạn mức cho chủ cửa hàng (CONG_VIEC_55; QUYTAC_NGHIEPVU_402, 405).
+  // CONG_VIEC_74: xét hạn thuê bao iPOS lúc 0 giờ 30 (QUYTAC_NGHIEPVU_596).
+  await queue.upsertJobScheduler("ipos-subscriptions-daily", { pattern: "30 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "ipos-subscriptions-daily" });
   await queue.upsertJobScheduler("affiliate-voucher-daily", { pattern: "20 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-voucher-daily" });
   // Đối soát cửa hàng liên kết (CONG_VIEC_55; QUYTAC_NGHIEPVU_403): lập bảng tuần trước 1 giờ sáng thứ Hai; tự xác nhận bảng quá hạn mỗi giờ.
   await queue.upsertJobScheduler("affiliate-settlement-weekly", { pattern: "0 1 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-settlement-weekly" });
@@ -193,6 +197,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();
       if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
       if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };
+      if (job.name === "ipos-subscriptions-daily") return iposSubscriptions.runDaily();
       if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
       if (job.name === "reseller-settlement-weekly") return resellerSettlements.generateWeekly();
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();

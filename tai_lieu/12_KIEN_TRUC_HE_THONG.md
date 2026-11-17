@@ -31,7 +31,7 @@
 1. **Một ngôn ngữ TypeScript** cho backend, web và di động.
 2. **Monorepo** quản lý bằng pnpm và Turborepo.
 3. **Mini app:** mỗi phân hệ quản trị doanh nghiệp là một ứng dụng web riêng, triển khai riêng, dùng chung đăng nhập một lần (SSO), hệ thống thiết kế và một cơ sở dữ liệu. Người dùng vào từ trang chủ mini app và chỉ thấy mini app mình có quyền.
-4. **Một cơ sở dữ liệu PostgreSQL, mỗi module một schema:** `core`, `catalog`, `inventory`, `purchasing`, `sales`, `finance`, `crm`, `hr`; sau này `marketplace`, `community`, `loyalty`, `affiliate` (cửa hàng liên kết, CONG_VIEC_55; khóa ngoại tới `core`, `crm`, `loyalty`).
+4. **Một cơ sở dữ liệu PostgreSQL, mỗi module một schema:** `core`, `catalog`, `inventory`, `purchasing`, `sales`, `finance`, `crm`, `hr`; sau này `marketplace`, `community`, `loyalty`, `affiliate` (cửa hàng liên kết, CONG_VIEC_55; khóa ngoại tới `core`, `crm`, `loyalty`), `ipos` (iPOS cho cửa hàng liên kết, CONG_VIEC_74, THAY_DOI_39; khóa ngoại tới `core`, `crm`, `affiliate`; dữ liệu bán hàng của cửa hàng ngoài tập đoàn, không có `company_id` của công ty con, cô lập theo `merchant_id`).
    - Khóa ngoại chỉ được trỏ vào `core` và vào schema của module đứng trước trong thứ tự phụ thuộc; không tạo vòng.
    - Module chỉ ghi vào schema của mình; thay đổi dữ liệu module khác qua service của module đó hoặc qua sự kiện.
 5. **Backend một ứng dụng chia module.** Điểm thưởng và tìm kiếm là ứng viên tách thành dịch vụ riêng khi tải tăng.
@@ -394,6 +394,7 @@ apps/
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance, web-retail...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
+  mobile-ipos/          Ứng dụng bán hàng iPOS cho cửa hàng liên kết, máy tính bảng Android, Sunmi (Expo; CONG_VIEC_74).
   mobile-vcomm/         Ứng dụng VComm cho người mua, có phần kinh doanh cho nhân viên kinh doanh (Expo; CONG_VIEC_23).
 packages/
   ui/                   Thành phần giao diện dùng chung, sinh từ tài liệu 15.

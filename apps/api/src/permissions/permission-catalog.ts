@@ -112,6 +112,15 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
     isSensitive: true,
   },
+  // CONG_VIEC_74: iPOS (xét tại công ty vận hành sàn; xem dùng affiliate.view).
+  { code: "ipos.plan.manage", appCode: "crm", nameVi: "Khai báo gói iPOS", nameEn: "Manage iPOS plans", isSensitive: false },
+  {
+    code: "ipos.subscription.manage",
+    appCode: "crm",
+    nameVi: "Cấp, gia hạn, khóa, hủy thuê bao iPOS; cách thu phí; hủy phiếu phí",
+    nameEn: "Manage iPOS subscriptions, billing methods and fee invoices",
+    isSensitive: true,
+  },
   // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (xét tại công ty vận hành sàn; QUYTAC_NGHIEPVU_551).
   {
     code: "loyalty.partner.view",
@@ -284,6 +293,8 @@ const companyAdminPermissions = [
   "loyalty.fraud.manage",
   "affiliate.view",
   "affiliate.manage",
+  "ipos.plan.manage",
+  "ipos.subscription.manage",
   "loyalty.partner.view",
   "loyalty.partner.manage",
   "marketplace.community.manage",

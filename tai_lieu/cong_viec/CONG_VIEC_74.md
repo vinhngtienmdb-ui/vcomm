@@ -3,7 +3,7 @@
 - Mô tả: iPOS là ứng dụng bán hàng tại quầy cho cửa hàng liên kết (CONG_VIEC_55). Cửa hàng thuê bao theo điểm bán. Thu ngân bán hàng trên máy tính bảng Android hoặc máy bán hàng Sunmi: quét mã, thu tiền mặt, VietQR hoặc qua ứng dụng VComm, in hóa đơn, mở ngăn kéo tiền, mở và đóng ca. Chủ cửa hàng quản lý hàng hóa, tồn kho đơn giản, thu ngân, quầy, báo cáo trên cổng cửa hàng. Công ty vận hành sàn cấp thuê bao, thu phí thuê bao theo cách cấu hình riêng cho từng cửa hàng, xem doanh thu và đối soát trong ERP.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-17
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả, bản mẫu và các điểm ở mục 19.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu đợt 1 và 13 điểm mục 19 theo phương án đề xuất ngày 2026-11-17 (qua phiên điều phối). Đang làm lát L0.
 - Mức: Lớn (module mới, schema mới `ipos`, ứng dụng di động mới, sửa quy tắc đối soát đã duyệt, thu phí thuê bao).
 - Nhánh: `chuc-nang/CONG_VIEC_74-ipos`.
 - Nguồn: quyết định của người dùng ngày 2026-11-17 (mục 17); CONG_VIEC_55, 67 (cửa hàng liên kết, Open API điểm thưởng), CONG_VIEC_73 (đơn chờ thanh toán, thu hộ, hóa đơn ủy nhiệm), CONG_VIEC_72 (Smart OTP, mã động); ý tưởng từ nguồn riêng V-com-ERP (mục 12), không sao chép mã.
@@ -379,10 +379,9 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 
 | Database migration | Bảng, cột | Nội dung |
 |---|---|---|
-| 0165 (L0) | `ipos.plans` | `code`, `name`, `monthly_price`, `tax_rate_id`, `max_registers`, `max_items`, `trial_days`, `status`, `company_id` (công ty vận hành sàn), `version` |
+| 0165 (L0) | `ipos.plans` | `code`, `name`, `monthly_price`, `tax_percent` (0, 5, 8, 10; không khóa ngoại sang `catalog`), `max_registers`, `max_items`, `trial_days`, `status`, `company_id` (công ty vận hành sàn), `version` |
 | 0165 (L0) | `ipos.merchant_billing` | `merchant_id` (khóa chính), `method` (`collection_deduction`, `settlement_deduction`, `vietqr`, `free`), `free_until`, `free_reason`, `version` |
-| 0165 (L0) | `ipos.subscriptions` | `merchant_id`, `outlet_id`, `plan_id`, `period_months` (1, 6, 12), `starts_on`, `trial_ends_on`, `ends_on`, `custom_monthly_price`, `custom_max_registers`, `status` (`trial`, `active`, `overdue`, `locked`, `cancelled`), `status_reason`, `cancelled_at`, `version`; chỉ mục duy nhất (`outlet_id`) khi chưa hủy |
-| 0165 (L0) | `affiliate.outlets` | thêm `code` (2 đến 10 ký tự, duy nhất theo cửa hàng; trống tới khi chủ đặt) – ghi qua service của `affiliate` |
+| 0165 (L0) | `ipos.subscriptions` | `merchant_id`, `outlet_id`, `plan_id`, `period_months` (1, 6, 12), `starts_on`, `trial_ends_on`, `ends_on`, `custom_monthly_price`, `custom_max_registers`, `status` (`trial`, `active`, `overdue`, `locked`, `cancelled`), `locked_manually` (khóa tay), `status_reason`, `cancelled_at`, `version`; chỉ mục duy nhất (`outlet_id`) khi chưa hủy; trigger chặn điểm bán không thuộc cửa hàng |
 | 0166 (L1) | `ipos.registers` | `merchant_id`, `outlet_id`, `name`, `status`, `created_at` |
 | 0166 (L1) | `ipos.devices` | `merchant_id`, `register_id`, `key_hash`, `model`, `app_version`, `paired_by`, `paired_at`, `last_seen_at`, `revoked_at`, `revoked_by` |
 | 0166 (L1) | `ipos.pairing_codes` | `register_id`, `code_hash`, `expires_at`, `used_at`, `created_by` |
@@ -392,6 +391,7 @@ Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`,
 | 0167 (L2) | `ipos.categories`, `ipos.items`, `ipos.item_variants`, `ipos.item_barcodes`, `ipos.outlet_prices` | Theo QUYTAC_NGHIEPVU_608; chỉ mục duy nhất (`merchant_id`, `code`), (`merchant_id`, `barcode`) |
 | 0167 (L2) | `ipos.stock_balances` | (`outlet_id`, `variant_id`) khóa chính, `quantity`, `average_cost`, `min_quantity` |
 | 0167 (L2) | `ipos.stock_documents`, `ipos.stock_document_lines`, `ipos.stock_moves` | Phiếu `PN…`, `PC…`; biến động gắn nguồn (phiếu, hóa đơn, phiếu trả) |
+| 0168 (L3) | `affiliate.outlets` | thêm `code` (2 đến 10 ký tự, duy nhất theo cửa hàng; trống tới khi chủ đặt) – ghi qua service của `affiliate` |
 | 0168 (L3) | `ipos.settings` | (`merchant_id`) khóa chính: tài khoản VietQR (mã ngân hàng, số tài khoản, tên), `cashier_max_discount_percent`, `return_days`, `cashier_can_return`, `block_negative_stock`, `receipt_footer`, `paper_width` |
 | 0168 (L3) | `ipos.shifts`, `ipos.cash_movements` | Ca (`register_id`, `member_id`, `opened_at`, `opening_cash`, `closed_at`, `closed_by`, `system_cash`, `counted_cash`, `difference`, `difference_reason`, `left_cash`, `denominations`), thu chi |
 | 0168 (L3) | `ipos.sales`, `ipos.sale_lines`, `ipos.sale_payments` | Hóa đơn (`document_no`, `idempotency_key` duy nhất theo thiết bị, `shift_id`, `outlet_id`, `buyer_user_id`, `subtotal`, `discount`, `total`, `print_count`, `status`); dòng (`unit_price`, `discount`, `tax_rate`, `unit_cost`); thanh toán (`method` `cash`, `vietqr`, `vcomm_app`, `points`, `voucher`; `amount`, `tendered`, `confirmed_by`) |
@@ -492,7 +492,7 @@ Việc nền: `ipos-subscriptions-daily` (0 giờ 30, xét hạn, lập phiếu 
 | `expo-camera`, `expo-secure-store` | Quét mã, lưu khóa thiết bị | MIT | Cao | Đã có trong dự án |
 
 - Phương án: tham khảo nghiệp vụ, tự viết (không phần mềm bán hàng nguồn mở nào làm lõi; không sao chép mã GPL, LGPL, AGPL vì ứng dụng Android là phân phối phần mềm).
-- Quyết định của người dùng: đồng ý hướng tự viết, thư viện xin duyệt riêng khi tới lát – 2026-11-17.
+- Quyết định của người dùng: đồng ý hướng tự viết, thư viện xin duyệt riêng khi tới lát – 2026-11-17. Duyệt 13 điểm mục 19 theo phương án đề xuất – 2026-11-17.
 
 ## 13. Tiêu chí nghiệm thu
 

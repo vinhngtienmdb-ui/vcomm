@@ -1827,6 +1827,17 @@ API_232 đến API_234: dự phòng, chưa dùng. API_48 dùng lại trên ứng
 | `revenueMonthRange` | `400 VALIDATION_FAILED` tại `month` | API_231 | "Chọn tháng từ khi được đánh dấu nhân viên kinh doanh đến tháng hiện tại, tối đa 24 tháng." |
 | `visitDisabled` | `409 BUSINESS_RULE` | API_114 | "Chức năng ghé thăm khách đã tắt, không ghi được lượt mới." |
 
+## 2z. iPOS (MODULE_17, CONG_VIEC_74)
+
+Đặc tả đầy đủ API_335 đến API_357: `cong_viec/CONG_VIEC_74.md` mục 10. Mục này ghi phần đã làm theo mã nguồn.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Yêu cầu | Phản hồi |
+|---|---|---|---|---|---|
+| API_354 | `GET /ipos/plans`; `POST /ipos/plans`; `PUT /ipos/plans/{id}` | CHUC_NANG_252 | xem: `affiliate.view`; sửa: `ipos.plan.manage` (công ty vận hành sàn) | Tạo: `code`, `name`, `monthlyPrice`, `taxPercent` (`0`, `5`, `8`, `10`), `maxRegisters`, `maxItems` (trống: không giới hạn), `trialDays`; sửa thêm `status` (`selling`, `retired`), `version`, không đổi `code` | `IposPlan` (kèm `activeSubscriptions`); lỗi `iposPlanCodeTaken` |
+| API_355 | `GET /ipos/subscriptions` (lọc `merchantId`, `status`, `endsWithinDays`, `page`, `pageSize` ≤ 100); `GET /ipos/subscriptions/{id}`; `GET /affiliate/merchants/{id}/ipos`; `PUT /affiliate/merchants/{id}/ipos-billing`; `POST /affiliate/merchants/{id}/ipos-subscriptions`; `PUT /ipos/subscriptions/{id}`; `POST /ipos/subscriptions/{id}/renew`, `/lock`, `/unlock`, `/cancel` | CHUC_NANG_252, 253 | xem: `affiliate.view`; sửa: `ipos.subscription.manage` | Cách thu: `method`, `freeUntil`, `freeReason`, `version` (trống khi chưa có). Cấp: `outletId`, `planId`, `periodMonths` (1, 6, 12), `startsOn`, `trialDays` (trống: theo gói), `customMonthlyPrice`, `customMaxRegisters`. Sửa: `planId`, `periodMonths`, giá, số quầy riêng, `version`. Khóa, hủy: `reason` (bắt buộc), `version`; gia hạn, mở khóa: `version` | `IposSubscription`, `IposMerchantOverview` (`billing`, `subscriptions`, `availableOutlets`, `canManage`), `IposBilling`; lỗi `iposMerchantInactive`, `iposOutletInactive`, `iposOutletSubscribed`, `iposPlanRetired`, `iposSubscriptionStatusInvalid`, `iposCollectionNotEnabled` (chưa bật thu hộ của CONG_VIEC_73) |
+
+Việc nền `ipos-subscriptions-daily` (0 giờ 30 giờ Việt Nam): hết dùng thử chuyển đang hoạt động; cách thu miễn phí còn hiệu lực tự gia hạn; quá ngày hết hạn chuyển quá hạn; quá 7 ngày ân hạn chuyển tạm khóa (khóa tay giữ nguyên). Lập phiếu phí, nhắc gia hạn thêm ở lát L7.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |

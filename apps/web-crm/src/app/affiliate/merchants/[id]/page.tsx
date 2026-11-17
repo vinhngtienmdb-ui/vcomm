@@ -15,6 +15,7 @@ import { apiFetch } from "ui/lib/api";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 import { AffiliateApiKeys } from "@/components/AffiliateApiKeys";
+import { IposMerchantBlock } from "@/components/IposMerchantBlock";
 import { merchantStatusClass, TermsFields, termsBody, type TermsForm } from "@/components/AffiliateTerms";
 
 const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
@@ -342,6 +343,7 @@ export default function AffiliateMerchantPage() {
             </div>
           </section>
           <AffiliateApiKeys merchantId={data.id} outlets={data.outlets} canManage={data.canManage} terminated={data.status === "terminated"} notify={notify} />
+          <IposMerchantBlock merchantId={data.id} active={data.status === "active"} terminated={data.status === "terminated"} notify={notify} />
           {outlet && (
             <OutletDrawer
               merchantId={data.id}

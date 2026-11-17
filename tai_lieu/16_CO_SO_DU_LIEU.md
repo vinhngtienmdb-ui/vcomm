@@ -3974,3 +3974,19 @@ Schema mới `ai`. 0136 làm ở L1; 0137 ở L2 (thêm bảng `ai.active_turns`
 | 0137 (L2) | `ai.feedback` | `message_id` (khóa chính, xóa theo tin nhắn), `user_id`, `rating` (`up`, `down`), `reason` (`wrong_figures`, `not_relevant`, `missing_data`, `other`; bắt buộc khi `down`), `note` (≤ 500), `updated_at` |
 
 Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (tác vụ `ai-conversation-retention` xóa dòng quá hạn không còn tin nhắn trỏ tới); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.
+
+## 45. Database migration 0165 đến 0170 – CONG_VIEC_74 (MODULE_17 iPOS, đợt 1)
+
+Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`, `affiliate`. Tiền `numeric(18,4)`. Chi tiết theo lát ở đặc tả `cong_viec/CONG_VIEC_74.md` mục 9; mục này ghi phần đã làm.
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0165 (L0) | `ipos.plans` | `company_id` (công ty vận hành sàn), `code` (chữ in hoa, số, gạch nối, 1 đến 20 ký tự; duy nhất theo công ty), `name`, `monthly_price` (≥ 0), `tax_percent` (0, 5, 8, 10), `max_registers` (1 đến 50), `max_items` (100 đến 100.000 hoặc trống là không giới hạn), `trial_days` (0 đến 90), `status` (`selling`, `retired`), `version` |
+| 0165 (L0) | `ipos.merchant_billing` | `merchant_id` (khóa chính, khóa ngoại `affiliate.merchants`), `method` (`collection_deduction`, `settlement_deduction`, `vietqr`, `free`), `free_until`, `free_reason` (bắt buộc khi và chỉ khi `free`), `version` |
+| 0165 (L0) | `ipos.subscriptions` | `merchant_id`, `outlet_id`, `plan_id`, `period_months` (1, 6, 12), `starts_on`, `trial_ends_on`, `ends_on`, `custom_monthly_price`, `custom_max_registers`, `status` (`trial`, `active`, `overdue`, `locked`, `cancelled`), `locked_manually` (khóa tay; chỉ khi `locked`), `status_reason`, `cancelled_at` (có khi và chỉ khi `cancelled`), `version`. Chỉ mục duy nhất (`outlet_id`) khi chưa hủy; trigger `ipos.check_outlet_merchant` chặn điểm bán không thuộc cửa hàng |
+
+Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
+
+Quyền mới (danh mục trong mã nguồn): `ipos.plan.manage`, `ipos.subscription.manage` (nhạy cảm), mini app `crm`, gán Quản trị tập đoàn, Quản trị công ty.
+
+Chính sách xóa: không xóa gói, thuê bao, cách thu; hủy thuê bao chỉ đổi trạng thái (QUYTAC_NGHIEPVU_596).

@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "iPOS",
+    "slug": "vcomm-ipos",
+    "scheme": "vcommipos",
+    "version": "0.1.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "vn.vcomm.ipos"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router", "expo-secure-store", "expo-status-bar"]
+  }
+}

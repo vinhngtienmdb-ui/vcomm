@@ -56,6 +56,7 @@ Giai đoạn 03 đến 07 làm cho từng module, từng công việc trước k
 | MODULE_14 | Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy, trạm giao hàng O2O, kế hoạch mua theo ngân sách | 11 | Đã phát hành một phần: v0.5.0, v0.6.0 (CONG_VIEC_53), v0.6.0 (CONG_VIEC_57, 58); chưa triển khai |
 | MODULE_15 | Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn | 12 | Đã phát hành một phần: v0.4.0 (CONG_VIEC_50); chưa triển khai |
 | MODULE_16 | Mở rộng kinh doanh | Dropship, Open API, trợ lý AI (quản lý sản xuất đã bỏ theo THAY_DOI_30) | 12 | Đã phát hành một phần: v0.7.0 (CONG_VIEC_61), v0.9.0 (CONG_VIEC_66), v0.11.0 (CONG_VIEC_62); trợ lý AI (CONG_VIEC_63) chưa bắt đầu; CONG_VIEC_64 đã hủy; chưa triển khai |
+| MODULE_17 | iPOS | Ứng dụng bán hàng thuê bao cho cửa hàng liên kết: gói, thuê bao theo điểm bán, thu phí, bán tại quầy, ca, tồn kho đơn giản, báo cáo, đối soát trong ERP (THAY_DOI_39) | 13 | Đang thực hiện: CONG_VIEC_74 đợt 1 |
 
 "Đã phát hành một phần": đã phát hành các công việc nêu (tài liệu `03`, `23`). Mức hoàn thành so với toàn bộ chức năng của module ở tài liệu `05` chưa đối chiếu từng chức năng: **CHƯA XÁC ĐỊNH**.
 
