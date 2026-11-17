@@ -143,17 +143,18 @@ export class IposFeesService implements OnModuleInit {
   // Lập phiếu (việc nền `ipos-subscriptions-daily`; lập lại sau khi hủy).
   // ---------------------------------------------------------------------------
 
-  // Kỳ chưa lập phiếu kế tiếp của thuê bao: kỳ đầu bắt đầu ngày hết dùng thử (hoặc ngày bắt đầu), kỳ sau nối tiếp phiếu gần nhất chưa hủy.
+  // Kỳ chưa lập phiếu kế tiếp của thuê bao: kỳ đầu bắt đầu ngày hết dùng thử (hoặc ngày bắt đầu; thuê bao cấp trước khi có phiếu phí lấy kỳ hiện tại = ngày hết hạn trừ một kỳ),
+  // kỳ sau nối tiếp phiếu gần nhất chưa hủy.
   // Kỳ đầu lập khi đến ngày bắt đầu kỳ; kỳ sau lập trước ngày bắt đầu kỳ 7 ngày (QUYTAC_NGHIEPVU_599 khoản 1).
   async runDaily(): Promise<{ issued: number; switched: number; deducted: number; reminded: number }> {
     const today = this.today();
     const candidates = await this.database.execute<{ id: string; period_start: string; first: boolean }>(sql`
       WITH last AS (
         SELECT DISTINCT ON (subscription_id) subscription_id, period_end FROM ipos.fee_invoices WHERE status <> 'voided' ORDER BY subscription_id, period_end DESC)
-      SELECT s.id, coalesce(last.period_end, coalesce(s.trial_ends_on, s.starts_on))::text AS period_start, last.period_end IS NULL AS first
+      SELECT s.id, coalesce(last.period_end, greatest(coalesce(s.trial_ends_on, s.starts_on), (s.ends_on - make_interval(months => s.period_months))::date))::text AS period_start, last.period_end IS NULL AS first
       FROM ipos.subscriptions s LEFT JOIN ipos.merchant_billing b ON b.merchant_id = s.merchant_id LEFT JOIN last ON last.subscription_id = s.id
       WHERE s.status <> 'cancelled' AND coalesce(b.method, 'vietqr') <> 'free'
-        AND coalesce(last.period_end, coalesce(s.trial_ends_on, s.starts_on)) <= ${today}::date + ${iposFeeLeadDays}::int`);
+        AND coalesce(last.period_end, greatest(coalesce(s.trial_ends_on, s.starts_on), (s.ends_on - make_interval(months => s.period_months))::date)) <= ${today}::date + ${iposFeeLeadDays}::int`);
     let issued = 0;
     for (const row of candidates.rows) {
       // Kỳ đầu chỉ lập khi đã đến ngày bắt đầu (hết dùng thử); kỳ sau lập trước 7 ngày.
