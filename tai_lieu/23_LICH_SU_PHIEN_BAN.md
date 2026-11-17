@@ -5,6 +5,32 @@
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.12.0 – 2026-11-17 – Chờ phát hành
+
+- Chức năng mới:
+  - Phí tin nhắn OTP chưa chốt tính vào dư nợ của cửa hàng liên kết (MODULE_12, CONG_VIEC_70, THAY_DOI_36): dư nợ xét hạn mức nợ cộng phí tin nhắn OTP SMS đã gửi nhưng chưa vào bảng đối soát tuần, kèm thuế giá trị gia tăng (F + làm tròn (F × 10 %)); tin gửi trước khi triển khai mà chưa vào bảng cũng tính; khi lập bảng tuần, phí tin chuyển vào số còn lại của bảng, không tính hai lần. Dư nợ mới dùng chung cho xét tích điểm tại quầy và qua Open API, báo cáo cổng cửa hàng (MAN_HINH_176), báo cáo công ty (MAN_HINH_180), cảnh báo và thông báo dư nợ từ 80 % hạn mức (QUYTAC_NGHIEPVU_398, 405). Phí dịch vụ, thuế của giao dịch chưa chốt vẫn chỉ tính khi lập bảng; gửi OTP SMS vẫn không xét hạn mức, quá hạn (QUYTAC_NGHIEPVU_495 giữ nguyên). Không đổi giao diện.
+- Sửa lỗi:
+  - Nhật ký gọi Open API lọc sẵn theo khóa (MODULE_16, CONG_VIEC_69, chỉ giao diện): liên kết "Nhật ký gọi" ở khối khóa API của cửa hàng liên kết (`web-crm`) và đối tác liên minh điểm mở màn hình nhật ký gọi (MAN_HINH_226, `web-platform`) đã lọc theo khóa đó (`/platform/api-call-logs?apiKeyId=<mã khóa>`, kiểm tra dạng uuid); chọn "Tất cả khóa" để xóa lọc; mã khóa không thuộc công ty đang chọn thì bỏ lọc, không hiện danh sách rỗng sai.
+- Ghép giữa các công việc, thứ tự hợp nhất 69, 70 (hợp nhất, không rebase): cả hai hợp nhất tự động không xung đột (CONG_VIEC_69 chỉ sửa giao diện `web-crm`, `web-platform`; CONG_VIEC_70 sửa `apps/api/src/affiliate/transactions.service.ts`, thêm kiểm thử và tài liệu). `pnpm-lock.yaml` không đổi (không thêm thư viện).
+- Thay đổi dữ liệu: không có database migration mới (số `0157` không dùng, CONG_VIEC_70 trả lại). Không đổi bảng, ràng buộc; dư nợ đọc `affiliate.sms_charges` (dòng `settlement_id` trống) qua chỉ mục có sẵn `sms_charges_unsettled_idx`.
+- Thay đổi API: không thêm, không đổi cấu trúc API. API_213 (báo cáo, cảnh báo cửa hàng liên kết) trả `exposure` theo dư nợ mới; xét tích điểm của giao dịch tại quầy và giao dịch qua Open API cửa hàng liên kết (gốc `/api/v1/open/affiliate`) theo dư nợ mới.
+- Quyền mới: không có. Phạm vi khóa API mới: không có.
+- Thư viện mới: không có. Biến môi trường mới: không có. Tác vụ nền mới: không có.
+- Thiết lập sau triển khai: không có.
+- Rủi ro:
+  - Sau triển khai, cửa hàng liên kết có phí mỗi tin OTP lớn hơn 0 (`affiliate.merchants.sms_fee`) và đang có tin chưa vào bảng đối soát thấy dư nợ tăng ngay, có thể bị chặn tích điểm sớm hơn và nhận cảnh báo dư nợ từ 80 % hạn mức. Trước khi triển khai, báo trước các cửa hàng này (người dùng nhắc khi nghiệm thu CONG_VIEC_70 ngày 2026-11-17).
+  - Dư nợ tạm tính làm tròn thuế trên phí tin, bảng đối soát làm tròn thuế trên tổng phí dịch vụ và phí tin, nên dư nợ có thể lệch 1 đồng giữa trước và sau khi lập bảng (người dùng chấp nhận).
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.11.0).
+- Khả năng tương thích: tương thích ngược với 0.11.0; không đổi cấu trúc dữ liệu, API, quyền.
+- Công việc gộp trong phiên bản: CONG_VIEC_69 (pull request #173, đầu nhánh `4f132d86`), CONG_VIEC_70 (#174, THAY_DOI_36, đầu nhánh `a4f96123`). Nhánh phát hành tạo từ `main` sau khi hợp nhất LOI_14 (pull request #176, sửa cấu hình kiểm thử).
+- Đánh lại số mục tài liệu trùng khi gộp: không cần (CONG_VIEC_69 không thêm mục tài liệu; mã định danh của CONG_VIEC_70 không trùng).
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 10207 khóa; kiểm thử API toàn bộ một tiến trình đang chạy (ghi kết quả ở commit sau).
+- Tag: `v0.12.0` trên commit hợp nhất nhánh `phat-hanh/v0.12.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.11.0`.
+  - Database migration: không có database migration mới nên không cần làm gì với cơ sở dữ liệu.
+  - Sau khi quay lui: dư nợ trở lại cách tính của 0.11.0 (không cộng phí tin chưa chốt); phí tin vẫn ghi trong `affiliate.sms_charges` và vào bảng đối soát tuần như cũ. Báo lại các cửa hàng đã được báo trước về thay đổi dư nợ.
+
 ## Phiên bản 0.11.0 – 2026-11-16 – Đã phát hành
 
 - Chức năng mới:
