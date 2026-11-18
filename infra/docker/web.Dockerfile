@@ -14,6 +14,8 @@ RUN pnpm install --frozen-lockfile --filter "web-*..." \
 
 FROM node:22-bookworm-slim
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000
+# Ảnh chạy không cần npm, corepack (chỉ chạy node); bỏ để không mang lỗ hổng của công cụ đi kèm ảnh nền.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 WORKDIR /app
 COPY --from=build --chown=node:node /app /app
 USER node
