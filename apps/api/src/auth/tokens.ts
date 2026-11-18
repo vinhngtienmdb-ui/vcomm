@@ -2,7 +2,8 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 export const accessTokenLifetimeSeconds = 15 * 60;
-export const refreshTokenLifetimeDays = { web: 30, warehouse_app: 90, sales_app: 90, vcomm_app: 90 } as const;
+// Phiên ứng dụng iPOS hết hạn sau 12 giờ (QUYTAC_NGHIEPVU_607).
+export const refreshTokenLifetimeDays = { web: 30, warehouse_app: 90, sales_app: 90, vcomm_app: 90, ipos_app: 0.5 } as const;
 
 export interface AccessTokenPayload {
   sessionId: string;

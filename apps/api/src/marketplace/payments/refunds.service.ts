@@ -13,12 +13,16 @@ import { localPhone } from "../buyer-accounts.service";
 import type { BuyerAdminActor } from "../buyer-admin.service";
 import { MarketplaceOrdersService } from "../marketplace-orders.service";
 import { vietnamToday } from "../shop.service";
+import { InstoreCheckoutsService } from "../../instore/checkouts.service";
+import { InstorePayoutsService } from "../../instore/payouts.service";
 
 const iso = (value: Date | null) => (value ? new Date(value).toISOString() : null);
 
 type RefundRow = {
   id: string;
-  order_id: string;
+  order_id: string | null;
+  checkout_id: string | null;
+  place_name: string | null;
   document_no: string;
   buyer_name: string;
   buyer_phone: string | null;
@@ -43,6 +47,8 @@ export class RefundsService {
     private readonly orders: MarketplaceOrdersService,
     private readonly audit: AuditService,
     private readonly ledger: LedgerService,
+    private readonly instorePayouts: InstorePayoutsService,
+    private readonly instoreCheckouts: InstoreCheckoutsService,
   ) {}
 
   async bankAccount(userId: string): Promise<BuyerBankAccount | null> {
@@ -61,16 +67,27 @@ export class RefundsService {
     return (await this.bankAccount(userId))!;
   }
 
+  // Gồm việc hoàn của đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73 lát L7): số TT…, tên cửa hàng hoặc quầy.
+  private readonly from = sql`
+    marketplace.refunds f LEFT JOIN marketplace.orders m ON m.id = f.order_id LEFT JOIN sales.orders so ON so.id = m.sales_order_id
+    LEFT JOIN instore.checkouts c ON c.id = f.checkout_id
+    LEFT JOIN affiliate.merchants am ON am.id = c.merchant_id LEFT JOIN crm.partners ap ON ap.id = am.partner_id LEFT JOIN retail.stores rs ON rs.id = c.store_id
+    LEFT JOIN core.branches rb ON rb.id = rs.branch_id
+    LEFT JOIN core.users u ON u.id = coalesce(m.buyer_user_id, c.buyer_user_id)
+    LEFT JOIN marketplace.buyer_bank_accounts b ON b.buyer_user_id = coalesce(m.buyer_user_id, c.buyer_user_id)`;
+  private readonly companyOf = sql`coalesce(m.company_id, c.operator_company_id)`;
   private readonly select = sql`
-    SELECT f.id, f.order_id, so.document_no, u.full_name AS buyer_name, u.phone AS buyer_phone, f.reason, f.amount::text, f.status, b.bank_name, b.account_number, b.account_holder,
+    SELECT f.id, f.order_id, f.checkout_id, coalesce(ap.name, rb.name) AS place_name, coalesce(so.document_no, c.document_no) AS document_no, coalesce(u.full_name, '') AS buyer_name,
+      u.phone AS buyer_phone, f.reason, f.amount::text, f.status, b.bank_name, b.account_number, b.account_holder,
       f.bank_transaction_no, f.refunded_on::text, f.note, f.created_at, f.completed_at, f.version
-    FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id JOIN sales.orders so ON so.id = m.sales_order_id JOIN core.users u ON u.id = m.buyer_user_id
-    LEFT JOIN marketplace.buyer_bank_accounts b ON b.buyer_user_id = m.buyer_user_id`;
+    FROM ${this.from}`;
 
   private item(row: RefundRow): RefundItem {
     return {
       id: row.id,
       orderId: row.order_id,
+      checkoutId: row.checkout_id,
+      placeName: row.place_name,
       documentNo: row.document_no,
       buyerName: row.buyer_name,
       buyerPhone: localPhone(row.buyer_phone ?? ""),
@@ -89,9 +106,8 @@ export class RefundsService {
 
   // MAN_HINH_98: việc chờ hoàn, việc đã hoàn của công ty vận hành sàn.
   async list(actor: BuyerAdminActor, query: { status: RefundStatus; page: number; pageSize: number }): Promise<PageResponse<RefundItem>> {
-    const where = sql`m.company_id = ${actor.operatorCompanyId} AND f.status = ${query.status}`;
-    const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id WHERE ${where}`)).rows[0]!
-      .total;
+    const where = sql`${this.companyOf} = ${actor.operatorCompanyId} AND f.status = ${query.status}`;
+    const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM ${this.from} WHERE ${where}`)).rows[0]!.total;
     const order = query.status === "pending" ? sql`f.created_at, f.id` : sql`f.completed_at DESC, f.id`;
     const rows = await this.database.execute<RefundRow>(sql`${this.select} WHERE ${where} ORDER BY ${order} LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
     return { data: rows.rows.map((row) => this.item(row)), page: query.page, pageSize: query.pageSize, total };
@@ -101,30 +117,64 @@ export class RefundsService {
   async complete(actor: BuyerAdminActor, refundId: string, input: { bankTransactionNo: string; refundedOn: string; note: string | null; version: number }): Promise<RefundItem> {
     await this.database.transaction(async (transaction) => {
       const refund = (
-        await transaction.execute<{ order_id: string; status: RefundStatus; version: number; amount: string; company_id: string; buyer_user_id: string }>(sql`
-        SELECT f.order_id, f.status, f.version, f.amount::text, m.company_id, m.buyer_user_id FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id
-        WHERE f.id = ${refundId} FOR UPDATE OF f`)
+        await transaction.execute<{
+          order_id: string | null;
+          checkout_id: string | null;
+          document_no: string;
+          status: RefundStatus;
+          version: number;
+          amount: string;
+          company_id: string;
+          buyer_user_id: string;
+        }>(sql`
+        SELECT f.order_id, f.checkout_id, coalesce(so.document_no, c.document_no) AS document_no, f.status, f.version, f.amount::text, ${this.companyOf} AS company_id,
+          coalesce(m.buyer_user_id, c.buyer_user_id) AS buyer_user_id
+        FROM ${this.from} WHERE f.id = ${refundId} FOR UPDATE OF f`)
       ).rows[0];
       if (!refund || refund.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
       if (refund.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (refund.status !== "pending") throw new ApiError("BUSINESS_RULE", "refundNotPending");
       if (input.refundedOn > (await vietnamToday(transaction))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { refundedOn: "invalidValue" } });
-      await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${refund.order_id} FOR UPDATE`);
-      await transaction.execute(sql`
+      const markCompleted = sql`
         UPDATE marketplace.refunds SET status = 'completed', bank_transaction_no = ${input.bankTransactionNo}, refunded_on = ${input.refundedOn}::date, note = ${input.note},
-          completed_by = ${actor.userId}, completed_at = now(), version = version + 1 WHERE id = ${refundId}`);
-      await transaction.execute(sql`UPDATE marketplace.orders SET refunded_amount = refunded_amount + ${refund.amount}::numeric, version = version + 1 WHERE id = ${refund.order_id}`);
-      await this.ledger.record(transaction, await marketplaceRefundDraft(transaction, refundId));
-      await this.orders.event(transaction, refund.order_id, "refunded", trimDecimal(refund.amount), actor.userId);
-      await notify(transaction, [
-        {
-          userId: refund.buyer_user_id,
-          companyId: actor.operatorCompanyId,
-          kind: "marketplace_refund.completed",
-          title: "VComm đã hoàn tiền cho đơn hàng của bạn",
-          payload: { orderId: refund.order_id, refundId },
-        },
-      ]);
+          completed_by = ${actor.userId}, completed_at = now(), version = version + 1 WHERE id = ${refundId}`;
+      if (refund.checkout_id) {
+        // Đơn chờ tại cửa hàng (CONG_VIEC_73 lát L7): Nợ phải trả hoàn tiền khách / Có ngân hàng; webhook refund.completed cho phần mềm cửa hàng.
+        await transaction.execute(markCompleted);
+        await this.instorePayouts.recordRefundPaid(transaction, {
+          id: refundId,
+          operatorCompanyId: refund.company_id,
+          documentNo: refund.document_no,
+          amount: Number(refund.amount),
+          refundedOn: input.refundedOn,
+          bankTransactionNo: input.bankTransactionNo,
+        });
+        await this.instoreCheckouts.emit(transaction, refund.checkout_id, "refund.completed");
+        await notify(transaction, [
+          {
+            userId: refund.buyer_user_id,
+            companyId: actor.operatorCompanyId,
+            kind: "instore.refund_completed",
+            title: `VComm đã hoàn ${Math.round(Number(refund.amount)).toLocaleString("vi-VN")} đ cho đơn ${refund.document_no}`,
+            payload: { checkoutId: refund.checkout_id, refundId },
+          },
+        ]);
+      } else {
+        await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${refund.order_id} FOR UPDATE`);
+        await transaction.execute(markCompleted);
+        await transaction.execute(sql`UPDATE marketplace.orders SET refunded_amount = refunded_amount + ${refund.amount}::numeric, version = version + 1 WHERE id = ${refund.order_id}`);
+        await this.ledger.record(transaction, await marketplaceRefundDraft(transaction, refundId));
+        await this.orders.event(transaction, refund.order_id!, "refunded", trimDecimal(refund.amount), actor.userId);
+        await notify(transaction, [
+          {
+            userId: refund.buyer_user_id,
+            companyId: actor.operatorCompanyId,
+            kind: "marketplace_refund.completed",
+            title: "VComm đã hoàn tiền cho đơn hàng của bạn",
+            payload: { orderId: refund.order_id, refundId },
+          },
+        ]);
+      }
       await this.audit.record(
         {
           actorUserId: actor.userId,

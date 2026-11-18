@@ -21,6 +21,7 @@ import type {
 import { sql } from "drizzle-orm";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { z } from "zod";
+import type { DatabaseTransaction } from "../instore/checkouts.service";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -30,7 +31,8 @@ import { isUniqueViolation, violatedConstraint } from "../common/database-errors
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
 import { LedgerService } from "../accounting/ledger.service";
-import { LoyaltyLedgerService } from "../loyalty/ledger.service";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
+import { LoyaltyLedgerService, releaseSalePoints } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import { requireOwner, type PortalMember } from "./portal.service";
 import { transactionCancelDraft, transactionDraft } from "./postings";
@@ -191,7 +193,14 @@ export async function merchantExposure(executor: Executor, merchantId: string): 
       (SELECT coalesce(sum(unit_price), 0) FROM affiliate.sms_charges WHERE merchant_id = ${merchantId} AND settlement_id IS NULL)::text AS sms_fee`)
   ).rows[0]!;
   const smsFee = Number(row.sms_fee);
-  return Math.max(Number(row.total) + smsFee + Math.round((smsFee * feeTaxRate) / 100), 0);
+  // Tiền thu hộ VComm đang giữ cho cửa hàng (giao dịch chưa vào bảng chuyển tiền hoặc bảng chờ chuyển), sau phí thu hộ kèm thuế, phí cổng (CONG_VIEC_73; QUYTAC_NGHIEPVU_586).
+  const collected = (
+    await executor.execute<{ total: string }>(sql`
+      SELECT coalesce(sum(t.collected_amount - t.platform_fee - round(t.platform_fee * ${feeTaxRate} / 100) - t.gateway_fee), 0)::text AS total
+      FROM affiliate.transactions t JOIN instore.checkouts c ON c.id = t.checkout_id LEFT JOIN instore.payouts p ON p.id = c.payout_id
+      WHERE t.merchant_id = ${merchantId} AND t.status = 'completed' AND t.collected_amount > 0 AND (p.id IS NULL OR p.status = 'pending')`)
+  ).rows[0]!;
+  return Math.max(Number(row.total) + smsFee + Math.round((smsFee * feeTaxRate) / 100) - Number(collected.total), 0);
 }
 
 @Injectable()
@@ -201,7 +210,13 @@ export class AffiliateTransactionsService {
     private readonly ledger: LoyaltyLedgerService,
     private readonly audit: AuditService,
     private readonly accounting: LedgerService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
   ) {}
+
+  // Mã thành viên cũ (cách 2) chỉ còn dùng trong thời hạn chuyển đổi của người mua; sau đó khách dùng Mã thanh toán (QUYTAC_NGHIEPVU_574).
+  async assertMemberCodeOpen(): Promise<void> {
+    if (!(await this.authenticationSettings.buyerTransitionOpen())) throw new ApiError("BUSINESS_RULE", "affiliateMemberCodeRetired");
+  }
 
   private async row(executor: Executor, id: string, scope: ReturnType<typeof sql>): Promise<TransactionRow> {
     const row = (await executor.execute<TransactionRow>(sql`SELECT ${transactionColumns} FROM ${transactionFrom} WHERE t.id = ${id} AND ${scope}`)).rows[0];
@@ -340,6 +355,7 @@ export class AffiliateTransactionsService {
     }
 
     // Cách 2: mã thành viên hợp lệ, chưa dùng; hoàn tất ngay với số điểm nhỏ hơn giữa số khách cho phép và số tối đa dùng được.
+    await this.assertMemberCodeOpen();
     const code = readMemberCode(input.memberCode!, new Date());
     const id = await this.database.transaction(async (transaction) => {
       const buyer = (
@@ -386,13 +402,27 @@ export class AffiliateTransactionsService {
   // Hoàn tất (QUYTAC_NGHIEPVU_394, 398, 399): dùng điểm trên tiền sau voucher; tích trên tiền khách trả theo tỷ lệ của cửa hàng;
   // vượt hạn mức nợ hoặc có bảng đối soát quá hạn thanh toán thì không tích (vẫn dùng điểm). Chi tiêu tại cửa hàng liên kết không cộng vào xét hạng.
   // capToMax: số điểm khách cho phép là mức trần (mã thành viên, hoặc có voucher làm giảm tiền tính giới hạn); không đủ mức tối thiểu thì không dùng điểm.
+  // Gồm hai bước: dùng voucher, điểm (reserve) rồi tích điểm, ghi hoàn tất (finish); đơn chờ thanh toán qua ứng dụng (CONG_VIEC_73) gọi riêng hai bước.
   private async complete(executor: Executor, id: string, buyerId: string, input: { points: number; voucherCodeId: string | null; capToMax: boolean }): Promise<void> {
     const row = (
-      await executor.execute<{ merchant_id: string; status: string; expired: boolean; bill_amount: string; voucher_discount: string; earn_percent: string }>(sql`
-        SELECT merchant_id, status, (expires_at IS NOT NULL AND expires_at < now()) AS expired, bill_amount::text, voucher_discount::text, earn_percent::text
-        FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)
+      await executor.execute<{ status: string; expired: boolean }>(sql`
+        SELECT status, (expires_at IS NOT NULL AND expires_at < now()) AS expired FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)
     ).rows[0]!;
     if (row.status !== "pending" || row.expired) throw new ApiError("BUSINESS_RULE", "affiliateTransactionExpired");
+    await this.reserve(executor, id, buyerId, input);
+    await this.finish(executor, id, null);
+  }
+
+  // Bước 1: dùng voucher, điểm trên giao dịch đang chờ; ghi khách, số điểm, tiền giảm (giao dịch vẫn chờ).
+  private async reserve(
+    executor: Executor,
+    id: string,
+    buyerId: string,
+    input: { points: number; voucherCodeId: string | null; capToMax: boolean },
+  ): Promise<{ points: number; amount: number; voucherDiscount: number }> {
+    const row = (
+      await executor.execute<{ merchant_id: string; bill_amount: string }>(sql`SELECT merchant_id, bill_amount::text FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)
+    ).rows[0]!;
     const merchant = await merchantTerms(executor, row.merchant_id, true);
     if (merchant.status !== "active" || !merchant.in_contract) throw new ApiError("BUSINESS_RULE", "affiliateMerchantInactive");
     const day = await vietnamToday(executor);
@@ -415,7 +445,36 @@ export class AffiliateTransactionsService {
       goodsAmount: afterVoucher,
       points,
     });
-    const paid = afterVoucher - redeemed.amount;
+    await executor.execute(sql`
+      UPDATE affiliate.transactions SET buyer_user_id = ${buyerId}, redeemed_points = ${redeemed.points}, redeemed_amount = ${redeemed.amount},
+        voucher_code_id = ${input.voucherCodeId}, voucher_discount = ${voucher.discount}, voucher_payable = ${voucher.payable}
+      WHERE id = ${id}`);
+    return { points: redeemed.points, amount: redeemed.amount, voucherDiscount: voucher.discount };
+  }
+
+  // Bước 2: tích điểm, ghi hoàn tất, hạch toán. Thu hộ (CONG_VIEC_73): ghi tiền thu, phí trước khi xét hạn mức nợ (tiền thu hộ chờ chuyển giảm dư nợ).
+  private async finish(executor: Executor, id: string, collected: { amount: number; platformFee: number; gatewayFee: number } | null): Promise<void> {
+    if (collected)
+      await executor.execute(sql`
+        UPDATE affiliate.transactions SET collected_amount = ${collected.amount}, platform_fee = ${collected.platformFee}, gateway_fee = ${collected.gatewayFee} WHERE id = ${id}`);
+    const row = (
+      await executor.execute<{
+        merchant_id: string;
+        buyer_user_id: string;
+        bill_amount: string;
+        voucher_discount: string;
+        voucher_payable: string;
+        redeemed_amount: string;
+        earn_percent: string;
+      }>(sql`
+        SELECT merchant_id, buyer_user_id, bill_amount::text, voucher_discount::text, voucher_payable::text, redeemed_amount::text, earn_percent::text
+        FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)
+    ).rows[0]!;
+    const merchant = await merchantTerms(executor, row.merchant_id, true);
+    const day = await vietnamToday(executor);
+    const afterVoucher = Number(row.bill_amount) - Number(row.voucher_discount);
+    const redeemedAmount = Number(row.redeemed_amount);
+    const paid = afterVoucher - redeemedAmount;
     const snapshot = (
       await executor.execute<{ multiplier: string; point_value: string | null }>(sql`
         SELECT d.multiplier::text, ph.point_value::text FROM loyalty.document_points d LEFT JOIN loyalty.program_phases ph ON ph.id = d.phase_id
@@ -424,11 +483,11 @@ export class AffiliateTransactionsService {
     const estimate = Math.round((paid * Number(row.earn_percent) * Number(snapshot.multiplier)) / 100);
     // Giao dịch này cũng làm giảm dư nợ bằng tiền công ty phải trả (điểm khách dùng, voucher).
     const overdue = await merchantOverdue(executor, row.merchant_id);
-    const overLimit = (await merchantExposure(executor, row.merchant_id)) - redeemed.amount - voucher.payable + estimate > Number(merchant.credit_limit);
+    const overLimit = (await merchantExposure(executor, row.merchant_id)) - redeemedAmount - Number(row.voucher_payable) + estimate > Number(merchant.credit_limit);
     const earned = await this.ledger.earnWithin(executor, {
       sourceType: "affiliate_transaction",
       sourceId: id,
-      userId: buyerId,
+      userId: row.buyer_user_id,
       companyId: merchant.company_id,
       day,
       goodsAmount: afterVoucher,
@@ -438,11 +497,63 @@ export class AffiliateTransactionsService {
     const skipReason: AffiliateSkipReason | null = overdue ? "overdue" : overLimit ? "credit_limit" : earned.skipReason;
     const pointValue = snapshot.point_value === null ? null : Number(snapshot.point_value);
     await executor.execute(sql`
-      UPDATE affiliate.transactions SET status = 'completed', buyer_user_id = ${buyerId}, redeemed_points = ${redeemed.points}, redeemed_amount = ${redeemed.amount},
-        paid_amount = ${paid}, earned_points = ${earned.points}, earned_amount = ${pointValue === null ? 0 : Math.round(earned.points * pointValue)}, skip_reason = ${skipReason},
-        point_value = ${pointValue}, voucher_code_id = ${input.voucherCodeId}, voucher_discount = ${voucher.discount}, voucher_payable = ${voucher.payable}, completed_at = now()
+      UPDATE affiliate.transactions SET status = 'completed', paid_amount = ${paid}, earned_points = ${earned.points},
+        earned_amount = ${pointValue === null ? 0 : Math.round(earned.points * pointValue)}, skip_reason = ${skipReason}, point_value = ${pointValue}, completed_at = now()
       WHERE id = ${id}`);
     await this.accounting.record(executor, await transactionDraft(executor, id));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73 lát L4; QUYTAC_NGHIEPVU_578, 581): giao dịch LK… lập khi khách bấm thanh toán, xác nhận.
+  // ---------------------------------------------------------------------------
+
+  // Khách bấm thanh toán, xác nhận: lập giao dịch chờ gắn đơn, dùng voucher, điểm ngay (hết hạn cùng đơn).
+  async reserveForCheckout(
+    executor: Executor,
+    input: {
+      checkoutId: string;
+      merchantId: string;
+      outletId: string;
+      source: AffiliateTransactionSource;
+      cashierUserId: string | null;
+      apiKeyId: string | null;
+      method: "buyer_qr" | "merchant_qr";
+      buyerId: string;
+      billAmount: string;
+      expiresAt: string;
+      points: number;
+      voucherCodeId: string | null;
+    },
+  ): Promise<{ id: string; points: number; amount: number; voucherDiscount: number }> {
+    const merchant = await merchantTerms(executor, input.merchantId);
+    const id = (
+      await executor.execute<{ id: string }>(sql`
+        INSERT INTO affiliate.transactions (merchant_id, outlet_id, cashier_user_id, buyer_user_id, method, expires_at, bill_amount, earn_percent, source, api_key_id, checkout_id)
+        VALUES (${input.merchantId}, ${input.outletId}, ${input.cashierUserId}, ${input.buyerId}, ${input.method}, ${input.expiresAt}, ${input.billAmount},
+          ${merchant.earn_percent}, ${input.source}, ${input.apiKeyId}, ${input.checkoutId})
+        RETURNING id`)
+    ).rows[0]!.id;
+    const reserved = await this.reserve(executor, id, input.buyerId, { points: input.points, voucherCodeId: input.voucherCodeId, capToMax: false });
+    return { id, ...reserved };
+  }
+
+  // Đã thu đủ (hoặc khách xác nhận, cửa hàng thu tại quầy): tích điểm, ghi hoàn tất kèm tiền thu hộ, phí.
+  async finishForCheckout(executor: Executor, id: string, collected: { amount: number; platformFee: number; gatewayFee: number }): Promise<string> {
+    const row = (await executor.execute<{ status: string; document_no: string }>(sql`SELECT status, document_no FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)).rows[0]!;
+    if (row.status !== "pending") throw new ApiError("BUSINESS_RULE", "affiliateTransactionExpired");
+    await this.finish(executor, id, collected);
+    return row.document_no;
+  }
+
+  // Đơn đóng khi chưa hoàn tất: trả voucher, hoàn điểm đã dùng, giao dịch chuyển hết hạn.
+  async releaseForCheckout(executor: Executor, id: string): Promise<void> {
+    const row = (
+      await executor.execute<{ status: string; voucher_code_id: string | null }>(sql`SELECT status, voucher_code_id FROM affiliate.transactions WHERE id = ${id} FOR UPDATE`)
+    ).rows[0];
+    if (!row || row.status !== "pending") return;
+    if (row.voucher_code_id) await releaseVoucherWithin(executor, row.voucher_code_id);
+    await releaseSalePoints(executor, "affiliate_transaction", id);
+    await executor.execute(sql`UPDATE affiliate.transactions SET status = 'expired' WHERE id = ${id}`);
   }
 
   // Hủy (QUYTAC_NGHIEPVU_400): chủ cửa hàng, tuần chưa chốt; hoàn điểm đã dùng, trừ lại điểm đã tích (thiếu thì cửa hàng vẫn trả phần thiếu).
@@ -452,15 +563,30 @@ export class AffiliateTransactionsService {
     return this.transaction(member, id);
   }
 
+  // Giao dịch có tiền VComm thu hộ (CONG_VIEC_73 lát L7): đơn chờ hủy kèm hoàn tiền, bút toán, việc chờ hóa đơn; đăng ký khi khởi động.
+  collectedCancelHook: ((transaction: DatabaseTransaction, transactionId: string, counter: CounterActor, reason: string) => Promise<void>) | null = null;
+
   // Hủy bởi chủ cửa hàng hoặc phần mềm cửa hàng qua Open API (bổ sung QUYTAC_NGHIEPVU_400, CONG_VIEC_67).
   async cancelFor(counter: CounterActor, id: string, reason: string): Promise<void> {
     await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: string; settlement_id: string | null; merchant_id: string; buyer_user_id: string; document_no: string; voucher_code_id: string | null }>(sql`
-          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no, voucher_code_id FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${counter.merchantId} FOR UPDATE`)
+        await transaction.execute<{
+          status: string;
+          settlement_id: string | null;
+          merchant_id: string;
+          buyer_user_id: string;
+          document_no: string;
+          voucher_code_id: string | null;
+          collected_amount: string;
+        }>(sql`
+          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no, voucher_code_id, collected_amount::text
+          FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${counter.merchantId} FOR UPDATE`)
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "completed") throw new ApiError("BUSINESS_RULE", "affiliateTransactionNotCancellable");
+      // Giao dịch có tiền VComm thu hộ: hủy toàn bộ kèm hoàn tiền cho khách (CONG_VIEC_73 lát L7).
+      const collected = Number(row.collected_amount) > 0;
+      if (collected && !this.collectedCancelHook) throw new ApiError("BUSINESS_RULE", "affiliateCollectedNotCancellable");
       if (row.settlement_id) throw new ApiError("BUSINESS_RULE", "affiliateWeekSettled");
       if (row.voucher_code_id) await releaseVoucherWithin(transaction, row.voucher_code_id);
       const result = await this.ledger.cancelWithin(transaction, { sourceType: "affiliate_transaction", sourceId: id, companyId: counter.companyId, day: await vietnamToday(transaction) });
@@ -469,6 +595,7 @@ export class AffiliateTransactionsService {
           cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
         WHERE id = ${id}`);
       await this.accounting.record(transaction, await transactionCancelDraft(transaction, id));
+      if (collected) await this.collectedCancelHook!(transaction, id, counter, reason);
       await notify(transaction, [
         {
           userId: row.buyer_user_id,
@@ -588,6 +715,7 @@ export class AffiliateTransactionsService {
   async memberCode(buyerId: string, points: number, voucherCodeId: string | null): Promise<BuyerMemberCode> {
     const buyer = (await this.database.execute(sql`SELECT 1 FROM marketplace.buyer_accounts WHERE user_id = ${buyerId}`)).rows[0];
     if (!buyer) throw new ApiError("FORBIDDEN", "forbidden");
+    await this.assertMemberCodeOpen();
     return issueMemberCode(buyerId, points, voucherCodeId, new Date());
   }
 
@@ -626,6 +754,7 @@ export class AffiliateTransactionsService {
       earnedPoints: row.earned_points,
       skipReason: row.skip_reason,
       createdAt: iso(row.created_at)!,
+      einvoice: null,
     }));
   }
 }

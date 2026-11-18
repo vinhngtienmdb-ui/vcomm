@@ -12,6 +12,7 @@ import { apiFetch } from "ui/lib/api";
 import { formatDateTime, formatMoney } from "ui/lib/format";
 import { BuyerDialog, type Buyer } from "./BuyerDialog";
 import { CustomerBox, lookupCustomer } from "./CustomerBox";
+import { AppPaymentDialog } from "./AppPaymentDialog";
 import { PaymentDialog } from "./PaymentDialog";
 import { Receipt } from "./Receipt";
 
@@ -43,7 +44,7 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
   const [buyer, setBuyer] = useState<Buyer>(emptyBuyer);
   const [customer, setCustomer] = useState<{ phone: string; data: RetailCustomerResponse } | null>(null);
   const customerRef = useRef<HTMLInputElement | null>(null);
-  const [dialog, setDialog] = useState<"buyer" | "payment" | null>(null);
+  const [dialog, setDialog] = useState<"buyer" | "payment" | "app" | null>(null);
   const [done, setDone] = useState<RetailSaleResponse | null>(null);
   const [online, setOnline] = useState(true);
   const scanRef = useRef<HTMLInputElement>(null);
@@ -481,6 +482,23 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
           customer={customer?.data.found ? customer.data : null}
           quote={quote}
           onQuoteChanged={() => void refreshQuote(cart)}
+          onPaid={(sale) => {
+            setDialog(null);
+            setDone(sale);
+          }}
+          onClose={() => {
+            setDialog(null);
+            focusScan();
+          }}
+          onApp={() => setDialog("app")}
+        />
+      )}
+      {dialog === "app" && quote && (
+        <AppPaymentDialog
+          shift={shift}
+          cart={cart}
+          buyer={buyer}
+          quote={quote}
           onPaid={(sale) => {
             setDialog(null);
             setDone(sale);

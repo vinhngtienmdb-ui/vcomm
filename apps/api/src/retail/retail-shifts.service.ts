@@ -11,6 +11,7 @@ import type {
   RetailShiftSummaryLine,
 } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
+import { InstoreCheckoutsService } from "../instore/checkouts.service";
 import type { z } from "zod";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
@@ -36,6 +37,7 @@ type ShiftRow = {
   branch_id: string;
   cash_fund_id: string;
   vietqr_bank_bin: string | null;
+  app_payment_enabled: boolean;
   vietqr_account_name: string | null;
   bank_account_no: string | null;
   register_id: string;
@@ -59,7 +61,7 @@ type ShiftRow = {
 export type RetailShift = ShiftRow;
 
 const shiftSelect = sql`
-  SELECT sh.id, sh.company_id, sh.store_id, b.name AS store_name, s.branch_id, s.cash_fund_id, s.vietqr_bank_bin, s.vietqr_account_name, bf.account_no AS bank_account_no, sh.register_id, r.code AS register_code, r.name AS register_name,
+  SELECT sh.id, sh.company_id, sh.store_id, b.name AS store_name, s.branch_id, s.cash_fund_id, s.vietqr_bank_bin, s.app_payment_enabled, s.vietqr_account_name, bf.account_no AS bank_account_no, sh.register_id, r.code AS register_code, r.name AS register_name,
     sh.cashier_id, cu.full_name AS cashier_name, sh.opened_at, sh.opening_cash::text, sh.opening_note, sh.status, sh.closed_at, xu.full_name AS closed_by_name,
     sh.expected_cash::text, sh.counted_cash::text, sh.difference::text, sh.difference_reason, sh.version
   FROM retail.shifts sh
@@ -81,6 +83,7 @@ export class RetailShiftsService {
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly payments: PaymentsService,
+    private readonly instoreCheckouts: InstoreCheckoutsService,
   ) {}
 
   async shift(executor: Executor, companyId: string, id: string, lock = false): Promise<RetailShift> {
@@ -145,6 +148,7 @@ export class RetailShiftsService {
         id: row.store_id,
         name: row.store_name,
         bankTransfer: row.vietqr_bank_bin && row.bank_account_no ? { bankBin: row.vietqr_bank_bin, accountNo: row.bank_account_no, accountName: row.vietqr_account_name! } : null,
+        appPayment: row.app_payment_enabled,
       },
       register: { id: row.register_id, code: row.register_code, name: row.register_name },
       cashier: { id: row.cashier_id, name: row.cashier_name },
@@ -334,6 +338,8 @@ export class RetailShiftsService {
         const visible = await retailPermissionsAt(this.permissionService, actor, row.branch_id);
         throw visible.has(retailPermissions.sale) || visible.has(retailPermissions.manageShifts) ? new ApiError("FORBIDDEN", "forbidden") : new ApiError("NOT_FOUND", "notFound");
       }
+      // Đơn chờ khách thanh toán qua ứng dụng VComm của ca phải xong trước (CONG_VIEC_73; QUYTAC_NGHIEPVU_575).
+      await this.instoreCheckouts.settleShift(transaction, id);
       const expected = (await transaction.execute<{ amount: string }>(sql`SELECT ${companyRound(sql`${await this.expectedCash(transaction, row)}::numeric`, actor.companyId)}::text AS amount`))
         .rows[0]!.amount;
       const counted = (await transaction.execute<{ amount: string }>(sql`SELECT ${companyRound(sql`${input.countedCash}::numeric`, actor.companyId)}::text AS amount`)).rows[0]!.amount;

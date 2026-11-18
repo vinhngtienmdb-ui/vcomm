@@ -147,7 +147,7 @@ describe("Điểm tại quầy với Smart OTP (KICHBAN_KIEMTHU_519)", () => {
     expect(missingCode.body.error.fields).toEqual({ "customer.smartOtp": "Nhập mã Smart OTP của khách để dùng điểm." });
     const wrong = await sell([rice("2")], "220000", { userId: buyerId, points: 10000, smartOtp: "000000" }, [{ method: "cash", amount: "210000" }]);
     expect(wrong.body.error.message).toBe("Mã Smart OTP không đúng hoặc đã dùng. Nhờ khách đọc mã mới trong ứng dụng.");
-    expect((await pool.query("SELECT failed_count FROM loyalty.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(1);
+    expect((await pool.query("SELECT failed_count FROM core.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(1);
     const code = totp(secret);
     const paid = await sell([rice("2")], "220000", { userId: buyerId, points: 10000, smartOtp: code }, [{ method: "cash", amount: "210000" }]);
     expect(paid.status, JSON.stringify(paid.body)).toBe(201);
@@ -157,10 +157,10 @@ describe("Điểm tại quầy với Smart OTP (KICHBAN_KIEMTHU_519)", () => {
     // Tích theo tiền hàng trừ tiền điểm: 2% × 210.000.
     expect(paid.body.loyalty).toMatchObject({ pointsUsed: 10000, pointsAmount: "10000", pointsEarned: 4200, balanceAfter: 22200 - 10000 + 4200 });
     expect(await balance()).toBe(22200 - 10000 + 4200);
-    expect((await pool.query("SELECT failed_count FROM loyalty.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(0);
+    expect((await pool.query("SELECT failed_count FROM core.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(0);
     const reused = await sell([rice("1")], "110000", { userId: buyerId, points: 1000, smartOtp: code }, [{ method: "cash", amount: "109000" }]);
     expect(reused.body.error.message).toBe("Mã Smart OTP không đúng hoặc đã dùng. Nhờ khách đọc mã mới trong ứng dụng.");
-    expect((await pool.query("SELECT failed_count FROM loyalty.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(1);
+    expect((await pool.query("SELECT failed_count FROM core.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(1);
   });
 
   it("trả hàng: hoàn điểm đã dùng, thu hồi điểm đã tích theo tỷ lệ; tiền hoàn trừ phần điểm", async () => {
@@ -198,7 +198,7 @@ describe("Điểm tại quầy với Smart OTP (KICHBAN_KIEMTHU_519)", () => {
   });
 
   it("kích hoạt máy mới thì khóa cũ hết hiệu lực; hủy Smart OTP", async () => {
-    await pool.query("UPDATE loyalty.smart_otp_devices SET locked_until = NULL WHERE user_id = $1", [buyerId]);
+    await pool.query("UPDATE core.smart_otp_devices SET locked_until = NULL WHERE user_id = $1", [buyerId]);
     expect((await buyer("post", "/buyer/loyalty/smart-otp/send-code")).status).toBe(204);
     await setSmsCode("smart_otp");
     const second = await buyer("post", "/buyer/loyalty/smart-otp/activate", { code: smsCode, deviceName: "Máy mới" });

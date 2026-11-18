@@ -390,6 +390,12 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     loyalty_partner_payable: "331",
     loyalty_partner_revenue: "511",
     loyalty_partner_tax: "33311",
+    instore_fee_revenue: "511",
+    instore_payable_internal: "3368",
+    instore_receivable_internal: "1368",
+    instore_refund_payable: "3388",
+    ipos_fee_receivable: "131",
+    ipos_fee_revenue: "511",
   },
   TT133: {
     receivable: "131",
@@ -450,6 +456,12 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     loyalty_partner_payable: "331",
     loyalty_partner_revenue: "5113",
     loyalty_partner_tax: "33311",
+    instore_fee_revenue: "5113",
+    instore_payable_internal: "3368",
+    instore_receivable_internal: "1368",
+    instore_refund_payable: "3388",
+    ipos_fee_receivable: "131",
+    ipos_fee_revenue: "5113",
   },
 };
 
@@ -512,4 +524,10 @@ export const roleDescriptions: Record<PostingRole, string> = {
   loyalty_partner_payable: "Phải trả đối tác liên minh điểm (đổi ra)",
   loyalty_partner_revenue: "Doanh thu liên minh điểm (chênh lệch giá bán điểm)",
   loyalty_partner_tax: "Thuế giá trị gia tăng đầu ra của doanh thu liên minh điểm",
+  instore_fee_revenue: "Doanh thu phí sàn, phí thu hộ mua hàng tại cửa hàng qua ứng dụng VComm",
+  instore_payable_internal: "Phải trả nội bộ tiền thu hộ cho công ty sở hữu cửa hàng tập đoàn",
+  instore_receivable_internal: "Phải thu nội bộ tiền khách trả qua ứng dụng VComm (công ty vận hành sàn)",
+  instore_refund_payable: "Phải trả hoàn tiền khách mua tại cửa hàng qua ứng dụng VComm (kế toán trưởng xác nhận)",
+  ipos_fee_receivable: "Phải thu cửa hàng liên kết phí thuê bao phần mềm bán hàng iPOS",
+  ipos_fee_revenue: "Doanh thu phí thuê bao phần mềm bán hàng iPOS",
 };

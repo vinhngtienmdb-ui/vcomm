@@ -3,7 +3,7 @@
 // Gọi API cổng cửa hàng: dùng `apiFetch` chung, thêm cửa hàng đang chọn (header `x-merchant-id`);
 // chưa đăng nhập thì về trang đăng nhập của cổng (khác trang đăng nhập nhân viên của mini app Nền tảng).
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiFetch, ApiFailure } from "ui/lib/api";
+import { apiDownload, apiFetch, ApiFailure } from "ui/lib/api";
 import type { Loadable } from "ui/lib/use-api";
 
 const merchantStorageKey = "vc_merchant";
@@ -32,6 +32,12 @@ export function portalFetch<T>(path: string, init: RequestInit = {}): Promise<T>
   return apiFetch<T>(path, { ...init, headers });
 }
 
+// Tải hoặc mở tệp (PDF hóa đơn) kèm cửa hàng đang chọn.
+export function portalDownload(path: string, fileName: string, open = false): Promise<void> {
+  const merchantId = selectedMerchantId();
+  return apiDownload(path, fileName, open, merchantId ? { "x-merchant-id": merchantId } : undefined);
+}
+
 export function usePortalApi<T>(path: string | null): { state: Loadable<T>; reload: () => Promise<void> } {
   const [state, setState] = useState<Loadable<T>>({ kind: "loading" });
   const latest = useRef(0);
@@ -54,3 +60,19 @@ export function usePortalApi<T>(path: string | null): { state: Loadable<T>; relo
   }, [reload]);
   return { state, reload };
 }
+
+// Tải tệp lên, tải tệp về trên cổng (nhập Excel iPOS): gửi kèm cửa hàng đang chọn, mã chống giả mạo yêu cầu.
+function csrfToken(): string {
+  return document.cookie.match(/(?:^|;\s*)vc_csrf=([^;]*)/)?.[1] ?? "";
+}
+
+export async function portalUpload<T>(path: string, form: FormData): Promise<T> {
+  const headers: Record<string, string> = { "x-csrf-token": csrfToken(), "accept-language": document.documentElement.lang || "vi" };
+  const merchantId = selectedMerchantId();
+  if (merchantId) headers["x-merchant-id"] = merchantId;
+  const response = await fetch(`/api/v1${path}`, { method: "POST", body: form, credentials: "same-origin", headers });
+  const payload = (await response.json().catch(() => null)) as (T & { error?: ConstructorParameters<typeof ApiFailure>[1] }) | null;
+  if (!response.ok) throw new ApiFailure(response.status, payload?.error ?? null);
+  return payload as T;
+}
+

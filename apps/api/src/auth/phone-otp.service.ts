@@ -12,7 +12,8 @@ import { users } from "../database/schema";
 import { MessagingService } from "../integrations/messaging.service";
 import { AuthService, type ClientInfo, type IssuedSession, type SessionClientType } from "./auth.service";
 
-export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp" | "affiliate_redeem";
+// CONG_VIEC_74: `ipos_register` thu ngân tự đăng ký iPOS (số có thể chưa có tài khoản), `ipos_login` đăng nhập thiết bị iPOS lần đầu.
+export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp" | "affiliate_redeem" | "ipos_register" | "ipos_login";
 
 const lifetimeMinutes = 5;
 const maximumWrongCodes = 5;
@@ -35,7 +36,10 @@ export class PhoneOtpService {
   // Mã đăng nhập: chỉ gửi cho số đã gắn tài khoản. Mã đặt lại mật khẩu: như mã đăng nhập.
   // Mã đăng ký: chỉ gửi cho số chưa có tài khoản; người gọi đã kiểm tra trước (CONG_VIEC_23).
   // Trả true khi đã giao tin cho dịch vụ nhắn tin (máy phát triển: đã in mã ra log); dùng để tính phí tin nhắn (CONG_VIEC_67).
-  async send(rawPhone: string, purpose: OtpPurpose = "login"): Promise<boolean> {
+  // deliver = false: vẫn ghi mã và tính giới hạn như khi gửi (bên ngoài không phân biệt được) nhưng không gửi tin;
+  // dùng cho khách đã kích hoạt Smart OTP hoặc đã hết thời hạn chuyển đổi (CONG_VIEC_72; QUYTAC_NGHIEPVU_560).
+  // statisticPurpose: mục đích ghi vào thống kê tin SMS khi khác mục đích mã (đăng nhập cổng cửa hàng: "merchant_portal").
+  async send(rawPhone: string, purpose: OtpPurpose = "login", deliver = true, statisticPurpose: string = purpose): Promise<boolean> {
     const phone = normalizePhone(rawPhone);
     const now = this.clock.now();
     // Giới hạn tính trên mọi mục đích để không lách bằng cách đổi mục đích.
@@ -43,9 +47,9 @@ export class PhoneOtpService {
       SELECT count(*)::int AS total FROM core.otp_codes WHERE phone = ${phone} AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
     if ((recent.rows[0]?.total ?? 0) >= maximumSendsPerHour) throw new ApiError("RATE_LIMITED", "otpTooMany");
     // Mã đăng ký gửi tới số chưa có tài khoản: giới hạn tổng số mỗi giờ của cả hệ thống để chặn bơm SMS tốn tiền (rà soát CONG_VIEC_23).
-    if (purpose === "register") {
+    if (purpose === "register" || purpose === "ipos_register") {
       const registered = await this.database.execute<{ total: number }>(sql`
-        SELECT count(*)::int AS total FROM core.otp_codes WHERE purpose = 'register' AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
+        SELECT count(*)::int AS total FROM core.otp_codes WHERE purpose IN ('register', 'ipos_register') AND created_at > ${new Date(now.getTime() - 3_600_000)}`);
       if ((registered.rows[0]?.total ?? 0) >= maximumRegisterSendsPerHour) throw new ApiError("RATE_LIMITED", "otpTooMany");
     }
     const user = await this.activeUserByPhone(phone);
@@ -57,8 +61,9 @@ export class PhoneOtpService {
         INSERT INTO core.otp_codes (phone, purpose, code_hash, expires_at, created_at)
         VALUES (${phone}, ${purpose}, ${hashCode(code)}, ${new Date(now.getTime() + lifetimeMinutes * 60_000)}, ${now})`);
     });
-    if (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)) return false;
-    const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null);
+    // Đăng ký thu ngân iPOS gửi cả khi số đã hoặc chưa có tài khoản (CONG_VIEC_74, QUYTAC_NGHIEPVU_605).
+    if (!deliver || (purpose !== "ipos_register" && (purpose === "register" ? Boolean(user) : !user || (purpose === "password_reset" && user.email)))) return false;
+    const sent = await this.messaging.sendLoginOtp(phone, code, user?.id ?? null, "login_otp", statisticPurpose);
     // Máy phát triển chưa cài eSMS: in mã ra log để thử đăng nhập. Không bao giờ in trên môi trường thật.
     if (!sent && process.env.NODE_ENV !== "production") {
       this.logger.warn(`Mã OTP thử (${purpose}) cho ${phone}: ${code}`);

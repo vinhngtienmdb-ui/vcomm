@@ -43,12 +43,17 @@ import {
   type StationReturnItem,
   type StationReturnListResponse,
   stationReturnReceiveSchema,
+  createRetailCheckoutSchema,
+  retailCheckoutCancelSchema,
+  retailCheckoutPayCodeSchema,
+  type RetailCheckoutResponse,
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { RetailCheckoutsService } from "./retail-checkouts.service";
 import { RetailReturnsService } from "./retail-returns.service";
 import { RetailSalesService } from "./retail-sales.service";
 import { RetailShiftsService } from "./retail-shifts.service";
@@ -66,6 +71,7 @@ export class RetailController {
     private readonly returns: RetailReturnsService,
     private readonly stationOrders: RetailStationOrdersService,
     private readonly stationReturns: RetailStationReturnsService,
+    private readonly checkouts: RetailCheckoutsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -256,6 +262,45 @@ export class RetailController {
   @Post("sales")
   async saleCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailSaleResponse> {
     return this.sales.create(await this.actor(request, companyId), createRetailSaleSchema.parse(body));
+  }
+
+  // API_328: đơn chờ khách thanh toán qua ứng dụng VComm tại quầy (CONG_VIEC_73).
+  @Post("checkouts")
+  async checkoutCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailCheckoutResponse> {
+    return this.checkouts.create(await this.actor(request, companyId), createRetailCheckoutSchema.parse(body));
+  }
+
+  @Get("checkouts/:id")
+  async checkoutDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<RetailCheckoutResponse> {
+    return this.checkouts.get(await this.actor(request, companyId), id);
+  }
+
+  @Post("checkouts/:id/pay-code")
+  @HttpCode(200)
+  async checkoutPayCode(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<RetailCheckoutResponse> {
+    return this.checkouts.payCode(await this.actor(request, companyId), id, retailCheckoutPayCodeSchema.parse(body).code);
+  }
+
+  @Post("checkouts/:id/cancel")
+  @HttpCode(200)
+  async checkoutCancel(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<RetailCheckoutResponse> {
+    return this.checkouts.cancel(await this.actor(request, companyId), id, retailCheckoutCancelSchema.parse(body).reason);
+  }
+
+  @Post("checkouts/:id/retry-posting")
+  @HttpCode(200)
+  async checkoutRetryPosting(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<RetailCheckoutResponse> {
+    return this.checkouts.retryPosting(await this.actor(request, companyId), id);
   }
 
   @Get("sales/:id")
