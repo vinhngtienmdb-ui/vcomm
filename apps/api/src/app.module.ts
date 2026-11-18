@@ -17,7 +17,7 @@ import { AuditService } from "./common/audit.service";
 import { OutboxService } from "./common/outbox.service";
 import { defaultRateLimit, RATE_LIMIT, RateLimiter } from "./common/rate-limiter";
 import { CLOCK, systemClock } from "./common/clock";
-import { LogOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messages";
+import { createOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messages";
 import { DatabaseModule } from "./database/database.module";
 import { AiAccessService } from "./ai/ai-access.service";
 import { AI_CONFIG, readAiConfig, type AiConfig } from "./ai/ai-config";
@@ -280,7 +280,7 @@ import { UsersService } from "./users/users.service";
     PasswordService,
     InvitationsService,
     UserImportService,
-    { provide: OUTBOUND_MESSAGES, useClass: LogOutboundMessages },
+    { provide: OUTBOUND_MESSAGES, useFactory: createOutboundMessages },
     { provide: EXCHANGE_RATE_FEED, useClass: VietcombankFeed },
     { provide: MESSAGE_GATEWAY, useClass: EsmsGateway },
     IntegrationSettingsService,
