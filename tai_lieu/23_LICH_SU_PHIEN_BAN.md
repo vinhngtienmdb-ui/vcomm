@@ -39,11 +39,11 @@
   - Người mua dùng ứng dụng VComm bản cũ không qua được bước xác nhận thiết bị mới: phát hành ứng dụng mới trước hoặc cùng lúc với API.
   - Thu hộ là luồng tiền mới qua công ty vận hành sàn: chỉ bật theo từng cửa hàng sau điều kiện 4, 6.
   - `react-native-bluetooth-classic` 1.73.0-rc.17 là bản thử trước phát hành; chỉ dùng cho máy in Bluetooth của iPOS.
-  - Bước quét bảo mật của CI (`pnpm audit --audit-level=high`) đang báo lỗ hổng mức Cao GHSA-fc5q-39xc-vjpf của `picomatch` (qua `@nestjs/cli`, `@expo/cli`), chưa có bản vá; người dùng chọn chờ bản vá, không bỏ qua. Pull request phát hành chờ đến khi nâng được phiên bản `picomatch` trên nhánh này.
+  - Lỗ hổng mức Cao GHSA-fc5q-39xc-vjpf của `picomatch` (qua `@nestjs/cli`, `@expo/cli`; LOI_16) chưa có bản vá: người dùng chấp nhận rủi ro 30 ngày, bước quét bảo mật của CI bỏ qua mã này qua `auditConfig.ignoreGhsas` (pull request #208, vào `main` trước rồi hợp nhất vào nhánh phát hành). Có bản vá thì nâng `picomatch` và bỏ dòng bỏ qua.
   - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.13.1).
 - Khả năng tương thích: API có sẵn giữ nguyên đường dẫn và dữ liệu, trừ đăng nhập người mua trên thiết bị mới có thêm bước xác nhận (QUYTAC_NGHIEPVU_565). Cấu trúc dữ liệu chỉ thêm, trừ việc chuyển bảng Smart OTP sang lược đồ `core`.
 - Công việc gộp trong phiên bản: CONG_VIEC_72 (pull request #177), CONG_VIEC_75 (pull request #200), CONG_VIEC_73 (pull request #183), CONG_VIEC_74 đợt 1 (pull request #188). Nhánh phát hành tạo từ `main` `0f0a5ce` (sau khi hợp nhất pull request #206; pull request #207 ghi sổ chưa vào `main` vì bước quét bảo mật của CI chờ bản vá `picomatch`, phiên điều phối cho tạo nhánh không chờ).
-- Kiểm thử trên nhánh phát hành: `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; khóa dịch khớp 11887 khóa; kiểm thử API toàn bộ một tiến trình đang chạy (ghi kết quả ở commit sau).
+- Kiểm thử trên nhánh phát hành: `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; khóa dịch khớp 11887 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER, PostgreSQL 16 `max_locks_per_transaction` 1024) 177 tệp, 986 kiểm thử đạt (thêm 23 tệp so với 0.13.1); database migration hai đường như mục Thứ tự database migration.
 - Tag: `v0.14.0` trên commit hợp nhất nhánh `phat-hanh/v0.14.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Triển khai: chưa triển khai.
 - Phương án quay lui riêng của phiên bản:
