@@ -1,5 +1,6 @@
 // Thanh toán trực tuyến đơn VComm (CONG_VIEC_25; CHUC_NANG_121; QUYTAC_NGHIEPVU_165, 166; API_131, API_132): mở trang cổng, nhận kết quả, tự hủy đơn quá hạn.
 import { Inject, Injectable, Logger } from "@nestjs/common";
+import { ModuleRef } from "@nestjs/core";
 import type { BuyerPaymentStart, PaymentMethodCode } from "contracts";
 import { sql } from "drizzle-orm";
 import type { ClientInfo } from "../../auth/auth.service";
@@ -15,6 +16,7 @@ import { orderDeductions, returnWalletPart } from "../shopping-wallet";
 import type { GatewayNotification, GatewayRequest, InquiryOutcome, NotificationOutcome } from "./payment-gateway";
 import { gatewayAdapter, isOnlineMethod } from "./payment-gateway-registry";
 import { releaseSalePoints } from "../../loyalty/ledger.service";
+import { InstoreCheckoutsService, type DatabaseTransaction } from "../../instore/checkouts.service";
 
 // Mỗi đơn mở trang thanh toán tối đa 10 lần.
 const attemptLimit = 10;
@@ -48,6 +50,7 @@ export class MarketplacePaymentsService {
     private readonly salesOrders: SalesOrdersService,
     private readonly ledger: LedgerService,
     private readonly rateLimiter: RateLimiter,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   // Người mua mở thanh toán (QUYTAC_NGHIEPVU_165): đơn của mình, đang chờ thanh toán, còn hạn; mỗi lần một số tham chiếu mới; cổng theo danh mục phương thức.
@@ -136,8 +139,8 @@ export class MarketplacePaymentsService {
   // found: báo số tham chiếu của lần thanh toán tìm được (kết quả PayOS chỉ có mã đơn riêng) để ghi nhật ký.
   async record(transaction: Pick<Database, "execute">, gatewayCode: string, result: GatewayNotification, found?: (reference: string) => void): Promise<NotificationOutcome> {
     const payment = (
-      await transaction.execute<{ id: string; order_id: string; reference: string; amount: string; status: string }>(sql`
-      SELECT id, order_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)} FOR UPDATE`)
+      await transaction.execute<{ id: string; order_id: string | null; checkout_id: string | null; reference: string; amount: string; status: string }>(sql`
+      SELECT id, order_id, checkout_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)} FOR UPDATE`)
     ).rows[0];
     if (!payment) return "not_found";
     found?.(payment.reference);
@@ -145,7 +148,12 @@ export class MarketplacePaymentsService {
     if (payment.status !== "pending") return "already_confirmed";
     // Cổng báo đang xử lý (CONG_VIEC_33): chờ kết quả cuối, không ghi nhận.
     if (result.pending) return "pending";
-    await this.complete(transaction, payment.id, payment.order_id, result, gatewayCode);
+    // Đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73; QUYTAC_NGHIEPVU_579, 580). Mọi nơi gọi đều truyền giao dịch cơ sở dữ liệu; ghi chứng từ cần giao dịch đầy đủ.
+    if (payment.checkout_id) {
+      await this.moduleRef.get(InstoreCheckoutsService, { strict: false }).recordPayment(transaction as DatabaseTransaction, payment.id, payment.checkout_id, result);
+      return "success";
+    }
+    await this.complete(transaction, payment.id, payment.order_id!, result, gatewayCode);
     return "success";
   }
 

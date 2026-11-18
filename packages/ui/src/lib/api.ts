@@ -80,8 +80,9 @@ export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
 }
 
 // Tải tệp về qua fetch để gửi kèm cookie phiên và công ty đang chọn; mở trong thẻ mới khi xem (PDF).
-export async function apiDownload(path: string, fileName: string, open = false): Promise<void> {
-  const response = await send(path, {});
+// Header thêm (ví dụ cửa hàng đang chọn của cổng cửa hàng liên kết).
+export async function apiDownload(path: string, fileName: string, open = false, headers?: HeadersInit): Promise<void> {
+  const response = await send(path, headers ? { headers } : {});
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as ErrorBody | null;
     throw new ApiFailure(response.status, body?.error ?? null);

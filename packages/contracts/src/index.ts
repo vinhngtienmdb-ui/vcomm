@@ -3306,14 +3306,18 @@ export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
 export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
 export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
+// CONG_VIEC_73 (QUYTAC_NGHIEPVU_585, 587): phiếu chi chuyển tiền thu hộ, phiếu thu nhận tiền thu hộ, hệ thống lập khi ghi đã chuyển bảng chuyển tiền.
+export const instorePayoutPaymentKinds = ["instore_payout_receipt", "instore_payout_payment"] as const;
+export type InstorePayoutPaymentKind = (typeof instorePayoutPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind | InstorePayoutPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
   kind === "customer_receipt" ||
   kind === "supplier_refund" ||
   kind === "retail_receipt" ||
   kind === "cash_surplus" ||
   kind === "customs_tax_refund" ||
-  kind === "loyalty_intercompany_receipt";
+  kind === "loyalty_intercompany_receipt" ||
+  kind === "instore_payout_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
@@ -3811,6 +3815,8 @@ export const einvoiceListQuerySchema = z
     from: isoDate.optional(),
     to: isoDate.optional(),
     search: z.string().trim().max(100).optional(),
+    // Lập theo ủy nhiệm thay cửa hàng liên kết (CONG_VIEC_73 lát L6).
+    mandated: z.enum(["true", "false"]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -3830,7 +3836,11 @@ export interface EinvoiceListItem {
   status: EinvoiceStatus;
   overdue: boolean;
   replaced: boolean;
+  // Số phiếu xuất, số giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng).
   sourceDocumentNo: string | null;
+  sourceKind: "document" | "affiliate_transaction" | "fee_invoice";
+  sellerName: string;
+  mandated: boolean;
 }
 export interface EinvoiceParty {
   partnerId?: string | null;
@@ -3868,7 +3878,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   lastError: string | null;
   dueDate: string;
   issuedAt: string | null;
-  sourceDocumentId: string;
+  sourceDocumentId: string | null;
   related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];
@@ -3884,7 +3894,9 @@ export const einvoiceReturnQuerySchema = z.object({ status: z.enum(einvoiceRetur
 export interface EinvoiceReturnTask {
   id: string;
   status: EinvoiceReturnStatus;
-  returnDocumentId: string;
+  // Phiếu nhận hàng trả lại; hoặc giao dịch cửa hàng liên kết bị hủy có hóa đơn ủy nhiệm (CONG_VIEC_73 lát L7, số LK…).
+  returnDocumentId: string | null;
+  affiliateTransactionId: string | null;
   returnDocumentNo: string | null;
   returnDate: string;
   buyerName: string;
@@ -5101,7 +5113,8 @@ export interface MarketplacePaymentItem {
 }
 
 // API_133: hoàn tiền (QUYTAC_NGHIEPVU_168).
-export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received"] as const;
+// instore_cancelled, transaction_cancelled: đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73).
+export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received", "instore_cancelled", "transaction_cancelled"] as const;
 export type RefundReason = (typeof refundReasons)[number];
 export const refundStatuses = ["pending", "completed"] as const;
 export type RefundStatus = (typeof refundStatuses)[number];
@@ -5128,7 +5141,11 @@ export const buyerBankAccountSchema = z
 
 export interface RefundItem {
   id: string;
-  orderId: string;
+  // Đơn VComm; trống với việc hoàn của đơn chờ tại cửa hàng (checkoutId, số TT…, CONG_VIEC_73 lát L7).
+  orderId: string | null;
+  checkoutId: string | null;
+  // Cửa hàng hoặc quầy của đơn tại cửa hàng.
+  placeName: string | null;
   documentNo: string;
   buyerName: string;
   buyerPhone: string;
@@ -5878,6 +5895,11 @@ export const saveRetailStoreSchema = z
     returnDays: z.number().int().min(0).max(90).default(7),
     receiptFooter: blankToNull(300),
     status: z.enum(["active", "inactive"]).default("active"),
+    // CONG_VIEC_73 (QUYTAC_NGHIEPVU_573): nhận thanh toán qua ứng dụng VComm, phí sàn 0 đến 10 %.
+    appPaymentEnabled: z.boolean().default(false),
+    platformFeePercent: decimalText(4)
+      .refine((value) => Number(value) <= 10, "invalidValue")
+      .default("0"),
     version: z.number().int().positive().optional(),
   })
   .strict();
@@ -6090,6 +6112,8 @@ export interface RetailStoreResponse {
   returnDays: number;
   receiptFooter: string | null;
   status: "active" | "inactive";
+  appPaymentEnabled: boolean;
+  platformFeePercent: string;
   currency: string;
   registers: RetailRegisterResponse[];
   version: number;
@@ -6141,7 +6165,8 @@ export interface RetailShiftSummaryLine {
 export interface RetailShiftResponse {
   id: string;
   // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
-  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
+  // appPayment: cửa hàng nhận thanh toán qua ứng dụng VComm (CONG_VIEC_73).
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null; appPayment: boolean };
   register: { id: string; code: string; name: string };
   cashier: { id: string; name: string };
   openedAt: string;
@@ -6247,7 +6272,8 @@ export interface RetailQuoteResponse {
   maxManualDiscountPercent: string;
   currency: string;
 }
-export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+// CONG_VIEC_73: "vcomm_app" là phần khách trả trong ứng dụng VComm qua cổng thanh toán.
+export const retailPaymentMethods = ["cash", "bank_transfer", "points", "vcomm_app"] as const;
 export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
 export const createRetailSaleSchema = z
   .object({
@@ -6263,7 +6289,8 @@ export const createRetailSaleSchema = z
       })
       .strict()
       .optional(),
-    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã Smart OTP 6 số. Tiền điểm do máy chủ tính.
+    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã thanh toán 18 số quét từ ứng dụng
+    // (CONG_VIEC_73 lát L3) hoặc mã Smart OTP 6 số khách đọc (dự phòng). Tiền điểm do máy chủ tính.
     customer: z
       .object({
         userId: z.uuid(),
@@ -6272,8 +6299,13 @@ export const createRetailSaleSchema = z
           .string()
           .regex(/^[0-9]{6}$/, "invalidValue")
           .optional(),
+        payCode: z
+          .string()
+          .regex(/^[0-9]{18}$/, "invalidValue")
+          .optional(),
       })
       .strict()
+      .refine((value) => !(value.smartOtp && value.payCode), { path: ["payCode"], message: "invalidValue" })
       .optional(),
     payments: z
       .array(
@@ -6290,6 +6322,27 @@ export const createRetailSaleSchema = z
   })
   .strict();
 export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+// API_328: đơn chờ khách thanh toán qua ứng dụng VComm tại quầy (CONG_VIEC_73; QUYTAC_NGHIEPVU_575, 580).
+// Giỏ như khi bán; khách VComm, điểm, tiền do khách chọn và trả trên ứng dụng.
+export const createRetailCheckoutSchema = createRetailSaleSchema.omit({ customer: true, payments: true });
+export type CreateRetailCheckoutRequest = z.input<typeof createRetailCheckoutSchema>;
+export const retailCheckoutPayCodeSchema = z.object({ code: z.string().trim().min(1).max(40) }).strict();
+export const retailCheckoutCancelSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface RetailCheckoutResponse {
+  id: string;
+  documentNo: string;
+  status: "awaiting_buyer" | "awaiting_payment" | "paid_unposted" | "completed" | "expired" | "cancelled" | "declined";
+  totalAmount: string;
+  expiresAt: string;
+  // Đường dẫn thanh toán in trong mã QR (luồng 2); chỉ trả khi vừa tạo.
+  qrUrl: string | null;
+  buyer: { maskedName: string; tierName: string | null } | null;
+  points: number;
+  pointsAmount: string;
+  amountDue: string | null;
+  saleId: string | null;
+  postingError: string | null;
+}
 // API_198: tra khách VComm tại quầy theo số điện thoại.
 export const retailCustomerQuerySchema = z
   .object({
@@ -8286,3 +8339,4 @@ export * from "./office-signing";
 export * from "./office-contracts";
 export * from "./dropship";
 export * from "./authentication";
+export * from "./instore";

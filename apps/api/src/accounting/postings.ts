@@ -65,7 +65,12 @@ export type PostingRole =
   | "loyalty_partner_revenue"
   | "loyalty_partner_tax"
   | "affiliate_fee_tax"
-  | "affiliate_voucher_deferred";
+  | "affiliate_voucher_deferred"
+  // CONG_VIEC_73: thu tiền mua hàng tại cửa hàng qua ứng dụng VComm.
+  | "instore_fee_revenue"
+  | "instore_payable_internal"
+  | "instore_receivable_internal"
+  | "instore_refund_payable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -125,6 +130,10 @@ export const postingRoles: PostingRole[] = [
   "loyalty_partner_tax",
   "affiliate_fee_tax",
   "affiliate_voucher_deferred",
+  "instore_fee_revenue",
+  "instore_payable_internal",
+  "instore_receivable_internal",
+  "instore_refund_payable",
 ];
 
 export interface DraftLine {
@@ -162,7 +171,14 @@ export interface DraftJournal {
     | "loyalty_partner_exchange"
     | "loyalty_partner_gift"
     | "loyalty_partner_gift_cancel"
-    | "loyalty_partner_settlement";
+    | "loyalty_partner_settlement"
+    | "instore_checkout"
+    | "instore_checkout_owner"
+    | "instore_payout"
+    | "instore_payout_owner"
+    | "instore_checkout_cancel"
+    | "instore_refund_receipt"
+    | "instore_refund";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -464,8 +480,18 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     (await executor.execute(sql`SELECT 1 FROM core.companies WHERE id = ${payment.company_id} AND is_marketplace_operator`)).rows.length > 0
       ? "loyalty_intercompany_receivable"
       : "loyalty_intercompany_payable";
+  // CONG_VIEC_73 (QUYTAC_NGHIEPVU_587): phiếu chi chuyển tiền thu hộ trừ phải trả cửa hàng liên kết (331) hoặc phải trả nội bộ (336);
+  // phiếu thu của công ty sở hữu cửa hàng tập đoàn trừ phải thu nội bộ (136).
+  const payoutPayable: PostingRole =
+    payment.kind === "instore_payout_payment" &&
+    (await executor.execute(sql`SELECT 1 FROM finance.payments p JOIN instore.payouts o ON o.id = p.instore_payout_id WHERE p.id = ${paymentId} AND o.recipient_kind = 'merchant'`)).rows
+      .length > 0
+      ? "affiliate_payable"
+      : "instore_payable_internal";
   const lines: Record<string, DraftLine[]> = {
     customer_receipt: [debit(fund, amount), credit(receivable, amount, partner)],
+    instore_payout_payment: [debit(payoutPayable, amount, partner), credit(fund, amount)],
+    instore_payout_receipt: [debit(fund, amount), credit("instore_receivable_internal", amount, partner)],
     customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
     supplier_payment: supplierPayment,
     supplier_refund: [debit(fund, amount), credit("payable", amount, partner)],

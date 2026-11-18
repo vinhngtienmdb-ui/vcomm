@@ -3992,3 +3992,37 @@ Tệp `database/migrations/0158_core_smart_otp.sql`, `0159_core_authentication_s
 | 0160 | `affiliate.members` | Thêm `authentication_reset_at` timestamptz: thành viên bị đặt lại xác thực, lần vào tới phải nhận mã SMS một lần, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới |
 
 Quy tắc xóa và lưu giữ: thiết bị tin cậy đánh dấu `removed_at`, không xóa dòng; hết tin cậy sau 12 tháng không dùng tính theo `last_seen_at`. Smart OTP bị hủy (khách, chăm sóc khách hàng, sai mã khóa, hết hạn trên bản web) xóa dòng `core.smart_otp_devices`, giữ `core.account_security`. Không sửa tệp database migration đã chạy.
+
+## 46. Database migration 0161 đến 0164, 0171, 0172 – CONG_VIEC_73 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm)
+
+Tệp `database/migrations/0161_instore_checkouts.sql` (L1), `0162_instore_retail_payments.sql` (L2), `0163_instore_affiliate_collection.sql` (L4), `0164_instore_payouts.sql` (L5), `0171_instore_mandated_einvoices.sql` (L6), `0172_instore_open_api_refunds.sql` (L7). Đặc tả dự kiến 0161 đến 0164; phần hóa đơn ủy nhiệm (L6) và Open API, hoàn tiền (L7) dùng số 0171, 0172 do phiên điều phối cấp. Không lưu mã thanh toán, mã QR, khóa ký webhook dạng rõ.
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0161 | Schema `instore`; `instore.checkouts` (mới) | Đơn chờ `TT…`: `operator_company_id`, `kind` (`retail`, `affiliate`), `source` (`retail_counter`, `merchant_portal`, `open_api`, `ipos`), nơi bán (`company_id`, `store_id`, `register_id`, `shift_id` hoặc `merchant_id`, `outlet_id`), người tạo hoặc `api_key_id`, `partner_checkout_code`, `ipos_invoice_id`, `idempotency_key`, `bill_amount`, `lines` (jsonb), `collect_in_app`, `qr_token_hash`, khách và cách gắn, điểm, voucher, `amount_due`, `status`, `expires_at`, `retail_sale_id`, `affiliate_transaction_id`, phí, `payout_id`, `buyer_invoice_info`, lý do hủy, `version`; ràng buộc theo `kind`; duy nhất (`merchant_id`, `partner_checkout_code`) |
+| 0161 | `instore.attempt_failures` (mới) | `subject`, `failed_at`: đếm quét mã sai, mở QR sai trong 60 phút |
+| 0161 | `core.smart_otp_devices` | `pay_code_prefix_hash` (duy nhất), `pay_code_issued_for` |
+| 0161 | `marketplace.payments`, `marketplace.refunds` | `checkout_id`; lần thanh toán có đúng một trong `order_id`, `checkout_id`; lý do hoàn tiền thêm `instore_cancelled` |
+| 0162 | `retail.stores` | `app_payment_enabled`, `platform_fee_percent` (0 đến 10) |
+| 0162 | `retail.sale_payments`, `retail.return_refunds` | Phương thức `vcomm_app`; `retail.sale_payments.checkout_id` |
+| 0162 | `instore.checkouts` | `sale_input`, `reserved_sale_id`, `paid_amount`, `paid_at`, `posting_error`; trạng thái `paid_unposted` |
+| 0163 | `affiliate.merchants` | `collection_enabled` (mặc định tắt), `collection_fee_percent`, `payout_bank_account_id`, `collection_acknowledged_at`, `collection_acknowledged_by` |
+| 0163 | `instore.gateway_fee_rates` (mới) | `company_id`, `method`, `percent`, `fixed_amount`, `effective_from` |
+| 0163 | `instore.payouts` (mới) | Bảng chuyển tiền `CT…`: người nhận (`recipient_kind`, `recipient_company_id` hoặc `merchant_id`), `business_date`, G `collected_amount`, H `platform_fee`, I `platform_fee_tax`, K `gateway_fee`, L `reversal_amount`, M `carried_amount`, N `deduction_amount`, `amount`, `status`, `transferred_on`, `bank_transaction_no`; duy nhất (người nhận, ngày) |
+| 0163 | `instore.payout_deductions` (mới) | Khoản trừ khác N: `payout_id` (trống khi chưa vào bảng), người nhận, `business_date`, `kind` (`ipos_subscription`), `amount` > 0, `reference_id`, `note`; dòng do CONG_VIEC_74 ghi |
+| 0163 | `affiliate.transactions` | `collected_amount`, `platform_fee`, `gateway_fee`, `checkout_id`; nguồn `ipos` |
+| 0164 | `instore.settings` (mới) | Thuế suất phí sàn, phí thu hộ theo công ty vận hành sàn (mặc định 10 %; 0171 giới hạn còn 0, 5, 8, 10 %) |
+| 0164 | `instore.payouts` | `fee_tax_rate`, công nợ phải trả, phải thu nội bộ, `payment_id`, `receipt_id`, `transferred_at`, `transferred_by`; `finance.payments.instore_payout_id`; loại phiếu, nguồn bút toán, nguồn công nợ, vai trò tài khoản `instore_fee_revenue`, `instore_payable_internal`, `instore_receivable_internal` |
+| 0171 | `affiliate.einvoice_mandates` (mới) | Dữ liệu ủy nhiệm theo cửa hàng: người bán, mã số thuế, địa chỉ, phương pháp tính thuế, thuế suất mặc định, số văn bản, hiệu lực, tệp PDF (tối đa 10 MB), `version` |
+| 0171 | `affiliate.einvoice_series` (mới) | Ký hiệu riêng theo (cửa hàng, năm) |
+| 0171 | `affiliate.einvoice_backlog` (mới) | Việc chờ lập hóa đơn ủy nhiệm: giao dịch, lý do |
+| 0171 | `instore.fee_invoices` (mới) | Hóa đơn phí sàn tháng: người nhận, tháng, phí, thuế |
+| 0171 | `finance.einvoices` | `affiliate_transaction_id`, `instore_fee_invoice_id`, `mandate_merchant_id`; ràng buộc đúng một nguồn; số hóa đơn duy nhất theo người bán |
+| 0172 | `affiliate.api_keys` | Phạm vi `instore.checkout`; `webhook_url`, `webhook_secret` (mã hóa), `webhook_secret_at`, `webhook_version` |
+| 0172 | `affiliate.webhook_deliveries` (mới) | `api_key_id`, `event_id`, `event_type`, `payload`, `status` (`pending`, `succeeded`, `failed`), `attempt_count`, `next_attempt_at`, `last_status_code`, `last_error`, `delivered_at` |
+| 0172 | `instore.checkouts` | Trạng thái `refunded`; `refunded_at`, `reversal_amount`, `reversal_fee`, `reversal_fee_tax`, `reversal_payout_id` |
+| 0172 | `instore.payouts` | `reversal_fee`, `reversal_fee_tax` (phí đã ghi ngược, trừ vào hóa đơn phí sàn tháng) |
+| 0172 | `marketplace.refunds`, `finance.einvoices`, `finance.einvoice_return_tasks` | Lý do `transaction_cancelled`; hóa đơn trạng thái `cancelled`; việc chờ xử lý hóa đơn nhận `affiliate_transaction_id` |
+| 0172 | Kế toán | Vai trò `instore_refund_payable` (3388); nguồn bút toán `instore_checkout_cancel`, `instore_refund_receipt`, `instore_refund` |
+
+Quy tắc xóa và lưu giữ: đơn chờ, bảng chuyển tiền, nhật ký gửi webhook không xóa; đơn hết hạn, hủy giữ dòng với trạng thái. Kế toán trưởng xác nhận tài khoản 3388 trước khi triển khai.

@@ -3,7 +3,7 @@
 // Gọi API cổng cửa hàng: dùng `apiFetch` chung, thêm cửa hàng đang chọn (header `x-merchant-id`);
 // chưa đăng nhập thì về trang đăng nhập của cổng (khác trang đăng nhập nhân viên của mini app Nền tảng).
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiFetch, ApiFailure } from "ui/lib/api";
+import { apiDownload, apiFetch, ApiFailure } from "ui/lib/api";
 import type { Loadable } from "ui/lib/use-api";
 
 const merchantStorageKey = "vc_merchant";
@@ -30,6 +30,12 @@ export function portalFetch<T>(path: string, init: RequestInit = {}): Promise<T>
   const merchantId = selectedMerchantId();
   if (merchantId) headers.set("x-merchant-id", merchantId);
   return apiFetch<T>(path, { ...init, headers });
+}
+
+// Tải hoặc mở tệp (PDF hóa đơn) kèm cửa hàng đang chọn.
+export function portalDownload(path: string, fileName: string, open = false): Promise<void> {
+  const merchantId = selectedMerchantId();
+  return apiDownload(path, fileName, open, merchantId ? { "x-merchant-id": merchantId } : undefined);
 }
 
 export function usePortalApi<T>(path: string | null): { state: Loadable<T>; reload: () => Promise<void> } {

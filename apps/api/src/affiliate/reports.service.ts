@@ -195,6 +195,15 @@ export class AffiliateReportsService {
         GROUP BY t.merchant_id, p.name, 3, t.cashier_user_id, t.api_key_id, u.full_name, k.name HAVING count(*) >= 10 ORDER BY 3 DESC`);
       for (const row of rows.rows) alerts.push({ ...empty, kind: "phone_declines", merchantId: row.merchant_id, merchantName: row.name, day: row.day, count: row.count, cashierName: row.cashier });
     }
+    if (want("late_payments")) {
+      const rows = await this.database.execute<{ merchant_id: string; name: string; count: number; phone: string | null }>(sql`
+        SELECT c.merchant_id, p.name, count(*)::int AS count, u.phone
+        FROM marketplace.refunds f JOIN instore.checkouts c ON c.id = f.checkout_id JOIN affiliate.merchants m ON m.id = c.merchant_id JOIN crm.partners p ON p.id = m.partner_id
+          JOIN core.users u ON u.id = c.buyer_user_id
+        WHERE ${merchantFilter} AND f.reason = 'paid_after_cancel' AND (f.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date >= ${since}
+        GROUP BY c.merchant_id, p.name, c.buyer_user_id, u.phone HAVING count(*) >= 3 ORDER BY 3 DESC`);
+      for (const row of rows.rows) alerts.push({ ...empty, kind: "late_payments", merchantId: row.merchant_id, merchantName: row.name, count: row.count, buyerPhone: maskPhone(row.phone) });
+    }
     if (want("credit_usage")) {
       for (const merchant of await this.creditUsage(this.database, merchantFilter)) {
         alerts.push({

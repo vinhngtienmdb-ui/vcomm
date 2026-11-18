@@ -108,8 +108,9 @@ export class MerchantPortalService {
       name: string;
       status: AffiliateMerchantStatus;
       role: AffiliateMemberRole;
+      collection_enabled: boolean;
     }>(sql`
-      SELECT mb.id AS member_id, m.id AS merchant_id, m.code, p.name, m.status, mb.role
+      SELECT mb.id AS member_id, m.id AS merchant_id, m.code, p.name, m.status, mb.role, m.collection_enabled
       FROM affiliate.members mb JOIN affiliate.merchants m ON m.id = mb.merchant_id JOIN crm.partners p ON p.id = m.partner_id
       WHERE mb.user_id = ${userId} AND mb.status = 'active' AND m.status <> 'draft' ORDER BY p.name`);
     const memberships = [];
@@ -127,6 +128,7 @@ export class MerchantPortalService {
         merchantStatus: row.status,
         role: row.role,
         outlets: outlets.rows.map(outletOf),
+        collectionEnabled: row.collection_enabled,
       });
     }
     return { userId, fullName: user?.full_name ?? "", memberships };

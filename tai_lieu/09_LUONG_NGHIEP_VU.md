@@ -1400,3 +1400,22 @@ Ngoại lệ: nhà cung cấp lỗi, quá tải, hết thời gian → báo "Tr�
 - Kết thúc: khách dùng Smart OTP có mã khóa trên điện thoại cho dùng điểm, đăng nhập máy mới, quên mật khẩu; tài khoản cổng đăng nhập bằng mật khẩu và ứng dụng xác thực; thống kê kích hoạt, số tin SMS theo mục đích trên MAN_HINH_275 (QUYTAC_NGHIEPVU_572).
 
 Chi tiết: đặc tả `cong_viec/CONG_VIEC_72.md` mục 7.
+
+## MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm, CONG_VIEC_73)
+
+### Luồng 67. Mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm
+
+- Bắt đầu: công ty vận hành sàn bật cổng VNPAY, cài biểu phí cổng (MAN_HINH_280); cửa hàng tập đoàn bật nhận thanh toán qua ứng dụng (MAN_HINH_166) hoặc cửa hàng liên kết bật thu hộ (MAN_HINH_279, mặc định tắt); khách đã kích hoạt Smart OTP.
+- Các bước:
+  1. Luồng 1: thu ngân lập giỏ (quầy tập đoàn, MAN_HINH_278) hoặc nhập tiền (cổng, MAN_HINH_174) → tạo đơn chờ `TT…` → quét mã thanh toán động trên ứng dụng khách (MAN_HINH_276) → ứng dụng tự hiện đơn (MAN_HINH_277) (QUYTAC_NGHIEPVU_574 đến 576).
+  2. Luồng 2: màn hình cửa hàng hiện mã QR → khách quét bằng ứng dụng → đơn gắn khách đầu tiên (QUYTAC_NGHIEPVU_577).
+  3. Khách chọn voucher, điểm (mở Smart OTP khi dùng điểm), nhập thông tin hóa đơn → "Thanh toán" qua VNPAY, hoặc "Xác nhận" khi trả hết bằng điểm hay cách thu tại quầy (QUYTAC_NGHIEPVU_578, 579).
+  4. Cổng báo thành công → cửa hàng tập đoàn: hóa đơn bán lẻ dòng "Ứng dụng VComm"; cửa hàng liên kết: giao dịch `LK…` có thu hộ, phí, hóa đơn ủy nhiệm; bút toán nhận tiền; quầy, cổng hiện "Đã thanh toán"; webhook `checkout.completed` (QUYTAC_NGHIEPVU_580, 581, 587 đến 591).
+  5. Open API: phần mềm cửa hàng tạo đơn (API_330) → hiện QR hoặc gắn mã động → nhận webhook hoặc tra trạng thái.
+  6. 1 giờ sáng: lập bảng chuyển tiền ngày `CT…` → kế toán chuyển khoản → ghi đã chuyển (phiếu chi; phiếu thu ở công ty sở hữu) (QUYTAC_NGHIEPVU_585, 587).
+  7. 2 giờ sáng ngày 1: hóa đơn phí sàn tháng cho từng người nhận.
+  8. Hủy giao dịch thu hộ (chủ cửa hàng, Open API, tuần chưa chốt) → hoàn điểm, voucher → việc hoàn tiền ở MAN_HINH_98 → kế toán chuyển khoản, ghi đã hoàn → webhook `transaction.cancelled`, `refund.completed`; L trừ vào bảng chuyển tiền sau; hóa đơn ủy nhiệm hủy hoặc điều chỉnh giảm (QUYTAC_NGHIEPVU_583).
+- Ngoại lệ: đơn hết hạn 10 phút hoàn điểm, voucher, nhả giữ hàng; khách từ chối; tiền về sau khi đơn đóng lập việc hoàn tiền; lỗi ghi sổ ở quầy tập đoàn chờ Cửa hàng trưởng ghi lại; thiếu dữ liệu ủy nhiệm ghi việc chờ lập, lập bù; tiền chuyển âm mang sang; quét sai quá giới hạn khóa 1 giờ.
+- Kết thúc: khách nhận điểm tích, hóa đơn; cửa hàng nhận tiền theo ngày; sổ cái hai công ty khớp bảng chuyển tiền.
+
+Chi tiết: đặc tả `cong_viec/CONG_VIEC_73.md` mục 7, 18.

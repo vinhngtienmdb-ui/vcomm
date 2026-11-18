@@ -160,7 +160,8 @@ export class OpenAffiliateService {
     const merchant = await this.usable(caller, input.outletId, input.billAmount);
     let buyer: { id: string; full_name: string };
     if (input.memberCode) {
-      // Mã thành viên chỉ đọc, không đánh dấu đã dùng; dùng khi lập giao dịch.
+      // Mã thành viên chỉ đọc, không đánh dấu đã dùng; dùng khi lập giao dịch. Hết thời hạn chuyển đổi thì không nhận.
+      await this.transactions.assertMemberCodeOpen();
       const code = readMemberCode(input.memberCode, new Date());
       const row = (
         await this.database.execute<{ id: string; full_name: string }>(sql`
