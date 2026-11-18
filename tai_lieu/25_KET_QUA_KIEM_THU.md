@@ -877,6 +877,33 @@
 - KICHBAN_KIEMTHU_810 phần quét lỗ hổng ảnh (Trivy, mức Cao, Nghiêm trọng đã có bản vá): lần 1 Không đạt (ảnh api có 10 lỗ hổng mức Cao trong npm đi kèm ảnh nền node:22; mã ứng dụng và gói hệ điều hành 0 lỗ hổng); sửa bằng cách bỏ npm, npx, corepack khỏi ảnh chạy (commit `a6842bfd`); lần 2 Đạt cho cả ảnh api và web. Không cấp mã lỗi vì lỗ hổng nằm trong công cụ ảnh nền đã loại khỏi ảnh.
 - Không có lỗi mới. Sẽ chạy lại trên 0.14.1.
 
+## Lần kiểm thử 2026-11-18 – CONG_VIEC_77
+
+- Phạm vi: nhánh đã hợp nhất `main` (v0.14.0, commit `d4481f48`), pull request #213, đầu nhánh `be19761d`.
+- Lệnh đã chạy: toàn bộ kiểm thử API (178 tệp), kiểm tra kiểu; CI GitHub.
+- Kết quả: 999/999 đạt; KICHBAN_KIEMTHU_827 đến 833 Đạt (kiểm thử tự động). Thêm thư viện nodemailer 10.3.1 (giấy phép MIT-0). Chưa thử với máy chủ thư thật.
+- Kiểm tra bảo mật phần B, C: `pnpm audit --prod` giống `main`, không lỗ hổng mới; gitleaks trên các commit của nhánh không phát hiện.
+- Tự rà soát mã và dọn dẹp: Đạt (phiên con báo).
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-18 – CONG_VIEC_78
+
+- Phạm vi: nhánh đã hợp nhất `main` (v0.14.0, commit `d4481f48`), pull request #214, đầu nhánh `f8ac2ab1`.
+- Lệnh đã chạy: toàn bộ kiểm thử API (178 tệp), kiểm tra kiểu; CI GitHub.
+- Kết quả: 990/990 đạt; KICHBAN_KIEMTHU_834 đến 838 Đạt (kiểm thử tự động). Chạy thử bản dựng ở chế độ thật trên cơ sở dữ liệu tạm: lần đầu tạo dữ liệu, lần hai bị từ chối.
+- Kiểm tra bảo mật phần B, C: `pnpm audit --prod` giống `main`, không lỗ hổng mới; gitleaks trên các commit của nhánh không phát hiện.
+- Tự rà soát mã và dọn dẹp: Đạt (phiên con báo).
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-18 – CONG_VIEC_79
+
+- Phạm vi: nhánh đã hợp nhất `main` (v0.14.0, commit `d4481f48`), pull request #215, đầu nhánh `bc0a7d6f`.
+- Lệnh đã chạy: toàn bộ kiểm thử API (178 tệp), kiểm tra kiểu; CI GitHub.
+- Kết quả: 994/994 đạt; KICHBAN_KIEMTHU_839 đến 842 Đạt (kiểm thử tự động). Thử với kho S3 giả lập cục bộ; chưa thử với Supabase Storage thật.
+- Kiểm tra bảo mật phần B, C: `pnpm audit --prod` giống `main`, không lỗ hổng mới; gitleaks trên các commit của nhánh không phát hiện.
+- Tự rà soát mã và dọn dẹp: Đạt (phiên con báo).
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
