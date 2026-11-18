@@ -31,10 +31,16 @@ import {
   type LoginResponse,
   type MerchantPortalMe,
   type MerchantPortalStore,
+  type MerchantPortalAuthenticationPolicy,
+  type MerchantPortalSecurity,
+  merchantPortalPasswordResetSchema,
+  merchantPortalPasswordSchema,
 } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
-import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { AllowMfaPending, Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { MerchantPortalSecurityService } from "./portal-security.service";
+import { membersOf } from "./merchants.service";
 import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
@@ -58,6 +64,7 @@ export class MerchantPortalController {
     private readonly settlements: AffiliateSettlementsService,
     private readonly reports: AffiliateReportsService,
     private readonly apiKeys: AffiliateApiKeysService,
+    private readonly security: MerchantPortalSecurityService,
   ) {}
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
@@ -88,6 +95,51 @@ export class MerchantPortalController {
     const { response: result, session } = await this.portal.activate(input.phone, input.code, clientInfo(request));
     setSessionCookies(response, session);
     return result;
+  }
+
+  // API_324 (CONG_VIEC_72): chính sách công khai cho trang đăng nhập cổng (liên kết "Đăng nhập bằng mã SMS" trong thời hạn).
+  @Public()
+  @Get("authentication-policy")
+  authenticationPolicy(): Promise<MerchantPortalAuthenticationPolicy> {
+    return this.security.policy();
+  }
+
+  // API_324: trạng thái bảo mật của người đang đăng nhập; phiên chờ thiết lập hoặc chờ mã vẫn gọi được.
+  @AllowMfaPending()
+  @Get("security")
+  securityState(@Req() request: AuthenticatedRequest): Promise<MerchantPortalSecurity> {
+    return this.security.state(request.auth.userId, !request.auth.mfaVerified);
+  }
+
+  // API_324: bước 1 thiết lập bảo mật – đặt mật khẩu. Ứng dụng xác thực dùng API_07, API_08.
+  @AllowMfaPending()
+  @Post("security/password")
+  setPassword(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<MerchantPortalSecurity> {
+    return this.security.setPassword(request.auth.userId, !request.auth.mfaVerified, merchantPortalPasswordSchema.parse(body).password, clientInfo(request));
+  }
+
+  // API_324: quên mật khẩu cổng (MAN_HINH_274).
+  @Public()
+  @RateLimitGroup("login")
+  @Post("password-reset")
+  @HttpCode(204)
+  async resetPassword(@Body() body: unknown, @Req() request: Request): Promise<void> {
+    const input = merchantPortalPasswordResetSchema.parse(body);
+    await this.security.resetPassword(input.phone, { code: input.code, backupCode: input.backupCode }, input.password, clientInfo(request));
+  }
+
+  // API_325: chủ cửa hàng đặt lại xác thực cho thu ngân (MAN_HINH_177).
+  @Post("members/:id/reset-authentication")
+  async resetAuthentication(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
+    const member = await this.member(request);
+    requireOwner(member);
+    await this.security.resetAuthentication(
+      { userId: member.userId, companyId: member.companyId, client: member.client },
+      id,
+      affiliateMemberVersionSchema.parse(body).version,
+      { merchantId: member.merchantId, cashierOnly: true },
+    );
+    return membersOf(this.portal.database, member.merchantId);
   }
 
   // API_295 phần cổng cửa hàng (MAN_HINH_232): chủ cửa hàng xem kết nối phần mềm (CONG_VIEC_67).

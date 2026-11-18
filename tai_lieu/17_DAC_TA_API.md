@@ -40,6 +40,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | 400 | `VALIDATION_FAILED` | Dữ liệu sai kiểu, độ dài, định dạng; vi phạm quy tắc nghiệp vụ gắn với một trường |
 | 401 | `UNAUTHENTICATED` | Chưa đăng nhập, phiên hết hạn |
 | 401 | `MFA_REQUIRED` | Cần nhập mã xác thực hai lớp |
+| 401 | `DEVICE_VERIFICATION_REQUIRED` | Phiên chờ xác nhận thiết bị mới của ứng dụng VComm gọi API khác API xác nhận (CONG_VIEC_72) |
 | 403 | `FORBIDDEN` | Không có quyền ("Bạn không có quyền thực hiện thao tác này.") |
 | 404 | `NOT_FOUND` | Không tồn tại hoặc nằm ngoài phạm vi quyền (không phân biệt hai trường hợp) |
 | 409 | `CONFLICT_VERSION` | Dữ liệu đã bị người khác sửa |
@@ -2052,3 +2053,51 @@ L1 có API_273, API_278. Mã lỗi `AI_*` đã thêm vào danh sách mã lỗi c
 L2 có API_274, API_275, API_276. API_275 trả `text/event-stream`, mỗi sự kiện hai dòng `event: <loại>` và `data: <JSON>` (kiểu `AiStreamEvent` trong `packages/contracts`). Lỗi trước khi mở dòng dùng mô hình lỗi chung; hội thoại đủ 40 tin nhắn trả `409 BUSINESS_RULE` (`aiConversationFull`). Lỗi nhà cung cấp trong lúc trả lời là sự kiện `error` (`AI_PROVIDER_ERROR`), lượt vẫn ghi nhật ký.
 
 L3 có API_277 (`productContentRequestSchema`, kết quả `ProductContentResponse`; mô hình từ chối trả `409 BUSINESS_RULE` `aiContentRefused`, kết quả không đúng cấu trúc trả `502 AI_PROVIDER_ERROR`; người thiếu `catalog.product.manage` nhận `403`, sản phẩm của nhà bán hoặc công ty khác `404`) và API_279 (`aiUsageQuerySchema`: `month=YYYY-MM`, `feature`, `format=json|xlsx`; xuất Excel ghi nhật ký thao tác `ai.usage.export`). `saveProductSchema` (API_56, API_57) thêm trường tùy chọn `aiAssisted`, chỉ ghi vào nhật ký thao tác.
+
+## 2z. Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+Gốc `/api/v1`. Người mua dùng token ứng dụng VComm kèm tiêu đề `X-Device-Id` (CONG_VIEC_60). Mã nguồn: `apps/api/src/marketplace/buyer.controller.ts`, `apps/api/src/loyalty/buyer-loyalty.controller.ts`, `apps/api/src/marketplace/marketplace.controller.ts`, `apps/api/src/affiliate/merchant-portal.controller.ts`, `affiliate.controller.ts`; hợp đồng `packages/contracts/src/authentication.ts`, `index.ts`, `affiliate.ts`. Lỗi nghiệp vụ trả `409 BUSINESS_RULE` kèm khóa thông báo.
+
+Người mua:
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_318 | `POST /buyer/login/device-verification` (`smartOtp` hoặc `smsCode`, đúng một trong hai, 6 chữ số); `POST /buyer/login/device-verification/sms` | Phiên chờ xác nhận thiết bị (`@AllowDevicePending`) | Xác nhận thiết bị mới, `204`; đúng thì phiên được xác nhận, thiết bị tin cậy, thông báo `auth.new_device_login`. Mã Smart OTP sai: `400` trường `smartOtp` (`smartOtpCodeInvalid`); sai 5 lần `409 smartOtpLocked`; khách chưa kích hoạt hết thời hạn: `409 smartOtpNotActive` (kích hoạt qua API_199); phiên quá 10 phút `401 deviceVerificationExpired`. Gửi SMS luôn `204`, chỉ gửi khi chưa kích hoạt và còn thời hạn |
+| API_319 | `POST /buyer/loyalty/smart-otp/transfer` (`code` 6 chữ số của máy cũ, `deviceName`, `platform`) | Token ứng dụng | Chuyển Smart OTP sang máy đang dùng, trả `SmartOtpActivationResponse` (khóa `secret` một lần); không SMS, không khóa dùng điểm; `platform` `web` `409 smartOtpWebNotAllowed`; mã sai `400` (`smartOtpCodeInvalid`), sai 5 lần `409 smartOtpLocked`; chưa kích hoạt `409 smartOtpNotActive` |
+| API_320 | Không dùng – điều chỉnh L4 | — | Khôi phục khi mất máy làm qua đăng nhập bằng mật khẩu (API_117), phiên chờ xác nhận, rồi gửi mã và kích hoạt của API_199 |
+| API_321 | `GET /buyer/devices`; `DELETE /buyer/devices/{id}` | Token ứng dụng | Thiết bị tin cậy 12 tháng (`id`, `deviceName`, `platform`, `firstSeenAt`, `lastSeenAt`, `thisDevice`, `holdsSmartOtp`); gỡ thiết bị thu hồi mọi phiên của thiết bị đó, trả danh sách mới; không thấy `404` |
+| API_326 | `GET /buyer/authentication-policy` | Công khai | `transitionEndsOn`, `smsFallbackOpen` (còn dùng mã SMS dự phòng); không lộ thông tin tài khoản. Ứng dụng ẩn đăng nhập bằng mã SMS sau thời hạn |
+
+Nhân viên (công ty vận hành sàn):
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_322 | `GET /marketplace/buyers/{id}/security`; `POST /marketplace/buyers/{id}/smart-otp/revoke` (`reason` 10 đến 500 ký tự, `version`) | Xem `marketplace.buyer.view`; hủy `marketplace.buyer.security` | `BuyerSecurityResponse`: `smartOtp` (`active`, `deviceName`, `platform`, `activatedAt`, `lockedUntil`, `version`), `redeemLockedUntil`, `recoveredAt`, `trustedDevices`, `lastSeenAt`, `buyerTransitionEndsOn`, `canRevoke`. Hủy: xóa Smart OTP, thu hồi mọi phiên, thiết bị tin cậy, mở ngoại lệ đặt lại mật khẩu bằng SMS 24 giờ, nhật ký `smart_otp.revoke`, thông báo `auth.smart_otp_revoked`, ZNS; sai `version` hoặc không có Smart OTP `409 CONFLICT_VERSION`; thiếu lý do `400`; thiếu quyền `403` |
+| API_323 | `GET`, `PUT /marketplace/authentication-settings` | Xem `marketplace.buyer.view`; sửa `marketplace.buyer.manage` | `AuthenticationSettingsResponse`: tham số (`transitionStartsOn`, `buyerTransitionDays`, `portalTransitionDays`, `recoveryRedeemLockHours`, `supportHotline`, `version`), `buyerTransitionEndsOn`, `portalTransitionEndsOn`, `canManage`, `statistics` (`activeBuyers`, `smartOtpActive`, `smartOtpOnWeb`, `portalMembers`, `portalMembersSetUp`, `smsLast30Days` theo `register`, `smart_otp`, `login`, `password_reset`, `affiliate_redeem`, `merchant_portal`). Sửa: phạm vi như tài liệu `07` QUYTAC_NGHIEPVU_561; ngày bắt đầu sau hôm nay `400` (`transitionStartFuture`); sai `version` `409 CONFLICT_VERSION`; nhật ký `authentication_settings.update` |
+
+Cổng cửa hàng liên kết:
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_324 | `GET /merchant-portal/authentication-policy`; `GET /merchant-portal/security`; `POST /merchant-portal/security/password` (`password`); `POST /merchant-portal/password-reset` (`phone`, `code` hoặc `backupCode`, `password`); dùng lại API_06, 07, 08 cho ứng dụng xác thực | Chính sách, quên mật khẩu: công khai (quên mật khẩu theo nhóm giới hạn `login`); trạng thái, đặt mật khẩu: phiên cổng kể cả phiên chưa qua bước hai | Chính sách: `transitionEndsOn`, `smsLoginOpen`. Trạng thái `MerchantPortalSecurity`: `status` (`set_up`, `optional`, `required`, `mfa_pending`, `blocked`), `needsPassword`, `needsAuthenticator`, `transitionEndsOn`, `daysLeft`. Đặt mật khẩu khi chưa có hoặc vừa bị đặt lại, ngược lại `409 merchantPortalPasswordNotNeeded`; mật khẩu ngắn `400`. Quên mật khẩu `204`; mã sai, số không có tài khoản cổng đã thiết lập cùng lỗi `400` (`mfaInvalidCode`); sai 5 lần trong 15 phút `423 ACCOUNT_LOCKED` kèm `retryAfterSeconds`; thu hồi mọi phiên web. API cổng khác trả `409 merchantPortalSecurityRequired` hoặc `409 merchantPortalSecurityBlocked` khi chưa thiết lập mà không được vào |
+| API_325 | `POST /merchant-portal/members/{id}/reset-authentication` (`version`); `POST /affiliate/merchants/{id}/members/{memberId}/reset-authentication` (`version`) | Chủ cửa hàng (chỉ thu ngân của cửa hàng mình); `affiliate.manage` (mọi thành viên) | Xóa ứng dụng xác thực, mã dự phòng, thu hồi mọi phiên web, ghi `authentication_reset_at`, nhật ký `merchant_portal.authentication_reset`; trả danh sách thành viên. Chủ đặt cho chủ `403`; cửa hàng khác `404`; sai `version` `409 CONFLICT_VERSION`; thành viên không hoạt động `409 affiliateMemberStatusInvalid`; tài khoản nhân viên bắt buộc xác thực hai lớp `409 merchantPortalResetStaff` |
+
+Sửa API đã có:
+- API_116 `POST /buyer/register`: nhận thêm `smartOtp: { deviceName, platform }` (tùy chọn, `platform` chỉ `ios`, `android`); trả thêm `smartOtpActivation` (khóa một lần, trống khi không kích hoạt). Dùng chính mã SMS đăng ký, không gửi thêm SMS.
+- API_117:
+  - `POST /buyer/login` trả thêm `deviceVerificationRequired`, `verificationMethod` (`smart_otp`, `sms`, `smart_otp_activation` hoặc trống). Thiết bị chưa tin cậy thì phiên là phiên chờ xác nhận.
+  - `POST /buyer/login/otp` luôn `204`, không gửi tin cho khách đã kích hoạt hoặc khi hết thời hạn; `POST /buyer/login/otp/verify` khi đó trả `401` (`otpInvalid`), không lộ trạng thái tài khoản.
+  - `POST /buyer/password-reset` nhận `smartOtp` hoặc `code` (đúng một trong hai); `POST /buyer/password-reset/otp` luôn `204`, chỉ gửi khi được dùng SMS.
+- API_199:
+  - `GET /buyer/loyalty/smart-otp` trả thêm `platform`, `onThisDevice`, `redeemLockedUntil`, `transitionEndsOn`.
+  - `POST /buyer/loyalty/smart-otp/activate` nhận thêm `platform`; bản web `409 smartOtpWebNotAllowed`; tài khoản đã từng có Smart OTP hoặc thiết bị chưa tin cậy thì tính khôi phục (khóa dùng điểm, thông báo `auth.smart_otp_recovered`, ZNS). Trạng thái, gửi mã, kích hoạt gọi được từ phiên chờ xác nhận thiết bị; kích hoạt xong phiên được xác nhận.
+  - Thêm `POST /buyer/loyalty/smart-otp/lockout`: ứng dụng báo sai mã khóa 5 lần, máy chủ hủy Smart OTP.
+- API_198 tra khách tại quầy: thêm `redeemLockedUntil`; lý do không dùng điểm `redeem_locked`.
+- API_296, API_297 (Open API cửa hàng liên kết): tra điểm trả thêm `otpMethod`, `redeemLockedUntil`; gửi mã khi chưa kích hoạt và hết thời hạn `409 affiliateSmartOtpRequired`; API_298 cách `otp` cũng vậy; tạo giao dịch dùng điểm khi đang khóa `409 loyaltyRedeemLocked`.
+- API_307 đổi điểm đối tác: báo giá trả `smartOtpRequired` theo thời hạn và `smartOtpActive`; đổi ra khi chưa kích hoạt và hết hạn `409 partnerSmartOtpActivationRequired`; đang khóa `409 loyaltyRedeemLocked`.
+- API_178 đặt hàng dùng điểm; giao dịch cửa hàng liên kết cách 2, cách 3: `409 loyaltyRedeemLocked` khi đang khóa.
+- API_02, API_03 `/auth/otp/*` gọi từ cổng cửa hàng (`app` = `merchant`) sau thời hạn cổng: `409 merchantPortalSmsDisabled`, không gửi SMS.
+
+Mã lỗi mới: `401 DEVICE_VERIFICATION_REQUIRED` (`deviceVerificationRequired`, thêm vào mục 1); `401 UNAUTHENTICATED` `deviceVerificationExpired`; `409 BUSINESS_RULE` với `smartOtpWebNotAllowed`, `smartOtpNotActive`, `smartOtpLocked`, `loyaltyRedeemLocked`, `affiliateSmartOtpRequired`, `partnerSmartOtpActivationRequired`, `merchantPortalSmsDisabled`, `merchantPortalSecurityRequired`, `merchantPortalSecurityBlocked`, `merchantPortalPasswordNotNeeded`, `merchantPortalResetStaff`; lỗi trường `smartOtpCodeInvalid`, `transitionStartFuture`; `423 ACCOUNT_LOCKED` (`mfaResetLocked`, kèm `retryAfterSeconds`) khi quên mật khẩu cổng sai mã 5 lần trong 15 phút. Khóa `smartOtpPreferred` có trong `packages/i18n` nhưng máy chủ hiện không trả (đăng nhập bằng mã SMS của khách đã kích hoạt được xử lý như trên để không lộ trạng thái).
+
+Thông báo trong ứng dụng: `auth.new_device_login`, `auth.smart_otp_recovered`, `auth.smart_otp_revoked`, `auth.smart_otp_reminder`; `loyalty.smart_otp_locked` (như cũ). Nhật ký thao tác: theo tài liệu `07` QUYTAC_NGHIEPVU_572.

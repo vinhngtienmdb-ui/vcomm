@@ -2485,3 +2485,21 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md`.
 | CHUC_NANG_229 | Lịch sử, xóa hội thoại, tự xóa sau 90 ngày; đánh giá đúng, sai; thống kê sử dụng, chi phí | YCAU_NGHIEPVU_181, 182 | MAN_HINH_242, MAN_HINH_245 | API_274, API_276, API_279 | L2, L3 |
 
 Yêu cầu phi chức năng: kiểm thử không gọi nhà cung cấp thật (bộ giả lập); mỗi lần gọi mô hình hết thời gian 60 giây, thử lại 2 lần cho lỗi tạm thời; trả lời hỏi đáp dạng dòng chảy; lời nhắc hệ thống cố định để dùng bộ nhớ đệm của nhà cung cấp.
+
+## MODULE_01, MODULE_09, MODULE_11, MODULE_12 (ưu tiên Smart OTP thay tin nhắn SMS, CONG_VIEC_72)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_72.md`. Luồng 66.
+
+| Mã | Chức năng | Yêu cầu | Quy tắc | Màn hình | API | Lát |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_242 | Smart OTP có mã khóa 6 số và sinh trắc học (vân tay, khuôn mặt); kích hoạt trong bước đăng ký bằng mã SMS đăng ký; chặn kích hoạt trên bản web; chuyển máy bằng mã máy cũ; sai mã khóa 5 lần hủy Smart OTP | YCAU_NGHIEPVU_202 | QUYTAC_NGHIEPVU_562, 563 | MAN_HINH_269; sửa MAN_HINH_74, 151 | API_116, API_199, API_319 | L1, L2 |
+| CHUC_NANG_243 | Thiết bị tin cậy; đăng nhập trên thiết bị mới qua phiên chờ xác nhận; thiết bị đã đăng nhập, gỡ thiết bị; quên mật khẩu bằng Smart OTP; đăng nhập bằng mã SMS theo thời hạn | YCAU_NGHIEPVU_202 | QUYTAC_NGHIEPVU_560, 564, 565, 568 | MAN_HINH_270, 272; sửa MAN_HINH_73, 75 | API_117, API_318, API_321, API_326 | L3 |
+| CHUC_NANG_244 | Khôi phục khi mất máy (đăng nhập mật khẩu, mã SMS, kích hoạt trong phiên chờ xác nhận); khóa mọi cách dùng điểm sau khôi phục; chăm sóc khách hàng xem bảo mật đăng nhập, hủy Smart OTP; thông báo trong ứng dụng, ZNS | YCAU_NGHIEPVU_204 | QUYTAC_NGHIEPVU_566, 567, 569 | MAN_HINH_271; sửa MAN_HINH_80, 151 | API_199, API_322; sửa API_178, API_198, API_297, API_307 | L4 |
+| CHUC_NANG_245 | Thời hạn chuyển đổi (tham số), giao dịch điểm theo thời hạn (Open API, đổi ra đối tác), nhắc kích hoạt (thẻ nhắc, thông báo, ZNS, việc nền), Smart OTP trên bản web hết hiệu lực khi hết hạn, thống kê kích hoạt và số tin SMS theo mục đích | YCAU_NGHIEPVU_202, 203 | QUYTAC_NGHIEPVU_561, 569, 571, 572 | MAN_HINH_275; sửa trang chủ, MAN_HINH_151, 265 | API_323, API_326; sửa API_297, API_307 | L1, L5 |
+| CHUC_NANG_246 | Cổng cửa hàng liên kết đăng nhập bằng mật khẩu và ứng dụng xác thực (mã dự phòng; Zalo vẫn hỏi mã); thiết lập bảo mật, kích hoạt lời mời có thiết lập; quên mật khẩu cổng; đặt lại xác thực; bỏ đăng nhập bằng mã SMS sau hạn | YCAU_NGHIEPVU_203 | QUYTAC_NGHIEPVU_570, 571 | MAN_HINH_273, 274; sửa trang đăng nhập cổng, MAN_HINH_177, 178 | API_324, API_325; dùng lại API_06, 07, 08; sửa API_02, 03 | L6 |
+
+Yêu cầu phi chức năng:
+- Phần xác thực (`apps/api/src/auth`) đọc, ghi Smart OTP trong schema `core`, không ghi schema `loyalty`; phần điểm thưởng, bán lẻ, cửa hàng liên kết gọi dịch vụ Smart OTP, không truy vấn bảng trực tiếp.
+- Kiểm mã Smart OTP luôn trong giao dịch có khóa dòng; mỗi bước dùng một lần.
+- Không ghi mã, khóa, mã khóa vào log, nhật ký thao tác, thông báo lỗi; khóa TOTP mã hóa bằng `secret-box`; mã khóa chỉ lưu trên máy.
+- Thư viện mới `expo-local-authentication` 58.0.2 và `@noble/hashes` 2.4.0 (phụ thuộc trực tiếp của ứng dụng VComm), người dùng duyệt 2026-11-17.

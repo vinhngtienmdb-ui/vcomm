@@ -16,7 +16,7 @@ import { vietnamToday } from "../../marketplace/shop.service";
 import type { OpenApiCaller } from "../../open-api/api-key.guard";
 import { creditLot, reverseLot } from "../ledger.service";
 import { phaseOn } from "../program.service";
-import { maskName } from "../smart-otp.service";
+import { maskName } from "../../auth/smart-otp.service";
 import { lockAccount } from "../tiers";
 import { rateOn } from "./contracts.service";
 import { alertExposure, assertCapacity, lockCapacity, type ExposureContract } from "./exposure";

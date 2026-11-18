@@ -18,7 +18,8 @@ export type PartnerSourceType = "partner_exchange" | "partner_gift";
 export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment" | "affiliate_voucher" | PartnerSourceType;
 export type EntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
 export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "fraud_rule";
-export type BlockedReason = "no_phase" | "locked" | "inactive" | "insufficient";
+// redeem_locked: khóa dùng điểm sau khôi phục Smart OTP (CONG_VIEC_72; QUYTAC_NGHIEPVU_566).
+export type BlockedReason = "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked";
 type Allocation = { lotId: string; points: number; pointValue: number };
 
 type DocumentRow = {
@@ -383,15 +384,26 @@ export async function quoteRedemption(
 ): Promise<{ balance: number; minPoints: number; maxPoints: number; pointValue: number | null; redeemable: boolean; blockedReason: BlockedReason | null }> {
   const phase = await phaseOn(executor, input.day);
   const row = (
-    await executor.execute<{ balance: number | null; locked: boolean | null; status: string }>(sql`
-    SELECT (SELECT sum(l.remaining)::int FROM loyalty.lots l WHERE l.user_id = u.id AND l.remaining > 0 AND l.expires_on >= ${input.day}::date) AS balance, a.locked, u.status
-    FROM core.users u LEFT JOIN loyalty.accounts a ON a.user_id = u.id WHERE u.id = ${input.userId}`)
+    await executor.execute<{ balance: number | null; locked: boolean | null; status: string; redeem_locked: boolean }>(sql`
+    SELECT (SELECT sum(l.remaining)::int FROM loyalty.lots l WHERE l.user_id = u.id AND l.remaining > 0 AND l.expires_on >= ${input.day}::date) AS balance, a.locked, u.status,
+      coalesce(s.redeem_locked_until > now(), false) AS redeem_locked
+    FROM core.users u LEFT JOIN loyalty.accounts a ON a.user_id = u.id LEFT JOIN core.account_security s ON s.user_id = u.id WHERE u.id = ${input.userId}`)
   ).rows[0];
   const balance = row?.balance ?? 0;
   const byPercent = phase ? Math.floor(Math.round(((Math.max(input.goodsAmount, 0) * phase.redeemMaxPercent) / 100 / phase.pointValue) * 1e6) / 1e6) : 0;
   const maxPoints = Math.min(balance, byPercent);
   const minPoints = phase?.redeemMinPoints ?? 0;
-  const blockedReason: BlockedReason | null = !phase ? "no_phase" : row?.locked ? "locked" : row?.status !== "active" ? "inactive" : maxPoints < minPoints ? "insufficient" : null;
+  const blockedReason: BlockedReason | null = !phase
+    ? "no_phase"
+    : row?.locked
+      ? "locked"
+      : row?.status !== "active"
+        ? "inactive"
+        : row?.redeem_locked
+          ? "redeem_locked"
+          : maxPoints < minPoints
+            ? "insufficient"
+            : null;
   return { balance, minPoints, maxPoints: blockedReason ? 0 : maxPoints, pointValue: phase?.pointValue ?? null, redeemable: blockedReason === null, blockedReason };
 }
 
@@ -502,6 +514,7 @@ export class LoyaltyLedgerService {
     const quote = await quoteRedemption(executor, input);
     if (quote.blockedReason === "no_phase") throw new ApiError("BUSINESS_RULE", "loyaltyNoPhase");
     if (quote.blockedReason === "locked" || quote.blockedReason === "inactive") throw new ApiError("BUSINESS_RULE", "loyaltyLocked");
+    if (quote.blockedReason === "redeem_locked") throw new ApiError("BUSINESS_RULE", "loyaltyRedeemLocked");
     if (input.points < quote.minPoints || input.points > quote.maxPoints) throw new ApiError("BUSINESS_RULE", "loyaltyRedeemInvalid");
     const amount = Math.floor(input.points * quote.pointValue!);
     const allocations = await takeFromLots(executor, input.userId, input.points, null, input.day);

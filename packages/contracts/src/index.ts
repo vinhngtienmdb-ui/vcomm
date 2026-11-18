@@ -5,6 +5,7 @@ export const errorCodes = [
   "VALIDATION_FAILED",
   "UNAUTHENTICATED",
   "MFA_REQUIRED",
+  "DEVICE_VERIFICATION_REQUIRED",
   "FORBIDDEN",
   "IP_NOT_ALLOWED",
   "SCOPE_NOT_GRANTED",
@@ -56,7 +57,9 @@ export interface AppTokens {
   accessExpiresAt: string;
   refreshExpiresAt: string;
 }
-export type AppLoginResponse = LoginResponse & { tokens: AppTokens };
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_565): đăng nhập ứng dụng trên thiết bị chưa tin cậy thì phiên chờ xác nhận (API_318).
+export type DeviceVerificationMethod = "smart_otp" | "sms" | "smart_otp_activation";
+export type AppLoginResponse = LoginResponse & { tokens: AppTokens; deviceVerificationRequired?: boolean; verificationMethod?: DeviceVerificationMethod | null };
 export const appRefreshSchema = z.object({ refreshToken: z.string().min(16).max(200) }).strict();
 
 // API_14
@@ -821,6 +824,9 @@ export const integrationSettingKeys = [
   "esms.template.station_hold_reminder",
   "esms.template.station_order_shipping",
   "esms.template.station_order_cancelled",
+  "esms.template.smart_otp_transferred",
+  "esms.template.smart_otp_revoked",
+  "esms.template.smart_otp_reminder",
 ] as const;
 export type IntegrationSettingKey = (typeof integrationSettingKeys)[number];
 export const secretIntegrationKeys: readonly IntegrationSettingKey[] = ["google.client_secret", "microsoft.client_secret", "zalo.app_secret", "esms.api_key", "esms.secret_key"];
@@ -867,10 +873,11 @@ export interface MessageDeliveryItem {
 }
 
 // API_02, API_03: đăng nhập bằng số điện thoại (CHUC_NANG_08).
-export const otpSendSchema = z.object({ phone: phoneE164 }).strict();
+// app "merchant": gọi từ trang đăng nhập cổng cửa hàng liên kết (CONG_VIEC_72; sau thời hạn cổng bị từ chối).
+export const otpSendSchema = z.object({ phone: phoneE164, app: z.literal("merchant").optional() }).strict();
 // MAN_HINH_19: gửi thử một tin theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau) tới số do quản trị nhập.
 export const integrationTestMessageSchema = z.object({ phone: phoneE164 }).strict();
-export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/) }).strict();
+export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/), app: z.literal("merchant").optional() }).strict();
 
 // API_54: cách đăng nhập đang dùng được, để MAN_HINH_01 hiện nút.
 export interface AuthMethodsResponse {
@@ -4317,11 +4324,38 @@ const referralCode = z.string().trim().max(20);
 
 export const buyerPhoneSchema = z.object({ phone: vietnamPhone }).strict();
 export const buyerRegisterSchema = z
-  .object({ phone: vietnamPhone, code: otpCode, fullName: z.string().trim().min(1).max(100), password: z.string().max(256), referralCode: referralCode.nullable().optional() })
+  .object({
+    phone: vietnamPhone,
+    code: otpCode,
+    fullName: z.string().trim().min(1).max(100),
+    password: z.string().max(256),
+    referralCode: referralCode.nullable().optional(),
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_562): kích hoạt Smart OTP luôn trong bước đăng ký bằng chính mã SMS đăng ký; chỉ trên ứng dụng điện thoại.
+    smartOtp: z.object({ deviceName: z.string().trim().min(1).max(100), platform: z.enum(["ios", "android"]) }).strict().optional(),
+  })
   .strict();
 export const buyerLoginSchema = z.object({ phone: vietnamPhone, password: z.string().min(1).max(256) }).strict();
 export const buyerOtpVerifySchema = z.object({ phone: vietnamPhone, code: otpCode }).strict();
-export const buyerPasswordResetSchema = z.object({ phone: vietnamPhone, code: otpCode, password: z.string().max(256) }).strict();
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_568): quên mật khẩu bằng mã Smart OTP; mã SMS chỉ khi chưa kích hoạt và còn thời hạn chuyển đổi.
+export const buyerPasswordResetSchema = z
+  .object({ phone: vietnamPhone, code: otpCode.optional(), smartOtp: otpCode.optional(), password: z.string().max(256) })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.smartOtp), { path: ["code"] });
+// API_318: xác nhận thiết bị mới bằng mã Smart OTP hoặc mã SMS (CONG_VIEC_72).
+export const buyerDeviceVerificationSchema = z
+  .object({ smartOtp: otpCode.optional(), smsCode: otpCode.optional() })
+  .strict()
+  .refine((value) => Boolean(value.smartOtp) !== Boolean(value.smsCode), { path: ["smartOtp"] });
+// API_321: thiết bị đã đăng nhập (CONG_VIEC_72; QUYTAC_NGHIEPVU_564).
+export interface BuyerDeviceItem {
+  id: string;
+  deviceName: string | null;
+  platform: SmartOtpPlatform | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  thisDevice: boolean;
+  holdsSmartOtp: boolean;
+}
 export const buyerSetReferrerSchema = z.object({ referralCode: referralCode.min(1) }).strict();
 export const buyerChangeReferrerSchema = z.object({ referralCode: referralCode.nullable(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
 export const buyerSalesFlagSchema = z.object({ departmentId: z.uuid(), version: z.number().int().min(1) }).strict();
@@ -4987,7 +5021,7 @@ export interface BuyerOrderPreview {
   // Phương thức đang bật, theo thứ tự hiển thị. Đơn mua chung chỉ gồm phương thức trực tuyến.
   paymentMethods: PaymentMethodCode[];
   // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
-  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null };
   pointsToRedeem: number;
   pointsAmount: string;
   expectedPoints: number;
@@ -6274,9 +6308,11 @@ export interface RetailCustomerResponse {
   minPoints: number;
   maxPoints: number;
   pointValue: string | null;
-  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "smart_otp_inactive" | "smart_otp_locked" | null;
+  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | "smart_otp_inactive" | "smart_otp_locked" | null;
   smartOtpActive: boolean;
   smartOtpLockedUntil: string | null;
+  // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
+  redeemLockedUntil: string | null;
   expectedPoints: number;
 }
 export interface RetailSaleResponse {
@@ -8059,10 +8095,22 @@ export interface LoyaltyTierProgress {
   remainingToNext: string | null;
 }
 // API_199: Smart OTP dùng điểm tại quầy (CONG_VIEC_53 lát L6). Khóa TOTP chỉ trả một lần khi kích hoạt.
+// CONG_VIEC_72: nền tảng máy; bản web không kích hoạt được (QUYTAC_NGHIEPVU_562). Ứng dụng cũ chưa gửi thì suy theo tên máy.
+export const smartOtpPlatforms = ["ios", "android", "web"] as const;
+export type SmartOtpPlatform = (typeof smartOtpPlatforms)[number];
 export const activateSmartOtpSchema = z
   .object({
     code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
     deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms).optional(),
+  })
+  .strict();
+// API_319: chuyển Smart OTP sang máy đang dùng bằng mã của máy cũ (CONG_VIEC_72; QUYTAC_NGHIEPVU_562).
+export const transferSmartOtpSchema = z
+  .object({
+    code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
+    deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms),
   })
   .strict();
 export interface SmartOtpStatusResponse {
@@ -8071,12 +8119,20 @@ export interface SmartOtpStatusResponse {
   activatedAt: string | null;
   lockedUntil: string | null;
   maskedPhone: string | null;
+  // CONG_VIEC_72.
+  platform: SmartOtpPlatform | null;
+  // Smart OTP đang ở máy này (so băm mã cài đặt ứng dụng); null khi chưa kích hoạt.
+  onThisDevice: boolean | null;
+  redeemLockedUntil: string | null;
+  transitionEndsOn: string;
 }
 export interface SmartOtpActivationResponse extends SmartOtpStatusResponse {
   secret: string;
   digits: 6;
   period: 30;
 }
+// API_116 (sửa, CONG_VIEC_72): đăng ký kèm kích hoạt Smart OTP trả khóa một lần.
+export type BuyerRegisterResponse = AppLoginResponse & { smartOtpActivation: SmartOtpActivationResponse | null };
 export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
   balance: number;
   locked: boolean;
@@ -8229,3 +8285,4 @@ export * from "./office";
 export * from "./office-signing";
 export * from "./office-contracts";
 export * from "./dropship";
+export * from "./authentication";

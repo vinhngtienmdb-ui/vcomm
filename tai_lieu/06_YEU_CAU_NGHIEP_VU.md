@@ -705,3 +705,24 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md`. Người dùng chốt phạm v
 | Xác nhận thông báo xử lý dữ liệu cá nhân | Người dùng, phiên bản thông báo, thời điểm | CONG_VIEC_63 L1 |
 | Nhật ký lượt | Công ty, người dùng, tính năng, hội thoại, sản phẩm, nhà cung cấp, mô hình, token vào, ra, đọc, ghi bộ nhớ đệm, số lần gọi công cụ, chi phí USD, trạng thái, thời gian xử lý | Không có nội dung; giữ 24 tháng |
 | Hội thoại, tin nhắn, đánh giá | Người dùng, công ty, tiêu đề; vai trò, nội dung đã che, công cụ đã gọi; Đúng, Sai, lý do | CONG_VIEC_63 L2; giữ 90 ngày |
+
+## MODULE_01, MODULE_09, MODULE_11, MODULE_12 (ưu tiên Smart OTP thay tin nhắn SMS, CONG_VIEC_72)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_72.md`. Người dùng duyệt đặc tả ngày 2026-11-17 (THAY_DOI_37).
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_202 | Người mua xác thực bằng Smart OTP trên ứng dụng VComm cho giao dịch dùng điểm, đăng nhập trên thiết bị mới, quên mật khẩu; SMS chỉ còn cho đăng ký, kích hoạt lần đầu, khôi phục khi mất máy và dự phòng trong thời hạn chuyển đổi | Người mua, Thu ngân, Cửa hàng liên kết | Người dùng 2026-11-17 |
+| YCAU_NGHIEPVU_203 | Tài khoản cổng cửa hàng liên kết đăng nhập bằng mật khẩu và ứng dụng xác thực (TOTP) thay mã SMS | Chủ cửa hàng liên kết, Thu ngân cửa hàng liên kết | Người dùng 2026-11-17 |
+| YCAU_NGHIEPVU_204 | Khách mất máy khôi phục được Smart OTP mà kẻ chiếm SIM không dùng ngay được điểm; chăm sóc khách hàng hỗ trợ khi khách mất cả số điện thoại | Người mua, Chăm sóc khách hàng | Người dùng 2026-11-17 |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Thiết bị Smart OTP (chuyển từ schema `loyalty` sang `core`) | Tài khoản, tên máy, nền tảng (`ios`, `android`, `web`), băm mã cài đặt ứng dụng, khóa TOTP đã mã hóa, thời điểm kích hoạt, bước đã dùng, số lần sai, khóa đến, phiên bản | Mỗi tài khoản một thiết bị; bản web không kích hoạt mới được (CONG_VIEC_72) |
+| Trạng thái bảo mật tài khoản | Lần kích hoạt Smart OTP đầu tiên, lần khôi phục gần nhất, khóa dùng điểm đến, hạn ngoại lệ đặt lại mật khẩu bằng SMS | Một dòng mỗi tài khoản, giữ qua các lần hủy, kích hoạt lại Smart OTP (CONG_VIEC_72 lát L1) |
+| Thiết bị tin cậy | Tài khoản, băm mã cài đặt ứng dụng, tên máy, nền tảng, lần đầu, lần cuối, thời điểm gỡ | Hết tin cậy sau 12 tháng không dùng, khi gỡ, khi đặt lại mật khẩu, khi chăm sóc khách hàng hủy Smart OTP (CONG_VIEC_72) |
+| Phiên đăng nhập (bổ sung) | Băm thiết bị, đã xác nhận thiết bị | Phiên chờ xác nhận thiết bị mới chỉ gọi được API xác nhận, hiệu lực 10 phút (CONG_VIEC_72) |
+| Tham số xác thực | Ngày bắt đầu chuyển đổi, số ngày chuyển đổi của người mua, của cổng cửa hàng liên kết, số giờ khóa dùng điểm sau khôi phục, số tổng đài chăm sóc khách hàng, phiên bản | Một dòng toàn hệ thống (CONG_VIEC_72) |
+| Nhắc kích hoạt đã gửi | Tài khoản, loại (ngày bắt đầu; 14, 7, 1 ngày trước hạn; tin ZNS 7 ngày trước hạn), thời điểm | Mỗi loại một lần mỗi khách (CONG_VIEC_72) |
+| Nhật ký gửi tin (bổ sung) | Mục đích mã OTP của tin | Đếm số tin SMS theo mục đích; tin cũ để trống (CONG_VIEC_72) |
+| Thành viên cửa hàng liên kết (bổ sung) | Thời điểm bị đặt lại xác thực | Lần vào tới phải kích hoạt lại bằng mã SMS một lần (CONG_VIEC_72) |

@@ -1,11 +1,11 @@
 "use client";
 
 // MAN_HINH_177 Cửa hàng của tôi (chủ cửa hàng): hợp đồng chỉ xem, điểm bán, nhân viên – mời thu ngân, gán điểm bán, khóa, mở
-// (CONG_VIEC_55; CHUC_NANG_193; QUYTAC_NGHIEPVU_393; API_207).
+// (CONG_VIEC_55; CHUC_NANG_193; QUYTAC_NGHIEPVU_393; API_207). Cột "Bảo mật", đặt lại xác thực cho thu ngân (CONG_VIEC_72; API_325).
 import type { AffiliateMember, AffiliateOutlet, MerchantPortalStore } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { Drawer } from "ui/components/Dialogs";
+import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { formatDate, formatDateTime, formatNumber } from "ui/lib/format";
@@ -98,6 +98,42 @@ function LockButton({ member, onDone }: { member: AffiliateMember; onDone: () =>
   );
 }
 
+function SecurityBadge({ member }: { member: AffiliateMember }) {
+  const t = useTranslations("merchantPortal");
+  if (member.securitySetUp === null) return null;
+  return <span className={`nhan ${member.securitySetUp ? "thanh-cong" : "canh-bao"}`}>{t(member.securitySetUp ? "security_set" : "security_unset")}</span>;
+}
+
+function ResetAuthenticationButton({ member, onDone }: { member: AffiliateMember; onDone: () => void }) {
+  const t = useTranslations("merchantPortal");
+  const [open, setOpen] = useState(false);
+  const { submitting, formError, run } = useSubmit();
+  return (
+    <>
+      <button type="button" className="nut chu" onClick={() => setOpen(true)}>
+        {t("resetAuth")}
+      </button>
+      {open && (
+        <ConfirmDialog
+          title={t("resetAuth")}
+          text={t("resetAuthText", { name: member.fullName })}
+          confirmLabel={t("resetAuth")}
+          busy={submitting}
+          error={formError}
+          onClose={() => setOpen(false)}
+          onConfirm={() =>
+            void run(async () => {
+              await portalFetch(`/merchant-portal/members/${member.id}/reset-authentication`, { method: "POST", body: JSON.stringify({ version: member.version }) });
+              setOpen(false);
+              onDone();
+            })
+          }
+        />
+      )}
+    </>
+  );
+}
+
 export default function StorePage() {
   const t = useTranslations("merchantPortal");
   const { notify } = usePortal();
@@ -168,6 +204,7 @@ export default function StorePage() {
                   <th>{t("role")}</th>
                   <th>{t("outlets")}</th>
                   <th>{t("status")}</th>
+                  <th>{t("security")}</th>
                   <th />
                 </tr>
               </thead>
@@ -189,9 +226,13 @@ export default function StorePage() {
                       <span className={`nhan ${member.status === "active" ? "thanh-cong" : member.status === "locked" ? "loi" : "canh-bao"}`}>{t(`member_${member.status}`)}</span>
                       {member.invitationExpiresAt && <div className="chu-thich">{t("invitationExpires", { time: formatDateTime(member.invitationExpiresAt) })}</div>}
                     </td>
+                    <td data-nhan={t("security")}>
+                      <SecurityBadge member={member} />
+                    </td>
                     <td data-nhan="">
                       {member.role === "cashier" && (
                         <span className="nhom-nut">
+                          {member.status === "active" && <ResetAuthenticationButton member={member} onDone={() => done(t("resetAuthDone"))} />}
                           <button type="button" className="nut phu" onClick={() => setEditing(member)}>
                             {t("changeOutlets")}
                           </button>

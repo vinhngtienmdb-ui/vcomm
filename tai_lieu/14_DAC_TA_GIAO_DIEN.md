@@ -3101,3 +3101,36 @@ MAN_HINH_242 (L2): nút "✦ Trợ lý AI" trên thanh trên dùng chung (`packa
 MAN_HINH_243 (L3): nút "✦ Soạn bằng AI" ở phần Thông tin chung của biểu mẫu sản phẩm (mini app Sản phẩm, MAN_HINH_24), hiện khi người dùng sửa được sản phẩm và có `ai.product_content.use`. Bấm mở ngăn kéo: giọng văn (Chuyên nghiệp, Thân thiện, Ngắn gọn), độ dài (Ngắn, Vừa, Dài), từ khóa, số lượt còn hôm nay, nút Soạn (sau lần đầu là Viết lại). Kết quả ba phần: Mô tả sản phẩm (nút Dùng thay ô Mô tả), Điểm nổi bật (nút Thêm vào mô tả, thêm dạng gạch đầu dòng cuối ô Mô tả), Mô tả đăng bán trên VComm (nút Sao chép, kèm hướng dẫn dán ở màn hình đăng bán vì ô này thuộc cài đặt cửa hàng, không nằm trên biểu mẫu sản phẩm); hộp cảnh báo liệt kê thông số "[cần bổ sung]". Dùng nội dung thì biểu mẫu báo "Đã điền nội dung AI vào mô tả. Bấm Lưu để lưu." và lần lưu gửi `aiAssisted: true`. Chưa xác nhận thông báo, hết hạn mức, hết lượt, chưa bật: hiện lý do thay phần soạn.
 
 MAN_HINH_245 (L3): trang `/platform/ai-usage` của mini app Nền tảng, menu "Thống kê trợ lý AI" với người có `ai.usage.view`. Lọc tháng (12 tháng gần nhất), tính năng; nút Xuất Excel; bốn ô số (chi phí tháng / hạn mức kèm thanh tiến độ và quy đổi VND tham khảo; số lượt theo tính năng, lỗi, từ chối; số người dùng; tỷ lệ Đúng, số Đúng, Sai theo lý do); biểu đồ cột chi phí theo ngày; bảng theo người dùng (lượt, token vào, token ra, chi phí, Đúng/Sai). Không có nội dung hội thoại.
+
+## MODULE_01, MODULE_09, MODULE_11, MODULE_12: ưu tiên Smart OTP thay tin nhắn SMS (CONG_VIEC_72)
+
+Bản mẫu đã duyệt 2026-11-17: `ban_mau/CONG_VIEC_72_SMART_OTP_UNG_DUNG.html` (ứng dụng VComm), `ban_mau/CONG_VIEC_72_SMART_OTP_QUAN_TRI_CONG.html` (web quản trị, cổng cửa hàng).
+
+| Mã | Tên | Mini app | Nội dung | Bản mẫu |
+|---|---|---|---|---|
+| MAN_HINH_269 | Mở khóa Smart OTP | Ứng dụng VComm (`SmartOtpLock`; `smart-otp/dat-ma-khoa` sau đăng ký) | Đặt mã khóa 6 số nhập hai lần (báo mã yếu: 6 số giống nhau, dãy tăng, giảm, trùng 6 số cuối số điện thoại); nhập mã khóa; mở bằng vân tay, khuôn mặt khi máy có và khách bật, nút "Dùng mã khóa" luôn có; báo số lần còn lại, sai 5 lần xóa Smart OTP trên máy. Hiện khi xem mã, khi giao dịch cần mã trên máy giữ Smart OTP; mở xong có hiệu lực 60 giây, mã tự điền | `ban_mau/CONG_VIEC_72_SMART_OTP_UNG_DUNG.html` |
+| MAN_HINH_270 | Xác nhận đăng nhập trên thiết bị mới | Ứng dụng VComm (`DeviceVerification`, sau MAN_HINH_73) | Ô "Mã Smart OTP" (đọc từ máy giữ Smart OTP); khách chưa kích hoạt trong thời hạn: "Gửi mã SMS" và ô mã SMS; liên kết "Không còn máy giữ Smart OTP" sang MAN_HINH_271; báo phiên chờ hết 10 phút | như trên |
+| MAN_HINH_271 | Khôi phục Smart OTP khi mất máy | Ứng dụng VComm (`SmartOtpRecovery`, từ MAN_HINH_270, MAN_HINH_151) | Giải thích hậu quả (máy cũ mất hiệu lực, dùng điểm tạm khóa theo số giờ tham số); gửi mã SMS; nhập mã; đặt mã khóa (MAN_HINH_269); kết quả kèm giờ hết khóa. Bản web chỉ hướng dẫn khôi phục trên ứng dụng điện thoại | như trên |
+| MAN_HINH_272 | Thiết bị đã đăng nhập | Ứng dụng VComm (`thiet-bi`, từ MAN_HINH_76 Tài khoản) | Danh sách thiết bị tin cậy: tên máy, nền tảng, lần đầu, lần cuối, nhãn "Máy này", "Đang giữ Smart OTP"; nút gỡ có hộp xác nhận (đăng xuất thiết bị đó) | như trên |
+| MAN_HINH_273 | Thiết lập bảo mật và nhập mã ứng dụng xác thực | `web-affiliate` (`/bao-mat`; bước mã trên trang đăng nhập) | Bước 1 đặt mật khẩu; bước 2 quét mã QR ứng dụng xác thực, nhập mã; bước 3 lưu 10 mã dự phòng; nút "Để sau" kèm số ngày còn lại khi chưa thiết lập trong hạn; trạng thái bị chặn hướng dẫn nhờ người mời đặt lại xác thực. Nhập mã ứng dụng xác thực hoặc mã dự phòng sau mật khẩu, sau Zalo | `ban_mau/CONG_VIEC_72_SMART_OTP_QUAN_TRI_CONG.html` |
+| MAN_HINH_274 | Quên mật khẩu cổng cửa hàng | `web-affiliate` (`/quen-mat-khau`, từ trang đăng nhập) | Số điện thoại, mã ứng dụng xác thực hoặc mã dự phòng, mật khẩu mới; báo tạm khóa 15 phút khi sai nhiều lần; hướng dẫn đặt lại xác thực khi mất cả hai | như trên |
+| MAN_HINH_275 | Xác thực người mua | `web-crm` (`/buyer-authentication`, mục menu riêng "Xác thực người mua") | Tham số chuyển đổi (ngày bắt đầu, số ngày người mua, cổng, số giờ khóa dùng điểm, số tổng đài) kèm ngày cuối tính sẵn; thống kê kích hoạt, kích hoạt trên bản web, tài khoản cổng đã thiết lập, số tin SMS 30 ngày theo mục đích. Người chỉ có `marketplace.buyer.view` xem, các ô chỉ đọc. Người dùng yêu cầu 2026-11-17 (duyệt L1), thay thẻ "Xác thực" của MAN_HINH_86 | như trên |
+
+Sửa màn hình đã có:
+- MAN_HINH_151 thẻ Smart OTP: mã khóa, sinh trắc học; "Chuyển Smart OTP sang máy này" (nhập mã máy cũ), "Không còn máy cũ"; đổi mã khóa; dải khóa dùng điểm, hạn chuyển đổi; bản web chỉ xem trạng thái và hướng dẫn cài ứng dụng.
+- MAN_HINH_73 Đăng nhập: thêm bước xác nhận thiết bị mới (MAN_HINH_270); đăng nhập bằng mã SMS ẩn sau thời hạn (theo API_326).
+- MAN_HINH_74 Đăng ký: bước "Kích hoạt Smart OTP trên máy này" (mặc định chọn) sau mã SMS, rồi đặt mã khóa.
+- MAN_HINH_75 Quên mật khẩu: ô "Mã Smart OTP" là cách chính, "Gửi mã SMS" là liên kết phụ trong thời hạn.
+- Trang chủ, MAN_HINH_151: thẻ nhắc kích hoạt "Kích hoạt Smart OTP trước <ngày>…", nút "Kích hoạt", đóng được trong ngày; khách dùng Smart OTP trên bản web thấy nhắc chuyển sang điện thoại.
+- MAN_HINH_265 Đổi điểm đối tác: hết hạn bắt buộc kích hoạt ("Kích hoạt Smart OTP để đổi điểm", nút "Kích hoạt"); mã tự điền sau khi mở khóa.
+- MAN_HINH_80 (`web-crm`): khối "Bảo mật đăng nhập" (trạng thái Smart OTP, máy, ngày kích hoạt, khóa dùng điểm đến, số thiết bị tin cậy, thời hạn chuyển đổi); nút "Hủy Smart OTP" với người có `marketplace.buyer.security`, hộp nhập lý do 10 đến 500 ký tự.
+- MAN_HINH_86 (`web-crm`): không còn thẻ "Xác thực" (chuyển sang MAN_HINH_275).
+- Trang đăng nhập cổng (`web-affiliate`): số điện thoại, mật khẩu; Zalo; trong thời hạn còn liên kết "Đăng nhập bằng mã SMS"; liên kết "Quên mật khẩu".
+- MAN_HINH_177: nút "Đặt lại xác thực" cho thu ngân, cột "Bảo mật" (Đã thiết lập, Chưa thiết lập).
+- MAN_HINH_178: như MAN_HINH_177, cho mọi thành viên (chủ, thu ngân).
+- Cổng cửa hàng: dải nhắc "Thiết lập bảo mật trước <ngày>" với tài khoản chưa thiết lập.
+
+Điều hướng: MAN_HINH_73 → MAN_HINH_270 → (mất máy) MAN_HINH_271 → MAN_HINH_269; MAN_HINH_76 → MAN_HINH_272; trang đăng nhập cổng → MAN_HINH_273 hoặc MAN_HINH_274. Vai trò – màn hình theo mục 60 tài liệu `08`.
+
+- Trạng thái mỗi màn hình: rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; máy tính, điện thoại.
+- Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.

@@ -64,7 +64,8 @@ describe("CONG_VIEC_60 chống gian lận nâng cao", () => {
     const userId = await store.register("0939600301", "Khách Thiết Bị");
     const login = (deviceId?: string) => {
       const call = request(application.getHttpServer()).post("/api/v1/buyer/login").send({ phone: "0939600301", password: "MatKhauNguoiMua@2026" });
-      return deviceId ? call.set("x-device-id", deviceId) : call;
+      // Mã rỗng: như ứng dụng không gửi mã cài đặt (môi trường kiểm thử tự thêm mã máy kiểm thử khi thiếu tiêu đề, CONG_VIEC_72).
+      return call.set("x-device-id", deviceId ?? "");
     };
     expect((await login()).status).toBe(200);
     expect((await login("ngan")).status).toBe(200);

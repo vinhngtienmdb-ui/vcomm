@@ -6180,3 +6180,28 @@ L1: KICHBAN_KIEMTHU_653, 654, 655, 657, 658, 659 trong `apps/api/test/c63-ai-acc
 L2: KICHBAN_KIEMTHU_656, 660 đến 663 trong `apps/api/test/c63-ai-chat.test.ts` (11 kiểm thử, bộ giả lập theo kịch bản). KICHBAN_KIEMTHU_666 phần MAN_HINH_242: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh) – hội thoại có nguồn, đánh giá, hỏi trực tiếp với bộ giả lập, thông báo lần đầu.
 
 L3: KICHBAN_KIEMTHU_664, 665 trong `apps/api/test/c63-ai-content.test.ts` (6 kiểm thử). KICHBAN_KIEMTHU_666 phần MAN_HINH_243, 245: chụp ảnh ứng dụng chạy thật (1360, 390 điểm ảnh, không lỗi trang, không cuộn ngang).
+
+## CHUC_NANG_242 đến CHUC_NANG_246: ưu tiên Smart OTP thay tin nhắn SMS (CONG_VIEC_72)
+
+Dữ liệu chung: dữ liệu mẫu CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); đồng hồ giả để đặt trong hạn, hết hạn chuyển đổi; mã SMS đọc từ trình gửi tin giả; tiêu đề `X-Device-Id` khác nhau cho từng máy.
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_734 | 536 | Kích hoạt lần đầu bằng mã SMS trên điện thoại; kích hoạt từ bản web bị từ chối `409 smartOtpWebNotAllowed` (cả ứng dụng cũ gửi tên máy "Trình duyệt") | Tích hợp | `apps/api/test/c72-smart-otp-activation.test.ts` |
+| KICHBAN_KIEMTHU_735 | 536 | Đăng ký kèm kích hoạt Smart OTP: chỉ một mã SMS được tạo, trả khóa một lần; bản web không gửi được | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_736 | 536 | Chuyển máy bằng mã máy cũ: mã cũ hết hiệu lực, không tạo mã SMS, không khóa dùng điểm; mã sai, mã dùng lại bị từ chối | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_737 | 537 | Mã khóa yếu bị từ chối; sai 5 lần gọi hủy; khách cũ đặt mã khóa ở lần mở đầu | Thủ công trên máy thật (Expo Go); phần máy chủ (API hủy khi sai mã khóa 5 lần) tự động | Thủ công; `apps/api/test/c72-smart-otp-activation.test.ts` (KICHBAN_KIEMTHU_736, phần `lockout`) |
+| KICHBAN_KIEMTHU_738 | 537 | Sinh trắc học bật, tắt, đổi vân tay trên máy | Thủ công trên máy thật (Expo Go) | Thủ công |
+| KICHBAN_KIEMTHU_739 | 538 | Thiết bị mới: mật khẩu đúng chỉ được phiên chờ xác nhận; gọi API khác trả `401`; mã Smart OTP đúng thì tin cậy, có thông báo; mã dùng lại bị từ chối; sai 5 lần khóa; máy đã tin cậy không bị hỏi; khách chưa kích hoạt trong hạn xác nhận bằng mã SMS, hết hạn phải kích hoạt Smart OTP | Tích hợp | `apps/api/test/c72-new-device.test.ts` |
+| KICHBAN_KIEMTHU_740 | 538 | Thiết bị có phiên trước triển khai (chưa có băm thiết bị) không bị hỏi, làm mới thì thành tin cậy; danh sách thiết bị; gỡ thiết bị thu hồi phiên của thiết bị đó | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_741 | 539 | Quên mật khẩu bằng Smart OTP; khách đã kích hoạt yêu cầu SMS: trả `204`, không tạo mã; thiết bị khác hết tin cậy | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_742 | 540 | Khôi phục: mật khẩu sai, mã SMS sai; đúng thì máy cũ hết hiệu lực, khóa 24 giờ ở quầy, Open API, đổi ra đối tác, đặt hàng dùng điểm, cửa hàng liên kết cách 2, 3; tích điểm vẫn được; hết giờ dùng lại được; kích hoạt lại bằng SMS trên máy tin cậy khi đã từng có Smart OTP cũng là khôi phục; tham số 0 giờ không khóa | Tích hợp | `apps/api/test/c72-recovery.test.ts` |
+| KICHBAN_KIEMTHU_743 | 541 | Trong và sau thời hạn: đăng nhập SMS, quên mật khẩu SMS, Open API gửi mã, đổi ra đối tác chưa kích hoạt; tham số số ngày đổi thì hạn đổi | Tích hợp | `apps/api/test/c72-transition.test.ts` (Open API, API_326), `c72-transition-partner.test.ts` (đổi ra đối tác), `c72-new-device.test.ts` (đăng nhập) |
+| KICHBAN_KIEMTHU_744 | 542 | Hủy Smart OTP thiếu quyền `403`, thiếu lý do `400`, sai phiên bản; đủ thì thu hồi phiên, thiết bị, ghi nhật ký; đặt lại mật khẩu bằng SMS ngoại lệ một lần | Tích hợp | `apps/api/test/c72-recovery.test.ts` |
+| KICHBAN_KIEMTHU_745 | 543 | Cổng: đăng nhập mật khẩu và mã ứng dụng xác thực, mã dự phòng, Zalo hỏi mã; tài khoản người mua cùng người không bị hỏi mã ứng dụng xác thực trên ứng dụng | Tích hợp | `apps/api/test/c72-merchant-portal.test.ts` |
+| KICHBAN_KIEMTHU_746 | 543 | Cổng: kích hoạt lời mời có thiết lập; trong hạn "Để sau"; hết hạn `/auth/otp/send` từ cổng bị từ chối | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_747 | 543 | Cổng: đặt lại xác thực (chủ cho thu ngân, quản trị cho chủ, chủ không đặt được cho cửa hàng khác); quên mật khẩu cổng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_748 | 544 | Việc nền nhắc: mốc gần nhất, không trùng, bỏ khách đã kích hoạt; ZNS 7 ngày trước hạn chỉ khi có mẫu; hết hạn hủy Smart OTP trên bản web | Tích hợp | `apps/api/test/c72-transition.test.ts` |
+| KICHBAN_KIEMTHU_749 | 545 | Tham số: phạm vi giá trị, phiên bản, ngày bắt đầu không sau hôm nay, nhật ký; thống kê đúng số; phân quyền | Tích hợp | `apps/api/test/c72-authentication-settings.test.ts` |
+
+KICHBAN_KIEMTHU_737, 738 là kiểm thử bằng tay trên máy thật qua Expo Go (đặc tả mục 14; lát L2): mã khóa, vân tay, khuôn mặt, đổi vân tay chỉ chạy trên điện thoại thật. `c72-authentication-settings.test.ts` có thêm hai kiểm thử database migration (Smart OTP ở schema `core`, thiết bị tin cậy, trạng thái bảo mật tài khoản, tham số mặc định; kích hoạt ghi nền tảng và lần kích hoạt đầu tiên). Hồi quy (đặc tả mục 18, lát L1): kiểm thử của CONG_VIEC_53, 65, 67 sau khi chuyển bảng Smart OTP sang `core`.
