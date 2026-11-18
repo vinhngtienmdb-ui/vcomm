@@ -4,7 +4,7 @@
 - Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77, THAY_DOI_41 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77, THAY_DOI_41 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15); CONG_VIEC_79 (2026-11-18): lưu tệp trên kho tương thích S3 khác AWS (mục 1)
 
 ## 1. Danh sách công nghệ
 
@@ -20,7 +20,7 @@
 | Bộ nhớ đệm, hàng đợi nhẹ | Redis (ElastiCache), BullMQ | Phiên, quyền, giỏ hàng, tác vụ nền |
 | Sự kiện giữa module | Outbox, Amazon SQS/SNS | Không mất sự kiện |
 | Tìm kiếm | Amazon OpenSearch | Tìm sản phẩm tiếng Việt có dấu và không dấu |
-| Lưu tệp | S3, CloudFront | Ảnh, video sản phẩm và cộng đồng |
+| Lưu tệp | S3, CloudFront; kho tương thích S3 khác AWS (Supabase Storage) qua cùng thư viện `@aws-sdk/client-s3`, biến `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `S3_SERVER_SIDE_ENCRYPTION` (CONG_VIEC_79, không thêm thư viện) | Ảnh, video sản phẩm và cộng đồng, tệp đính kèm |
 | Chạy ứng dụng | ECS Fargate, vùng Singapore | Không quản trị máy chủ, tự co giãn |
 | Hạ tầng bằng mã | AWS CDK (TypeScript) | Cùng ngôn ngữ, cùng monorepo; người dùng chọn ngày 2026-11-09 |
 | Tác vụ nền | BullMQ trên Redis | Nhắc duyệt quá hạn, lấy tỷ giá, đẩy sự kiện outbox |

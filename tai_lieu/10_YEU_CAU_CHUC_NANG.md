@@ -2568,3 +2568,12 @@ Yêu cầu phi chức năng:
 - Tạo tập đoàn gốc, quản trị tập đoàn trạng thái Đã mời (vai trò `group_admin` phạm vi tập đoàn, bắt buộc xác thực hai lớp); in một lần đường dẫn kích hoạt dùng một lần, hết hạn 72 giờ; không tạo mật khẩu (người dùng chọn 2026-11-18).
 - `--reissue-link` cấp lại đường dẫn khi quản trị còn Đã mời.
 - Không ghi đường dẫn, mã kích hoạt vào nhật ký thao tác; lỗi tham số chỉ nêu tên trường.
+
+## Lưu tệp trên kho tương thích S3 khác AWS (MODULE_01, CONG_VIEC_79)
+
+Không thêm chức năng; bổ sung yêu cầu phi chức năng cho lưu tệp đính kèm của CHUC_NANG_28 (QUYTAC_NGHIEPVU_35).
+
+Yêu cầu phi chức năng:
+- `STORAGE_DRIVER=s3` dùng được kho tương thích S3 khác AWS (Supabase Storage) qua `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`; `S3_SERVER_SIDE_ENCRYPTION` (`AES256` | `none`) không bắt buộc, mặc định `none` khi có `S3_ENDPOINT`.
+- Không đặt `S3_ENDPOINT` thì giữ đúng hành vi AWS S3 cũ (mã hóa AES256 phía máy chủ).
+- Cấu hình sai hoặc thiếu `S3_BUCKET` thì báo lỗi nêu tên biến khi khởi động.

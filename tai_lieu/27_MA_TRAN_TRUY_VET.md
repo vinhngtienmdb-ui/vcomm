@@ -991,3 +991,13 @@ Lệnh khởi tạo một lần dùng lại cơ chế kích hoạt của CHUC_NA
 | CHUC_NANG_01 (tập đoàn gốc), CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần); TIEUCHI_NGHIEMTHU_609 đến 613; KICHBAN_KIEMTHU_834 đến 838 | MAN_HINH_03 (không đổi) | `apps/api/src/database/bootstrap.ts`, `apps/api/src/users/invitations.service.ts` (`issueActivationToken` dùng chung) | `apps/api/test/c78-lenh-khoi-tao.test.ts`; hồi quy `apps/api/test/l4-invitations.test.ts` |
 
 Toàn bộ CONG_VIEC_78: TIEUCHI_NGHIEMTHU_609 đến 613, KICHBAN_KIEMTHU_834 đến 838 đều có mã nguồn và kiểm thử tự động.
+
+## Kiểm tra bao phủ CONG_VIEC_79 – 2026-11-18
+
+Lưu tệp đính kèm trên kho tương thích S3 khác AWS cho chức năng đã có (dòng YCAU_NGHIEPVU_21, TIEUCHI_NGHIEMTHU_54 giữ nguyên). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; TIEUCHI_NGHIEMTHU_614 đến 617, KICHBAN_KIEMTHU_839 đến 842.
+
+| Chức năng | Quy tắc | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_28 (tệp đính kèm đề xuất); TIEUCHI_NGHIEMTHU_614 đến 617; KICHBAN_KIEMTHU_839 đến 842 | QUYTAC_NGHIEPVU_35 | `apps/api/src/common/file-storage.ts` | `apps/api/test/c79-luu-tep-s3.test.ts`; hồi quy `apps/api/test/c3-proposals.test.ts` |
+
+Toàn bộ CONG_VIEC_79: TIEUCHI_NGHIEMTHU_614 đến 617, KICHBAN_KIEMTHU_839 đến 842 đều có mã nguồn và kiểm thử tự động.
