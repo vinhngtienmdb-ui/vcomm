@@ -579,3 +579,13 @@
 - Rủi ro: dữ liệu cửa hàng ngoài tập đoàn nằm chung cơ sở dữ liệu; giảm bằng schema riêng và kiểm thử cô lập.
 - Điều chỉnh do người dùng chốt khi lập trình: QUYTAC_NGHIEPVU_600 bỏ quy tắc quá 7 ngày chuyển phần trừ thu hộ thiếu sang VietQR (phần thiếu mang sang bảng chuyển tiền sau); QUYTAC_NGHIEPVU_602 đối soát ngân hàng tự động theo nội dung phiếu phí để sau (cần mở rộng module ngân hàng CONG_VIEC_18, việc riêng).
 - Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu đợt 1, 13 điểm đề xuất). Đợt 1 lập trình xong 2026-11-17; người dùng nghiệm thu phần tự động 2026-11-18, chờ phát hành 0.14.0; thử trên Sunmi T2 trước khi triển khai.
+
+### THAY_DOI_41: Gửi email qua SMTP hộp thư doanh nghiệp thay Amazon SES – 2026-11-18
+- Người yêu cầu: người dùng, 2026-11-18. Công việc: CONG_VIEC_77.
+- Nội dung thay đổi: tài liệu 12, 13 đã duyệt ghi dịch vụ gửi email là Amazon SES; đổi sang gửi qua SMTP của hộp thư doanh nghiệp có sẵn (thư viện nodemailer), cấu hình bằng biến môi trường SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASSWORD, SMTP_FROM.
+- Thành phần bị ảnh hưởng: tài liệu 12, 13, 22, 26; lớp gửi email của backend; mọi luồng gửi thư (mời, kích hoạt, quên mật khẩu, thông báo).
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_827 đến 833; toàn bộ kiểm thử.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_77.
+- Rủi ro: hạn mức gửi của hộp thư doanh nghiệp thấp hơn dịch vụ gửi hàng loạt; thư dễ vào thư rác nếu tên miền thiếu bản ghi SPF, DKIM. Người dùng chỉ có số điện thoại không nhận tin qua lớp này.
+- Trạng thái: Đã phê duyệt 2026-11-18 (người dùng chọn email doanh nghiệp có sẵn qua SMTP).
+
