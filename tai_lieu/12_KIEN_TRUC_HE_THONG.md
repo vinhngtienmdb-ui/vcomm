@@ -349,7 +349,7 @@ Schema mới `retail` đứng sau `core`, `catalog`, `inventory`, `sales`, `fina
 | Thật | Vận hành | AWS vùng Singapore, ECS Fargate chip Arm tối thiểu 2 bản chạy song song mỗi dịch vụ, Aurora PostgreSQL nhiều vùng sẵn sàng (giai đoạn 1: 2×db.t4g.medium, 1 NAT gateway) |
 
 - Mọi môi trường AWS dựng bằng AWS CDK; khóa bí mật mỗi môi trường khác nhau.
-- Đợt triển khai đầu (THAY_DOI_40): môi trường thử nghiệm và thật chạy trên Supabase, Railway, Cloudflare vùng Singapore, không tắt ngoài giờ; chi tiết, các bước: tài liệu `26`.
+- Đợt triển khai đầu (THAY_DOI_40): chỉ dựng môi trường thật trên Supabase, Railway, Cloudflare vùng Singapore (người dùng quyết định 2026-11-18 không dựng môi trường thử nghiệm riêng); chi tiết, các bước: tài liệu `26`.
 - Database migration chạy một lần trước khi bật phiên bản mới, cùng thứ tự ở mọi môi trường.
 
 ## 3w. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
@@ -379,7 +379,7 @@ CONG_VIEC_48 (lương) đọc `hr.timesheet_lines` của kỳ đã chốt, ghi `
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 
 - Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
-- Đợt triển khai đầu (THAY_DOI_40, người dùng chấp nhận 2026-11-18): Supabase sao lưu hằng ngày giữ 7 ngày; môi trường thật bật PITR 7 ngày; trước mỗi lần triển khai sao lưu `pg_dump` mã hóa bằng age lưu ở Cloudflare R2.
+- Đợt triển khai đầu (THAY_DOI_40, người dùng chấp nhận 2026-11-18): Supabase sao lưu hằng ngày giữ 7 ngày và PITR 7 ngày; trước mỗi lần triển khai bắt buộc sao lưu `pg_dump` mã hóa bằng age lưu ở Cloudflare R2. Diễn tập phục hồi vào cơ sở dữ liệu tạm (chưa có môi trường thử nghiệm).
 - Phục hồi: diễn tập phục hồi vào môi trường thử nghiệm mỗi quý.
 - Ghi log: log có cấu trúc (JSON) đẩy về CloudWatch, mỗi yêu cầu có mã yêu cầu; không ghi mật khẩu, mã OTP, token.
 - Giám sát: Sentry cho lỗi ứng dụng; cảnh báo CloudWatch khi tỷ lệ lỗi, độ trễ, đăng nhập thất bại tăng bất thường.

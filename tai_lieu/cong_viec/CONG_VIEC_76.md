@@ -1,9 +1,9 @@
 # CONG_VIEC_76: Hạ tầng AWS, môi trường thử nghiệm, môi trường thật và quy trình triển khai
 
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
-- Phiên bản: 0.3
+- Phiên bản: 0.4
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare và mọi đề xuất kỹ thuật ngày 2026-11-18 (mục 21); phiếu THAY_DOI_40 (mục 22); tên miền `vcomm.vn` (mục 25). Chưa tạo tài nguyên.
+- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare (mục 21), phiếu THAY_DOI_40 (mục 22); ngày 2026-11-18 người dùng chọn chỉ dựng môi trường thật, tên miền `erp`, `api`, `app`, `kho`, `ipos`.vcomm.vn (mục 26, thay mục 20.4, 25 và mọi nội dung về môi trường thử nghiệm). Chưa tạo tài nguyên. Điểm chặn mở cho người dùng ngoài: mục 26.3.
 - Thay đổi so với 0.2: ghi quyết định (mục 21), nội dung THAY_DOI_40 (mục 22), tiêu chí nghiệm thu và kịch bản chờ cấp mã (mục 23), kết quả lát L1 (mục 24). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
 - Nhánh: `chuc-nang/CONG_VIEC_76-ha-tang-aws`.
@@ -510,16 +510,16 @@ Mã do phiên điều phối cấp ngày 2026-11-18: TIEUCHI_NGHIEMTHU_590 đế
 |---|---|---|---|
 | TIEUCHI_NGHIEMTHU_590 | Hai ảnh build được từ tag; không chứa `.env`, khóa bí mật, mã nguồn kiểm thử; quét ảnh không còn lỗ hổng Nghiêm trọng, Cao chưa xử lý | Bắt buộc | KICHBAN_KIEMTHU_810 |
 | TIEUCHI_NGHIEMTHU_591 | Toàn bộ database migration và kiểm thử tự động đạt trên PostgreSQL 17 | Bắt buộc | KICHBAN_KIEMTHU_811 |
-| TIEUCHI_NGHIEMTHU_592 | Thử nghiệm: HTTPS đúng tên miền, đăng nhập tài khoản thử, mở 11 mini app | Bắt buộc | KICHBAN_KIEMTHU_812 |
-| TIEUCHI_NGHIEMTHU_593 | Bản web ứng dụng VComm, kho, iPOS gọi được API thử nghiệm; APK Android cài và đăng nhập được | Bắt buộc | KICHBAN_KIEMTHU_813 |
-| TIEUCHI_NGHIEMTHU_594 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại dịch vụ `api` | Bắt buộc | KICHBAN_KIEMTHU_814 |
-| TIEUCHI_NGHIEMTHU_595 | Tác vụ nền chạy theo lịch | Bắt buộc | KICHBAN_KIEMTHU_815 |
-| TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; môi trường thật luôn có bản sao lưu mã hóa trước migration (không tắt được), môi trường thử nghiệm chỉ sao lưu khi chọn tham số (mặc định tắt); migration chạy lại không còn tệp mới | Bắt buộc | KICHBAN_KIEMTHU_816, 822 |
-| TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối ở môi trường thật; môi trường `production` cần người duyệt; migration ở môi trường thật khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | KICHBAN_KIEMTHU_817, 823, 824 |
+| TIEUCHI_NGHIEMTHU_592 | Môi trường thật: HTTPS đúng tên miền (`erp.vcomm.vn`, `api.vcomm.vn`), đăng nhập quản trị tập đoàn, mở 11 mini app | Bắt buộc | KICHBAN_KIEMTHU_812 |
+| TIEUCHI_NGHIEMTHU_593 | Bản web ứng dụng VComm, kho, iPOS (`app`, `kho`, `ipos.vcomm.vn`) gọi được API môi trường thật; APK Android cài và đăng nhập được | Bắt buộc | KICHBAN_KIEMTHU_813 |
+| TIEUCHI_NGHIEMTHU_594 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại hoặc đổi bản chạy của dịch vụ `api` | Bắt buộc | KICHBAN_KIEMTHU_814 |
+| TIEUCHI_NGHIEMTHU_595 | Tác vụ nền chạy theo lịch ở dịch vụ `worker`, không chạy trùng ở `api` | Bắt buộc | KICHBAN_KIEMTHU_815 |
+| TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; luôn có bản sao lưu mã hóa trước migration (không tắt được); migration chạy lại không còn tệp mới | Bắt buộc | KICHBAN_KIEMTHU_816, 822 |
+| TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối; môi trường `production` cần người duyệt; migration khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | KICHBAN_KIEMTHU_817, 823, 824 |
 | TIEUCHI_NGHIEMTHU_598 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | KICHBAN_KIEMTHU_818, 825 |
-| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu | Bắt buộc | KICHBAN_KIEMTHU_819, 826 |
+| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | KICHBAN_KIEMTHU_819, 826 |
 | TIEUCHI_NGHIEMTHU_600 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | KICHBAN_KIEMTHU_820 |
-| TIEUCHI_NGHIEMTHU_601 | Môi trường thật: đạt TIEUCHI_NGHIEMTHU_592 đến 599, `api`, `web` 2 bản, PITR bật | Bắt buộc | KICHBAN_KIEMTHU_821 |
+| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật: `NODE_ENV=production`, bộ giả lập tắt, `api` và `web` 2 bản, `worker` riêng, Supabase Small, PITR 7 ngày | Bắt buộc | KICHBAN_KIEMTHU_821 |
 
 ## 24. Lát L1 – kết quả (2026-11-18)
 
@@ -539,7 +539,7 @@ Kiểm tra:
 
 Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK; quét lỗ hổng ảnh (đề xuất thêm hành động `aquasecurity/trivy-action`, giấy phép Apache 2.0, chờ người dùng duyệt).
 
-## 25. Tên miền `vcomm.vn` (đề xuất, chờ người dùng xác nhận)
+## 25. Tên miền `vcomm.vn` (đề xuất ban đầu, đã thay bằng mục 26.1)
 
 | Dùng cho | Thử nghiệm | Thật |
 |---|---|---|
@@ -560,3 +560,60 @@ Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `recor
 3. Ở nhà đăng ký tên miền `.vn` (trang quản lý tên miền của nhà đăng ký): tắt DNSSEC nếu đang bật; mục đổi máy chủ tên miền (DNS, nameserver), thay toàn bộ máy chủ cũ bằng hai máy chủ Cloudflare. Một số nhà đăng ký `.vn` yêu cầu tên miền đã đủ hồ sơ chủ thể với VNNIC mới cho đổi; nếu bị từ chối, liên hệ nhà đăng ký.
 4. Chờ Cloudflare báo Active (thường vài giờ, có thể tới 24 đến 48 giờ). Sau đó bật lại DNSSEC từ Cloudflare nếu muốn (thêm bản ghi DS ở nhà đăng ký).
 5. Báo phiên điều phối khi Active để tạo bản ghi cho các tên miền con.
+
+## 26. Quyết định "chỉ môi trường thật" (người dùng, 2026-11-18)
+
+Người dùng không dựng môi trường thử nghiệm riêng; dựng một môi trường thật ở chế độ thật từ đầu: `NODE_ENV=production`, dữ liệu thật, bộ giả lập tắt, sao lưu trước mỗi lần triển khai bắt buộc, PITR 7 ngày, Supabase Small, Railway Pro, `api` và `web` 2 bản, `worker` riêng. Nội dung về môi trường thử nghiệm ở mục 20 đến 25 không áp dụng cho đợt đầu.
+
+### 26.1 Tên miền
+
+| Dùng cho | Địa chỉ |
+|---|---|
+| Web quản trị, mọi mini app theo đường dẫn | `erp.vcomm.vn` |
+| API, webhook, trang trả về cổng thanh toán, trang chia sẻ, tệp liên kết ứng dụng | `api.vcomm.vn` |
+| Bản web ứng dụng VComm, kho, iPOS | `app.vcomm.vn`, `kho.vcomm.vn`, `ipos.vcomm.vn` |
+| Gốc `vcomm.vn`, `www` | Chuyển hướng sang `app.vcomm.vn` (quy tắc chuyển hướng của Cloudflare) đến khi có trang giới thiệu (giả định, chờ người dùng xác nhận) |
+
+Biến: `WEB_ORIGIN=https://erp.vcomm.vn`, `SHARE_PUBLIC_URL=https://api.vcomm.vn`, `VCOMM_WEB_URL=https://app.vcomm.vn`, `APP_WEB_ORIGINS=https://app.vcomm.vn,https://kho.vcomm.vn,https://ipos.vcomm.vn`, `VNPAY_RETURN_URL=https://api.vcomm.vn/api/v1/public/payments/vnpay/return`; ứng dụng di động build với `EXPO_PUBLIC_API_URL=https://api.vcomm.vn/api/v1`.
+
+### 26.2 Thay đổi kéo theo
+
+- Luồng `trien-khai.yml` chỉ còn môi trường `production`, luôn sao lưu, không có bước nạp dữ liệu thử; tệp lệnh vẫn nhận `staging` để dùng khi dựng lại môi trường thử nghiệm.
+- Tiêu chí, kịch bản (mục 23) gộp về môi trường thật, giữ số mã: TIEUCHI_NGHIEMTHU_592 đến 595 nay kiểm trên môi trường thật; TIEUCHI_NGHIEMTHU_601 nay là cấu hình môi trường thật; không có mã bỏ không dùng. Kịch bản sai (migration lỗi, phục hồi) chạy trên cơ sở dữ liệu tạm, không chạy trên cơ sở dữ liệu thật.
+- Chi phí: chỉ môi trường thật ~240 USD/tháng (Supabase Pro + Small + PITR ~130, Railway ~90, Cloudflare Free 0, R2 trong hạn mức miễn phí).
+- Lát: L1 (đã làm) và L2 (bản web di động, APK, Pages) giữ; tạo tài nguyên, triển khai lần đầu làm ngay trên môi trường thật khi người dùng duyệt.
+- Rủi ro: không có nơi thử trước; lỗi của phiên bản mới gặp trực tiếp trên dữ liệu thật; người dùng tự kiểm trên dữ liệu thật (nên tạo công ty riêng để thử, không trộn với công ty đang vận hành).
+
+### 26.3 Điểm chặn và điều kiện trước khi mở cho người dùng ngoài
+
+Phân hai mức: (A) chặn ngay cả lần triển khai đầu hoặc việc người dùng tự kiểm; (B) không chặn triển khai, nhưng phải xử lý hoặc người dùng chấp nhận trước khi mở cho người dùng ngoài.
+
+| Số | Điểm | Mức | Ảnh hưởng | Đề xuất |
+|---|---|---|---|---|
+| 1 | Email chỉ ghi log (`LogOutboundMessages` là lớp duy nhất): đường dẫn kích hoạt, đặt lại mật khẩu, thư mời nằm trong log | A | Tạo nhân viên, quên mật khẩu không tới người nhận; ghi token vào log môi trường thật trái tài liệu `19` mục 3 điểm 5 | Công việc riêng gửi email thật (đã duyệt là việc riêng), làm trước lần triển khai đầu hoặc cùng 0.14.x |
+| 2 | Không có cách tạo tổ chức và tài khoản quản trị đầu tiên trên môi trường thật (dữ liệu thử từ chối ở `production`) | A | Không đăng nhập được lần đầu | Công việc nhỏ: lệnh khởi tạo một lần (tập đoàn, quản trị tập đoàn, mật khẩu một lần buộc đổi), chạy bằng ảnh `api`; hoặc AI soạn câu lệnh SQL, người dùng duyệt (không khuyên: bỏ qua nhật ký thao tác, kiểm tra dữ liệu) |
+| 3 | Lưu tệp: 2 bản `api` không dùng chung volume Railway; mã S3 chưa nhận địa chỉ máy chủ khác AWS | A | Tệp đính kèm mất hoặc lệch giữa hai bản | Công việc nhỏ sửa mã lưu tệp (Supabase Storage) trước lần đầu; hoặc tạm `api` 1 bản + volume đến khi sửa |
+| 4 | Phiên bản 0.14.0 chưa có tag | A | Điều kiện triển khai | Phát hành 0.14.0 (hoặc triển khai 0.13.1 trước) |
+| 5 | Pháp lý điểm thưởng (CONG_VIEC_51, chờ ý kiến luật sư) | B | Chức năng điểm thưởng | Tắt hoặc không công bố điểm thưởng đến khi có ý kiến |
+| 6 | Lưu dữ liệu cá nhân ở Singapore (tài liệu `12` mục 7, chờ ý kiến luật sư) | B | Toàn hệ thống khi có dữ liệu cá nhân của người ngoài | Người dùng quyết định |
+| 7 | CONG_VIEC_72 Smart OTP: người dùng thử trên điện thoại thật; cài ba mẫu ZNS, số tổng đài; khóa eSMS thật | B (A với đăng nhập bằng số điện thoại) | Đăng nhập người mua, xác thực giao dịch điểm | Nhập eSMS, ZNS trước khi thử |
+| 8 | CONG_VIEC_74 iPOS: thử trên Sunmi T2, máy in, Bluetooth, ngắt mạng; cách phân phối ứng dụng (APK) | B | Cửa hàng liên kết dùng iPOS | Thử với APK lát L2 |
+| 9 | CONG_VIEC_73: hồ sơ pháp lý thu hộ; ủy nhiệm lập hóa đơn và xác nhận của MISA; kế toán trưởng xác nhận tài khoản (QUYTAC_NGHIEPVU_587, 3388); ngày hóa đơn phí sàn; thử VNPAY | B | Mua hàng tại cửa hàng, thu hộ | Công tắc thu hộ giữ tắt; thử VNPAY: dùng tài khoản thử nghiệm VNPAY trên môi trường thật (đặt `VNPAY_PAYMENT_URL` sandbox) rồi đổi sang tài khoản thật |
+| 10 | Hóa đơn điện tử: `NODE_ENV=production` chặn bộ giả lập | B | Lập hóa đơn (bán lẻ, phí sàn) báo chưa cấu hình đến khi có tài khoản MISA thật | Nhập tài khoản MISA thật từng công ty |
+| 11 | Ký số từ xa: chỉ có bộ giả lập, bị chặn ở môi trường thật | B | Ký số hợp đồng Văn phòng số không dùng được | Chọn nhà cung cấp ký số (công việc sau) |
+| 12 | Đối tác liên minh điểm: bộ giả lập tắt | B | Đổi điểm với đối tác | Khi có đối tác thật |
+| 13 | CONG_VIEC_70: báo trước cửa hàng liên kết có phí mỗi tin OTP lớn hơn 0 | B | Hạn mức cửa hàng | Báo trước khi bật |
+| 14 | Không có môi trường thử nghiệm | B | Lỗi phiên bản gặp trên dữ liệu thật | Người dùng đã chấp nhận; sao lưu, PITR bắt buộc |
+| 15 | Đăng nhập Google, Microsoft, Zalo: khai địa chỉ gọi lại theo `erp.vcomm.vn`, `api.vcomm.vn` | B | Đăng nhập liên kết | Nhập ở Cài đặt tích hợp |
+
+### 26.4 Khóa dịch vụ ngoài cần cho môi trường thật
+
+| Dịch vụ | Nhập ở đâu | Bắt buộc khi nào |
+|---|---|---|
+| eSMS (SMS thương hiệu, Zalo ZNS, ba mẫu ZNS của CONG_VIEC_72) | Cài đặt tích hợp (sau khi đăng nhập) | Đăng nhập bằng số điện thoại, Smart OTP |
+| Email (nhà cung cấp chọn ở công việc email) | Biến bí mật Railway | Điểm chặn 1 |
+| VNPAY (`VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_PAYMENT_URL`) | Biến bí mật Railway dịch vụ `api`, `worker` | Thanh toán đơn |
+| MISA meInvoice | Màn hình cài đặt hóa đơn điện tử của từng công ty | Lập hóa đơn |
+| Đơn vị vận chuyển, cổng thanh toán khác | Biến bí mật Railway | Khi bật phương thức |
+| Anthropic (`ANTHROPIC_API_KEY`, `AI_PROVIDER=anthropic`) | Biến bí mật Railway | Khi bật trợ lý AI |
+| Google, Microsoft, Zalo (đăng nhập liên kết) | Cài đặt tích hợp | Khi bật |

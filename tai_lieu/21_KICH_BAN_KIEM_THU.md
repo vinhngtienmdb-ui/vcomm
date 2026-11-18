@@ -6187,17 +6187,17 @@ L3: KICHBAN_KIEMTHU_664, 665 trong `apps/api/test/c63-ai-content.test.ts` (6 ki�
 |---|---|---|---|
 | KICHBAN_KIEMTHU_810 | 590 | Luồng "Kiểm tra ảnh container" build ảnh api, web; kiểm không có `.env`, `apps/api/src`, `apps/api/test` trong ảnh; nạp mô-đun bộ chạy migration trong ảnh api; quét lỗ hổng ảnh | Tự động (GitHub Actions) |
 | KICHBAN_KIEMTHU_811 | 591 | `vitest` của `apps/api` với `postgres:17` (vai trò chủ cơ sở dữ liệu), toàn bộ tệp kiểm thử | Tích hợp |
-| KICHBAN_KIEMTHU_812 | 592 | Mở `https://erp-staging.vcomm.vn`: chứng chỉ hợp lệ; đăng nhập `quantri.tapdoan@vcomm.test`; mở lần lượt 11 mini app theo đường dẫn | Thủ công |
-| KICHBAN_KIEMTHU_813 | 593 | Mở `app-staging`, `kho-staging`, `ipos-staging`: đăng nhập tài khoản thử; cài APK VComm, iPOS trên Android, đăng nhập | Thủ công |
-| KICHBAN_KIEMTHU_814 | 594 | Tải tệp đính kèm lên một đề xuất; khởi động lại dịch vụ `api`; tải xuống đúng nội dung | Thủ công |
-| KICHBAN_KIEMTHU_815 | 595 | Log dịch vụ `api` có lượt chạy việc nền theo lịch (đẩy outbox mỗi 10 giây, kiểm duyệt quá hạn mỗi 15 phút) | Thủ công |
-| KICHBAN_KIEMTHU_816 | 596 | Chạy luồng "Triển khai" lên staging không chọn sao lưu: bỏ qua bước sao lưu, chạy đủ các bước còn lại; chạy lại cùng phiên bản: migration báo không có tệp mới; ở production: bước sao lưu luôn chạy, có tệp `.dump.age` trên R2 | Thủ công |
+| KICHBAN_KIEMTHU_812 | 592 | Mở `https://erp.vcomm.vn`: chứng chỉ hợp lệ; đăng nhập quản trị tập đoàn (tài khoản thật tạo khi khởi tạo); mở lần lượt 11 mini app theo đường dẫn | Thủ công |
+| KICHBAN_KIEMTHU_813 | 593 | Mở `app.vcomm.vn`, `kho.vcomm.vn`, `ipos.vcomm.vn`: đăng nhập; cài APK VComm, iPOS trên Android, đăng nhập | Thủ công |
+| KICHBAN_KIEMTHU_814 | 594 | Tải tệp đính kèm lên một đề xuất; khởi động lại dịch vụ `api` (và chuyển sang bản chạy khác); tải xuống đúng nội dung | Thủ công |
+| KICHBAN_KIEMTHU_815 | 595 | Log dịch vụ `worker` có lượt chạy việc nền theo lịch; log `api` báo không chạy tác vụ nền | Thủ công |
+| KICHBAN_KIEMTHU_816 | 596 | Chạy luồng "Triển khai": bước sao lưu luôn chạy, có tệp `.dump.age` trên R2 trước bước migration; chạy lại cùng phiên bản: migration báo không có tệp mới | Thủ công |
 | KICHBAN_KIEMTHU_817 | 597 | `deploy.sh seed` với `DEPLOY_ENVIRONMENT=production` dừng "không nạp dữ liệu thử trên môi trường thật" | Tự động (tệp lệnh) |
-| KICHBAN_KIEMTHU_818 | 598 | Luồng "Triển khai" hành động `quay-lui` về phiên bản trước: dịch vụ chạy ảnh cũ, kiểm tra sau triển khai đạt; giải mã bản sao lưu bằng khóa riêng, `pg_restore` vào cơ sở dữ liệu trống đạt | Thủ công |
-| KICHBAN_KIEMTHU_819 | 599 | Rà cấu hình: Data API Supabase tắt; dịch vụ `redis` không có tên miền công khai; quét khóa bí mật trên commit; log không có mật khẩu, token; token chỉ có phạm vi ghi trong tài liệu `22` mục 5 | Thủ công |
+| KICHBAN_KIEMTHU_818 | 598 | Luồng "Triển khai" hành động `quay-lui` về phiên bản trước: dịch vụ chạy ảnh cũ, kiểm tra sau triển khai đạt; giải mã bản sao lưu bằng khóa riêng, `pg_restore` vào cơ sở dữ liệu tạm (không phải cơ sở dữ liệu thật) đạt | Thủ công |
+| KICHBAN_KIEMTHU_819 | 599 | Rà cấu hình: Data API Supabase tắt; dịch vụ `redis` không có tên miền công khai; quét khóa bí mật trên commit; log không có mật khẩu, token; token chỉ có phạm vi ghi trong tài liệu `22` mục 5; cookie phiên có cờ Secure | Thủ công |
 | KICHBAN_KIEMTHU_820 | 600 | Rà tài liệu `26`: đủ môi trường, các bước, quay lui, biên bản lần triển khai | Thủ công |
-| KICHBAN_KIEMTHU_821 | 601 | Lát L3: lặp KICHBAN_KIEMTHU_812 đến 819 trên môi trường thật; `api`, `web` 2 bản; PITR bật | Thủ công |
-| KICHBAN_KIEMTHU_822 | 596 | Sai: migration lỗi (tệp migration thử có câu lệnh sai trên staging): luồng dừng ở bước migration, dịch vụ vẫn chạy ảnh cũ, tệp lỗi không ghi vào `schema_migrations` | Thủ công |
+| KICHBAN_KIEMTHU_821 | 601 | Rà cấu hình Railway, Supabase: `NODE_ENV=production`, `LOYALTY_PARTNER_SIMULATOR` trống, `api`, `web` 2 bản, `worker` 1 bản `BACKGROUND_JOBS=enabled`, `api` `disabled`, compute Small, PITR 7 ngày bật | Thủ công |
+| KICHBAN_KIEMTHU_822 | 596 | Sai: migration lỗi (cơ sở dữ liệu tạm trên máy phiên, tệp migration thử có câu lệnh sai): bước migration dừng, tệp lỗi không ghi vào `schema_migrations`, luồng không sang bước đổi ảnh; không thử trên cơ sở dữ liệu thật | Thủ công |
 | KICHBAN_KIEMTHU_823 | 597 | Sai: `infra/emergency-patches.txt` có tag không phải tổ tiên của tag cần triển khai: `deploy.sh check-tag` dừng | Tự động (tệp lệnh) |
 | KICHBAN_KIEMTHU_824 | 597 | Sai: chạy luồng với môi trường `production`: dừng chờ người duyệt trên GitHub; `deploy.sh migrate` ở production khi chưa sao lưu bị từ chối | Thủ công, tự động (tệp lệnh) |
 | KICHBAN_KIEMTHU_825 | 598 | Sai: quay lui về phiên bản không có ảnh trong kho: `deploy.sh rollback` dừng trước khi đổi dịch vụ nào | Thủ công |

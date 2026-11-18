@@ -1,4 +1,5 @@
-# Triển khai một phiên bản lên môi trường thử nghiệm hoặc thật, hoặc quay lui (CONG_VIEC_76, tài liệu 26 mục 2).
+# Triển khai một phiên bản lên môi trường thật, hoặc quay lui (CONG_VIEC_76, tài liệu 26 mục 2).
+# Đợt đầu chỉ có môi trường thật (quyết định của người dùng 2026-11-18); tệp lệnh vẫn nhận staging để dùng khi dựng lại môi trường thử nghiệm.
 # Chạy tay. Môi trường GitHub "production" bắt người dùng duyệt từng lần chạy. Khóa bí mật nằm trong biến bí mật của môi trường GitHub.
 name: Triển khai
 
@@ -13,23 +14,13 @@ on:
         description: "Môi trường"
         required: true
         type: choice
-        options: [staging, production]
+        options: [production]
       hanh_dong:
         description: "trien-khai: sao lưu, migration, đổi ảnh. quay-lui: đổi ảnh về phiên bản đã nhập, không chạy migration"
         required: true
         type: choice
         default: trien-khai
         options: [trien-khai, quay-lui]
-      sao_luu_thu_nghiem:
-        description: "Sao lưu cơ sở dữ liệu trước khi triển khai lên staging (môi trường thật luôn sao lưu, không tắt được)"
-        required: false
-        type: boolean
-        default: false
-      nap_du_lieu_thu:
-        description: "Nạp dữ liệu thử sau migration (chỉ staging, lần đầu)"
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -87,15 +78,12 @@ jobs:
           REGISTRY_USER: ${{ github.actor }}
         run: echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
 
-      # Môi trường thật dùng lại ảnh đã chạy ở môi trường thử nghiệm, không build lại.
+      # Ảnh đã có (build ở lần chạy trước) thì dùng lại, không build lại.
       - name: Build và đẩy ảnh (nếu chưa có)
         if: inputs.hanh_dong == 'trien-khai'
         run: |
           if docker manifest inspect "$IMAGE_REPOSITORY/vcomm-api:$VERSION" >/dev/null 2>&1 && docker manifest inspect "$IMAGE_REPOSITORY/vcomm-web:$VERSION" >/dev/null 2>&1; then
             echo "Ảnh $VERSION đã có, không build lại."
-          elif [ "$DEPLOY_ENVIRONMENT" = "production" ]; then
-            echo "Ảnh $VERSION chưa có: triển khai lên staging trước."
-            exit 1
           else
             infra/scripts/deploy.sh build
           fi
@@ -103,22 +91,18 @@ jobs:
       - name: Ghi ảnh đang chạy
         run: infra/scripts/deploy.sh record
 
-      # Người dùng quyết định 2026-11-18: staging mặc định không sao lưu (dữ liệu giả); production luôn sao lưu.
+      # Luôn sao lưu trước migration, không tắt được (quyết định của người dùng 2026-11-18).
       - name: Cài age
-        if: inputs.hanh_dong == 'trien-khai' && (inputs.moi_truong == 'production' || inputs.sao_luu_thu_nghiem)
+        if: inputs.hanh_dong == 'trien-khai'
         run: sudo apt-get update -q && sudo apt-get install -y -q age
 
       - name: Sao lưu cơ sở dữ liệu
-        if: inputs.hanh_dong == 'trien-khai' && (inputs.moi_truong == 'production' || inputs.sao_luu_thu_nghiem)
+        if: inputs.hanh_dong == 'trien-khai'
         run: infra/scripts/deploy.sh backup
 
       - name: Database migration
         if: inputs.hanh_dong == 'trien-khai'
         run: infra/scripts/deploy.sh migrate
-
-      - name: Nạp dữ liệu thử
-        if: inputs.hanh_dong == 'trien-khai' && inputs.nap_du_lieu_thu
-        run: infra/scripts/deploy.sh seed
 
       - name: Đổi ảnh các dịch vụ
         if: inputs.hanh_dong == 'trien-khai'
