@@ -26,7 +26,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Khóa bí mật hệ thống (xem mục 5) | Khóa bí mật | AWS Secrets Manager | Chỉ ứng dụng khi chạy |
 | Khóa bí mật nhà cung cấp trong Cài đặt tích hợp (client secret Google, Microsoft, Zalo; API key, Secret key eSMS.vn) | Khóa bí mật | Bảng `integration_settings`, mã hóa AES-256-GCM bằng `apps/api/src/common/secret-box.ts` (khóa mã hóa như bí mật TOTP); API, giao diện, nhật ký thao tác chỉ có 4 ký tự cuối (QUYTAC_NGHIEPVU_31) | Chỉ máy chủ khi gọi nhà cung cấp; quản trị tập đoàn nhập, thay, xóa nhưng không đọc lại được |
 | Nhật ký gửi tin (bảng `message_deliveries`) | Cá nhân | Số điện thoại che giữa (`+8490***4567`); không lưu nội dung mã OTP | Quản trị tập đoàn (MAN_HINH_19) |
-| Nội dung đề xuất, tệp đính kèm (chứng từ gốc) | Tài chính, chứng từ | Cơ sở dữ liệu; tệp lưu AWS S3 (`STORAGE_DRIVER=s3`) hoặc thư mục cục bộ khi phát triển, theo khóa lưu trữ do hệ thống sinh | Người lập; người được giao duyệt hoặc đã duyệt; người có quyền `platform.proposal_template.manage` của công ty (QUYTAC_NGHIEPVU_36) |
+| Nội dung đề xuất, tệp đính kèm (chứng từ gốc) | Tài chính, chứng từ | Cơ sở dữ liệu; tệp lưu kho S3 (`STORAGE_DRIVER=s3`: AWS S3 hoặc Supabase Storage, CONG_VIEC_79) hoặc thư mục cục bộ khi phát triển, theo khóa lưu trữ do hệ thống sinh | Người lập; người được giao duyệt hoặc đã duyệt; người có quyền `platform.proposal_template.manage` của công ty (QUYTAC_NGHIEPVU_36) |
 | Giá bán, bảng giá, phiếu điều chỉnh giá (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; lịch sử giá chỉ thêm | Người có quyền `catalog.price.view` của công ty xem; chỉ người có quyền nhạy cảm `catalog.price.manage` lập phiếu |
 | Sản phẩm, ảnh sản phẩm (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; ảnh lưu S3 hoặc thư mục cục bộ theo khóa `products/<công ty>/<sản phẩm>/<mã ngẫu nhiên>` | Người có quyền `catalog.product.view` của công ty |
 | Giá vốn, giá trị tồn kho, giá trị phiếu kho, biên bản chênh lệch, tiền bồi thường (CONG_VIEC_05) | Tài chính | Cơ sở dữ liệu schema `inventory`; API trả trống khi người xem không có quyền | Người có quyền nhạy cảm `inventory.cost.view` tại kho (mọi chủ hàng) hoặc ở công ty chủ hàng (hàng của công ty đó) |
@@ -1139,6 +1139,7 @@ Ranh giới và kiểm soát riêng:
 | Khóa xác thực webhook ngân hàng của từng kết nối (CONG_VIEC_18) | Bảng `finance.bank_connections`, mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); hệ thống sinh, Kế toán trưởng khai vào dịch vụ trung gian; đổi bằng "Đổi khóa xác thực" ở MAN_HINH_59; không đặt trong biến môi trường | Từng môi trường, từng quỹ | Chưa tạo | Chưa tạo |
 | Thông tin kết nối nhà cung cấp ký số từ xa của từng công ty (CONG_VIEC_59) | Bảng `office.signing_settings.credentials_encrypted`, mã hóa AES-256-GCM bằng `common/secret-box.ts` (khóa như Cài đặt tích hợp); người có `office.signing.manage` nhập ở MAN_HINH_217, không trả qua API | Từng môi trường (giai đoạn này chỉ Bộ giả lập ở môi trường thử) | Chưa tạo | Chưa tạo |
 | Thông tin truy cập AWS S3 lưu tệp đính kèm | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
+| Khóa S3 của Supabase Storage lưu tệp đính kèm (CONG_VIEC_79) | Biến bí mật `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` ở nơi chạy dịch vụ `api` (môi trường thật: biến bí mật Railway); khóa có toàn quyền kho của dự án Supabase nên không dùng ở giao diện, không ghi log | Từng môi trường | Khi nghi lộ hoặc người giữ khóa nghỉ việc (thu hồi ở trang S3 Connection của Supabase) | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 | Token, mã cửa hàng GHN; khóa webhook vận chuyển (CONG_VIEC_24) | Biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY` (môi trường thật: AWS Secrets Manager) | Từng môi trường (thử nghiệm dùng tài khoản thử nghiệm của GHN) | Chưa tạo | Chưa tạo |
 | Mã website, khóa bí mật VNPAY (CONG_VIEC_25) | Biến môi trường `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` (môi trường thật: AWS Secrets Manager); `VNPAY_RETURN_URL`, `VNPAY_PAYMENT_URL`, `VCOMM_APP_LINK_BASE` không bí mật | Từng môi trường (thử nghiệm dùng tài khoản môi trường thử nghiệm của VNPAY) | Chưa tạo | Chưa tạo |
@@ -1427,3 +1428,11 @@ Trạng thái: bản nháp mô tả dữ kiện kỹ thuật; không tra cứu, 
 | Thời gian lưu | Trên VComm: hội thoại 90 ngày, nhật ký lượt (không nội dung) 24 tháng. Tại nhà cung cấp: theo điều khoản thương mại khi đăng ký khóa |
 | Biện pháp bảo vệ | Che dữ liệu một chiều trước khi gửi; chỉ đọc theo quyền của người hỏi; quản trị bật từng tính năng, cấp quyền theo vai trò; hạn mức chi phí; thông báo và xác nhận trước lần dùng đầu; nhật ký thao tác khi đổi cài đặt |
 | Người phụ trách | Người dùng điền |
+
+## Lưu tệp trên kho tương thích S3 khác AWS (CONG_VIEC_79)
+
+- `S3_ENDPOINT` (địa chỉ máy chủ S3 của Supabase Storage), `S3_FORCE_PATH_STYLE=true`. Có `S3_ENDPOINT` thì mặc định không gửi tiêu đề mã hóa phía máy chủ của AWS (chưa xác minh Supabase nhận; Supabase tự mã hóa dữ liệu lưu trữ theo tài liệu nhà cung cấp); `S3_SERVER_SIDE_ENCRYPTION` (`AES256` hoặc `none`) ghi đè. Không có `S3_ENDPOINT` thì giữ cấu hình AWS cũ, luôn gửi `AES256`.
+- Bucket để riêng tư; tệp chỉ tải qua API sau khi kiểm quyền (QUYTAC_NGHIEPVU_36), không cấp đường dẫn công khai.
+- Cấu hình sai (`S3_BUCKET` trống, `S3_ENDPOINT` không phải địa chỉ, giá trị cờ ngoài danh sách) thì API báo lỗi khi khởi động, lỗi nêu tên biến, không in giá trị.
+- Khóa lưu trữ do hệ thống sinh, kiểm mẫu trước khi gọi kho (không có `..`, không có tên tệp người dùng) như trước.
+

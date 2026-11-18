@@ -903,3 +903,12 @@ Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 �
 | YCAU_NGHIEPVU_181, 182 | CHUC_NANG_229 | TIEUCHI_NGHIEMTHU_480, 481 (MAN_HINH_245) | KICHBAN_KIEMTHU_665, 666 | `apps/api/src/ai/ai-usage.service.ts`, `ai.controller.ts`; `apps/web-platform/src/app/platform/ai-usage/page.tsx`, `src/components/AdminShell.tsx` |
 
 Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229, TIEUCHI_NGHIEMTHU_470 đến 481, KICHBAN_KIEMTHU_653 đến 666 đều có mã nguồn và kiểm thử; không có mã nguồn không truy được về yêu cầu.
+
+## Kiểm tra bao phủ CONG_VIEC_79 – 2026-11-18
+
+Lưu tệp đính kèm trên kho tương thích S3 khác AWS cho chức năng đã có (dòng YCAU_NGHIEPVU_21, TIEUCHI_NGHIEMTHU_54 giữ nguyên). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; mã kịch bản do phiên điều phối cấp.
+
+| Chức năng | Quy tắc | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_28 (tệp đính kèm đề xuất) | QUYTAC_NGHIEPVU_35 | `apps/api/src/common/file-storage.ts` | `apps/api/test/c79-luu-tep-s3.test.ts`; hồi quy `apps/api/test/c3-proposals.test.ts` |
+
