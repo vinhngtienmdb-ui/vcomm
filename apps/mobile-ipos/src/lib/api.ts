@@ -1,4 +1,4 @@
-// Gọi API iPOS: khóa thiết bị gửi qua tiêu đề `x-ipos-device`, token phiên qua Authorization (không cookie, không CSRF; tài liệu 17 mục 2z).
+// Gọi API iPOS: khóa thiết bị gửi qua tiêu đề `x-ipos-device`, token phiên qua Authorization (không cookie, không CSRF; tài liệu 17 mục 2zb).
 // Khóa thiết bị, token lưu trong bộ nhớ an toàn của máy, không ghi log (QUYTAC_NGHIEPVU_606, 628).
 import { iposDeviceHeader, type AppTokens } from "contracts";
 import { messages } from "i18n";

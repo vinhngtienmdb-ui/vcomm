@@ -247,7 +247,7 @@ Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày
 
 Quyết định: người dùng duyệt `expo-brightness` ngày 2026-11-17; phiên điều phối thêm vào `apps/mobile-vcomm/package.json` (phiên bản cố định) theo yêu cầu người dùng.
 
-## 13. Phân tích giải pháp có sẵn – CONG_VIEC_74 in hóa đơn iPOS – 2026-11-17
+## 14. Phân tích giải pháp có sẵn – CONG_VIEC_74 in hóa đơn iPOS – 2026-11-17
 
 Phạm vi: ứng dụng iPOS (`apps/mobile-ipos`, Expo SDK 58) in hóa đơn trên máy Sunmi T2 (máy in 80 mm gắn sẵn), máy in rời qua mạng LAN và Bluetooth; mở ngăn kéo tiền (QUYTAC_NGHIEPVU_620). Tra cứu trên npm ngày 2026-11-17; giấy phép đọc từ tệp `LICENSE` sau khi cài.
 

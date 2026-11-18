@@ -2544,5 +2544,5 @@ Yêu cầu phi chức năng:
 - Phiên `ipos` gắn thiết bị (tiêu đề `x-ipos-device` kèm token truy cập); thiết bị thu hồi hoặc khác quầy của ca thì từ chối.
 - Tiền `numeric`; số hóa đơn cấp trong giao dịch, khóa dòng dãy số; chống ghi trùng bằng khóa yêu cầu (chỉ mục duy nhất theo thiết bị).
 - Luôn cần mạng; không bán ngoại tuyến.
-- Ứng dụng `apps/mobile-ipos` chạy dạng bản dựng phát triển (thư viện máy in có mã gốc), không chạy trên Expo Go; bố cục ngang, rộng tối thiểu 1024 điểm ảnh. Thư viện mới `@point-of-sale/receipt-printer-encoder` 4.0.1, `@mitsuharu/react-native-sunmi-printer-library` 3.0.0, `react-native-tcp-socket` 6.4.3, `react-native-bluetooth-classic` 1.73.0-rc.17, `qrcode-generator` 2.0.4 (người dùng duyệt 2026-11-17; tài liệu `13` mục 13).
+- Ứng dụng `apps/mobile-ipos` chạy dạng bản dựng phát triển (thư viện máy in có mã gốc), không chạy trên Expo Go; bố cục ngang, rộng tối thiểu 1024 điểm ảnh. Thư viện mới `@point-of-sale/receipt-printer-encoder` 4.0.1, `@mitsuharu/react-native-sunmi-printer-library` 3.0.0, `react-native-tcp-socket` 6.4.3, `react-native-bluetooth-classic` 1.73.0-rc.17, `qrcode-generator` 2.0.4 (người dùng duyệt 2026-11-17; tài liệu `13` mục 14).
 - Không ghi PIN, mã ghép, khóa thiết bị, OTP, mã động vào log, nhật ký thao tác, thông báo lỗi.
