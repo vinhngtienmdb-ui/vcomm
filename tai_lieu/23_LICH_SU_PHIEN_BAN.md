@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.14.1 – 2026-11-18 – Chờ phát hành
+## Phiên bản 0.14.1 – 2026-11-18 – Đã phát hành
 
 - Chức năng mới:
   - Gửi email thật qua SMTP của hộp thư doanh nghiệp (MODULE_01, CONG_VIEC_77, THAY_DOI_41): `EMAIL_DRIVER=smtp` gửi thư kích hoạt, đặt lại mật khẩu, thư nhân sự, phiếu lương, ký số qua `nodemailer`; môi trường thật bắt buộc SMTP, thiếu cấu hình thì API từ chối khởi động; kết nối luôn mã hóa (TLS hoặc STARTTLS bắt buộc); không ghi nội dung thư, đường dẫn kích hoạt, địa chỉ nhận đầy đủ vào log; quên mật khẩu khi gửi lỗi vẫn trả `204`.
@@ -38,7 +38,7 @@
 - Khả năng tương thích: API, cấu trúc dữ liệu, quyền không đổi. Máy phát triển không đặt biến mới vẫn chạy như trước (email ghi log, lưu tệp cục bộ). Cấu hình AWS S3 cũ không đổi hành vi. Môi trường `NODE_ENV=production` bắt buộc cấu hình SMTP (thay đổi có chủ đích).
 - Công việc gộp trong phiên bản: CONG_VIEC_77 (pull request #213), CONG_VIEC_78 (pull request #214), CONG_VIEC_79 (pull request #215), CONG_VIEC_76 đợt 1 phần tự động (pull request #209), LOI_17 (pull request sửa lỗi kiểm thử). Người dùng nghiệm thu CONG_VIEC_76 đợt 1, 77, 78, 79 ngày 2026-11-18.
 - Kiểm thử trên nhánh phát hành (sau khi gộp đủ năm nhánh): `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; khóa dịch khớp 11887 khóa; `mobile-warehouse` 5/5 đạt; kiểm thử API toàn bộ (PostgreSQL 16 cục bộ, `max_locks_per_transaction` 512) 180 tệp, 1011 kiểm thử đạt (thêm 3 tệp, 25 kiểm thử so với 0.14.0: `c77-email-smtp` 13, `c78-lenh-khoi-tao` 4, `c79-luu-tep-s3` 8); `pnpm audit --prod --audit-level high` giống `main` (không có lỗ hổng mới; `nodemailer` không có lỗ hổng đã biết); gitleaks 8.30.1 trên các commit mới của nhánh không có phát hiện. Dựng, quét Trivy ảnh `api`, `web` chạy ở CI (`kiem-tra-anh.yml`).
-- Tag: `v0.14.1`, gắn tự động trên commit hợp nhất nhánh `phat-hanh/v0.14.1` vào `main` sau khi CI trên `main` đạt.
+- Tag: `v0.14.1` trên commit hợp nhất `89f83292` (pull request #220), gắn tự động sau khi CI trên `main` đạt. Chưa triển khai.
 - Triển khai: chưa triển khai.
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại ảnh `api`, `web` dựng từ tag `v0.14.0` (đổi lại nhãn ảnh theo tài liệu `26`, đặc tả CONG_VIEC_76 mục 20.6). Không có database migration nên không phải xử lý dữ liệu.
