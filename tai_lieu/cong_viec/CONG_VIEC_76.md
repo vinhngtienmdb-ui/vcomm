@@ -537,6 +537,11 @@ Kiểm tra:
 - Build `api` và gói phụ thuộc bằng `pnpm` trên mã `phat-hanh/v0.14.0`: đạt.
 - Kiểm thử trên PostgreSQL 17: xem mục 24.1.
 
+### 24.1 Kiểm thử trên PostgreSQL 17 (TIEUCHI_NGHIEMTHU_591, KICHBAN_KIEMTHU_811)
+
+- 2026-11-18: mã nhánh `phat-hanh/v0.14.0` (commit `f439c11d`), `postgres:17` (17.12), `redis:7`, `vitest run` của `apps/api`: 177 tệp, 986 kiểm thử, đạt cả 986, 1384 giây. Chạy lại trên mã 0.14.1 trước lần triển khai đầu.
+- Database migration 145 tệp trên PostgreSQL 17 bằng vai trò không phải SUPERUSER: đạt (mục 20.2).
+
 Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK; quét lỗ hổng ảnh (đề xuất thêm hành động `aquasecurity/trivy-action`, giấy phép Apache 2.0, chờ người dùng duyệt).
 
 ## 25. Tên miền `vcomm.vn` (đề xuất ban đầu, đã thay bằng mục 26.1)
