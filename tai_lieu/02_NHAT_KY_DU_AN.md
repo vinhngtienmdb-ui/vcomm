@@ -18,6 +18,8 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.14.0 (CONG_VIEC_72, 73, 74 đợt 1, 75): pull request #210, tag `v0.14.0` trên `7707c74`, CI trên `main` đạt. Chưa triển khai.
+- CONG_VIEC_76: thêm quét ảnh Trivy (người dùng duyệt), bỏ npm khỏi ảnh chạy để hết 10 lỗ hổng mức Cao của ảnh nền.
 - CONG_VIEC_74 nối hủy hóa đơn có thanh toán qua ứng dụng VComm (hợp nhất nhánh CONG_VIEC_73 đến `450105e`), sửa 3 điểm rà soát mức thấp; toàn bộ kiểm thử API 177 tệp, 986 đạt; chờ người dùng thử trên Sunmi T2.
 
 ## 2026-11-17
