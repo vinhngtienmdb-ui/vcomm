@@ -56,7 +56,7 @@ Bổ sung riêng:
 | Kiểm tra kiểu | `pnpm typecheck` |
 
 - Trình duyệt tích hợp của Claude desktop: cấu hình `.claude/launch.json`, mục `web-platform`.
-- Email, SMS trên máy phát triển ghi ra log (`EMAIL_DRIVER=log`, `SMS_DRIVER=log`), không gửi thật.
+- Email, SMS trên máy phát triển ghi ra log (`EMAIL_DRIVER=log`, `SMS_DRIVER=log`), không gửi thật. Gửi thật qua SMTP: `EMAIL_DRIVER=smtp` và các biến `SMTP_*`, `SMTP_FROM` trong `.env.example` (CONG_VIEC_77).
 - Lệnh `pnpm --filter web-platform dev`, `pnpm --filter api dev` chạy được sau lát đầu tiên của CONG_VIEC_02.
 
 Tài khoản thử (dữ liệu giả, nạp bằng `pnpm --filter api db:seed`; mật khẩu chung `MatKhauThu@2026`):

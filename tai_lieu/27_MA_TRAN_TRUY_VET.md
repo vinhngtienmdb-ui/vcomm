@@ -903,3 +903,11 @@ Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 �
 | YCAU_NGHIEPVU_181, 182 | CHUC_NANG_229 | TIEUCHI_NGHIEMTHU_480, 481 (MAN_HINH_245) | KICHBAN_KIEMTHU_665, 666 | `apps/api/src/ai/ai-usage.service.ts`, `ai.controller.ts`; `apps/web-platform/src/app/platform/ai-usage/page.tsx`, `src/components/AdminShell.tsx` |
 
 Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229, TIEUCHI_NGHIEMTHU_470 đến 481, KICHBAN_KIEMTHU_653 đến 666 đều có mã nguồn và kiểm thử; không có mã nguồn không truy được về yêu cầu.
+
+## Kiểm tra bao phủ CONG_VIEC_77 – 2026-11-18
+
+Gửi email thật qua SMTP cho các chức năng đã có (không thêm chức năng, màn hình, API). Mã tiêu chí nghiệm thu, kịch bản kiểm thử do phiên điều phối cấp (đặc tả `cong_viec/CONG_VIEC_77.md` mục 6, 7).
+
+| Chức năng | Tiêu chí, kịch bản | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_04 (thư kích hoạt), CHUC_NANG_06 (đặt lại mật khẩu), các thư nhân sự, phiếu lương, ký số | Chờ cấp mã | `apps/api/src/common/outbound-messages.ts`, `apps/api/src/app.module.ts`, `apps/api/src/auth/password.service.ts` | `apps/api/test/c77-email-smtp.test.ts` |

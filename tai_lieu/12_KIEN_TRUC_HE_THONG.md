@@ -46,7 +46,7 @@
 |---|---|---|
 | Tác vụ nền | BullMQ trên Redis, chạy trong tiến trình riêng của `apps/api` | CHUC_NANG_18 (nhắc, chuyển duyệt quá hạn mỗi 15 phút), CHUC_NANG_21 (lấy tỷ giá mỗi sáng), đẩy sự kiện outbox |
 | Lưu đệm quyền, mã OTP, giới hạn số lần thử | Redis | CHUC_NANG_06, CHUC_NANG_08, CHUC_NANG_13, yêu cầu phi chức năng hiệu năng |
-| Gửi email | Amazon SES | CHUC_NANG_04, CHUC_NANG_06, CHUC_NANG_09 |
+| Gửi email | SMTP của hộp thư doanh nghiệp có sẵn qua `nodemailer` (`SmtpOutboundMessages`, `apps/api/src/common/outbound-messages.ts`, `EMAIL_DRIVER=smtp`); máy phát triển, kiểm thử ghi ra log (`EMAIL_DRIVER=log`); môi trường thật bắt buộc `smtp`, thiếu cấu hình thì API từ chối khởi động (CONG_VIEC_77, thay Amazon SES) | CHUC_NANG_04, CHUC_NANG_06, CHUC_NANG_09 |
 | Gửi mã OTP, đường dẫn qua điện thoại | Zalo ZNS trước, SMS thương hiệu dự phòng; **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS | CHUC_NANG_04, CHUC_NANG_08, CHUC_NANG_09 |
 | Đăng nhập liên kết | Google, Microsoft qua OpenID Connect; Zalo qua OAuth 2.0 của Zalo for Developers | CHUC_NANG_07, CHUC_NANG_24 |
 | Xác thực nhà bán qua VNeID | Tổ chức cung cấp dịch vụ xác thực điện tử (**CHƯA XÁC ĐỊNH**), theo Nghị định 69/2024/NĐ-CP sửa đổi bởi Nghị định 320/2026/NĐ-CP | MODULE_02 (THAY_DOI_02) |
