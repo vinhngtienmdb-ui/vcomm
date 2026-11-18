@@ -3,7 +3,7 @@
 - Mô tả: Thay trình gửi chỉ ghi log (`LogOutboundMessages`) bằng trình gửi SMTP khi cấu hình `EMAIL_DRIVER=smtp`. Môi trường thật bắt buộc SMTP, không ghi token, đường dẫn kích hoạt, mật khẩu, nội dung thư vào log.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Đang thực hiện (phiên con), chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu (người dùng, 2026-11-18), gộp vào bản phát hành 0.14.1.
 - Mức: Vừa (đổi nhà cung cấp gửi email đã ghi trong tài liệu `12`, `13`; thêm thư viện; không đổi cấu trúc dữ liệu, API, giao diện, quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_77-email-smtp`.
 - Phiếu thay đổi: THAY_DOI_41 (đổi nhà cung cấp gửi email từ Amazon SES sang SMTP hộp thư doanh nghiệp, người dùng chọn 2026-11-18).

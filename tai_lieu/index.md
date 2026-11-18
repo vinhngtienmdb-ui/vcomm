@@ -73,7 +73,7 @@
 | CONG_VIEC_68 | [cong_viec/CONG_VIEC_68.md](cong_viec/CONG_VIEC_68.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_70 | [cong_viec/CONG_VIEC_70.md](cong_viec/CONG_VIEC_70.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_63 | [cong_viec/CONG_VIEC_63.md](cong_viec/CONG_VIEC_63.md) | Đã nghiệm thu, chờ phát hành |
-| CONG_VIEC_76 | [cong_viec/CONG_VIEC_76.md](cong_viec/CONG_VIEC_76.md) | Đang thực hiện (lát L1) |
-| CONG_VIEC_77 | [cong_viec/CONG_VIEC_77.md](cong_viec/CONG_VIEC_77.md) | Đang thực hiện |
+| CONG_VIEC_76 | [cong_viec/CONG_VIEC_76.md](cong_viec/CONG_VIEC_76.md) | Đợt 1 phần tự động đã nghiệm thu, gộp vào bản phát hành 0.14.1; triển khai chưa làm |
+| CONG_VIEC_77 | [cong_viec/CONG_VIEC_77.md](cong_viec/CONG_VIEC_77.md) | Đã nghiệm thu, gộp vào bản phát hành 0.14.1 |
 
 Tài liệu `26` lập bản nháp ở CONG_VIEC_76 (2026-11-18).
