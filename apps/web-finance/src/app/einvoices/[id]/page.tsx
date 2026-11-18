@@ -66,6 +66,8 @@ export default function EinvoicePage() {
                   </button>
                 )}
                 {invoice.canManage &&
+                  // Hóa đơn ủy nhiệm, hóa đơn phí sàn tháng chưa lập thay thế được (CONG_VIEC_73 lát L6).
+                  invoice.sourceKind === "document" &&
                   invoice.status === "issued" &&
                   invoice.kind !== "adjustment" &&
                   !invoice.replaced &&

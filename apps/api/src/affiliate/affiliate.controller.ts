@@ -1,6 +1,16 @@
 // API_206: cửa hàng liên kết trên web quản trị (CONG_VIEC_55). Quyền xét tại công ty vận hành sàn.
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res, StreamableFile, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import type { Response } from "express";
 import {
+  affiliateCollectionSchema,
+  type AffiliateCollectionResponse,
+  einvoiceMandateSchema,
+  affiliateWebhookSchema,
+  type AffiliateWebhookDelivery,
+  type AffiliateWebhookSecret,
+  type EinvoiceMandateResponse,
+  type TransactionEinvoice,
   affiliateApiKeyCreateSchema,
   affiliateApiKeyUpdateSchema,
   revokeApiKeySchema,
@@ -38,6 +48,7 @@ import {
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { ApiError } from "../common/api-error";
+import { MerchantPortalSecurityService } from "./portal-security.service";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
@@ -47,6 +58,9 @@ import { AffiliateReportsService } from "./reports.service";
 import { AffiliateTransactionsService } from "./transactions.service";
 import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
+import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
+import { AffiliateWebhooksService } from "./webhooks.service";
 
 @Controller("affiliate")
 export class AffiliateController {
@@ -58,6 +72,10 @@ export class AffiliateController {
     private readonly reports: AffiliateReportsService,
     private readonly transactions: AffiliateTransactionsService,
     private readonly apiKeys: AffiliateApiKeysService,
+    private readonly portalSecurity: MerchantPortalSecurityService,
+    private readonly checkouts: AffiliateCheckoutsService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
+    private readonly webhooks: AffiliateWebhooksService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -84,6 +102,56 @@ export class AffiliateController {
   async detail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateMerchantDetail> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
     return this.merchants.detail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  // API_332 (CONG_VIEC_73 lát L4; MAN_HINH_279): cài đặt thu hộ qua ứng dụng của cửa hàng.
+  @Get("merchants/:id/collection")
+  async collection(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateCollectionResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.checkouts.collection(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  @Patch("merchants/:id/collection")
+  async updateCollection(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateCollectionResponse> {
+    return this.checkouts.updateCollection(await this.manager(request), id, affiliateCollectionSchema.parse(body));
+  }
+
+  // API_334 (CONG_VIEC_73 lát L6; MAN_HINH_279): dữ liệu ủy nhiệm hóa đơn, ký hiệu theo năm, tệp văn bản ủy nhiệm, việc chờ lập, lập bù.
+  @Get("merchants/:id/einvoice-mandate")
+  async mandate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<EinvoiceMandateResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.mandatedEinvoices.mandate(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "affiliate.manage"));
+  }
+
+  @Put("merchants/:id/einvoice-mandate")
+  async saveMandate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<EinvoiceMandateResponse> {
+    return this.mandatedEinvoices.saveMandate(await this.manager(request), id, einvoiceMandateSchema.parse(body));
+  }
+
+  @Post("merchants/:id/einvoice-mandate/file")
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 10 * 1024 * 1024 + 1, files: 1 } }))
+  async mandateFile(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: { buffer: Buffer; size: number; originalname?: string } | undefined,
+  ): Promise<EinvoiceMandateResponse> {
+    return this.mandatedEinvoices.saveFile(await this.manager(request), id, file);
+  }
+
+  @Get("merchants/:id/einvoice-mandate/file")
+  async downloadMandateFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res({ passthrough: true }) response: Response): Promise<StreamableFile> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    const file = await this.mandatedEinvoices.file(actor, id);
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename*=UTF-8''${encodeURIComponent(file.fileName)}`);
+    return new StreamableFile(file.content);
+  }
+
+  @Post("transactions/:id/einvoice")
+  @HttpCode(200)
+  async reissueEinvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<TransactionEinvoice> {
+    return this.mandatedEinvoices.reissue(await this.manager(request), id);
   }
 
   @Put("merchants/:id")
@@ -122,6 +190,22 @@ export class AffiliateController {
   @Post("merchants/:id/owner-invitations")
   async inviteOwner(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
     return this.merchants.inviteOwner(await this.manager(request), id, affiliateOwnerInviteSchema.parse(body));
+  }
+
+  // API_325 (CONG_VIEC_72): đặt lại xác thực cổng cho chủ, thu ngân (MAN_HINH_178).
+  @Post("merchants/:id/members/:memberId/reset-authentication")
+  async resetMemberAuthentication(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("memberId", UuidPipe) memberId: string,
+    @Body() body: unknown,
+  ): Promise<AffiliateMember[]> {
+    const actor = await this.manager(request);
+    await this.portalSecurity.resetAuthentication({ userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client }, memberId, affiliateMemberVersionSchema.parse(body).version, {
+      merchantId: id,
+      cashierOnly: false,
+    });
+    return this.merchants.members(id);
   }
 
   @Post("members/:id/lock")
@@ -227,6 +311,36 @@ export class AffiliateController {
   @HttpCode(200)
   async rotateApiKey(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateApiKeySecret> {
     return this.apiKeys.rotate(await this.manager(request), id, rotateApiKeySchema.parse(body).version);
+  }
+
+  // API_331 (CONG_VIEC_73 lát L7; MAN_HINH_231): webhook của khóa — địa chỉ, khóa ký, gửi thử, nhật ký gửi, gửi lại.
+  @Put("api-keys/:id/webhook")
+  async webhook(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<{ url: string | null; version: number }> {
+    return this.webhooks.configure({ kind: "admin", actor: await this.manager(request) }, id, affiliateWebhookSchema.parse(body));
+  }
+
+  @Post("api-keys/:id/webhook/rotate-secret")
+  @HttpCode(200)
+  async webhookSecret(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookSecret> {
+    return this.webhooks.rotateSecret({ kind: "admin", actor: await this.manager(request) }, id);
+  }
+
+  @Post("api-keys/:id/webhook/test")
+  @HttpCode(200)
+  async webhookTest(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.test({ kind: "admin", actor: await this.manager(request) }, id);
+  }
+
+  @Get("api-keys/:id/webhook/deliveries")
+  async webhookDeliveries(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery[]> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.manage");
+    return this.webhooks.deliveries({ kind: "admin", actor }, id);
+  }
+
+  @Post("webhook-deliveries/:id/resend")
+  @HttpCode(200)
+  async webhookResend(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.resend({ kind: "admin", actor: await this.manager(request) }, id);
   }
 
   @Post("api-keys/:id/revoke")

@@ -29,7 +29,7 @@ import { PaymentsService } from "../../finance/payments.service";
 import type { BuyerAdminActor } from "../../marketplace/buyer-admin.service";
 import { vietnamToday } from "../../marketplace/shop.service";
 import { NumberSequencesService, periodKey } from "../../settings/number-sequences.service";
-import { maskName } from "../smart-otp.service";
+import { maskName } from "../../auth/smart-otp.service";
 import { type PartnerStatementLine, PartnerConnectors } from "./connector";
 import { settlementDraft } from "./postings";
 

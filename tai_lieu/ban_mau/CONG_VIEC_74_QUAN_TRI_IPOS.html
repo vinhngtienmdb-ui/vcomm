@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_74 iPOS – Quản trị ERP (Khách hàng và Đối tác)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+<link rel="stylesheet" href="ipos.css">
+</head>
+<body class="ipos" data-trang-thai="du-lieu">
+
+<div class="ipos-dieu-khien" role="toolbar" aria-label="Điều khiển bản mẫu">
+  <strong>ERP · iPOS</strong>
+  <div class="nhom">
+    <button type="button" data-den="m303">303 Gói iPOS</button>
+    <button type="button" data-den="m304">304 Thuê bao iPOS</button>
+    <button type="button" data-den="m305">305 Phí thuê bao</button>
+    <button type="button" data-den="m306">306 Doanh thu và đối soát</button>
+    <button type="button" data-den="msua">Sửa màn hình có sẵn</button>
+  </div>
+  <label>Trạng thái
+    <select id="chon-trang-thai">
+      <option value="du-lieu">Có dữ liệu</option>
+      <option value="rong">Rỗng</option>
+      <option value="dang-tai">Đang tải</option>
+      <option value="loi">Lỗi</option>
+      <option value="khong-quyen">Không có quyền</option>
+    </select>
+  </label>
+</div>
+
+<main class="ipos-trang">
+  <div class="khoi loi" data-tt="khong-quyen">Bạn không có quyền thao tác. Cần quyền ipos.plan.manage hoặc ipos.subscription.manage; người có affiliate.view chỉ xem.</div>
+  <div class="khoi loi" data-tt="loi">Không tải được dữ liệu. Thử lại sau ít phút.</div>
+  <div data-tt="dang-tai"><div class="dang-tai-o"></div><div class="dang-tai-o"></div><div class="dang-tai-o"></div></div>
+
+<!-- MAN_HINH_303 -->
+<section class="ipos-man" id="m303" aria-labelledby="t303">
+  <h2 id="t303">MAN_HINH_303 · Gói iPOS</h2>
+  <div class="hang-loc"><button class="nut chinh" type="button">Thêm gói</button></div>
+  <table class="bang" data-tt="du-lieu khong-quyen"><thead><tr><th>Mã</th><th>Tên</th><th class="so">Giá mỗi tháng (chưa thuế)</th><th>Thuế</th><th class="so">Quầy tối đa</th><th class="so">Mặt hàng tối đa</th><th class="so">Dùng thử</th><th>Trạng thái</th></tr></thead><tbody>
+    <tr><td>CO-BAN</td><td>Cơ bản</td><td class="so">199.000</td><td>10 %</td><td class="so">1</td><td class="so">500</td><td class="so">14 ngày</td><td><span class="nhan thanh-cong">Đang bán</span></td></tr>
+    <tr><td>TIEU-CHUAN</td><td>Tiêu chuẩn</td><td class="so">360.000</td><td>10 %</td><td class="so">3</td><td class="so">2.000</td><td class="so">14 ngày</td><td><span class="nhan thanh-cong">Đang bán</span></td></tr>
+    <tr><td>CHUOI-2025</td><td>Chuỗi cửa hàng (gói cũ năm 2025, giữ cho khách đang dùng)</td><td class="so">890.000</td><td>10 %</td><td class="so">10</td><td class="so">Không giới hạn</td><td class="so">0</td><td><span class="nhan trung-tinh">Ngừng bán</span></td></tr>
+  </tbody></table>
+  <div class="khoi thong-tin" data-tt="rong">Chưa có gói iPOS. Thêm gói trước khi cấp thuê bao.</div>
+</section>
+
+<!-- MAN_HINH_304 -->
+<section class="ipos-man" id="m304" aria-labelledby="t304">
+  <h2 id="t304">MAN_HINH_304 · Thuê bao iPOS</h2>
+  <div class="hang-loc"><label class="truong">Trạng thái<select><option>Tất cả</option><option>Dùng thử</option><option>Đang hoạt động</option><option>Quá hạn</option><option>Tạm khóa</option><option>Đã hủy</option></select></label><label class="truong">Hết hạn trong<select><option>30 ngày</option></select></label></div>
+  <table class="bang" data-tt="du-lieu khong-quyen"><thead><tr><th>Cửa hàng</th><th>Điểm bán</th><th>Gói</th><th>Cách thu</th><th>Hết hạn</th><th>Trạng thái</th></tr></thead><tbody>
+    <tr><td>CH000123 Tạp hóa Minh Anh</td><td>Bình Dương 01</td><td>Tiêu chuẩn · 6 tháng</td><td>VietQR</td><td>15/12/2026</td><td><span class="nhan thanh-cong">Đang hoạt động</span></td></tr>
+    <tr><td>CH000087 Cà phê Hạt Sương Mù Đà Lạt – chi nhánh Thủ Đức</td><td>Võ Văn Ngân</td><td>Cơ bản · 1 tháng</td><td>Trừ thu hộ</td><td>12/11/2026</td><td><span class="nhan canh-bao">Quá hạn · còn 2 ngày</span></td></tr>
+    <tr><td>CH000045 Nhà thuốc An Khang</td><td>Dĩ An</td><td>Cơ bản · 12 tháng</td><td>Trừ đối soát tuần</td><td>01/11/2026</td><td><span class="nhan loi">Tạm khóa</span></td></tr>
+  </tbody></table>
+  <div class="khoi thong-tin" data-tt="rong">Chưa cửa hàng nào thuê bao iPOS.</div>
+
+  <div class="the" style="display:grid;gap:var(--khoang-3)">
+    <h3>Khối "iPOS" trong chi tiết cửa hàng liên kết (sửa MAN_HINH_178) · CH000123 Tạp hóa Minh Anh</h3>
+    <div class="hai-cot-ipos">
+      <div style="display:grid;gap:var(--khoang-2);align-content:start">
+        <label class="truong">Cách thu phí<select><option>Chuyển khoản VietQR</option><option>Trừ vào bảng chuyển tiền thu hộ (cửa hàng chưa bật thu hộ)</option><option>Trừ vào bảng đối soát điểm tuần</option><option>Miễn phí</option></select></label>
+        <label class="truong">Miễn phí đến ngày (khi chọn miễn phí)<input type="date" disabled></label>
+        <button class="nut phu" type="button">Lưu cách thu</button>
+      </div>
+      <div style="display:grid;gap:var(--khoang-2);align-content:start">
+        <strong>Cấp thuê bao cho điểm bán</strong>
+        <label class="truong">Điểm bán<select><option>Bình Dương 03 (chưa có thuê bao)</option></select></label>
+        <label class="truong">Gói<select><option>Tiêu chuẩn</option><option>Cơ bản</option></select></label>
+        <label class="truong">Kỳ<select><option>1 tháng</option><option>6 tháng</option><option>12 tháng</option></select></label>
+        <label class="truong">Ngày bắt đầu<input type="date" value="2026-11-18"></label>
+        <label class="truong">Số ngày dùng thử<input value="14"></label>
+        <label class="truong">Giá mỗi tháng riêng (để trống: theo gói)<input placeholder="360.000"></label>
+        <label class="truong">Số quầy tối đa riêng<input placeholder="3"></label>
+        <button class="nut chinh" type="button">Cấp thuê bao</button>
+      </div>
+    </div>
+    <table class="bang"><thead><tr><th>Điểm bán</th><th>Gói</th><th>Hết hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td>Bình Dương 01</td><td>Tiêu chuẩn · 6 tháng</td><td>15/12/2026</td><td><span class="nhan thanh-cong">Đang hoạt động</span></td><td><button class="nut chu" type="button">Sửa</button> <button class="nut chu" type="button">Gia hạn</button> <button class="nut chu" type="button">Tạm khóa</button> <button class="nut chu" type="button">Hủy</button></td></tr>
+      <tr><td>Bình Dương 02</td><td>Cơ bản · 1 tháng</td><td>Dùng thử đến 30/11</td><td><span class="nhan thong-tin">Dùng thử</span></td><td><button class="nut chu" type="button">Sửa</button> <button class="nut chu" type="button">Hủy</button></td></tr>
+    </tbody></table>
+    <span class="loi-o" data-tt="loi">Điểm bán đã có thuê bao chưa hủy.</span>
+  </div>
+</section>
+
+<!-- MAN_HINH_305 -->
+<section class="ipos-man" id="m305" aria-labelledby="t305">
+  <h2 id="t305">MAN_HINH_305 · Phí thuê bao iPOS</h2>
+  <div class="hang-loc"><label class="truong">Trạng thái<select><option>Chờ thu</option><option>Đã thu</option><option>Đã hủy</option></select></label><label class="truong">Cách thu<select><option>Tất cả</option></select></label><label class="truong">Kỳ<select><option>Tháng 11/2026</option></select></label></div>
+  <table class="bang" data-tt="du-lieu khong-quyen"><thead><tr><th>Số</th><th>Cửa hàng · điểm bán</th><th>Kỳ</th><th class="so">Tiền</th><th class="so">Thuế</th><th class="so">Tổng</th><th class="so">Đã thu</th><th>Cách thu, nơi trừ</th><th>Trạng thái</th></tr></thead><tbody>
+    <tr><td>PI2611-000041</td><td>CH000123 · Bình Dương 01</td><td>16/12 – 15/06/2027</td><td class="so">2.160.000</td><td class="so">216.000</td><td class="so">2.376.000</td><td class="so">0</td><td>VietQR</td><td><span class="nhan canh-bao">Chờ thu</span></td></tr>
+    <tr><td>PI2611-000038</td><td>CH000087 · Võ Văn Ngân</td><td>13/11 – 12/12</td><td class="so">199.000</td><td class="so">19.900</td><td class="so">218.900</td><td class="so">120.000</td><td>Trừ thu hộ · CT2611-000091 (một phần)</td><td><span class="nhan canh-bao">Chờ thu</span></td></tr>
+    <tr><td>PI2610-000020</td><td>CH000045 · Dĩ An</td><td>02/11/2026 – 01/11/2027</td><td class="so">2.388.000</td><td class="so">238.800</td><td class="so">2.626.800</td><td class="so">2.626.800</td><td>Trừ đối soát tuần · DS2611-000210 (G)</td><td><span class="nhan thanh-cong">Đã thu</span></td></tr>
+  </tbody></table>
+  <div class="khoi thong-tin" data-tt="rong">Không có phiếu phí theo bộ lọc.</div>
+  <p class="chu-phu">Chi tiết phiếu: bút toán Nợ 131 / Có 511, 3331; công nợ; hóa đơn điện tử phí; nơi đã trừ. Nút Hủy phiếu (lý do), Lập lại phiếu.</p>
+</section>
+
+<!-- MAN_HINH_306 -->
+<section class="ipos-man" id="m306" aria-labelledby="t306">
+  <h2 id="t306">MAN_HINH_306 · Doanh thu và đối soát iPOS</h2>
+  <div class="cac-the" role="tablist" style="display:flex;gap:var(--khoang-2)"><button class="nut chinh" type="button">Doanh thu</button><button class="nut phu" type="button">Đối soát thu hộ</button><button class="nut phu" type="button">Đối soát điểm, voucher</button><button class="nut phu" type="button">Phí</button></div>
+  <table class="bang" data-tt="du-lieu khong-quyen"><thead><tr><th>Cửa hàng</th><th>Điểm bán</th><th class="so">Doanh thu thuần</th><th class="so">Hóa đơn</th><th class="so">Tiền mặt</th><th class="so">VietQR</th><th class="so">Ứng dụng VComm</th><th class="so">Điểm, voucher</th><th class="so">Chênh lệch két</th></tr></thead><tbody>
+    <tr><td>Tạp hóa Minh Anh</td><td>Bình Dương 01</td><td class="so">182.640.000</td><td class="so">2.315</td><td class="so">98.400.000</td><td class="so">31.250.000</td><td class="so">46.890.000</td><td class="so">6.100.000</td><td class="so">−12.500</td></tr>
+  </tbody></table>
+  <p class="chu-phu">Chỉ số tổng; không xem dòng hàng, giá vốn, khách của cửa hàng. Không ghi bút toán.</p>
+  <div class="the"><strong>Đối soát thu hộ · dòng lệch</strong>
+    <table class="bang" data-tt="du-lieu khong-quyen"><thead><tr><th>Loại lệch</th><th>Hóa đơn iPOS</th><th>Giao dịch VComm</th><th class="so">Tiền iPOS</th><th class="so">Tiền VComm</th></tr></thead><tbody>
+      <tr><td>Có thu hộ, không có hóa đơn iPOS</td><td>—</td><td>TT2611-000498</td><td class="so">—</td><td class="so">150.000</td></tr>
+      <tr><td>Có hóa đơn, thu hộ đã hủy</td><td>DB02-261116-0011</td><td>TT2611-000401 (đã hủy)</td><td class="so">89.000</td><td class="so">0</td></tr>
+    </tbody></table>
+    <div class="khoi thong-tin" data-tt="rong">Không có dòng lệch trong khoảng ngày đã chọn.</div>
+  </div>
+</section>
+
+<!-- Sửa màn hình có sẵn -->
+<section class="ipos-man" id="msua" aria-labelledby="tsua">
+  <h2 id="tsua">Sửa màn hình có sẵn</h2>
+  <div class="hai-cot-ipos">
+    <div class="the"><strong>MAN_HINH_176, 180 · Bảng đối soát tuần DS2611-000210</strong>
+      <table class="bang"><tbody>
+        <tr><td>Tiền điểm tích (A)</td><td class="so">1.250.000</td></tr>
+        <tr><td>Tiền điểm khách dùng (B)</td><td class="so">− 830.000</td></tr>
+        <tr><td>Voucher công ty (C)</td><td class="so">− 100.000</td></tr>
+        <tr><td>Phí dịch vụ (D), phí tin OTP (F), thuế (E)</td><td class="so">95.000</td></tr>
+        <tr><td><b>Phí thuê bao iPOS (G) · PI2610-000020</b></td><td class="so"><b>2.626.800</b></td></tr>
+        <tr><td><b>Cửa hàng phải trả</b></td><td class="so"><b>3.041.800</b></td></tr>
+      </tbody></table></div>
+    <div class="the"><strong>MAN_HINH_281, 282 · Bảng chuyển tiền thu hộ CT2611-000091</strong>
+      <table class="bang"><tbody>
+        <tr><td>Thu hộ</td><td class="so">2.450.000</td></tr>
+        <tr><td>Phí thu hộ và thuế, phí cổng</td><td class="so">− 62.300</td></tr>
+        <tr><td><b>Phí thuê bao iPOS · PI2611-000038 (trừ một phần)</b></td><td class="so"><b>− 120.000</b></td></tr>
+        <tr><td><b>Tiền chuyển</b></td><td class="so"><b>2.267.700</b></td></tr>
+      </tbody></table></div>
+  </div>
+</section>
+
+</main>
+<div class="ghi-chu-ban-mau">Bản mẫu CONG_VIEC_74 · dữ liệu giả · QUYTAC_NGHIEPVU_594 đến 603, 626, 627. <a href="index.html">Mục lục bản mẫu</a></div>
+<script src="ipos.js"></script>
+</body>
+</html>

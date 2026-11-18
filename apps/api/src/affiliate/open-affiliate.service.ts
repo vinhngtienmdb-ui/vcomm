@@ -23,7 +23,9 @@ import { ApiError } from "../common/api-error";
 import { isUniqueViolation, violatedConstraint } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { estimateEarnPoints, LoyaltyLedgerService } from "../loyalty/ledger.service";
-import { SmartOtpService } from "../loyalty/smart-otp.service";
+import { redeemLockedUntil } from "../auth/account-security";
+import { SmartOtpService } from "../auth/smart-otp.service";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import type { OpenApiCaller } from "../open-api/api-key.guard";
 import { AffiliateTransactionsService, maskName, readMemberCode, type CounterActor } from "./transactions.service";
@@ -106,6 +108,7 @@ export class OpenAffiliateService {
     private readonly transactions: AffiliateTransactionsService,
     private readonly ledger: LoyaltyLedgerService,
     private readonly smartOtp: SmartOtpService,
+    private readonly authenticationSettings: AuthenticationSettingsService,
     private readonly phoneOtp: PhoneOtpService,
   ) {}
 
@@ -157,7 +160,8 @@ export class OpenAffiliateService {
     const merchant = await this.usable(caller, input.outletId, input.billAmount);
     let buyer: { id: string; full_name: string };
     if (input.memberCode) {
-      // Mã thành viên chỉ đọc, không đánh dấu đã dùng; dùng khi lập giao dịch.
+      // Mã thành viên chỉ đọc, không đánh dấu đã dùng; dùng khi lập giao dịch. Hết thời hạn chuyển đổi thì không nhận.
+      await this.transactions.assertMemberCodeOpen();
       const code = readMemberCode(input.memberCode, new Date());
       const row = (
         await this.database.execute<{ id: string; full_name: string }>(sql`
@@ -170,6 +174,7 @@ export class OpenAffiliateService {
     const bill = Number(input.billAmount);
     const quote = await this.ledger.quoteRedemption(this.database, { userId: buyer.id, sourceType: "affiliate_transaction", day, goodsAmount: bill });
     const vouchers = await usableCodes(this.database, buyer.id, merchant.merchant_id, bill);
+    const smartOtpActive = (await this.smartOtp.state(this.database, buyer.id)).active;
     return {
       buyerName: maskName(buyer.full_name),
       redeemable: quote.redeemable,
@@ -179,7 +184,10 @@ export class OpenAffiliateService {
       pointValue: quote.pointValue === null ? null : String(quote.pointValue),
       estimatedEarnPoints: await estimateEarnPoints(this.database, { userId: buyer.id, day, amount: bill, earnPercent: Number(merchant.earn_percent) }),
       vouchers: vouchers.map((voucher) => ({ id: voucher.id, title: voucher.titleVi, discount: voucher.discount, expiresAt: voucher.expiresAt })),
-      smartOtpActive: (await this.smartOtp.state(this.database, buyer.id)).active,
+      smartOtpActive,
+      // CONG_VIEC_72 (QUYTAC_NGHIEPVU_569): cách OTP dùng được; hết thời hạn mà chưa kích hoạt thì không còn SMS.
+      otpMethod: smartOtpActive ? "smart_otp" : (await this.authenticationSettings.buyerTransitionOpen()) ? "sms" : "unavailable",
+      redeemLockedUntil: await redeemLockedUntil(this.database, buyer.id),
     };
   }
 
@@ -188,6 +196,8 @@ export class OpenAffiliateService {
     const merchant = await this.usable(caller, input.outletId, "0");
     const buyer = await this.buyerByPhone(this.database, input.phone);
     if ((await this.smartOtp.state(this.database, buyer.id)).active) throw new ApiError("BUSINESS_RULE", "affiliateSmartOtpActive");
+    // Hết thời hạn chuyển đổi: không gửi SMS nữa, khách dùng mã thành viên hoặc xác nhận trên ứng dụng (CONG_VIEC_72; QUYTAC_NGHIEPVU_569).
+    if (!(await this.authenticationSettings.buyerTransitionOpen())) throw new ApiError("BUSINESS_RULE", "affiliateSmartOtpRequired");
     const sentToday = (
       await this.database.execute<{ total: number }>(sql`
       SELECT count(*)::int AS total FROM affiliate.sms_charges
@@ -211,6 +221,8 @@ export class OpenAffiliateService {
         if (error instanceof ApiError && error.message === "retailSmartOtpInvalid") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { otp: "retailSmartOtpInvalid" } });
         throw error;
       }
+    } else if (!(await this.authenticationSettings.buyerTransitionOpen())) {
+      throw new ApiError("BUSINESS_RULE", "affiliateSmartOtpRequired");
     } else if (!(await this.phoneOtp.consume(phone, code, "affiliate_redeem"))) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { otp: "affiliateOtpInvalid" } });
     }

@@ -1,6 +1,7 @@
 "use client";
 
 // MAN_HINH_54 Hóa đơn điện tử (CHUC_NANG_77, 79; API_91): danh sách lọc trạng thái, quá hạn, khoảng ngày, người mua.
+// CONG_VIEC_73 lát L6: cột Người bán, lọc hóa đơn lập theo ủy nhiệm thay cửa hàng liên kết.
 import { einvoiceStatuses, type EinvoiceListItem, type EinvoiceStatus, type PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -50,6 +51,7 @@ function EinvoiceList() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [search, setSearch] = useState("");
+  const [mandated, setMandated] = useState(false);
   const [page, setPage] = useState(1);
   const query = new URLSearchParams({
     page: String(page),
@@ -58,6 +60,7 @@ function EinvoiceList() {
     ...(from ? { from } : {}),
     ...(to ? { to } : {}),
     ...(search.trim() ? { search: search.trim() } : {}),
+    ...(mandated ? { mandated: "true" } : {}),
   });
   const { state, reload } = useApi<PageResponse<EinvoiceListItem>>(`/finance/einvoices?${query.toString()}`);
   const filter =
@@ -66,7 +69,7 @@ function EinvoiceList() {
       setter(value);
       setPage(1);
     };
-  const headings = [t("invoiceDate"), t("number"), t("buyer"), t("sourceDocument"), t("totalAmount"), t("kind"), t("status")];
+  const headings = [t("invoiceDate"), t("number"), t("seller"), t("buyer"), t("sourceDocument"), t("totalAmount"), t("kind"), t("status")];
   return (
     <>
       <div className="bo-loc">
@@ -91,6 +94,9 @@ function EinvoiceList() {
         <input id="loc-tim-hd" className="o-nhap" style={{ width: "auto" }} placeholder={t("searchHint")} value={search} onChange={(event) => filter(setSearch)(event.target.value)} />
         <label>
           <input type="checkbox" checked={overdue} onChange={(event) => filter(setOverdue)(event.target.checked)} /> {t("onlyOverdue")}
+        </label>
+        <label>
+          <input type="checkbox" checked={mandated} onChange={(event) => filter(setMandated)(event.target.checked)} /> {t("onlyMandated")}
         </label>
       </div>
       <Loaded state={state} onRetry={() => void reload()}>
@@ -119,21 +125,25 @@ function EinvoiceList() {
                         <Link href={`/einvoices/${item.id}`}>{item.invoiceNo ? `${item.series} · ${item.invoiceNo}` : t("noNumber")}</Link>
                       </td>
                       <td data-nhan={headings[2]}>
-                        <span>{item.buyerName || t("anonymousBuyer")}</span>
+                        <span>{item.sellerName}</span>
+                        {item.mandated && <span className="chu-thich"> · {t("mandated")}</span>}
                       </td>
                       <td data-nhan={headings[3]}>
-                        <span>{item.sourceDocumentNo ?? "—"}</span>
+                        <span>{item.buyerName || t("anonymousBuyer")}</span>
                       </td>
                       <td data-nhan={headings[4]}>
+                        <span>{item.sourceDocumentNo ?? "—"}</span>
+                      </td>
+                      <td data-nhan={headings[5]}>
                         <span style={{ whiteSpace: "nowrap" }}>
                           {formatNumber(item.totalAmount)} {item.currency}
                         </span>
                       </td>
-                      <td data-nhan={headings[5]}>
+                      <td data-nhan={headings[6]}>
                         <span>{t(`kind_${item.kind}`)}</span>
                         {item.origin === "cash_register" && <span className="chu-thich"> · {t("origin_cash_register")}</span>}
                       </td>
-                      <td data-nhan={headings[6]}>
+                      <td data-nhan={headings[7]}>
                         <EinvoiceStatusBadge status={item.status} overdue={item.overdue} replaced={item.replaced} />
                       </td>
                     </tr>

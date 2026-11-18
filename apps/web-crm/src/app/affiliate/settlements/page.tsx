@@ -3,7 +3,7 @@
 // MAN_HINH_180 Đối soát và giao dịch liên kết (CONG_VIEC_55; CHUC_NANG_196; API_212): thẻ Đối soát – bảng tuần mọi cửa hàng, lọc trạng thái, quá hạn;
 // chi tiết; trả lời khiếu nại kèm điều chỉnh tiền và chốt lại. Thẻ Giao dịch (mọi cửa hàng, số điện thoại khách đã che), thẻ Báo cáo (theo cửa hàng, dư nợ), thẻ Cảnh báo bất thường (lát L4; API_213).
 import type { AffiliateAlert, AffiliateCompanyReport, AffiliateCompanyTransaction, AffiliateMerchantListItem, AffiliateSettlementDetail, AffiliateSettlementItem, PageResponse } from "contracts";
-import { affiliateAllTransactionMethods } from "contracts";
+import { affiliateAlertKinds, affiliateAllTransactionMethods } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { SettlementBreakdown, SettlementNet, SettlementStatus } from "ui/components/AffiliateSettlement";
@@ -307,6 +307,7 @@ function alertDetail(t: ReturnType<typeof useTranslations>, alert: AffiliateAler
   if (alert.kind === "same_buyer_burst") return t("detail_same_buyer_burst", { phone: alert.buyerPhone ?? "—", count: alert.count ?? 0, day: alert.day ? formatDate(alert.day) : "" });
   if (alert.kind === "near_cap") return t("detail_near_cap", { percent, count: alert.count ?? 0, total: alert.total ?? 0, cap: amount(alert.limit ?? "0") });
   if (alert.kind === "cancel_rate") return t("detail_cancel_rate", { percent, count: alert.count ?? 0, total: alert.total ?? 0 });
+  if (alert.kind === "late_payments") return t("detail_late_payments", { phone: alert.buyerPhone ?? "—", count: alert.count ?? 0 });
   if (alert.kind === "phone_declines") return t("detail_phone_declines", { name: alert.cashierName ?? "—", count: alert.count ?? 0, day: alert.day ? formatDate(alert.day) : "" });
   return t("detail_credit_usage", { amount: amount(alert.amount ?? "0"), limit: amount(alert.limit ?? "0"), percent });
 }
@@ -326,7 +327,7 @@ function AlertsTab() {
         </label>
         <select id="loai-canh-bao" className="o-nhap" value={kind} onChange={(event) => setKind(event.target.value)}>
           <option value="">{t("allKinds")}</option>
-          {(["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage"] as const).map((value) => (
+          {affiliateAlertKinds.map((value) => (
             <option key={value} value={value}>
               {t(`kind_${value}`)}
             </option>

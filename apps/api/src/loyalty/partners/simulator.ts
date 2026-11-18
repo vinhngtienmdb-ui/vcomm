@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm";
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { CLOCK, type Clock } from "../../common/clock";
 import { DATABASE, type Database } from "../../database/database.module";
-import { maskName } from "../smart-otp.service";
+import { maskName } from "../../auth/smart-otp.service";
 import type { ConnectorResult, PartnerConnector, PartnerContractRef, PartnerStatementLine, PartnerTransactionState } from "./connector";
 
 const otpLifetimeMinutes = 5;

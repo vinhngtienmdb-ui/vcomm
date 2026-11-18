@@ -1,7 +1,10 @@
 // API_207: cổng cửa hàng liên kết – kích hoạt lời mời, thông tin của tôi, cửa hàng, nhân viên (CONG_VIEC_55).
 // Cửa hàng đang chọn gửi qua header `x-merchant-id` khi người dùng là thành viên của nhiều cửa hàng.
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
+  affiliateWebhookSchema,
+  type AffiliateWebhookDelivery,
+  type AffiliateWebhookSecret,
   type AffiliatePortalConnection,
   affiliateActivationOtpSchema,
   affiliateActivationSchema,
@@ -31,10 +34,23 @@ import {
   type LoginResponse,
   type MerchantPortalMe,
   type MerchantPortalStore,
+  type MerchantPortalAuthenticationPolicy,
+  type MerchantPortalSecurity,
+  merchantPortalPasswordResetSchema,
+  merchantPortalPasswordSchema,
+  createMerchantCheckoutSchema,
+  merchantCheckoutCancelSchema,
+  merchantCheckoutPayCodeSchema,
+  type MerchantCheckoutResponse,
+  instorePayoutListQuerySchema,
+  type InstorePayoutDetail,
+  type InstorePayoutItem,
 } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
-import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { AllowMfaPending, Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { MerchantPortalSecurityService } from "./portal-security.service";
+import { membersOf } from "./merchants.service";
 import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
@@ -43,6 +59,10 @@ import { AffiliateApiKeysService } from "./api-keys.service";
 import { AffiliateReportsService } from "./reports.service";
 import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
+import { AffiliateCheckoutsService } from "./affiliate-checkouts.service";
+import { InstorePayoutsService } from "../instore/payouts.service";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
+import { AffiliateWebhooksService } from "./webhooks.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -58,7 +78,50 @@ export class MerchantPortalController {
     private readonly settlements: AffiliateSettlementsService,
     private readonly reports: AffiliateReportsService,
     private readonly apiKeys: AffiliateApiKeysService,
+    private readonly security: MerchantPortalSecurityService,
+    private readonly checkouts: AffiliateCheckoutsService,
+    private readonly instorePayouts: InstorePayoutsService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
+    private readonly webhooks: AffiliateWebhooksService,
   ) {}
+
+  // API_329 (CONG_VIEC_73 lát L4; MAN_HINH_174): đơn chờ khách thanh toán qua ứng dụng VComm.
+  @Post("checkouts")
+  async createCheckout(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.create(await this.member(request), createMerchantCheckoutSchema.parse(body));
+  }
+
+  @Get("checkouts/:id")
+  async checkout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.get(await this.member(request), id);
+  }
+
+  @Post("checkouts/:id/pay-code")
+  @HttpCode(200)
+  async checkoutPayCode(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.payCode(await this.member(request), id, merchantCheckoutPayCodeSchema.parse(body).code);
+  }
+
+  // API_333 phần cổng cửa hàng (CONG_VIEC_73 lát L5; MAN_HINH_282): chủ cửa hàng xem bảng chuyển tiền thu hộ của cửa hàng.
+  @Get("payouts")
+  async payouts(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<InstorePayoutItem>> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantList(member.merchantId, instorePayoutListQuerySchema.parse(query));
+  }
+
+  @Get("payouts/:id")
+  async payout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<InstorePayoutDetail> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.instorePayouts.merchantDetail(member.merchantId, id);
+  }
+
+  @Post("checkouts/:id/cancel")
+  @HttpCode(200)
+  async cancelCheckout(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MerchantCheckoutResponse> {
+    return this.checkouts.cancel(await this.member(request), id, merchantCheckoutCancelSchema.parse(body).reason);
+  }
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
   private async voucherActor(request: AuthenticatedRequest): Promise<VoucherActor> {
@@ -90,7 +153,81 @@ export class MerchantPortalController {
     return result;
   }
 
+  // API_324 (CONG_VIEC_72): chính sách công khai cho trang đăng nhập cổng (liên kết "Đăng nhập bằng mã SMS" trong thời hạn).
+  @Public()
+  @Get("authentication-policy")
+  authenticationPolicy(): Promise<MerchantPortalAuthenticationPolicy> {
+    return this.security.policy();
+  }
+
+  // API_324: trạng thái bảo mật của người đang đăng nhập; phiên chờ thiết lập hoặc chờ mã vẫn gọi được.
+  @AllowMfaPending()
+  @Get("security")
+  securityState(@Req() request: AuthenticatedRequest): Promise<MerchantPortalSecurity> {
+    return this.security.state(request.auth.userId, !request.auth.mfaVerified);
+  }
+
+  // API_324: bước 1 thiết lập bảo mật – đặt mật khẩu. Ứng dụng xác thực dùng API_07, API_08.
+  @AllowMfaPending()
+  @Post("security/password")
+  setPassword(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<MerchantPortalSecurity> {
+    return this.security.setPassword(request.auth.userId, !request.auth.mfaVerified, merchantPortalPasswordSchema.parse(body).password, clientInfo(request));
+  }
+
+  // API_324: quên mật khẩu cổng (MAN_HINH_274).
+  @Public()
+  @RateLimitGroup("login")
+  @Post("password-reset")
+  @HttpCode(204)
+  async resetPassword(@Body() body: unknown, @Req() request: Request): Promise<void> {
+    const input = merchantPortalPasswordResetSchema.parse(body);
+    await this.security.resetPassword(input.phone, { code: input.code, backupCode: input.backupCode }, input.password, clientInfo(request));
+  }
+
+  // API_325: chủ cửa hàng đặt lại xác thực cho thu ngân (MAN_HINH_177).
+  @Post("members/:id/reset-authentication")
+  async resetAuthentication(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
+    const member = await this.member(request);
+    requireOwner(member);
+    await this.security.resetAuthentication(
+      { userId: member.userId, companyId: member.companyId, client: member.client },
+      id,
+      affiliateMemberVersionSchema.parse(body).version,
+      { merchantId: member.merchantId, cashierOnly: true },
+    );
+    return membersOf(this.portal.database, member.merchantId);
+  }
+
   // API_295 phần cổng cửa hàng (MAN_HINH_232): chủ cửa hàng xem kết nối phần mềm (CONG_VIEC_67).
+  // API_331 (CONG_VIEC_73 lát L7; MAN_HINH_232): chủ cửa hàng cài webhook cho khóa của cửa hàng.
+  @Put("api-keys/:id/webhook")
+  async webhook(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<{ url: string | null; version: number }> {
+    return this.webhooks.configure({ kind: "owner", member: await this.member(request) }, id, affiliateWebhookSchema.parse(body));
+  }
+
+  @Post("api-keys/:id/webhook/rotate-secret")
+  @HttpCode(200)
+  async webhookSecret(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookSecret> {
+    return this.webhooks.rotateSecret({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Post("api-keys/:id/webhook/test")
+  @HttpCode(200)
+  async webhookTest(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.test({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Get("api-keys/:id/webhook/deliveries")
+  async webhookDeliveries(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery[]> {
+    return this.webhooks.deliveries({ kind: "owner", member: await this.member(request) }, id);
+  }
+
+  @Post("webhook-deliveries/:id/resend")
+  @HttpCode(200)
+  async webhookResend(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateWebhookDelivery> {
+    return this.webhooks.resend({ kind: "owner", member: await this.member(request) }, id);
+  }
+
   @Get("api-keys")
   async connection(@Req() request: AuthenticatedRequest): Promise<AffiliatePortalConnection> {
     return this.apiKeys.portalConnection(await this.member(request));
@@ -135,12 +272,27 @@ export class MerchantPortalController {
 
   @Get("transactions")
   async listTransactions(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateTransactionItem>> {
-    return this.transactions.list(await this.member(request), affiliateTransactionListQuerySchema.parse(query));
+    const page = await this.transactions.list(await this.member(request), affiliateTransactionListQuerySchema.parse(query));
+    // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+    const invoices = await this.mandatedEinvoices.invoicesOf(page.data.map((item) => item.id));
+    return { ...page, data: page.data.map((item) => ({ ...item, einvoice: invoices.get(item.id) ?? null })) };
   }
 
   @Get("transactions/:id")
   async transaction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateTransactionItem> {
-    return this.transactions.transaction(await this.member(request), id);
+    const item = await this.transactions.transaction(await this.member(request), id);
+    // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+    return { ...item, einvoice: await this.mandatedEinvoices.invoiceOf(id) };
+  }
+
+  @Get("transactions/:id/einvoice.pdf")
+  async transactionEinvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res({ passthrough: true }) response: Response): Promise<StreamableFile> {
+    // Kiểm phạm vi giao dịch của thành viên trước khi trả tệp.
+    await this.transactions.transaction(await this.member(request), id);
+    const file = await this.mandatedEinvoices.transactionPdf(id);
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename="${file.fileName}"`);
+    return new StreamableFile(file.content);
   }
 
   @Post("transactions/:id/cancel")

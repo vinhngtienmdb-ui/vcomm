@@ -138,6 +138,16 @@ describe("TIEUCHI_NGHIEMTHU_506 đến 509: tra điểm, giao dịch qua API", (
     expect(text).not.toContain("Nguyễn Thị Hồng");
     // Mã thành viên chưa bị dùng khi tra điểm.
     expect((await open("post", "/affiliate/quote", secret, { outletId: fixture.outletA, billAmount: "200000", memberCode: code })).status).toBe(200);
+    // Hết thời hạn chuyển đổi của người mua: mã thành viên cũ không còn nhận (CONG_VIEC_73, KICHBAN_KIEMTHU_751).
+    const window = (await pool.query("SELECT transition_starts_on::text AS starts_on, buyer_transition_days AS days FROM core.authentication_settings")).rows[0];
+    await pool.query("UPDATE core.authentication_settings SET transition_starts_on = '2020-01-01', buyer_transition_days = 30");
+    try {
+      const retired = await open("post", "/affiliate/quote", secret, { outletId: fixture.outletA, billAmount: "200000", memberCode: code });
+      expect(retired.status).toBe(409);
+      expect(retired.body.error.message).toBe("Mã thành viên cũ không còn dùng. Khách mở Mã thanh toán trên ứng dụng VComm.");
+    } finally {
+      await pool.query("UPDATE core.authentication_settings SET transition_starts_on = $1, buyer_transition_days = $2", [window.starts_on, window.days]);
+    }
     expect((await open("post", "/affiliate/quote", secret, { outletId: fixture.outletA, billAmount: "200000", phone: "0938679999" })).body.error.message).toBe(
       "Số điện thoại chưa có tài khoản VComm.",
     );
