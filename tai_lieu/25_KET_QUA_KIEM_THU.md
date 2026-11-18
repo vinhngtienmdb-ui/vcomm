@@ -904,6 +904,12 @@
 - Tự rà soát mã và dọn dẹp: Đạt (phiên con báo).
 - Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-18 – v0.14.1 trên PostgreSQL 17 (CONG_VIEC_76)
+
+- Phạm vi: tag `v0.14.1` (commit `89f83292`), postgres:17, redis:7.
+- Lệnh đã chạy: vitest `apps/api` (180 tệp), 145 database migration chạy trong kiểm thử.
+- Kết quả: KICHBAN_KIEMTHU_811 Đạt (1011/1011, 1202 giây). Không có lỗi mới.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
