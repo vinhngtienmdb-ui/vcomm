@@ -54,6 +54,7 @@ Bổ sung riêng:
 | Chạy backend | `pnpm --filter api dev` (cổng 4000) |
 | Kiểm thử | `pnpm test` |
 | Kiểm tra kiểu | `pnpm typecheck` |
+| Khởi tạo môi trường thật trống (một lần, sau database migration, CONG_VIEC_78) | `node apps/api/dist/database/bootstrap.js --company-code=<mã> --legal-name="<tên pháp lý>" --short-name="<tên ngắn>" [--tax-code=<mã số thuế>] --admin-email=<email> --admin-name="<họ tên>"`; cấp lại đường dẫn khi quản trị chưa kích hoạt: `--reissue-link --admin-email=<email>` |
 
 - Trình duyệt tích hợp của Claude desktop: cấu hình `.claude/launch.json`, mục `web-platform`.
 - Email, SMS trên máy phát triển ghi ra log (`EMAIL_DRIVER=log`, `SMS_DRIVER=log`), không gửi thật.

@@ -1427,3 +1427,13 @@ Trạng thái: bản nháp mô tả dữ kiện kỹ thuật; không tra cứu, 
 | Thời gian lưu | Trên VComm: hội thoại 90 ngày, nhật ký lượt (không nội dung) 24 tháng. Tại nhà cung cấp: theo điều khoản thương mại khi đăng ký khóa |
 | Biện pháp bảo vệ | Che dữ liệu một chiều trước khi gửi; chỉ đọc theo quyền của người hỏi; quản trị bật từng tính năng, cấp quyền theo vai trò; hạn mức chi phí; thông báo và xác nhận trước lần dùng đầu; nhật ký thao tác khi đổi cài đặt |
 | Người phụ trách | Người dùng điền |
+
+## Lệnh khởi tạo môi trường thật (CONG_VIEC_78)
+
+- Chạy bằng ảnh `api` (`node apps/api/dist/database/bootstrap.js`), chỉ người có quyền chạy lệnh trên dịch vụ `api` (chuỗi kết nối cơ sở dữ liệu) thực hiện được; không có API, không có màn hình.
+- Chỉ chạy khi cơ sở dữ liệu chưa có công ty và người dùng nào; khóa tư vấn trong giao dịch chặn hai lần chạy cùng lúc. Có dữ liệu thì từ chối, không đổi gì.
+- Không tạo mật khẩu: tài khoản quản trị tập đoàn ở trạng thái "Đã mời", lệnh in một lần đường dẫn kích hoạt dùng một lần, hết hạn 72 giờ (CHUC_NANG_04, MAN_HINH_03); cơ sở dữ liệu chỉ lưu mã băm SHA-256. Người quản trị tự đặt mật khẩu, sau đó bị buộc đăng ký xác thực hai lớp (vai trò có quyền nhạy cảm, QUYTAC_NGHIEPVU_09).
+- Đường dẫn chỉ in ra đầu ra của lệnh, không ghi nhật ký thao tác (`system.bootstrap`, `user.invitation.resend` chỉ ghi mã công ty, mã người dùng, email). Đầu ra lệnh chạy trên nền tảng có thể được lưu trong log của lần chạy: mở đường dẫn ngay để kích hoạt (dùng xong là hết hiệu lực); nghi lộ thì chạy `--reissue-link` để vô hiệu đường dẫn cũ.
+- `--reissue-link` chỉ áp dụng cho tài khoản quản trị tập đoàn còn "Đã mời"; tài khoản đã kích hoạt dùng quên mật khẩu.
+- Môi trường thật (`NODE_ENV=production`) phải đặt `WEB_ORIGIN`, không thì báo lỗi và không tạo dữ liệu. Lỗi tham số chỉ nêu tên trường, không in giá trị.
+

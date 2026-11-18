@@ -903,3 +903,12 @@ Quy tắc: QUYTAC_NGHIEPVU_510 đến 523. Luồng 60. Màn hình MAN_HINH_242 �
 | YCAU_NGHIEPVU_181, 182 | CHUC_NANG_229 | TIEUCHI_NGHIEMTHU_480, 481 (MAN_HINH_245) | KICHBAN_KIEMTHU_665, 666 | `apps/api/src/ai/ai-usage.service.ts`, `ai.controller.ts`; `apps/web-platform/src/app/platform/ai-usage/page.tsx`, `src/components/AdminShell.tsx` |
 
 Toàn bộ CONG_VIEC_63: YCAU_NGHIEPVU_177 đến 183, CHUC_NANG_226 đến 229, TIEUCHI_NGHIEMTHU_470 đến 481, KICHBAN_KIEMTHU_653 đến 666 đều có mã nguồn và kiểm thử; không có mã nguồn không truy được về yêu cầu.
+
+## Kiểm tra bao phủ CONG_VIEC_78 – 2026-11-18
+
+Lệnh khởi tạo một lần dùng lại cơ chế kích hoạt của CHUC_NANG_04 (người dùng chọn phương án đường dẫn kích hoạt thay mật khẩu tạm ngày 2026-11-18). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; mã kịch bản do phiên điều phối cấp.
+
+| Chức năng | Màn hình | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_01 (tập đoàn gốc), CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần) | MAN_HINH_03 (không đổi) | `apps/api/src/database/bootstrap.ts`, `apps/api/src/users/invitations.service.ts` (`issueActivationToken` dùng chung) | `apps/api/test/c78-lenh-khoi-tao.test.ts`; hồi quy `apps/api/test/l4-invitations.test.ts` |
+
