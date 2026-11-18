@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { ApiCallLogsService } from "../src/open-api/api-call-logs.service";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session } from "./helpers";
+import { createTestUser, signIn, waitForApiCallLogs, type Session } from "./helpers";
 import { startTestApplication, testClock, testRateLimit } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -318,7 +318,7 @@ describe("TIEUCHI_NGHIEMTHU_449: nhật ký gọi", () => {
     expect((await open("/stock?warehouse=OAPI1&sku=BI-MAT", key.secret)).status).toBe(200);
     expect((await open("/products?pageSize=1000", key.secret)).status).toBe(400);
     // Nhật ký ghi sau khi trả kết quả.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await waitForApiCallLogs(pool, "api_key_id = $1", [key.id], 2);
     const logs = await call(admin, "get", `/platform/api-call-logs?apiKeyId=${key.id}`);
     expect(logs.status).toBe(200);
     expect(logs.body.total).toBe(2);
