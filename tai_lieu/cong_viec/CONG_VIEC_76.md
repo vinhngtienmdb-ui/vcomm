@@ -1,9 +1,10 @@
 # CONG_VIEC_76: Hạ tầng AWS, môi trường thử nghiệm, môi trường thật và quy trình triển khai
 
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và các lựa chọn ở mục 16. Chưa viết mã, chưa tạo tài nguyên AWS.
+- Trạng thái: Bản nháp. Người dùng trả lời ngày 2026-11-18: triển khai trước trên Supabase và Cloudflare, AWS để sau (mục 20). Chờ người dùng quyết định các câu hỏi ở mục 20.12. Chưa viết mã, chưa tạo tài nguyên.
+- Thay đổi so với 0.1: thêm mục 20 (phương án Supabase + Cloudflare). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
 - Nhánh: `chuc-nang/CONG_VIEC_76-ha-tang-aws`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-18 (tự kiểm trên môi trường thật, làm đúng kiến trúc đã duyệt); tài liệu `12` mục 1 điểm 9, mục 4, mục 5; tài liệu `13` mục 1, mục 5; tài liệu `22` mục 5; tài liệu `23`.
@@ -125,7 +126,7 @@ Theo skill mục 8: phiên bản có tag và có trong tài liệu `23`; ngườ
 ### 6.3 Cách chạy
 
 - GitHub Actions: luồng `.github/workflows/trien-khai.yml`, chạy tay (`workflow_dispatch`) với đầu vào tag và môi trường. Mỗi môi trường AWS là một môi trường GitHub (`staging`, `production`); môi trường `production` bắt buộc người dùng bấm duyệt trên GitHub cho từng lần chạy. Đăng nhập AWS bằng OIDC (`aws-actions/configure-aws-credentials`), vai trò chỉ tin kho `vinhngtienmdb-ui/vcomm` và đúng môi trường GitHub; không lưu khóa AWS dài hạn trong GitHub. Build Arm trên máy chạy Arm của GitHub (`ubuntu-24.04-arm`) nếu kho dùng được, nếu không thì `docker buildx` giả lập Arm (chậm hơn).
-- Từ máy phiên AI: cùng một tệp lệnh `infra/scripts/deploy.sh <môi trường> <tag>`, dùng khóa trong cài đặt môi trường phiên (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION=ap-southeast-1`). Đã kiểm: máy phiên có Docker. Chỉ chạy sau khi người dùng duyệt lần triển khai đó. Khóa này chỉ có quyền nhận vai trò triển khai (mục 9).
+- Từ máy phiên AI: cùng một tệp lệnh `infra/scripts/deploy.sh <môi trường> <tag>`, dùng khóa trong cài đặt môi trường phiên (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION=ap-southeast-1`). Đã kiểm: máy phiên có Docker (tiến trình nền Docker không tự chạy, phải bật `dockerd`). Chỉ chạy sau khi người dùng duyệt lần triển khai đó. Khóa này chỉ có quyền nhận vai trò triển khai (mục 9).
 - Luồng phụ: `bat-tat-thu-nghiem.yml` bật hoặc tắt môi trường thử nghiệm ngoài giờ.
 
 ### 6.4 Quay lui
@@ -326,3 +327,159 @@ Mã cần cấp khi người dùng duyệt đặc tả: TIEUCHI_NGHIEMTHU (10, t
 ## 19. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu (chưa viết mã).
+
+## 20. Phương án Supabase + Cloudflare (người dùng chọn triển khai trước, 2026-11-18)
+
+### 20.1 Quyết định của người dùng ngày 2026-11-18 và cách áp dụng
+
+| Mục 16 | Quyết định | Áp dụng ở phương án mới |
+|---|---|---|
+| Câu 1 tài khoản AWS | Triển khai trước trên Supabase và Cloudflare; AWS để sau | Mục 20 thay mục 4 đến 10 cho đợt này |
+| Câu 2 mini app | Chung một dịch vụ | Giữ: một ảnh `vcomm-web` chạy 12 tiến trình Next.js |
+| Câu 3 email | Công việc riêng (SES) | Giữ là công việc riêng; nhà cung cấp email chọn lại khi làm (SES, Resend, hoặc khác), không còn gắn với AWS |
+| Câu 4 tác vụ nền | Chung tiến trình API ở môi trường thử nghiệm | Giữ |
+| Câu 5 Valkey | Duyệt | Không còn hợp (không có ElastiCache); thay bằng Redis của nền tảng chạy container hoặc Upstash (mục 20.3) |
+| Câu 6 di động | Bản web + APK qua EAS Build | Giữ; bản web đặt trên Cloudflare Pages |
+| Câu 7 tên miền | Chưa trả lời | Còn mở (mục 20.12 câu 5): Cloudflare cần quản lý DNS của cả tên miền |
+| Câu 8 thư mục `infra/` | Duyệt | Giữ thư mục, nhưng chứa Dockerfile, cấu hình nền tảng, tệp lệnh triển khai; không có mã CDK |
+| Câu 9 `NODE_ENV=staging` | Duyệt | Giữ |
+| Câu 10 một tài khoản cơ sở dữ liệu | Duyệt | Giữ: vai trò `postgres` của Supabase |
+| Câu 11 giờ chạy | Duyệt | Không áp dụng: nền tảng mới tính tiền theo mức dùng, tắt ngoài giờ làm mất lịch tác vụ nền; chạy liên tục |
+| Câu 12 thư viện CDK | Duyệt | Không dùng ở đợt này |
+
+### 20.2 Kết quả kiểm tra tương thích (2026-11-18)
+
+1. Database migration trên PostgreSQL 17 (phiên bản dự án Supabase mới dùng): chạy toàn bộ 145 tệp của nhánh `phat-hanh/v0.14.0` trên `postgres:17`, bằng vai trò không phải SUPERUSER (chủ cơ sở dữ liệu, như vai trò `postgres` của Supabase): đạt cả 145 tệp. Kết quả: 17 schema, extension `citext` (extension "trusted", tạo được không cần SUPERUSER), không có bảng nào trong schema `public` ngoài `public.schema_migrations` do bộ chạy tạo.
+2. Không chạy bộ kiểm thử tự động trên PostgreSQL 17 (CI vẫn chạy PostgreSQL 16). Lát L1 chạy thêm toàn bộ kiểm thử trên `postgres:17` một lần trước khi triển khai.
+3. Kiểm thử cần SUPERUSER: chỉ `apps/api/test/c60-fraud.test.ts` dùng `SET session_replication_role`. Kiểm thử chạy trên PostgreSQL của CI, không chạy trên Supabase, nên không bị ảnh hưởng.
+4. Bộ chạy migration dùng `pg_advisory_lock` mức phiên: phải nối qua kết nối trực tiếp hoặc Supavisor chế độ phiên (cổng 5432), không qua chế độ giao dịch (cổng 6543). Mã dùng `pg_advisory_xact_lock`, `FOR UPDATE SKIP LOCKED`, không dùng câu lệnh `SET` mức phiên, không dùng prepared statement có tên, nên ứng dụng chạy được qua Supavisor chế độ phiên.
+5. Lưu tệp: `S3FileStorage` chỉ đặt `region`, không đặt `endpoint`, `forcePathStyle`, và luôn gửi `ServerSideEncryption: "AES256"`. Supabase Storage, Cloudflare R2 cần `endpoint` riêng (Supabase cần thêm `forcePathStyle`); R2 chưa xác nhận nhận tiêu đề này. Muốn dùng hai dịch vụ này phải sửa mã (mục 20.12 câu 3).
+6. Mini app web: không có mã phía máy chủ đọc biến môi trường, không có `middleware`, `proxy`; mọi gọi API đi qua `rewrites` (đọc lúc build). Ảnh `vcomm-web` build một lần dùng được mọi môi trường nếu tên nội bộ của API giống nhau.
+
+### 20.3 Ánh xạ thành phần
+
+| Thành phần | AWS (mục 4, 5) | Phương án đề xuất | Phương án khác, rủi ro |
+|---|---|---|---|
+| PostgreSQL | Aurora PostgreSQL 16 | Supabase Postgres 17, vùng Singapore (`ap-southeast-1`), compute Micro (thử nghiệm), Small (thật). Ứng dụng và migration nối Supavisor chế độ phiên cổng 5432 (có IPv4, miễn phí); tắt Data API (PostgREST) vì không dùng và tránh lộ schema `public` | Kết nối trực tiếp (chỉ IPv6, hoặc mua IPv4 4 USD/tháng) |
+| API NestJS, tác vụ nền | ECS Fargate | Dịch vụ container chạy liên tục ở Singapore, cùng thành phố với Supabase: **Railway** vùng Singapore (phiên điều phối có công cụ kết nối Railway) | Cloudflare Containers: GA tháng 4/2026 nhưng không chọn được Singapore (ràng buộc theo vùng lớn APAC, task khởi động lại có thể đổi nơi chạy), thiết kế ngủ khi rảnh, không bảo đảm chạy liên tục; mỗi yêu cầu API gọi cơ sở dữ liệu nhiều lần nên trễ cộng dồn; lịch BullMQ (0 giờ 10, mỗi 15 phút) có thể lỡ. Fly.io vùng Singapore: tương đương Railway |
+| 12 mini app Next.js | ECS, ảnh `vcomm-web` | Chung ảnh `vcomm-web` trên Railway, cùng mạng riêng với API (`http://api.railway.internal:4000`) | Cloudflare Workers qua OpenNext (`@opennextjs/cloudflare` hỗ trợ Next.js từ 16.2.3): 12 Worker, thư viện mới, `rewrites` sang máy chủ ngoài cần thử từng ứng dụng; rẻ hơn, công sức Cao; để sau |
+| Redis (BullMQ, giới hạn số lần thử) | ElastiCache Valkey | Redis của Railway (cùng mạng riêng, không ra Internet) | Upstash Redis gói cố định 250 MB (~10 USD/tháng; Upstash khuyên không dùng gói tính theo lệnh cho BullMQ vì BullMQ hỏi Redis liên tục) |
+| Lưu tệp đính kèm | S3 | Thử nghiệm: ổ đĩa bền (volume) của Railway, `STORAGE_DRIVER=local`, không sửa mã. Thật: Supabase Storage qua giao thức S3 (cùng vùng Singapore với cơ sở dữ liệu, gói Pro có 100 GB) sau khi sửa mã mục 20.2 điểm 5 | Cloudflare R2 (không tốn phí truyền ra, gợi ý vùng APAC, không chọn được Singapore) |
+| Bản web ứng dụng VComm, kho, iPOS | S3 + CloudFront | Cloudflare Pages (tệp tĩnh `expo export`) | |
+| DNS, chứng chỉ, chống tấn công | Route 53, ACM, WAF | Cloudflare (gói miễn phí): DNS, chứng chỉ, proxy chống DDoS cho `staging.<tên miền>`, `api.staging.<tên miền>`; Railway cấp chứng chỉ cho tên miền riêng | Gói Cloudflare Pro (WAF có quy tắc quản lý) cho môi trường thật |
+| Khóa bí mật | Secrets Manager, KMS | Biến bí mật của Railway (mã hóa khi lưu), biến bí mật của môi trường GitHub | |
+| Sao lưu | Bản chụp Aurora | Supabase sao lưu hằng ngày (Pro, giữ 7 ngày); trước mỗi lần triển khai `pg_dump` (bản 17) từ GitHub Actions, mã hóa, lưu vào bucket riêng tư | PITR của Supabase (100 USD/tháng, 7 ngày) cho môi trường thật |
+| Log, cảnh báo | CloudWatch | Log của Railway (giữ theo gói), cảnh báo email khi dịch vụ dừng của Railway; theo dõi trang `GET /api/v1/auth/methods` bằng Cloudflare Health Checks (gói trả phí) hoặc dịch vụ theo dõi ngoài | |
+
+### 20.4 Hạ tầng từng môi trường
+
+| Hạng mục | Thử nghiệm | Thật giai đoạn 1 |
+|---|---|---|
+| Supabase | Dự án `vcomm-staging`, gói Pro, compute Micro, vùng Singapore | Dự án riêng `vcomm-production`, compute Small, PITR 7 ngày (đề xuất), tổ chức Supabase bật xác thực hai lớp |
+| Railway | Dự án `vcomm`, môi trường `staging`: dịch vụ `api` (1 bản, `BACKGROUND_JOBS=enabled`, volume tệp đính kèm), `web` (1 bản), `redis` | Môi trường `production` (cùng dự án hoặc dự án riêng): `api` 2 bản (`BACKGROUND_JOBS=disabled`), `worker` 1 bản, `web` 2 bản, `redis` |
+| Cloudflare | Vùng DNS của tên miền; bản ghi `staging`, `api.staging` trỏ tới Railway (bật proxy); Pages: `app.staging`, `kho.staging`, `ipos.staging` | Như thử nghiệm, bỏ `staging.` |
+
+### 20.5 Quy trình triển khai từ tag
+
+Các bước giống mục 6.2, đổi nơi chạy:
+
+1. Kiểm tag chứa mọi bản vá khẩn cấp đã triển khai.
+2. Build hai ảnh `linux/amd64` từ tag bằng Dockerfile ở `infra/docker` của `main`, đẩy lên GitHub Container Registry (riêng tư), nhãn là mã phiên bản.
+3. Ghi nhận nhãn ảnh đang chạy của từng dịch vụ.
+4. Sao lưu: `pg_dump --format=custom` cơ sở dữ liệu Supabase, mã hóa bằng `age` khóa công khai của người dùng, lưu bucket riêng tư; lỗi thì dừng.
+5. Database migration: chạy `node apps/api/dist/database/run-migrations.js` trong ảnh mới, từ GitHub Actions, nối Supavisor chế độ phiên; lỗi thì dừng.
+6. Lần đầu ở môi trường thử nghiệm: nạp dữ liệu thử (`seed.js`); từ chối ở môi trường thật.
+7. Đổi nhãn ảnh của dịch vụ `api`, `worker`, `web` trên Railway (API hoặc CLI của Railway), chờ triển khai xong và kiểm tra sống đạt (Railway giữ bản cũ chạy đến khi bản mới đạt kiểm tra sống).
+8. Build bản web ứng dụng di động với `EXPO_PUBLIC_API_URL` của môi trường, tải lên Cloudflare Pages.
+9. Kiểm tra sau triển khai như mục 6.2 bước 9.
+10. Ghi biên bản tài liệu `26`.
+
+- Chạy bằng GitHub Actions `trien-khai.yml` (chạy tay, đầu vào tag và môi trường; môi trường GitHub `production` bắt người dùng duyệt). Railway, Supabase, Cloudflare không nhận OIDC của GitHub: dùng token giới hạn phạm vi lưu trong biến bí mật của từng môi trường GitHub: token dự án Railway theo môi trường; chuỗi kết nối cơ sở dữ liệu; token API Cloudflare chỉ có quyền Pages của tài khoản. Không lưu khóa ở mã nguồn.
+- Từ máy phiên AI: cùng tệp lệnh `infra/scripts/deploy.sh`, token đặt ở cài đặt môi trường phiên (người dùng tự thêm); chỉ chạy khi người dùng duyệt lần đó.
+
+### 20.6 Quay lui
+
+| Tình huống | Cách quay lui |
+|---|---|
+| Bản mới không qua kiểm tra sống | Railway giữ bản cũ chạy |
+| Lỗi sau khi bản mới chạy, migration tương thích ngược | Đổi lại nhãn ảnh cũ (bước 7); theo phương án quay lui của phiên bản trong tài liệu `23` |
+| Dữ liệu sai | Khi người dùng đồng ý: `pg_restore` bản sao lưu ở bước 4 vào dự án Supabase mới (hoặc phục hồi bản sao lưu hằng ngày, PITR), đổi chuỗi kết nối, triển khai nhãn ảnh cũ |
+
+### 20.7 Biến môi trường
+
+Giữ bảng mục 7, khác ở các dòng sau:
+
+| Biến | Thử nghiệm | Thật |
+|---|---|---|
+| `DATABASE_URL` (bí mật, đặt thẳng, không ghép từ JSON) | Supavisor chế độ phiên của `vcomm-staging`, `sslmode=require` | Như thử nghiệm, dự án `vcomm-production` |
+| `REDIS_URL` | `redis://` mạng riêng Railway (biến tham chiếu của dịch vụ `redis`) | Như thử nghiệm |
+| `STORAGE_DRIVER`, `STORAGE_DIRECTORY` | `local`, đường dẫn volume Railway | `s3` sau khi sửa mã (mục 20.12 câu 3) |
+| `S3_BUCKET`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, biến địa chỉ máy chủ S3 (thêm khi sửa mã) | Không đặt | Bucket Supabase Storage, vùng `ap-southeast-1`, khóa S3 của Supabase (bí mật) |
+| `API_ORIGIN` lúc build `vcomm-web` | `http://api.railway.internal:4000` | Như thử nghiệm |
+| `API_PORT` | `4000` (Railway đặt `PORT`; khai báo cổng 4000 cho dịch vụ) | Như thử nghiệm |
+
+Không còn: bí mật Aurora tách khóa, khóa KMS. `ACCESS_TOKEN_SECRET`, `MFA_SECRET_KEY` sinh ngẫu nhiên một lần (AI sinh trên máy phiên và đặt thẳng vào Railway qua API, không in ra) và không bao giờ sinh lại.
+
+### 20.8 Ước tính chi phí hằng tháng (USD)
+
+Giá tra ngày 2026-11-18 từ trang giá và bài tổng hợp, chưa kiểm trên tài khoản: Supabase Pro 25 (gồm 10 tín dụng compute: Micro 10, Small 15), PITR 7 ngày 100; Railway 20 mỗi vCPU-tháng, 10 mỗi GB RAM-tháng, 0,15 mỗi GB volume-tháng, 0,05 mỗi GB truyền ra; gói Hobby 5 (gồm 5 mức dùng), Pro 20 mỗi chỗ (gồm 20 mức dùng); Cloudflare gói miễn phí cho DNS, Pages; Upstash cố định 250 MB 10.
+
+| Hạng mục | Thử nghiệm | Thật giai đoạn 1 |
+|---|---|---|
+| Supabase | 25 (Pro, Micro) | ~130 (Pro, Small, PITR 7 ngày); ~30 nếu không PITR |
+| Railway: `api` (thử nghiệm ~0,5 GB, 0,1 vCPU trung bình; thật 2 × 1 GB) | ~7 | ~30 |
+| Railway: `worker` | 0 | ~15 |
+| Railway: `web` (~1,5 GB mỗi bản) | ~17 | ~40 |
+| Railway: `redis`, volume, truyền ra | ~2 | ~5 |
+| Railway gói (Pro 20, trừ vào mức dùng) | Mức dùng ~26 > 20 nên ~26 | ~90 |
+| Cloudflare | 0 | 0 (Free) hoặc 20 (Pro, WAF) |
+| Bucket sao lưu (R2, trong hạn mức miễn phí 10 GB) | 0 | 0 |
+| **Cộng** | **~51** | **~140 không PITR; ~240 có PITR, ~260 thêm Cloudflare Pro** |
+
+- Gói rẻ nhất cho thử nghiệm: Supabase Free (0, dừng dự án sau 7 ngày không dùng, không có sao lưu hằng ngày, 500 MB) + Railway Hobby (5) ~ 31 USD; không đề xuất vì dự án bị dừng và không có sao lưu.
+- Ngoài: tên miền; eSMS; Anthropic; EAS; Apple Developer, Google Play khi phát hành.
+
+### 20.9 Giới hạn gói và rủi ro
+
+1. Supabase Pro: sao lưu hằng ngày giữ 7 ngày; 8 GB cơ sở dữ liệu kèm theo; Micro 1 GB RAM, 60 kết nối trực tiếp. Hiện 145 migration, dữ liệu giả nhỏ.
+2. Railway: một volume chỉ gắn một bản chạy, nên `api` ở thử nghiệm chỉ 1 bản (đủ). Redis của Railway không có bản dự phòng: mất Redis thì mất hàng đợi đang chờ, lịch BullMQ tự tạo lại khi `worker` khởi động; dữ liệu nghiệp vụ nằm ở PostgreSQL. Môi trường thật nếu cần dự phòng thì chuyển Upstash gói cố định.
+3. Dữ liệu lưu ở Singapore (Supabase, Railway): điểm chặn tài liệu `12` mục 7 không đổi.
+4. Ba nhà cung cấp (Supabase, Railway, Cloudflare) thay vì một: nhiều tài khoản, nhiều token cần quản lý; ghi trong tài liệu `22` mục 5.
+5. Cloudflare Containers không dùng cho API vì không đặt được ở Singapore và không bảo đảm chạy liên tục (mục 20.3); xem lại khi Cloudflare có ràng buộc vị trí theo thành phố.
+
+### 20.10 Ai làm bước nào
+
+| Bước | Người dùng | Phiên điều phối (có công cụ Supabase, Cloudflare, Railway) | Phiên CONG_VIEC_76 |
+|---|---|---|---|
+| Tạo tổ chức, tài khoản, thanh toán Supabase, Railway, Cloudflare | Làm | | |
+| Chuyển máy chủ tên miền (NS) sang Cloudflare | Làm ở nơi mua tên miền | | Soạn hướng dẫn |
+| Tạo dự án Supabase `vcomm-staging` (Singapore, Pro), tắt Data API | Duyệt | Làm sau khi người dùng duyệt (hoặc người dùng tự làm) | Soạn cấu hình cần chọn |
+| Tạo dự án, dịch vụ, volume Railway; tên miền riêng | Duyệt | Làm, hoặc phiên CONG_VIEC_76 làm qua token Railway | Soạn cấu hình (`infra/railway/*.json`) |
+| Bản ghi DNS, dự án Pages trên Cloudflare | Duyệt | Làm | Soạn danh sách bản ghi |
+| Nhập khóa bí mật dịch vụ ngoài (VNPAY thử nghiệm) | Tự nhập ở Railway; không dán vào trò chuyện | | |
+| Tạo môi trường GitHub `staging`, `production`, người duyệt; thêm token vào biến bí mật môi trường | Làm | | Soạn danh sách token và phạm vi quyền |
+| Dockerfile, luồng GitHub Actions, tệp lệnh, tài liệu `26` | | | Làm (lát L1, L2) |
+| Mỗi lần triển khai | Duyệt | | Chạy |
+
+### 20.11 Lát (thay mục 18 cho đợt này)
+
+| Lát | Nội dung | Người dùng xem, thử |
+|---|---|---|
+| L1 | `infra/docker` (hai Dockerfile, tệp khởi động 12 Next.js), `.dockerignore`; chạy toàn bộ kiểm thử trên PostgreSQL 17; build thử hai ảnh trên máy phiên; cấu hình Railway; tạo tài nguyên thử nghiệm (khi được duyệt); triển khai tag mới nhất có sẵn bằng tay theo mục 20.5 | Mở `https://staging.<tên miền>`, đăng nhập tài khoản thử, mở 11 mini app |
+| L2 | `trien-khai.yml`, `infra/scripts/deploy.sh`, sao lưu `pg_dump`, migration, kiểm tra sau triển khai; bản web di động lên Pages; `eas.json`, APK; diễn tập quay lui; tài liệu `26` | Bấm chạy luồng triển khai 0.14.0; cài APK |
+| L3 | Môi trường thật khi gỡ các điểm chặn mục 15 | `diff` cấu hình; kiểm tra sau triển khai |
+
+Công việc riêng đề xuất: (a) gửi email thật; (b) lưu tệp qua dịch vụ S3 khác AWS (biến địa chỉ máy chủ, kiểu đường dẫn, bỏ tiêu đề mã hóa khi không hỗ trợ), mức Nhỏ, cần trước môi trường thật; (c) cờ Secure của cookie ở môi trường thử nghiệm.
+
+### 20.12 Câu hỏi còn mở
+
+| Số | Câu hỏi | Đề xuất | Khác |
+|---|---|---|---|
+| 1 | Nơi chạy API, tác vụ nền, 12 mini app | Railway vùng Singapore (cùng thành phố với Supabase, chạy liên tục, có Redis, volume) | Cloudflare Containers (rủi ro mục 20.3, 20.9 điểm 5); Fly.io Singapore |
+| 2 | Redis | Redis của Railway | Upstash gói cố định 250 MB (~10 USD) |
+| 3 | Lưu tệp | Thử nghiệm: volume Railway, không sửa mã; thật: Supabase Storage sau công việc sửa mã (b) | Mở công việc (b) ngay, thử nghiệm cũng dùng Supabase Storage hoặc R2 |
+| 4 | Gói Supabase cho thử nghiệm | Pro (25 USD, không bị dừng, có sao lưu hằng ngày) | Free (bị dừng sau 7 ngày không dùng, không sao lưu) |
+| 5 | Tên miền | Người dùng cho biết tên miền; chuyển NS sang Cloudflare (gói miễn phí). Cloudflare chỉ ủy quyền tên miền con ở gói Enterprise | Chưa có tên miền: tạm dùng địa chỉ `*.up.railway.app`, `*.pages.dev` (cookie, đăng nhập liên kết, webhook thử được, đổi sau) |
+| 6 | Kho ảnh container | GitHub Container Registry riêng tư (không thêm tài khoản) | Railway tự build từ kho GitHub theo tag (không cần kho ảnh, nhưng build lại mỗi môi trường) |
+| 7 | Sao lưu trước triển khai lưu ở đâu | Bucket R2 riêng tư, mã hóa bằng khóa `age` của người dùng | Bucket Supabase Storage riêng tư |
+| 8 | Môi trường thật | Railway Pro, Supabase Small + PITR 7 ngày, Cloudflare Free; Cloudflare Pro khi mở cho người dùng ngoài | Không PITR (chỉ sao lưu hằng ngày 7 ngày) |
