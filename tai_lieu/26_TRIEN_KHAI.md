@@ -42,7 +42,7 @@
 
 ### 1.3 Biến môi trường của dịch vụ `api`, `worker`
 
-Danh sách đầy đủ: đặc tả CONG_VIEC_76 mục 7, 26, 27. Biến email, kho tệp đặt tên theo đề xuất ở đặc tả mục 27; đối chiếu lại khi CONG_VIEC_77, 79 xong.
+Danh sách đầy đủ: đặc tả CONG_VIEC_76 mục 7, 26, 27. Biến email, kho tệp theo CONG_VIEC_77 (pull request #213), CONG_VIEC_79 (pull request #215).
 
 | Biến | Giá trị | Bí mật |
 |---|---|---|
@@ -54,8 +54,10 @@ Danh sách đầy đủ: đặc tả CONG_VIEC_76 mục 7, 26, 27. Biến email,
 | `BACKGROUND_JOBS` | `api`: `disabled`; `worker`: `enabled` | Không |
 | `WEB_ORIGIN`, `SHARE_PUBLIC_URL`, `VCOMM_WEB_URL`, `APP_WEB_ORIGINS` | `https://erp.vcomm.vn`; `https://api.vcomm.vn`; `https://app.vcomm.vn`; `https://app.vcomm.vn,https://kho.vcomm.vn,https://ipos.vcomm.vn` | Không |
 | `EMAIL_DRIVER`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_FROM` | `smtp`; máy chủ, cổng (465 hoặc 587) của hộp thư doanh nghiệp; tài khoản gửi; địa chỉ gửi (ví dụ `VComm <khong-tra-loi@vcomm.vn>`) | Không |
+| `SMTP_SECURE` (không bắt buộc) | Để trống: cổng 465 dùng TLS ngay, cổng khác bắt buộc STARTTLS (CONG_VIEC_77) | Không |
 | `SMTP_PASSWORD` | Mật khẩu ứng dụng của tài khoản gửi | Có |
-| `STORAGE_DRIVER`, `S3_BUCKET`, `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `AWS_REGION` | `s3`; `vcomm-tep`; `https://<mã dự án>.storage.supabase.co/storage/v1/s3`; `true`; `ap-southeast-1` | Không |
+| `STORAGE_DRIVER`, `S3_BUCKET`, `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `AWS_REGION` | `s3`; `vcomm-tep` (bắt buộc khi `STORAGE_DRIVER=s3`); `https://<mã dự án>.storage.supabase.co/storage/v1/s3`; `true`; `ap-southeast-1` | Không |
+| `S3_SERVER_SIDE_ENCRYPTION` (không bắt buộc) | Để trống: không gửi tiêu đề mã hóa khi có `S3_ENDPOINT` (Supabase Storage tự mã hóa khi lưu); giá trị `AES256` hoặc `none` (CONG_VIEC_79) | Không |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Khóa S3 của Supabase Storage | Có |
 | `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`; `VNPAY_PAYMENT_URL`, `VNPAY_RETURN_URL` | Tài khoản VNPAY; địa chỉ cổng, `https://api.vcomm.vn/api/v1/public/payments/vnpay/return` | Có; Không |
 | `LOYALTY_PARTNER_SIMULATOR`, `AI_PROVIDER` | Trống | Không |
@@ -80,7 +82,15 @@ Tệp lệnh: `infra/scripts/deploy.sh`; luồng: `.github/workflows/trien-khai.
 8. Kiểm tra sau triển khai (`verify`): `GET https://api.vcomm.vn/api/v1/auth/methods` và `GET https://erp.vcomm.vn/dang-nhap` trả 200; người thực hiện kiểm thêm: đăng nhập, mở mini app, log không có lỗi mới trong 10 phút; kiểm tra bảo mật phần D.
 9. Ghi biên bản mục 4, ghi nhật ký tài liệu `02` (qua phiên điều phối).
 
-Lần đầu (một lần): tạo tài nguyên (đặc tả CONG_VIEC_76 mục 20.10) → triển khai 0.14.1 theo các bước 1 đến 8 → chạy lệnh khởi tạo một lần của CONG_VIEC_78 bằng ảnh `api` (tạo tập đoàn, quản trị tập đoàn đầu tiên; cách chạy ghi bổ sung khi CONG_VIEC_78 xong) → người dùng đăng nhập, tạo công ty thử nghiệm riêng để tự kiểm.
+Lần đầu (một lần): tạo tài nguyên (đặc tả CONG_VIEC_76 mục 20.10) → triển khai 0.14.1 theo các bước 1 đến 8 → chạy lệnh khởi tạo một lần của CONG_VIEC_78 (pull request #214) → quản trị tập đoàn mở đường dẫn kích hoạt trong email, đặt mật khẩu, đăng nhập → tạo công ty thử nghiệm riêng để tự kiểm.
+
+Lệnh khởi tạo chạy trong dịch vụ `api` để dùng đúng biến của môi trường (`DATABASE_URL`, `WEB_ORIGIN`, biến SMTP): `railway ssh --service api --environment production`, rồi:
+
+```
+node apps/api/dist/database/bootstrap.js --company-code=<mã> --legal-name="<tên pháp lý>" --short-name="<tên ngắn>" --tax-code=<mã số thuế> --admin-email=<email quản trị> --admin-name="<họ tên>"
+```
+
+`--tax-code` không bắt buộc. Đường dẫn kích hoạt hết hạn hoặc thất lạc: `node apps/api/dist/database/bootstrap.js --reissue-link --admin-email=<email quản trị>`. Người dùng cung cấp giá trị các tham số; AI chạy khi người dùng duyệt.
 
 Thứ tự database migration: migration chạy trước khi đổi ảnh, nên mỗi tệp migration phải tương thích ngược với mã phiên bản đang chạy (tài liệu `23` ghi riêng từng phiên bản).
 
