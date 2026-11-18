@@ -545,7 +545,8 @@ Kiểm tra:
 ### 24.2 Quét lỗ hổng ảnh (người dùng duyệt Trivy 2026-11-18)
 
 - `aquasecurity/trivy-action` v0.36.0 (phát hành 2026-04-22, Apache 2.0) ghim mã commit `ed142fd0673e97e23eac54620cfb913e5ce36c25`; thêm vào `kiem-tra-anh.yml` (sau bước build) và `trien-khai.yml` (sau build, trước sao lưu, migration); `severity: HIGH,CRITICAL`, `ignore-unfixed: true`, `exit-code: 1`.
-- Kết quả KICHBAN_KIEMTHU_810 phần quét: xem lần chạy CI ghi ở mục này sau khi luồng chạy.
+- Lần chạy đầu (commit `9cccd71d`): ảnh api bị chặn 10 lỗ hổng HIGH đã có bản vá, đều trong npm đi kèm ảnh nền `node:22` (`/usr/local/lib/node_modules/npm`: brace-expansion, ip-address, pacote, picomatch, sigstore, metavuln-calculator); mã ứng dụng và gói hệ điều hành Debian 12 có 0 lỗ hổng. Sửa: bỏ npm, npx, corepack ở tầng chạy của hai Dockerfile (commit `a6842bfd`).
+- Lần chạy lại (commit `a6842bfd`, 2026-11-18): build ảnh api, web đạt; quét Trivy hai ảnh không còn lỗ hổng HIGH, CRITICAL đã có bản vá; kiểm nội dung ảnh đạt; nạp mô-đun bộ chạy migration trong ảnh api đạt. KICHBAN_KIEMTHU_810: Đạt. Kiểm tra kiểu, lint, kiểm thử, quét bảo mật của CI: đạt.
 
 Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK.
 
