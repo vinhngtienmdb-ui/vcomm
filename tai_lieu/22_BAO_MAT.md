@@ -1153,7 +1153,8 @@ Ranh giới và kiểm soát riêng:
 | Token API Cloudflare (quyền Pages, R2 của một tài khoản); khóa R2 chỉ bucket sao lưu | Biến bí mật môi trường GitHub | Thử nghiệm, thật | Chưa tạo | Chưa tạo |
 | Token đọc kho ảnh GitHub cho Railway | Cài đặt dịch vụ Railway | Thử nghiệm, thật | Chưa tạo | Chưa tạo |
 | Khóa riêng age giải mã bản sao lưu | Người dùng giữ ngoài mọi hệ thống triển khai; hệ thống chỉ có khóa công khai | Chung | Chưa tạo | Chưa tạo |
-| Khóa S3 Supabase Storage (môi trường thật, sau khi sửa mã lưu tệp) | Biến bí mật Railway | Thật | Chưa tạo | Chưa tạo |
+| Khóa S3 Supabase Storage (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, CONG_VIEC_79) | Biến bí mật Railway | Thật | Chưa tạo | Chưa tạo |
+| Mật khẩu ứng dụng hộp thư gửi email (`SMTP_PASSWORD`, CONG_VIEC_77) | Biến bí mật Railway | Thật | Chưa tạo | Chưa tạo |
 
 Máy phát triển dùng tệp `.env` không commit; kho mã có `.env.example` không chứa giá trị thật.
 

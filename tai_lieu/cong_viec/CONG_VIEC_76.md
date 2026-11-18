@@ -1,9 +1,9 @@
 # CONG_VIEC_76: Hạ tầng AWS, môi trường thử nghiệm, môi trường thật và quy trình triển khai
 
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
-- Phiên bản: 0.4
+- Phiên bản: 0.5
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare (mục 21), phiếu THAY_DOI_40 (mục 22); ngày 2026-11-18 người dùng chọn chỉ dựng môi trường thật, tên miền `erp`, `api`, `app`, `kho`, `ipos`.vcomm.vn (mục 26, thay mục 20.4, 25 và mọi nội dung về môi trường thử nghiệm). Chưa tạo tài nguyên. Điểm chặn mở cho người dùng ngoài: mục 26.3.
+- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare (mục 21), phiếu THAY_DOI_40 (mục 22); ngày 2026-11-18 người dùng chọn chỉ dựng môi trường thật, tên miền `erp`, `api`, `app`, `kho`, `ipos`.vcomm.vn (mục 26, thay mục 20.4, 25 và mọi nội dung về môi trường thử nghiệm). Chưa tạo tài nguyên. Điểm chặn mở cho người dùng ngoài: mục 26.3; điểm chặn A1 đến A3 tách thành CONG_VIEC_77, 78, 79, phát hành 0.14.1 trước lần triển khai đầu (mục 27).
 - Thay đổi so với 0.2: ghi quyết định (mục 21), nội dung THAY_DOI_40 (mục 22), tiêu chí nghiệm thu và kịch bản chờ cấp mã (mục 23), kết quả lát L1 (mục 24). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
 - Nhánh: `chuc-nang/CONG_VIEC_76-ha-tang-aws`.
@@ -572,7 +572,7 @@ Người dùng không dựng môi trường thử nghiệm riêng; dựng một 
 | Web quản trị, mọi mini app theo đường dẫn | `erp.vcomm.vn` |
 | API, webhook, trang trả về cổng thanh toán, trang chia sẻ, tệp liên kết ứng dụng | `api.vcomm.vn` |
 | Bản web ứng dụng VComm, kho, iPOS | `app.vcomm.vn`, `kho.vcomm.vn`, `ipos.vcomm.vn` |
-| Gốc `vcomm.vn`, `www` | Chuyển hướng sang `app.vcomm.vn` (quy tắc chuyển hướng của Cloudflare) đến khi có trang giới thiệu (giả định, chờ người dùng xác nhận) |
+| Gốc `vcomm.vn`, `www.vcomm.vn` | Chuyển hướng sang `app.vcomm.vn` (quy tắc chuyển hướng của Cloudflare; người dùng chọn 2026-11-18) |
 
 Biến: `WEB_ORIGIN=https://erp.vcomm.vn`, `SHARE_PUBLIC_URL=https://api.vcomm.vn`, `VCOMM_WEB_URL=https://app.vcomm.vn`, `APP_WEB_ORIGINS=https://app.vcomm.vn,https://kho.vcomm.vn,https://ipos.vcomm.vn`, `VNPAY_RETURN_URL=https://api.vcomm.vn/api/v1/public/payments/vnpay/return`; ứng dụng di động build với `EXPO_PUBLIC_API_URL=https://api.vcomm.vn/api/v1`.
 
@@ -617,3 +617,19 @@ Phân hai mức: (A) chặn ngay cả lần triển khai đầu hoặc việc ng
 | Đơn vị vận chuyển, cổng thanh toán khác | Biến bí mật Railway | Khi bật phương thức |
 | Anthropic (`ANTHROPIC_API_KEY`, `AI_PROVIDER=anthropic`) | Biến bí mật Railway | Khi bật trợ lý AI |
 | Google, Microsoft, Zalo (đăng nhập liên kết) | Cài đặt tích hợp | Khi bật |
+
+## 27. Quyết định ngày 2026-11-18 (lần 4)
+
+1. Điểm chặn A1 đến A3 (mục 26.3) tách thành công việc riêng, phiên khác làm, phát hành 0.14.1 trước lần triển khai đầu; CONG_VIEC_76 không sửa mã các việc này:
+   - CONG_VIEC_77: gửi email qua SMTP của hộp thư doanh nghiệp có sẵn, không dùng dịch vụ gửi email bên ngoài.
+   - CONG_VIEC_78: lệnh khởi tạo một lần (tập đoàn, quản trị tập đoàn đầu tiên).
+   - CONG_VIEC_79: lưu tệp trên Supabase Storage (giao thức S3, địa chỉ máy chủ, kiểu đường dẫn).
+2. `vcomm.vn`, `www.vcomm.vn` chuyển hướng sang `app.vcomm.vn` bằng quy tắc chuyển hướng của Cloudflare.
+3. Chỉ một môi trường thật. Người dùng tự kiểm bằng một công ty thử nghiệm riêng; chỉ mở cho người dùng ngoài khi danh sách B (mục 26.3) được xử lý hoặc chấp nhận.
+4. Phiên bản triển khai đầu: 0.14.1 (thay 0.14.0).
+
+Tên biến đề xuất cho CONG_VIEC_77, 79 (tài liệu `26` mục 1.3; hai việc đó chốt tên, CONG_VIEC_76 đối chiếu lại khi xong):
+- Email: `EMAIL_DRIVER=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` (bí mật), `SMTP_FROM`.
+- Kho tệp: `STORAGE_DRIVER=s3`, `S3_BUCKET`, `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE=true`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (bí mật; SDK AWS tự đọc hai biến này).
+
+Bộ kiểm thử bản 0.14.0 trên PostgreSQL 17 (TIEUCHI_NGHIEMTHU_591): chạy lại trên mã 0.14.1 trước lần triển khai đầu.

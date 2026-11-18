@@ -12,7 +12,7 @@
 |---|---|---|---|
 | Phát triển | `http://localhost:3000` | Docker Compose, `pnpm dev` (tài liệu `18` mục 5) | Không áp dụng |
 | Thử nghiệm (staging) | Không dựng ở đợt đầu (người dùng quyết định 2026-11-18) | Không áp dụng | Không áp dụng |
-| Thật | `https://erp.vcomm.vn` (web quản trị, mọi mini app theo đường dẫn), `https://api.vcomm.vn` (API, webhook, trang trả về cổng thanh toán, trang chia sẻ, tệp liên kết ứng dụng), `https://app.vcomm.vn`, `https://kho.vcomm.vn`, `https://ipos.vcomm.vn` (bản web ứng dụng); `https://vcomm.vn` chuyển hướng sang `app.vcomm.vn` đến khi có trang giới thiệu | Luồng GitHub Actions "Triển khai", môi trường GitHub `production` (người dùng bấm duyệt trên GitHub mỗi lần) | Người dùng, mỗi lần |
+| Thật | `https://erp.vcomm.vn` (web quản trị, mọi mini app theo đường dẫn), `https://api.vcomm.vn` (API, webhook, trang trả về cổng thanh toán, trang chia sẻ, tệp liên kết ứng dụng), `https://app.vcomm.vn`, `https://kho.vcomm.vn`, `https://ipos.vcomm.vn` (bản web ứng dụng); `https://vcomm.vn`, `https://www.vcomm.vn` chuyển hướng sang `app.vcomm.vn` (quy tắc chuyển hướng của Cloudflare, người dùng chọn 2026-11-18) | Luồng GitHub Actions "Triển khai", môi trường GitHub `production` (người dùng bấm duyệt trên GitHub mỗi lần) | Người dùng, mỗi lần |
 
 - Mini app theo đường dẫn (`/catalog`, `/inventory`…) trên cùng tên miền web, đúng tài liệu `12` mục 3a (dùng chung cookie phiên, CSRF).
 - Không có môi trường thử nghiệm: mọi lần triển khai đi thẳng vào dữ liệu thật; sao lưu trước mỗi lần là bắt buộc; thử lỗi luồng triển khai (migration lỗi, phục hồi) làm trên cơ sở dữ liệu tạm, không làm trên cơ sở dữ liệu thật.
@@ -26,7 +26,8 @@
 | Tác vụ nền | Cùng ảnh, dịch vụ `worker` | 1 bản, `BACKGROUND_JOBS=enabled`, không có tên miền công khai |
 | 12 mini app web | Railway, ảnh `ghcr.io/vinhngtienmdb-ui/vcomm-web:<phiên bản>`, dịch vụ `web` | 2 bản |
 | Redis | Railway, dịch vụ `redis` | 1 bản, chỉ trong mạng riêng |
-| Lưu tệp đính kèm | **CHƯA XÁC ĐỊNH:** Supabase Storage sau khi sửa mã lưu tệp (cần cho 2 bản `api`), hoặc tạm volume Railway với `api` 1 bản | Đặc tả CONG_VIEC_76 mục 26 |
+| Lưu tệp đính kèm | Supabase Storage qua giao thức S3, bucket riêng tư `vcomm-tep` (CONG_VIEC_79, phát hành 0.14.1) | `STORAGE_DRIVER=s3`; mục 1.3 |
+| Gửi email | Hộp thư doanh nghiệp có sẵn qua SMTP (CONG_VIEC_77, phát hành 0.14.1), không dùng dịch vụ gửi email bên ngoài | Mục 1.3 |
 | Bản web ứng dụng di động | Cloudflare Pages | Ba dự án Pages |
 | DNS, chứng chỉ | Cloudflare (gói Free) | Bật proxy cho `erp`, `api` |
 | Bản sao lưu trước triển khai | Cloudflare R2, bucket riêng tư `vcomm-sao-luu`, thư mục `production/` | Mã hóa bằng khóa công khai age; khóa riêng do người dùng giữ |
@@ -38,6 +39,26 @@
 | `api` | `/api/v1/auth/methods` | 4000 (`API_PORT=4000`) | Đặc tả CONG_VIEC_76 mục 7, 20.7, 26 |
 | `worker` | Không | Không công khai | Như `api`, `BACKGROUND_JOBS=enabled` |
 | `web` | `/dang-nhap` | `PORT` do Railway cấp | Không cần biến (địa chỉ API đặt lúc build: `http://api.railway.internal:4000`) |
+
+### 1.3 Biến môi trường của dịch vụ `api`, `worker`
+
+Danh sách đầy đủ: đặc tả CONG_VIEC_76 mục 7, 26, 27. Biến email, kho tệp đặt tên theo đề xuất ở đặc tả mục 27; đối chiếu lại khi CONG_VIEC_77, 79 xong.
+
+| Biến | Giá trị | Bí mật |
+|---|---|---|
+| `NODE_ENV` | `production` | Không |
+| `API_PORT` | `4000` | Không |
+| `DATABASE_URL` | Supavisor chế độ phiên, `sslmode=verify-full&sslrootcert=/app/infra/certificates/supabase-ca.crt` | Có |
+| `REDIS_URL` | Biến tham chiếu của dịch vụ `redis` (mạng riêng) | Có |
+| `ACCESS_TOKEN_SECRET`, `MFA_SECRET_KEY` | Sinh ngẫu nhiên một lần, không sinh lại | Có |
+| `BACKGROUND_JOBS` | `api`: `disabled`; `worker`: `enabled` | Không |
+| `WEB_ORIGIN`, `SHARE_PUBLIC_URL`, `VCOMM_WEB_URL`, `APP_WEB_ORIGINS` | `https://erp.vcomm.vn`; `https://api.vcomm.vn`; `https://app.vcomm.vn`; `https://app.vcomm.vn,https://kho.vcomm.vn,https://ipos.vcomm.vn` | Không |
+| `EMAIL_DRIVER`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_FROM` | `smtp`; máy chủ, cổng (465 hoặc 587) của hộp thư doanh nghiệp; tài khoản gửi; địa chỉ gửi (ví dụ `VComm <khong-tra-loi@vcomm.vn>`) | Không |
+| `SMTP_PASSWORD` | Mật khẩu ứng dụng của tài khoản gửi | Có |
+| `STORAGE_DRIVER`, `S3_BUCKET`, `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `AWS_REGION` | `s3`; `vcomm-tep`; `https://<mã dự án>.storage.supabase.co/storage/v1/s3`; `true`; `ap-southeast-1` | Không |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Khóa S3 của Supabase Storage | Có |
+| `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`; `VNPAY_PAYMENT_URL`, `VNPAY_RETURN_URL` | Tài khoản VNPAY; địa chỉ cổng, `https://api.vcomm.vn/api/v1/public/payments/vnpay/return` | Có; Không |
+| `LOYALTY_PARTNER_SIMULATOR`, `AI_PROVIDER` | Trống | Không |
 
 - Kho ảnh riêng tư: Railway cần thông tin đăng nhập kho ảnh GitHub (token chỉ quyền đọc gói) đặt một lần ở cài đặt dịch vụ.
 - Chuỗi kết nối cơ sở dữ liệu: Supavisor chế độ phiên (cổng 5432), không dùng chế độ giao dịch (bộ chạy migration giữ khóa mức phiên); kiểm chứng chỉ máy chủ bằng chứng chỉ gốc Supabase đặt ở `infra/certificates/supabase-ca.crt` (`sslmode=verify-full&sslrootcert=/app/infra/certificates/supabase-ca.crt`).
@@ -58,7 +79,7 @@ Tệp lệnh: `infra/scripts/deploy.sh`; luồng: `.github/workflows/trien-khai.
 8. Kiểm tra sau triển khai (`verify`): `GET https://api.vcomm.vn/api/v1/auth/methods` và `GET https://erp.vcomm.vn/dang-nhap` trả 200; người thực hiện kiểm thêm: đăng nhập, mở mini app, log không có lỗi mới trong 10 phút; kiểm tra bảo mật phần D.
 9. Ghi biên bản mục 4, ghi nhật ký tài liệu `02` (qua phiên điều phối).
 
-Lần đầu (một lần, trước bước 1): tạo tài nguyên (đặc tả CONG_VIEC_76 mục 20.10); khởi tạo tổ chức và tài khoản quản trị đầu tiên — **CHƯA XÁC ĐỊNH:** cách làm (đặc tả mục 26, điểm chặn 2).
+Lần đầu (một lần): tạo tài nguyên (đặc tả CONG_VIEC_76 mục 20.10) → triển khai 0.14.1 theo các bước 1 đến 8 → chạy lệnh khởi tạo một lần của CONG_VIEC_78 bằng ảnh `api` (tạo tập đoàn, quản trị tập đoàn đầu tiên; cách chạy ghi bổ sung khi CONG_VIEC_78 xong) → người dùng đăng nhập, tạo công ty thử nghiệm riêng để tự kiểm.
 
 Thứ tự database migration: migration chạy trước khi đổi ảnh, nên mỗi tệp migration phải tương thích ngược với mã phiên bản đang chạy (tài liệu `23` ghi riêng từng phiên bản).
 
