@@ -55,7 +55,7 @@ afterAll(async () => {
 });
 
 describe("CONG_VIEC_78 lệnh khởi tạo", () => {
-  it("tham số sai bị từ chối, lỗi chỉ nêu trường, không tạo dữ liệu", async () => {
+  it("KICHBAN_KIEMTHU_837: tham số sai bị từ chối, lỗi chỉ nêu trường, không tạo dữ liệu", async () => {
     const wrong = createArguments.map((argument) => (argument.startsWith("--tax-code=") ? "--tax-code=12345" : argument.startsWith("--admin-email=") ? "--admin-email=khong-phai-email" : argument));
     const error = await run(wrong).catch((caught: unknown) => caught);
     const message = describeError(error);
@@ -66,14 +66,14 @@ describe("CONG_VIEC_78 lệnh khởi tạo", () => {
     expect(await counts()).toEqual({ companies: "0", users: "0" });
   });
 
-  it("môi trường thật thiếu WEB_ORIGIN thì báo lỗi và không để lại dữ liệu", async () => {
+  it("KICHBAN_KIEMTHU_837: môi trường thật thiếu WEB_ORIGIN thì báo lỗi và không để lại dữ liệu", async () => {
     process.env.NODE_ENV = "production";
     delete process.env.WEB_ORIGIN;
     await expect(run(createArguments)).rejects.toThrow(/WEB_ORIGIN/);
     expect(await counts()).toEqual({ companies: "0", users: "0" });
   });
 
-  it("cơ sở dữ liệu trống: tạo tập đoàn, quản trị Đã mời, in một lần đường dẫn; chạy lần hai bị từ chối; cấp lại vô hiệu đường dẫn cũ; kích hoạt rồi đăng nhập được", async () => {
+  it("KICHBAN_KIEMTHU_834, 835, 836, 838: cơ sở dữ liệu trống: tạo tập đoàn, quản trị Đã mời, in một lần đường dẫn; chạy lần hai bị từ chối; cấp lại vô hiệu đường dẫn cũ; kích hoạt rồi đăng nhập được", async () => {
     process.env.NODE_ENV = "production";
     process.env.WEB_ORIGIN = "https://erp.vcomm-khoi-tao.test";
     const lines = await run(createArguments);
@@ -118,7 +118,7 @@ describe("CONG_VIEC_78 lệnh khởi tạo", () => {
     await expect(run(createArguments)).rejects.toThrow(/đã có công ty hoặc người dùng/);
   });
 
-  it("cấp lại cho email không phải quản trị tập đoàn bị từ chối", async () => {
+  it("KICHBAN_KIEMTHU_836: cấp lại cho email không phải quản trị tập đoàn bị từ chối", async () => {
     await expect(run(["--reissue-link", "--admin-email=nguoi.khac@vcomm-khoi-tao.test"])).rejects.toThrow(/Đã mời/);
   });
 });

@@ -974,8 +974,10 @@ Màn hình MAN_HINH_283 đến 306. API_335 đến 357 (API_358 đến 370 dự 
 
 ## Kiểm tra bao phủ CONG_VIEC_78 – 2026-11-18
 
-Lệnh khởi tạo một lần dùng lại cơ chế kích hoạt của CHUC_NANG_04 (người dùng chọn phương án đường dẫn kích hoạt thay mật khẩu tạm ngày 2026-11-18). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; mã kịch bản do phiên điều phối cấp.
+Lệnh khởi tạo một lần dùng lại cơ chế kích hoạt của CHUC_NANG_04 (người dùng chọn phương án đường dẫn kích hoạt thay mật khẩu tạm ngày 2026-11-18). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; TIEUCHI_NGHIEMTHU_609 đến 613, KICHBAN_KIEMTHU_834 đến 838.
 
 | Chức năng | Màn hình | Mã nguồn | Kiểm thử tự động |
 |---|---|---|---|
-| CHUC_NANG_01 (tập đoàn gốc), CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần) | MAN_HINH_03 (không đổi) | `apps/api/src/database/bootstrap.ts`, `apps/api/src/users/invitations.service.ts` (`issueActivationToken` dùng chung) | `apps/api/test/c78-lenh-khoi-tao.test.ts`; hồi quy `apps/api/test/l4-invitations.test.ts` |
+| CHUC_NANG_01 (tập đoàn gốc), CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần); TIEUCHI_NGHIEMTHU_609 đến 613; KICHBAN_KIEMTHU_834 đến 838 | MAN_HINH_03 (không đổi) | `apps/api/src/database/bootstrap.ts`, `apps/api/src/users/invitations.service.ts` (`issueActivationToken` dùng chung) | `apps/api/test/c78-lenh-khoi-tao.test.ts`; hồi quy `apps/api/test/l4-invitations.test.ts` |
+
+Toàn bộ CONG_VIEC_78: TIEUCHI_NGHIEMTHU_609 đến 613, KICHBAN_KIEMTHU_834 đến 838 đều có mã nguồn và kiểm thử tự động.

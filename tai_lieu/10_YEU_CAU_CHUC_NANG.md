@@ -2546,3 +2546,14 @@ Yêu cầu phi chức năng:
 - Luôn cần mạng; không bán ngoại tuyến.
 - Ứng dụng `apps/mobile-ipos` chạy dạng bản dựng phát triển (thư viện máy in có mã gốc), không chạy trên Expo Go; bố cục ngang, rộng tối thiểu 1024 điểm ảnh. Thư viện mới `@point-of-sale/receipt-printer-encoder` 4.0.1, `@mitsuharu/react-native-sunmi-printer-library` 3.0.0, `react-native-tcp-socket` 6.4.3, `react-native-bluetooth-classic` 1.73.0-rc.17, `qrcode-generator` 2.0.4 (người dùng duyệt 2026-11-17; tài liệu `13` mục 14).
 - Không ghi PIN, mã ghép, khóa thiết bị, OTP, mã động vào log, nhật ký thao tác, thông báo lỗi.
+
+## Lệnh khởi tạo môi trường thật (MODULE_01, CONG_VIEC_78)
+
+Không thêm chức năng người dùng; lệnh vận hành dùng lại CHUC_NANG_01 (tập đoàn gốc) và CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần, MAN_HINH_03).
+
+Yêu cầu phi chức năng:
+- Lệnh `node apps/api/dist/database/bootstrap.js` chạy trong ảnh api sau database migration, với `NODE_ENV=production`.
+- Chỉ chạy khi chưa có công ty, người dùng; chạy lại bị từ chối, không đổi dữ liệu; hai lần chạy đồng thời không cùng tạo.
+- Tạo tập đoàn gốc, quản trị tập đoàn trạng thái Đã mời (vai trò `group_admin` phạm vi tập đoàn, bắt buộc xác thực hai lớp); in một lần đường dẫn kích hoạt dùng một lần, hết hạn 72 giờ; không tạo mật khẩu (người dùng chọn 2026-11-18).
+- `--reissue-link` cấp lại đường dẫn khi quản trị còn Đã mời.
+- Không ghi đường dẫn, mã kích hoạt vào nhật ký thao tác; lỗi tham số chỉ nêu tên trường.
