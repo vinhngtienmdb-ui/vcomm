@@ -89,27 +89,27 @@ const smtpEnvironment = (overrides: Record<string, string | undefined> = {}): No
 const activationLink = "https://erp.vcomm.test/kich-hoat?token=ma-kich-hoat-bi-mat-123";
 
 describe("CONG_VIEC_77 cấu hình email", () => {
-  it("máy phát triển không đặt EMAIL_DRIVER thì ghi log", () => {
+  it("KICHBAN_KIEMTHU_828: máy phát triển không đặt EMAIL_DRIVER thì ghi log", () => {
     expect(readEmailConfig({ NODE_ENV: "development" })).toEqual({ driver: "log" });
     expect(readEmailConfig({ NODE_ENV: "test", EMAIL_DRIVER: "log" })).toEqual({ driver: "log" });
   });
 
-  it("môi trường thật không đặt EMAIL_DRIVER hoặc đặt log thì báo lỗi", () => {
+  it("KICHBAN_KIEMTHU_828: môi trường thật không đặt EMAIL_DRIVER hoặc đặt log thì báo lỗi", () => {
     expect(() => readEmailConfig({ NODE_ENV: "production" })).toThrow(/EMAIL_DRIVER=smtp/);
     expect(() => readEmailConfig({ NODE_ENV: "production", EMAIL_DRIVER: "log" })).toThrow(/EMAIL_DRIVER=smtp/);
   });
 
-  it("EMAIL_DRIVER không hợp lệ thì báo lỗi", () => {
+  it("KICHBAN_KIEMTHU_828: EMAIL_DRIVER không hợp lệ thì báo lỗi", () => {
     expect(() => readEmailConfig({ NODE_ENV: "development", EMAIL_DRIVER: "ses" })).toThrow(/chỉ nhận log hoặc smtp/);
   });
 
-  it("thiếu biến SMTP thì nêu đủ tên biến thiếu", () => {
+  it("KICHBAN_KIEMTHU_828: thiếu biến SMTP thì nêu đủ tên biến thiếu", () => {
     const run = () => readEmailConfig({ NODE_ENV: "production", EMAIL_DRIVER: "smtp", SMTP_PASSWORD: "mat-khau-hop-thu-thu" });
     expect(run).toThrow(/thiếu SMTP_HOST; thiếu SMTP_PORT; thiếu SMTP_USER; thiếu SMTP_FROM/);
     expect(run).not.toThrow(/SMTP_PASSWORD/);
   });
 
-  it("giá trị biên của cổng và SMTP_SECURE", () => {
+  it("KICHBAN_KIEMTHU_829: giá trị biên của cổng và SMTP_SECURE", () => {
     expect(() => readEmailConfig(smtpEnvironment({ SMTP_PORT: "0" }))).toThrow(/SMTP_PORT phải là số cổng/);
     expect(() => readEmailConfig(smtpEnvironment({ SMTP_PORT: "65536" }))).toThrow(/SMTP_PORT phải là số cổng/);
     expect(() => readEmailConfig(smtpEnvironment({ SMTP_PORT: "58a" }))).toThrow(/SMTP_PORT phải là số cổng/);
@@ -124,7 +124,7 @@ describe("CONG_VIEC_77 cấu hình email", () => {
     });
   });
 
-  it("lỗi cấu hình không chứa mật khẩu", () => {
+  it("KICHBAN_KIEMTHU_828: lỗi cấu hình không chứa mật khẩu", () => {
     try {
       readEmailConfig(smtpEnvironment({ SMTP_HOST: "" }));
       expect.unreachable();
@@ -143,13 +143,13 @@ describe("CONG_VIEC_77 từ chối khởi động khi thiếu cấu hình ở m�
     }
   });
 
-  it("hàm tạo trình gửi chọn đúng loại theo cấu hình", () => {
+  it("KICHBAN_KIEMTHU_828: hàm tạo trình gửi chọn đúng loại theo cấu hình", () => {
     process.env.NODE_ENV = "test";
     delete process.env.EMAIL_DRIVER;
     expect(createOutboundMessages()).toBeInstanceOf(LogOutboundMessages);
   });
 
-  it("dựng ứng dụng với NODE_ENV=production, không có SMTP thì thất bại kèm lỗi rõ", async () => {
+  it("KICHBAN_KIEMTHU_828: dựng ứng dụng với NODE_ENV=production, không có SMTP thì thất bại kèm lỗi rõ", async () => {
     process.env.NODE_ENV = "production";
     delete process.env.EMAIL_DRIVER;
     delete process.env.SMTP_HOST;
@@ -189,7 +189,7 @@ describe("CONG_VIEC_77 gửi qua SMTP", () => {
       "VComm <thongbao@vcomm.test>",
     );
 
-  it("gửi email kèm tệp đính kèm tới máy chủ SMTP, có xác thực, log không chứa nội dung", async () => {
+  it("KICHBAN_KIEMTHU_827, KICHBAN_KIEMTHU_830: gửi email kèm tệp đính kèm tới máy chủ SMTP, có xác thực, log không chứa nội dung", async () => {
     captureLogs();
     await plainSender().send({
       channel: "email",
@@ -211,12 +211,12 @@ describe("CONG_VIEC_77 gửi qua SMTP", () => {
     expect(logs.join("\n")).not.toContain("nhan.vien@vcomm.test");
   });
 
-  it("máy chủ từ chối người nhận thì báo lỗi cho nơi gọi", async () => {
+  it("KICHBAN_KIEMTHU_832: máy chủ từ chối người nhận thì báo lỗi cho nơi gọi", async () => {
     smtp.rejectRecipients = true;
     await expect(plainSender().send({ channel: "email", to: "khong.co@vcomm.test", subject: "Thử", body: "Nội dung" })).rejects.toThrow();
   });
 
-  it("tin SMS không gửi qua SMTP và log không chứa đường dẫn kích hoạt, số điện thoại đầy đủ", async () => {
+  it("KICHBAN_KIEMTHU_830: tin SMS không gửi qua SMTP và log không chứa đường dẫn kích hoạt, số điện thoại đầy đủ", async () => {
     captureLogs();
     await plainSender().send({ channel: "sms", to: "0901234567", subject: "Kích hoạt tài khoản VComm", body: `Mở đường dẫn: ${activationLink}` });
     expect(smtp.commands).toHaveLength(0);
@@ -226,7 +226,7 @@ describe("CONG_VIEC_77 gửi qua SMTP", () => {
     expect(text).not.toContain("ma-kich-hoat-bi-mat-123");
   });
 
-  it("SMTP_SECURE=false bắt buộc STARTTLS: máy chủ không hỗ trợ thì không gửi mật khẩu, không gửi thư", async () => {
+  it("KICHBAN_KIEMTHU_831: SMTP_SECURE=false bắt buộc STARTTLS: máy chủ không hỗ trợ thì không gửi mật khẩu, không gửi thư", async () => {
     const transport = smtpTransport({ host: "127.0.0.1", port: smtp.port, secure: false, user: "thongbao@vcomm.test", password: "mat-khau-hop-thu-thu", from: "thongbao@vcomm.test" });
     await expect(new SmtpOutboundMessages(transport, "thongbao@vcomm.test").send({ channel: "email", to: "nhan.vien@vcomm.test", subject: "Thử", body: "Nội dung" })).rejects.toThrow();
     expect(smtp.commands.some((command) => command.startsWith("AUTH"))).toBe(false);
@@ -247,7 +247,7 @@ describe("CONG_VIEC_77 quên mật khẩu khi gửi thư lỗi", () => {
     await pool?.end();
   });
 
-  it("vẫn trả 204 như tài khoản không tồn tại, không lộ lỗi gửi", async () => {
+  it("KICHBAN_KIEMTHU_833: vẫn trả 204 như tài khoản không tồn tại, không lộ lỗi gửi", async () => {
     const messages = application.get<OutboundMessages>(OUTBOUND_MESSAGES);
     const original = messages.send;
     messages.send = async () => {

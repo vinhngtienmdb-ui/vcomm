@@ -4,7 +4,7 @@
 - Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77, THAY_DOI_41 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15)
 
 ## 1. Danh sách công nghệ
 
@@ -24,7 +24,7 @@
 | Chạy ứng dụng | ECS Fargate, vùng Singapore | Không quản trị máy chủ, tự co giãn |
 | Hạ tầng bằng mã | AWS CDK (TypeScript) | Cùng ngôn ngữ, cùng monorepo; người dùng chọn ngày 2026-11-09 |
 | Tác vụ nền | BullMQ trên Redis | Nhắc duyệt quá hạn, lấy tỷ giá, đẩy sự kiện outbox |
-| Gửi email | SMTP của hộp thư doanh nghiệp có sẵn, thư viện `nodemailer` 10.3.1 (MIT-0, không phụ thuộc thư viện khác, có sẵn tệp kiểu); biến môi trường `EMAIL_DRIVER`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_SECURE` (không bắt buộc) | Đường dẫn kích hoạt, đặt lại mật khẩu, thư mời phỏng vấn, đề nghị nhận việc, phiếu lương, ký số. CONG_VIEC_77, người dùng chọn SMTP hộp thư doanh nghiệp ngày 2026-11-18 (thay Amazon SES) |
+| Gửi email | SMTP của hộp thư doanh nghiệp có sẵn, thư viện `nodemailer` 10.3.1 (MIT-0, không phụ thuộc thư viện khác, có sẵn tệp kiểu); biến môi trường `EMAIL_DRIVER`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_SECURE` (không bắt buộc) | Đường dẫn kích hoạt, đặt lại mật khẩu, thư mời phỏng vấn, đề nghị nhận việc, phiếu lương, ký số. CONG_VIEC_77, THAY_DOI_41: người dùng chọn SMTP hộp thư doanh nghiệp ngày 2026-11-18 (thay Amazon SES) |
 | Gửi mã OTP, đường dẫn | Zalo ZNS trước, SMS thương hiệu dự phòng (người dùng chọn 2026-11-09); **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS, Zalo Official Account | Mã OTP, đường dẫn kích hoạt |
 | Xác thực nhà bán qua VNeID | **CHƯA XÁC ĐỊNH:** tổ chức cung cấp dịch vụ xác thực điện tử | MODULE_02 (THAY_DOI_02) |
 | Hóa đơn điện tử | MISA meInvoice (REST, gọi bằng `fetch` của Node.js, không thêm thư viện); bộ giả lập tự viết cho môi trường không phải môi trường thật; nhà cung cấp chọn theo từng công ty | CONG_VIEC_16; tài liệu API chính thức chưa đối chiếu (đặc tả `cong_viec/CONG_VIEC_16.md` mục 9, 16) |

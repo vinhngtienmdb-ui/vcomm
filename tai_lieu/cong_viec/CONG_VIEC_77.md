@@ -6,6 +6,7 @@
 - Trạng thái: Đang thực hiện (phiên con), chờ nghiệm thu.
 - Mức: Vừa (đổi nhà cung cấp gửi email đã ghi trong tài liệu `12`, `13`; thêm thư viện; không đổi cấu trúc dữ liệu, API, giao diện, quyền).
 - Nhánh: `chuc-nang/CONG_VIEC_77-email-smtp`.
+- Phiếu thay đổi: THAY_DOI_41 (đổi nhà cung cấp gửi email từ Amazon SES sang SMTP hộp thư doanh nghiệp, người dùng chọn 2026-11-18).
 - Nguồn: điểm chặn 1 của CONG_VIEC_76 (đặc tả mục 26.3); người dùng chọn SMTP hộp thư doanh nghiệp có sẵn, duyệt ngày 2026-11-18; phát hành trong 0.14.1.
 
 ## 1. Mục tiêu
@@ -41,7 +42,7 @@ Giao diện `OutboundMessages`, `OUTBOUND_MESSAGES` và mọi nơi gọi giữ n
 
 Tài liệu `13` mục 15: `nodemailer` 10.3.1 (MIT-0, không phụ thuộc). Người dùng duyệt ngày 2026-11-18.
 
-## 6. Tiêu chí nghiệm thu đề xuất (mã do phiên điều phối cấp)
+## 6. Tiêu chí nghiệm thu (TIEUCHI_NGHIEMTHU_602 đến 608 theo thứ tự, tài liệu `11`)
 
 1. Cấu hình `EMAIL_DRIVER=smtp` đủ biến: thư kích hoạt, đặt lại mật khẩu tới máy chủ SMTP, có xác thực, đúng người gửi `SMTP_FROM`, giữ tệp đính kèm.
 2. Môi trường thật thiếu cấu hình hoặc `EMAIL_DRIVER=log`: API từ chối khởi động, lỗi nêu tên biến, không in mật khẩu.
@@ -52,7 +53,7 @@ Tài liệu `13` mục 15: `nodemailer` 10.3.1 (MIT-0, không phụ thuộc). Ng
 
 ## 7. Kịch bản kiểm thử
 
-Kiểm thử tự động `apps/api/test/c77-email-smtp.test.ts` (máy chủ SMTP giả chạy cục bộ, không gọi máy chủ thư bên ngoài): đúng (gửi kèm tệp, chọn trình gửi), sai (thiếu biến, `EMAIL_DRIVER` sai, môi trường thật dùng `log`, máy chủ từ chối người nhận, không có STARTTLS), biên (cổng 0, 65535, 65536, giá trị `SMTP_SECURE` sai), bảo mật (log không chứa token, địa chỉ; lỗi không chứa mật khẩu; quên mật khẩu không lộ lỗi). Mã kịch bản tài liệu `21` do phiên điều phối cấp.
+Kiểm thử tự động `apps/api/test/c77-email-smtp.test.ts` (máy chủ SMTP giả chạy cục bộ, không gọi máy chủ thư bên ngoài): đúng (gửi kèm tệp, chọn trình gửi), sai (thiếu biến, `EMAIL_DRIVER` sai, môi trường thật dùng `log`, máy chủ từ chối người nhận, không có STARTTLS), biên (cổng 0, 65535, 65536, giá trị `SMTP_SECURE` sai), bảo mật (log không chứa token, địa chỉ; lỗi không chứa mật khẩu; quên mật khẩu không lộ lỗi). Kịch bản KICHBAN_KIEMTHU_827 đến 833 (tài liệu `21`).
 
 ## 8. Việc người dùng làm trước khi triển khai
 
