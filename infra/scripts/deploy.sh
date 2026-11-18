@@ -135,7 +135,8 @@ case "$step" in
     need VERSION DATABASE_URL BACKUP_AGE_RECIPIENT BACKUP_BUCKET CLOUDFLARE_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY
     name="${DEPLOY_ENVIRONMENT}/truoc-${VERSION}-$(date -u +%Y%m%dT%H%M%SZ).dump.age"
     # pg_dump bản 17 khớp Supabase; mã hóa trước khi rời máy chạy, không ghi tệp chưa mã hóa ra đĩa.
-    docker run --rm -e DATABASE_URL postgres:17 sh -c 'pg_dump --format=custom --no-owner --no-privileges "$DATABASE_URL"' \
+    # Gắn chứng chỉ gốc Supabase cùng đường dẫn như trong ảnh api để sslrootcert trong DATABASE_URL dùng chung được.
+    docker run --rm -e DATABASE_URL -v "$PWD/infra/certificates:/app/infra/certificates:ro" postgres:17 sh -c 'pg_dump --format=custom --no-owner --no-privileges "$DATABASE_URL"' \
       | age --encrypt --recipient "$BACKUP_AGE_RECIPIENT" \
       | AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" AWS_DEFAULT_REGION=auto \
         aws s3 cp - "s3://${BACKUP_BUCKET}/${name}" --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"

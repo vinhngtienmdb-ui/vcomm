@@ -35,7 +35,7 @@
 | `web` | `/dang-nhap` | `PORT` do Railway cấp | Không cần biến (địa chỉ API đặt lúc build: `http://api.railway.internal:4000`) |
 
 - Kho ảnh riêng tư: Railway cần thông tin đăng nhập kho ảnh GitHub (token chỉ quyền đọc gói) đặt một lần ở cài đặt dịch vụ.
-- Chuỗi kết nối cơ sở dữ liệu: Supavisor chế độ phiên (cổng 5432), không dùng chế độ giao dịch (bộ chạy migration giữ khóa mức phiên).
+- Chuỗi kết nối cơ sở dữ liệu: Supavisor chế độ phiên (cổng 5432), không dùng chế độ giao dịch (bộ chạy migration giữ khóa mức phiên); kiểm chứng chỉ máy chủ bằng chứng chỉ gốc Supabase đặt ở `infra/certificates/supabase-ca.crt` (`sslmode=verify-full&sslrootcert=/app/infra/certificates/supabase-ca.crt`).
 
 ## 2. Các bước triển khai
 
