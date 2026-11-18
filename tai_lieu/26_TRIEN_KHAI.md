@@ -11,8 +11,11 @@
 | Môi trường | Địa chỉ | Cách triển khai | Người phê duyệt |
 |---|---|---|---|
 | Phát triển | `http://localhost:3000` | Docker Compose, `pnpm dev` (tài liệu `18` mục 5) | Không áp dụng |
-| Thử nghiệm (staging) | `https://staging.<tên miền>` (web), `https://api.staging.<tên miền>` (API), `https://app.staging.<tên miền>`, `https://kho.staging.<tên miền>`, `https://ipos.staging.<tên miền>` (bản web ứng dụng) — **CHƯA XÁC ĐỊNH:** tên miền | Luồng GitHub Actions "Triển khai", môi trường `staging` | Người dùng, mỗi lần |
-| Thật | Như thử nghiệm, bỏ `staging.` | Luồng GitHub Actions "Triển khai", môi trường `production` (người dùng bấm duyệt trên GitHub) | Người dùng, mỗi lần |
+| Thử nghiệm (staging) | `https://erp-staging.vcomm.vn` (web, mọi mini app theo đường dẫn), `https://api-staging.vcomm.vn` (API, webhook, trang trả về cổng thanh toán, trang chia sẻ), `https://app-staging.vcomm.vn`, `https://kho-staging.vcomm.vn`, `https://ipos-staging.vcomm.vn` (bản web ứng dụng) | Luồng GitHub Actions "Triển khai", môi trường `staging` | Người dùng, mỗi lần |
+| Thật | `https://erp.vcomm.vn`, `https://api.vcomm.vn`, `https://app.vcomm.vn`, `https://kho.vcomm.vn`, `https://ipos.vcomm.vn`; `vcomm.vn`, `www.vcomm.vn` dành cho trang giới thiệu (tạm chuyển hướng sang `app.vcomm.vn`) | Luồng GitHub Actions "Triển khai", môi trường `production` (người dùng bấm duyệt trên GitHub) | Người dùng, mỗi lần |
+
+- Tên miền con một cấp (`erp-staging`, không dùng `api.staging`) để chứng chỉ miễn phí `*.vcomm.vn` của Cloudflare bao phủ khi bật proxy; tên miền con hai cấp cần gói chứng chỉ trả phí của Cloudflare.
+- Mini app theo đường dẫn (`/catalog`, `/inventory`…) trên cùng tên miền web, đúng tài liệu `12` mục 3a (dùng chung cookie phiên, CSRF).
 
 ### 1.1 Thành phần mỗi môi trường
 
@@ -24,7 +27,7 @@
 | Redis | Railway, dịch vụ `redis`, chỉ trong mạng riêng | 1 bản | 1 bản |
 | Bản web ứng dụng di động | Cloudflare Pages | Ba dự án Pages | Ba dự án Pages |
 | DNS, chứng chỉ | Cloudflare (gói Free) | | |
-| Bản sao lưu trước triển khai | Cloudflare R2, bucket riêng tư `vcomm-sao-luu`, mã hóa bằng khóa age của người dùng | Thư mục `staging/` | Thư mục `production/` |
+| Bản sao lưu trước triển khai | Cloudflare R2, bucket riêng tư `vcomm-sao-luu`, mã hóa bằng khóa age của người dùng | Mặc định tắt (dữ liệu giả, người dùng quyết định 2026-11-18); bật bằng tham số `sao_luu_thu_nghiem`, lưu thư mục `staging/` | Luôn bật, không tắt được; thư mục `production/` |
 
 ### 1.2 Cấu hình dịch vụ Railway
 
@@ -46,7 +49,7 @@ Dùng giống nhau cho môi trường thử nghiệm và môi trường thật. 
 1. Kiểm tag (`check-tag`): tag tồn tại, chứa mọi tag trong `infra/emergency-patches.txt`.
 2. Build ảnh (`build`): mã ứng dụng lấy từ tag, Dockerfile lấy từ `infra/docker` của `main`; đẩy `vcomm-api`, `vcomm-web` nhãn `<phiên bản>` và `<phiên bản>-<commit>`. Môi trường thật không build lại, dùng ảnh đã chạy ở môi trường thử nghiệm.
 3. Ghi ảnh đang chạy (`record`) của từng dịch vụ, in ra log để quay lui.
-4. Sao lưu (`backup`): `pg_dump` bản 17 dạng custom, mã hóa bằng age, tải lên R2 `<môi trường>/truoc-<phiên bản>-<thời điểm>.dump.age`. Lỗi thì dừng.
+4. Sao lưu (`backup`): `pg_dump` bản 17 dạng custom, mã hóa bằng age, tải lên R2 `<môi trường>/truoc-<phiên bản>-<thời điểm>.dump.age`. Lỗi thì dừng. Môi trường thật luôn chạy (tệp lệnh từ chối migration ở môi trường thật khi chưa sao lưu); môi trường thử nghiệm chỉ chạy khi chọn tham số `sao_luu_thu_nghiem` (mặc định tắt, quyết định của người dùng 2026-11-18; Supabase Pro vẫn tự sao lưu hằng ngày).
 5. Database migration (`migrate`): chạy `node apps/api/dist/database/run-migrations.js` bằng ảnh mới. Lỗi thì dừng; tệp lỗi đã hoàn tác, bản cũ vẫn chạy.
 6. Dữ liệu thử (`seed`): chỉ môi trường thử nghiệm, chỉ lần đầu; tệp lệnh từ chối ở môi trường thật.
 7. Đổi ảnh (`release`): kiểm ảnh tồn tại cho mọi dịch vụ trước, rồi đổi từng dịch vụ và chờ triển khai xong (tối đa 15 phút mỗi dịch vụ). Railway giữ bản cũ chạy đến khi bản mới qua kiểm tra sống.

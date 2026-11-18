@@ -20,6 +20,11 @@ on:
         type: choice
         default: trien-khai
         options: [trien-khai, quay-lui]
+      sao_luu_thu_nghiem:
+        description: "Sao lưu cơ sở dữ liệu trước khi triển khai lên staging (môi trường thật luôn sao lưu, không tắt được)"
+        required: false
+        type: boolean
+        default: false
       nap_du_lieu_thu:
         description: "Nạp dữ liệu thử sau migration (chỉ staging, lần đầu)"
         required: false
@@ -98,12 +103,13 @@ jobs:
       - name: Ghi ảnh đang chạy
         run: infra/scripts/deploy.sh record
 
+      # Người dùng quyết định 2026-11-18: staging mặc định không sao lưu (dữ liệu giả); production luôn sao lưu.
       - name: Cài age
-        if: inputs.hanh_dong == 'trien-khai'
+        if: inputs.hanh_dong == 'trien-khai' && (inputs.moi_truong == 'production' || inputs.sao_luu_thu_nghiem)
         run: sudo apt-get update -q && sudo apt-get install -y -q age
 
       - name: Sao lưu cơ sở dữ liệu
-        if: inputs.hanh_dong == 'trien-khai'
+        if: inputs.hanh_dong == 'trien-khai' && (inputs.moi_truong == 'production' || inputs.sao_luu_thu_nghiem)
         run: infra/scripts/deploy.sh backup
 
       - name: Database migration

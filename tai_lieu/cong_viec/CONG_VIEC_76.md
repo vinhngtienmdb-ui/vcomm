@@ -3,7 +3,7 @@
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
 - Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare và mọi đề xuất kỹ thuật ngày 2026-11-18 (mục 21); phiếu THAY_DOI_40 (mục 22). Chưa tạo tài nguyên.
+- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare và mọi đề xuất kỹ thuật ngày 2026-11-18 (mục 21); phiếu THAY_DOI_40 (mục 22); tên miền `vcomm.vn` (mục 25). Chưa tạo tài nguyên.
 - Thay đổi so với 0.2: ghi quyết định (mục 21), nội dung THAY_DOI_40 (mục 22), tiêu chí nghiệm thu và kịch bản chờ cấp mã (mục 23), kết quả lát L1 (mục 24). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
 - Nhánh: `chuc-nang/CONG_VIEC_76-ha-tang-aws`.
@@ -488,7 +488,8 @@ Công việc riêng đề xuất: (a) gửi email thật; (b) lưu tệp qua d�
 
 1. Triển khai đợt đầu trên Supabase + Railway + Cloudflare; AWS để sau. Phiếu THAY_DOI_40.
 2. Môi trường thật: sao lưu hằng ngày giữ 7 ngày và bật PITR 7 ngày (~240 USD/tháng); chấp nhận giảm thời gian giữ sao lưu từ 35 xuống 7 ngày ở đợt này.
-3. Dùng tên miền riêng ngay, chuyển DNS sang Cloudflare. **CHƯA XÁC ĐỊNH:** tên miền.
+3. Dùng tên miền riêng ngay, chuyển DNS sang Cloudflare. Tên miền: `vcomm.vn` (mục 25).
+5. Tạm tắt sao lưu tự động trước khi triển khai ở môi trường thử nghiệm (dữ liệu giả): tham số của luồng, mặc định tắt; môi trường thật luôn sao lưu, không tắt được. Supabase Pro vẫn sao lưu hằng ngày. R2 và khóa age chỉ cần khi lên môi trường thật.
 4. Duyệt mọi đề xuất kỹ thuật còn lại ở mục 20.12: Railway vùng Singapore cho API, tác vụ nền, mini app; Redis của Railway; thử nghiệm lưu tệp trên volume Railway, thật dùng Supabase Storage sau công việc sửa mã nhỏ; Supabase Pro cho thử nghiệm; kho ảnh GitHub Container Registry riêng tư; sao lưu trước triển khai lên R2, mã hóa bằng age.
 
 ## 22. Phiếu THAY_DOI_40 (nội dung gửi phiên điều phối ghi tài liệu `24`)
@@ -501,24 +502,24 @@ Công việc riêng đề xuất: (a) gửi email thật; (b) lưu tệp qua d�
 - Kiểm thử cần: database migration và toàn bộ kiểm thử tự động trên PostgreSQL 17; kiểm tra sau triển khai theo tài liệu `26`.
 - Mức: Lớn. Trạng thái: Đã phê duyệt (người dùng, 2026-11-18).
 
-## 23. Tiêu chí nghiệm thu và kịch bản kiểm thử (chờ phiên điều phối cấp mã)
+## 23. Tiêu chí nghiệm thu và kịch bản kiểm thử
 
-| Số tạm | Tiêu chí | Mức | Kịch bản |
+Mã do phiên điều phối cấp ngày 2026-11-18: TIEUCHI_NGHIEMTHU_590 đến 601, KICHBAN_KIEMTHU_810 đến 826. Ghi ở tài liệu `11`, `21`, `27`.
+
+| Mã | Tiêu chí | Mức | Kịch bản |
 |---|---|---|---|
-| T1 | Hai ảnh build được từ tag; không chứa `.env`, khóa bí mật, mã nguồn kiểm thử; quét ảnh không còn lỗ hổng Nghiêm trọng, Cao chưa xử lý | Bắt buộc | Build bằng luồng "Kiểm tra ảnh container", kiểm nội dung ảnh |
-| T2 | Toàn bộ database migration và kiểm thử tự động đạt trên PostgreSQL 17 | Bắt buộc | Chạy `vitest` với `postgres:17` |
-| T3 | Thử nghiệm: HTTPS đúng tên miền, đăng nhập tài khoản thử, mở 11 mini app | Bắt buộc | Người dùng thử trên trình duyệt |
-| T4 | Bản web ứng dụng VComm, kho, iPOS gọi được API thử nghiệm; APK Android cài và đăng nhập được | Bắt buộc | Người dùng thử |
-| T5 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại dịch vụ `api` | Bắt buộc | Tải tệp, khởi động lại, tải xuống |
-| T6 | Tác vụ nền chạy theo lịch | Bắt buộc | Log có lượt chạy theo lịch |
-| T7 | Luồng triển khai chạy đủ bước; có bản sao lưu mã hóa trước triển khai; migration chạy lại không còn tệp mới | Bắt buộc | Đúng: chạy luồng; sai: migration lỗi thì dừng, bản cũ vẫn chạy |
-| T8 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối ở môi trường thật; môi trường `production` cần người duyệt; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | Ba kịch bản sai |
-| T9 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | Đúng: quay lui, phục hồi; sai: phiên bản không có ảnh thì dừng trước khi đổi |
-| T10 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu | Bắt buộc | Đúng: rà cấu hình; sai: gọi Data API, nối Redis từ ngoài bị từ chối |
-| T11 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | Rà tài liệu |
-| T12 | Môi trường thật: đạt T3 đến T10, `api`, `web` 2 bản, PITR bật | Bắt buộc | Lát L3 |
-
-Tổng 17 kịch bản (12 đúng, 5 sai). Xin 12 mã TIEUCHI_NGHIEMTHU, 17 mã KICHBAN_KIEMTHU.
+| TIEUCHI_NGHIEMTHU_590 | Hai ảnh build được từ tag; không chứa `.env`, khóa bí mật, mã nguồn kiểm thử; quét ảnh không còn lỗ hổng Nghiêm trọng, Cao chưa xử lý | Bắt buộc | KICHBAN_KIEMTHU_810 |
+| TIEUCHI_NGHIEMTHU_591 | Toàn bộ database migration và kiểm thử tự động đạt trên PostgreSQL 17 | Bắt buộc | KICHBAN_KIEMTHU_811 |
+| TIEUCHI_NGHIEMTHU_592 | Thử nghiệm: HTTPS đúng tên miền, đăng nhập tài khoản thử, mở 11 mini app | Bắt buộc | KICHBAN_KIEMTHU_812 |
+| TIEUCHI_NGHIEMTHU_593 | Bản web ứng dụng VComm, kho, iPOS gọi được API thử nghiệm; APK Android cài và đăng nhập được | Bắt buộc | KICHBAN_KIEMTHU_813 |
+| TIEUCHI_NGHIEMTHU_594 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại dịch vụ `api` | Bắt buộc | KICHBAN_KIEMTHU_814 |
+| TIEUCHI_NGHIEMTHU_595 | Tác vụ nền chạy theo lịch | Bắt buộc | KICHBAN_KIEMTHU_815 |
+| TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; môi trường thật luôn có bản sao lưu mã hóa trước migration (không tắt được), môi trường thử nghiệm chỉ sao lưu khi chọn tham số (mặc định tắt); migration chạy lại không còn tệp mới | Bắt buộc | KICHBAN_KIEMTHU_816, 822 |
+| TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối ở môi trường thật; môi trường `production` cần người duyệt; migration ở môi trường thật khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | KICHBAN_KIEMTHU_817, 823, 824 |
+| TIEUCHI_NGHIEMTHU_598 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | KICHBAN_KIEMTHU_818, 825 |
+| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu | Bắt buộc | KICHBAN_KIEMTHU_819, 826 |
+| TIEUCHI_NGHIEMTHU_600 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | KICHBAN_KIEMTHU_820 |
+| TIEUCHI_NGHIEMTHU_601 | Môi trường thật: đạt TIEUCHI_NGHIEMTHU_592 đến 599, `api`, `web` 2 bản, PITR bật | Bắt buộc | KICHBAN_KIEMTHU_821 |
 
 ## 24. Lát L1 – kết quả (2026-11-18)
 
@@ -537,3 +538,25 @@ Kiểm tra:
 - Kiểm thử trên PostgreSQL 17: xem mục 24.1.
 
 Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK; quét lỗ hổng ảnh (đề xuất thêm hành động `aquasecurity/trivy-action`, giấy phép Apache 2.0, chờ người dùng duyệt).
+
+## 25. Tên miền `vcomm.vn` (đề xuất, chờ người dùng xác nhận)
+
+| Dùng cho | Thử nghiệm | Thật |
+|---|---|---|
+| Web quản trị, mọi mini app theo đường dẫn | `erp-staging.vcomm.vn` | `erp.vcomm.vn` |
+| API, webhook, trang trả về cổng thanh toán, trang chia sẻ, tệp liên kết ứng dụng | `api-staging.vcomm.vn` | `api.vcomm.vn` |
+| Bản web ứng dụng VComm | `app-staging.vcomm.vn` | `app.vcomm.vn` |
+| Bản web ứng dụng kho | `kho-staging.vcomm.vn` | `kho.vcomm.vn` |
+| Bản web iPOS | `ipos-staging.vcomm.vn` | `ipos.vcomm.vn` |
+| Gốc `vcomm.vn`, `www` | Không dùng | Dành cho trang giới thiệu; tạm chuyển hướng sang `app.vcomm.vn` |
+
+- Tên miền con một cấp, nối `-staging`: chứng chỉ miễn phí `*.vcomm.vn` (Universal SSL) của Cloudflare chỉ bao phủ một cấp; dạng `api.staging.vcomm.vn` cần Advanced Certificate Manager (trả phí) khi bật proxy.
+- Mini app theo đường dẫn, không theo tên miền con: kiến trúc đã duyệt dùng chung tên miền, cookie phiên HttpOnly, CSRF (tài liệu `12` mục 3a); đổi sang tên miền con phải sửa mã và cookie.
+- Biến theo tên miền ở môi trường thử nghiệm: `WEB_ORIGIN=https://erp-staging.vcomm.vn`, `SHARE_PUBLIC_URL=https://api-staging.vcomm.vn`, `VCOMM_WEB_URL=https://app-staging.vcomm.vn`, `APP_WEB_ORIGINS=https://app-staging.vcomm.vn,https://kho-staging.vcomm.vn,https://ipos-staging.vcomm.vn`, `VNPAY_RETURN_URL=https://api-staging.vcomm.vn/api/v1/public/payments/vnpay/return`; ứng dụng di động build với `EXPO_PUBLIC_API_URL=https://api-staging.vcomm.vn/api/v1`.
+
+Đổi máy chủ tên miền (NS) của `vcomm.vn` sang Cloudflare (người dùng làm):
+1. Cloudflare: Add a domain, nhập `vcomm.vn`, chọn gói Free; Cloudflare quét bản ghi DNS hiện có: đối chiếu với bản ghi đang dùng ở nhà đăng ký (đặc biệt MX, TXT của email) trước khi đổi để không mất email.
+2. Ghi lại hai máy chủ tên miền Cloudflare cấp (dạng `xxx.ns.cloudflare.com`).
+3. Ở nhà đăng ký tên miền `.vn` (trang quản lý tên miền của nhà đăng ký): tắt DNSSEC nếu đang bật; mục đổi máy chủ tên miền (DNS, nameserver), thay toàn bộ máy chủ cũ bằng hai máy chủ Cloudflare. Một số nhà đăng ký `.vn` yêu cầu tên miền đã đủ hồ sơ chủ thể với VNNIC mới cho đổi; nếu bị từ chối, liên hệ nhà đăng ký.
+4. Chờ Cloudflare báo Active (thường vài giờ, có thể tới 24 đến 48 giờ). Sau đó bật lại DNSSEC từ Cloudflare nếu muốn (thêm bản ghi DS ở nhà đăng ký).
+5. Báo phiên điều phối khi Active để tạo bản ghi cho các tên miền con.

@@ -6,7 +6,7 @@
 #   check-tag      kiểm tag chứa mọi bản vá khẩn cấp đã triển khai (infra/emergency-patches.txt)
 #   build          build, đẩy hai ảnh lên kho ảnh (cần docker đã đăng nhập kho ảnh)
 #   record         ghi ảnh đang chạy của từng dịch vụ vào tệp PREVIOUS_IMAGES_FILE
-#   backup         pg_dump, mã hóa bằng age, tải lên bucket sao lưu
+#   backup         pg_dump, mã hóa bằng age, tải lên bucket sao lưu (bắt buộc ở production, tùy chọn ở staging)
 #   migrate        chạy database migration bằng ảnh mới
 #   seed           nạp dữ liệu thử (chỉ môi trường staging)
 #   release        đổi ảnh của dịch vụ sang VERSION, chờ triển khai xong
@@ -141,9 +141,13 @@ case "$step" in
       | AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" AWS_DEFAULT_REGION=auto \
         aws s3 cp - "s3://${BACKUP_BUCKET}/${name}" --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
     echo "Đã sao lưu: ${BACKUP_BUCKET}/${name}"
+    if [ -n "${GITHUB_ENV:-}" ]; then echo "BACKUP_DONE=1" >> "$GITHUB_ENV"; fi
     ;;
   migrate)
     need VERSION IMAGE_REPOSITORY DATABASE_URL
+    # Môi trường thật luôn sao lưu trước migration (quyết định 2026-11-18): bước backup ghi BACKUP_DONE=1 khi chạy cùng tiến trình,
+    # luồng GitHub Actions đặt BACKUP_DONE=1 sau bước sao lưu.
+    if [ "$DEPLOY_ENVIRONMENT" = "production" ] && [ "${BACKUP_DONE:-}" != "1" ]; then fail "môi trường thật phải sao lưu (bước backup) trước khi chạy migration"; fi
     run_api_image "$DEPLOY_ENVIRONMENT" apps/api/dist/database/run-migrations.js
     ;;
   seed)
