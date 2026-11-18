@@ -556,7 +556,7 @@
 - Mức quy mô: Lớn; làm trong CONG_VIEC_72.
 - Rủi ro: cao (đổi cách xác thực của người mua); giảm bằng thời hạn chuyển đổi, thiết bị tin cậy nạp sẵn, khóa dùng điểm khi khôi phục.
 - Điều chỉnh khi lập trình: xem CONG_VIEC_72 mục 17 (L1, L4, L6, đối chiếu tài liệu); API_320 không dùng.
-- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đã lập trình xong 2026-11-17, chờ nghiệm thu trong CONG_VIEC_72 (pull request #177).
+- Trạng thái: Đã phê duyệt 2026-11-17 (đặc tả, bản mẫu). Đã lập trình xong 2026-11-17; người dùng nghiệm thu phần tự động 2026-11-18, chờ phát hành 0.14.0; thử trên điện thoại thật trước khi triển khai.
 
 ### THAY_DOI_38: Mua hàng tại cửa hàng thanh toán trong ứng dụng VComm, thu hộ và hóa đơn ủy nhiệm – 2026-11-17
 - Người yêu cầu: người dùng, 2026-11-17. Công việc: CONG_VIEC_73.

@@ -5,6 +5,16 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## 2026-11-18
+
+### Quyết định
+
+- Người dùng chọn phát hành 0.14.0 ngay, thử máy thật sau: nghiệm thu phần tự động CONG_VIEC_72 (Smart OTP); 0.14.0 gồm CONG_VIEC_72, 73, 75. Chưa triển khai. Điều kiện bắt buộc trước khi triển khai: thử 12 bước Smart OTP trên điện thoại thật; ba mẫu ZNS và số tổng đài; hồ sơ pháp lý thu hộ; xác nhận ủy nhiệm hóa đơn và MISA; kế toán trưởng xác nhận tài khoản QUYTAC_NGHIEPVU_587 và 3388; xác nhận ngày hóa đơn phí sàn tháng; thử VNPAY môi trường thử nghiệm. Lỗi phát hiện khi thử máy thật sửa bằng bản vá.
+
+### Công việc đã thực hiện
+
+- CONG_VIEC_74 nối hủy hóa đơn có thanh toán qua ứng dụng VComm (hợp nhất nhánh CONG_VIEC_73 đến `450105e`), sửa 3 điểm rà soát mức thấp; toàn bộ kiểm thử API 177 tệp, 986 đạt; chờ người dùng thử trên Sunmi T2.
+
 ## 2026-11-17
 
 ### Công việc đã thực hiện
