@@ -2546,3 +2546,12 @@ Yêu cầu phi chức năng:
 - Luôn cần mạng; không bán ngoại tuyến.
 - Ứng dụng `apps/mobile-ipos` chạy dạng bản dựng phát triển (thư viện máy in có mã gốc), không chạy trên Expo Go; bố cục ngang, rộng tối thiểu 1024 điểm ảnh. Thư viện mới `@point-of-sale/receipt-printer-encoder` 4.0.1, `@mitsuharu/react-native-sunmi-printer-library` 3.0.0, `react-native-tcp-socket` 6.4.3, `react-native-bluetooth-classic` 1.73.0-rc.17, `qrcode-generator` 2.0.4 (người dùng duyệt 2026-11-17; tài liệu `13` mục 14).
 - Không ghi PIN, mã ghép, khóa thiết bị, OTP, mã động vào log, nhật ký thao tác, thông báo lỗi.
+
+## Lưu tệp trên kho tương thích S3 khác AWS (MODULE_01, CONG_VIEC_79)
+
+Không thêm chức năng; bổ sung yêu cầu phi chức năng cho lưu tệp đính kèm của CHUC_NANG_28 (QUYTAC_NGHIEPVU_35).
+
+Yêu cầu phi chức năng:
+- `STORAGE_DRIVER=s3` dùng được kho tương thích S3 khác AWS (Supabase Storage) qua `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`; `S3_SERVER_SIDE_ENCRYPTION` (`AES256` | `none`) không bắt buộc, mặc định `none` khi có `S3_ENDPOINT`.
+- Không đặt `S3_ENDPOINT` thì giữ đúng hành vi AWS S3 cũ (mã hóa AES256 phía máy chủ).
+- Cấu hình sai hoặc thiếu `S3_BUCKET` thì báo lỗi nêu tên biến khi khởi động.

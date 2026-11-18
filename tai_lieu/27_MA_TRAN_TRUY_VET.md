@@ -974,8 +974,10 @@ Màn hình MAN_HINH_283 đến 306. API_335 đến 357 (API_358 đến 370 dự 
 
 ## Kiểm tra bao phủ CONG_VIEC_79 – 2026-11-18
 
-Lưu tệp đính kèm trên kho tương thích S3 khác AWS cho chức năng đã có (dòng YCAU_NGHIEPVU_21, TIEUCHI_NGHIEMTHU_54 giữ nguyên). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; mã kịch bản do phiên điều phối cấp.
+Lưu tệp đính kèm trên kho tương thích S3 khác AWS cho chức năng đã có (dòng YCAU_NGHIEPVU_21, TIEUCHI_NGHIEMTHU_54 giữ nguyên). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; TIEUCHI_NGHIEMTHU_614 đến 617, KICHBAN_KIEMTHU_839 đến 842.
 
 | Chức năng | Quy tắc | Mã nguồn | Kiểm thử tự động |
 |---|---|---|---|
-| CHUC_NANG_28 (tệp đính kèm đề xuất) | QUYTAC_NGHIEPVU_35 | `apps/api/src/common/file-storage.ts` | `apps/api/test/c79-luu-tep-s3.test.ts`; hồi quy `apps/api/test/c3-proposals.test.ts` |
+| CHUC_NANG_28 (tệp đính kèm đề xuất); TIEUCHI_NGHIEMTHU_614 đến 617; KICHBAN_KIEMTHU_839 đến 842 | QUYTAC_NGHIEPVU_35 | `apps/api/src/common/file-storage.ts` | `apps/api/test/c79-luu-tep-s3.test.ts`; hồi quy `apps/api/test/c3-proposals.test.ts` |
+
+Toàn bộ CONG_VIEC_79: TIEUCHI_NGHIEMTHU_614 đến 617, KICHBAN_KIEMTHU_839 đến 842 đều có mã nguồn và kiểm thử tự động.

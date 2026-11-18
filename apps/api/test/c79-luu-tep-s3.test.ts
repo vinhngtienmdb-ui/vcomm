@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 describe("CONG_VIEC_79 cấu hình lưu tệp S3", () => {
-  it("cấu hình AWS cũ (chỉ S3_BUCKET, AWS_REGION) giữ nguyên: không địa chỉ riêng, đường dẫn theo tên miền, mã hóa AES256", () => {
+  it("KICHBAN_KIEMTHU_840: cấu hình AWS cũ (chỉ S3_BUCKET, AWS_REGION) giữ nguyên: không địa chỉ riêng, đường dẫn theo tên miền, mã hóa AES256", () => {
     expect(readS3Config({ S3_BUCKET: "vcomm-tep", AWS_REGION: "ap-southeast-1" })).toEqual({
       bucket: "vcomm-tep",
       region: "ap-southeast-1",
@@ -67,7 +67,7 @@ describe("CONG_VIEC_79 cấu hình lưu tệp S3", () => {
     expect(readS3Config({ S3_BUCKET: "vcomm-tep" }).region).toBe("ap-southeast-1");
   });
 
-  it("cấu hình Supabase Storage: địa chỉ máy chủ, kiểu đường dẫn, mặc định bỏ tiêu đề mã hóa", () => {
+  it("KICHBAN_KIEMTHU_839: cấu hình Supabase Storage: địa chỉ máy chủ, kiểu đường dẫn, mặc định bỏ tiêu đề mã hóa", () => {
     expect(readS3Config({ S3_BUCKET: "vcomm-tep", S3_ENDPOINT: "https://maduan.storage.supabase.co/storage/v1/s3", S3_FORCE_PATH_STYLE: "true" }).serverSideEncryption).toBeUndefined();
     expect(
       readS3Config({
@@ -80,13 +80,13 @@ describe("CONG_VIEC_79 cấu hình lưu tệp S3", () => {
     ).toEqual({ bucket: "vcomm-tep", region: "ap-southeast-1", endpoint: "https://maduan.storage.supabase.co/storage/v1/s3", forcePathStyle: true, serverSideEncryption: undefined });
   });
 
-  it("giá trị sai thì nêu đủ tên biến", () => {
+  it("KICHBAN_KIEMTHU_841: giá trị sai thì nêu đủ tên biến", () => {
     expect(() => readS3Config({ S3_ENDPOINT: "maduan.storage.supabase.co", S3_FORCE_PATH_STYLE: "co", S3_SERVER_SIDE_ENCRYPTION: "aws:kms" })).toThrow(
       /thiếu S3_BUCKET; S3_ENDPOINT phải là địa chỉ đầy đủ.*; S3_FORCE_PATH_STYLE chỉ nhận true hoặc false; S3_SERVER_SIDE_ENCRYPTION chỉ nhận AES256 hoặc none/,
     );
   });
 
-  it("STORAGE_DRIVER=s3 thiếu S3_BUCKET thì báo lỗi khi tạo kho tệp", () => {
+  it("KICHBAN_KIEMTHU_841: STORAGE_DRIVER=s3 thiếu S3_BUCKET thì báo lỗi khi tạo kho tệp", () => {
     process.env.STORAGE_DRIVER = "s3";
     delete process.env.S3_BUCKET;
     try {
@@ -102,7 +102,7 @@ describe("CONG_VIEC_79 tải lên, tải xuống qua kho tương thích S3", () 
   const supabaseStorage = (overrides: Partial<Parameters<typeof readS3Config>[0]> = {}) =>
     new S3FileStorage(readS3Config({ S3_BUCKET: "vcomm-tep", AWS_REGION: "ap-southeast-1", S3_ENDPOINT: endpoint, S3_FORCE_PATH_STYLE: "true", ...overrides }));
 
-  it("đường dẫn kiểu /bucket/khóa, không gửi tiêu đề mã hóa, tải xuống đúng nội dung, xóa được", async () => {
+  it("KICHBAN_KIEMTHU_839: đường dẫn kiểu /bucket/khóa, không gửi tiêu đề mã hóa, tải xuống đúng nội dung, xóa được", async () => {
     const storage = supabaseStorage();
     const content = Buffer.from("Nội dung tệp đính kèm thử");
     await storage.put("company-1/proposal-2/abc", content, "application/pdf");
@@ -119,19 +119,19 @@ describe("CONG_VIEC_79 tải lên, tải xuống qua kho tương thích S3", () 
     await expect(storage.get("company-1/proposal-2/abc")).rejects.toThrow();
   });
 
-  it("đặt S3_SERVER_SIDE_ENCRYPTION=AES256 thì kho khác AWS vẫn nhận tiêu đề mã hóa", async () => {
+  it("KICHBAN_KIEMTHU_839: đặt S3_SERVER_SIDE_ENCRYPTION=AES256 thì kho khác AWS vẫn nhận tiêu đề mã hóa", async () => {
     await supabaseStorage({ S3_SERVER_SIDE_ENCRYPTION: "AES256" }).put("company-1/a", Buffer.from("x"), "text/plain");
     expect(requests[0]!.headers["x-amz-server-side-encryption"]).toBe("AES256");
   });
 
-  it("khóa lưu trữ không hợp lệ bị từ chối trước khi gọi kho", async () => {
+  it("KICHBAN_KIEMTHU_842: khóa lưu trữ không hợp lệ bị từ chối trước khi gọi kho", async () => {
     await expect(supabaseStorage().put("../ngoai", Buffer.from("x"), "text/plain")).rejects.toThrow(/Khóa lưu trữ không hợp lệ/);
     expect(requests).toHaveLength(0);
   });
 });
 
 describe("CONG_VIEC_79 cấu hình AWS S3 cũ gửi yêu cầu như trước", () => {
-  it("địa chỉ amazonaws.com theo tên miền bucket, có tiêu đề mã hóa AES256", async () => {
+  it("KICHBAN_KIEMTHU_840: địa chỉ amazonaws.com theo tên miền bucket, có tiêu đề mã hóa AES256", async () => {
     const storage = new S3FileStorage(readS3Config({ S3_BUCKET: "vcomm-tep", AWS_REGION: "ap-southeast-1" }));
     const client = (storage as unknown as { client: S3Client }).client;
     let captured: { hostname: string; path: string; headers: Record<string, string> } | undefined;
