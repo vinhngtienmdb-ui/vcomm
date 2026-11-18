@@ -14,6 +14,7 @@ import {
 } from "contracts";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
+import { InstoreEinvoicesService } from "../instore/mandated-einvoices.service";
 import { AffiliateTransactionsService } from "./transactions.service";
 import { AffiliateVouchersService } from "./vouchers.service";
 
@@ -22,6 +23,7 @@ export class BuyerAffiliateController {
   constructor(
     private readonly transactions: AffiliateTransactionsService,
     private readonly vouchers: AffiliateVouchersService,
+    private readonly mandatedEinvoices: InstoreEinvoicesService,
   ) {}
 
   @Post("scan")
@@ -56,8 +58,18 @@ export class BuyerAffiliateController {
   }
 
   @Get("transactions")
-  history(@Req() request: AuthenticatedRequest): Promise<BuyerAffiliateTransaction[]> {
-    return this.transactions.history(request.auth.userId);
+  async history(@Req() request: AuthenticatedRequest): Promise<BuyerAffiliateTransaction[]> {
+    const items = await this.transactions.history(request.auth.userId);
+    // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+    const invoices = await this.mandatedEinvoices.invoicesOf(items.map((item) => item.id));
+    return items.map((item) => ({ ...item, einvoice: invoices.get(item.id) ?? null }));
+  }
+
+  // Đường dẫn tải PDF hóa đơn có hạn 10 phút, mở bằng trình duyệt trên điện thoại.
+  @Post("transactions/:id/einvoice-link")
+  @HttpCode(200)
+  einvoiceLink(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<{ url: string; expiresAt: string }> {
+    return this.mandatedEinvoices.buyerLink(request.auth.userId, id);
   }
 
   // API_211: voucher đang phát, nhận voucher, voucher của tôi.

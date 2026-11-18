@@ -12,6 +12,7 @@ import type {
 } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
+import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
@@ -53,6 +54,8 @@ type StoreRow = {
   return_days: number;
   receipt_footer: string | null;
   status: "active" | "inactive";
+  app_payment_enabled: boolean;
+  platform_fee_percent: string;
   version: number;
   pickup_enabled: boolean;
   delivery_enabled: boolean;
@@ -77,7 +80,7 @@ const storeSelect = sql`
   SELECT s.id, s.kind, s.company_id, s.branch_id, b.code AS branch_code, b.name AS branch_name, b.address AS branch_address, b.phone AS branch_phone,
     s.warehouse_id, w.code AS warehouse_code, w.name AS warehouse_name, s.channel_id, ch.code AS channel_code, ch.name AS channel_name,
     s.cash_fund_id, cf.code AS cash_fund_code, cf.name AS cash_fund_name, s.bank_fund_id, bf.code AS bank_fund_code, bf.name AS bank_fund_name, bf.bank_name, bf.account_no,
-    s.vietqr_bank_bin, s.vietqr_account_name, s.return_days, s.receipt_footer, s.status, s.version,
+    s.vietqr_bank_bin, s.vietqr_account_name, s.return_days, s.receipt_footer, s.status, s.app_payment_enabled, s.platform_fee_percent::text, s.version,
     s.pickup_enabled, s.delivery_enabled, s.display_name, s.province_code, pv.name AS province_name, s.ward_code, wd.name AS ward_name, s.street_address,
     s.phone AS station_phone, s.opening_hours, s.hold_days, s.delivery_fee::text, s.free_delivery_threshold::text, s.station_version, c.is_marketplace_operator
   FROM retail.stores s
@@ -192,6 +195,8 @@ export class RetailStoresService {
       vietqrAccountName: row.vietqr_account_name,
       returnDays: row.return_days,
       receiptFooter: row.receipt_footer,
+      appPaymentEnabled: row.app_payment_enabled,
+      platformFeePercent: trimDecimal(row.platform_fee_percent),
       status: row.status,
       currency,
       registers,
@@ -287,6 +292,11 @@ export class RetailStoresService {
       if (!input.vietqrAccountName) fields.vietqrAccountName = "required";
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    // Nhận thanh toán qua ứng dụng khi công ty vận hành sàn đã bật ít nhất một phương thức trực tuyến (CONG_VIEC_73; QUYTAC_NGHIEPVU_573).
+    if (input.appPaymentEnabled) {
+      const online = await executor.execute(sql`SELECT 1 FROM marketplace.payment_methods WHERE is_enabled AND gateway_code NOT IN ('cod', 'station') LIMIT 1`);
+      if (online.rows.length === 0) throw new ApiError("BUSINESS_RULE", "instoreNoGateway");
+    }
   }
 
   private storeValues(input: StoreInput) {
@@ -305,9 +315,9 @@ export class RetailStoresService {
       const values = this.storeValues(input);
       const created = (
         await transaction.execute<{ id: string }>(sql`
-        INSERT INTO retail.stores (kind, company_id, branch_id, warehouse_id, channel_id, cash_fund_id, bank_fund_id, vietqr_bank_bin, vietqr_account_name, return_days, receipt_footer, status, created_by)
+        INSERT INTO retail.stores (kind, company_id, branch_id, warehouse_id, channel_id, cash_fund_id, bank_fund_id, vietqr_bank_bin, vietqr_account_name, return_days, receipt_footer, status, app_payment_enabled, platform_fee_percent, created_by)
         VALUES (${input.kind}, ${actor.companyId}, ${input.branchId}, ${input.warehouseId}, ${input.channelId}, ${input.cashFundId}, ${values.bankFundId}, ${values.bin}, ${values.accountName},
-          ${input.returnDays}, ${input.receiptFooter}, ${input.status}, ${actor.userId})
+          ${input.returnDays}, ${input.receiptFooter}, ${input.status}, ${input.appPaymentEnabled}, ${input.platformFeePercent}::numeric, ${actor.userId})
         RETURNING id`)
       ).rows[0]!.id;
       await this.auditService.record({ ...retailAudit(actor, "retail_store"), action: "retail_store.create", entityId: created, afterData: input }, transaction);
@@ -338,7 +348,8 @@ export class RetailStoresService {
       await transaction.execute(sql`
         UPDATE retail.stores SET kind = ${input.kind}, branch_id = ${input.branchId}, warehouse_id = ${input.warehouseId}, channel_id = ${input.channelId}, cash_fund_id = ${input.cashFundId},
           bank_fund_id = ${values.bankFundId}, vietqr_bank_bin = ${values.bin}, vietqr_account_name = ${values.accountName}, return_days = ${input.returnDays},
-          receipt_footer = ${input.receiptFooter}, status = ${input.status}, updated_at = now(), version = version + 1
+          receipt_footer = ${input.receiptFooter}, status = ${input.status}, app_payment_enabled = ${input.appPaymentEnabled},
+          platform_fee_percent = ${input.platformFeePercent}::numeric, updated_at = now(), version = version + 1
         WHERE id = ${id}`);
       await this.auditService.record({ ...retailAudit(actor, "retail_store"), action: "retail_store.update", entityId: id, beforeData: before, afterData: input }, transaction);
     });

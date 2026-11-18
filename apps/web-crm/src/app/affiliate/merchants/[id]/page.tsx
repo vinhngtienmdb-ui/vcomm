@@ -1,20 +1,23 @@
 "use client";
 
 // MAN_HINH_178 Cửa hàng liên kết – chi tiết: hợp đồng, trạng thái, điểm bán, thành viên (CONG_VIEC_55; CHUC_NANG_193; API_206);
-// khối Kết nối phần mềm MAN_HINH_231 (CONG_VIEC_67).
+// khối Kết nối phần mềm MAN_HINH_231 (CONG_VIEC_67); khối Thu hộ qua ứng dụng MAN_HINH_279 (CONG_VIEC_73).
 import type { AffiliateMember, AffiliateMerchantDetail, AffiliateOutlet } from "contracts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
-import { Drawer } from "ui/components/Dialogs";
+import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 import { AffiliateApiKeys } from "@/components/AffiliateApiKeys";
+import { IposMerchantBlock } from "@/components/IposMerchantBlock";
+import { AffiliateCollection } from "@/components/AffiliateCollection";
+import { AffiliateEinvoiceMandate } from "@/components/AffiliateEinvoiceMandate";
 import { merchantStatusClass, TermsFields, termsBody, type TermsForm } from "@/components/AffiliateTerms";
 
 const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
@@ -162,7 +165,50 @@ function StatusAction({ merchant, target, onDone }: { merchant: AffiliateMerchan
   );
 }
 
-function MemberRow({ member, outlets, canManage, onChanged }: { member: AffiliateMember; outlets: AffiliateOutlet[]; canManage: boolean; onChanged: () => void }) {
+// Đặt lại xác thực cổng cho chủ, thu ngân (CONG_VIEC_72; QUYTAC_NGHIEPVU_570; API_325; MAN_HINH_178).
+function ResetAuthenticationButton({ merchantId, member, onDone }: { merchantId: string; member: AffiliateMember; onDone: (message: string) => void }) {
+  const t = useTranslations("affiliate");
+  const [open, setOpen] = useState(false);
+  const { submitting, formError, run } = useSubmit();
+  return (
+    <>
+      <button type="button" className="nut chu" onClick={() => setOpen(true)}>
+        {t("resetAuth")}
+      </button>
+      {open && (
+        <ConfirmDialog
+          title={t("resetAuth")}
+          text={t("resetAuthText", { name: member.fullName })}
+          confirmLabel={t("resetAuth")}
+          busy={submitting}
+          error={formError}
+          onClose={() => setOpen(false)}
+          onConfirm={() =>
+            void run(async () => {
+              await apiFetch(`/affiliate/merchants/${merchantId}/members/${member.id}/reset-authentication`, { method: "POST", body: JSON.stringify({ version: member.version }) });
+              setOpen(false);
+              onDone(t("resetAuthDone"));
+            })
+          }
+        />
+      )}
+    </>
+  );
+}
+
+function MemberRow({
+  merchantId,
+  member,
+  outlets,
+  canManage,
+  onChanged,
+}: {
+  merchantId: string;
+  member: AffiliateMember;
+  outlets: AffiliateOutlet[];
+  canManage: boolean;
+  onChanged: (message?: string) => void;
+}) {
   const t = useTranslations("affiliate");
   const { submitting, formError, run } = useSubmit();
   const lock = member.status === "locked" ? "unlock" : "lock";
@@ -184,7 +230,13 @@ function MemberRow({ member, outlets, canManage, onChanged }: { member: Affiliat
         {member.invitationExpiresAt && <div className="chu-thich">{t("invitationExpires", { time: formatDateTime(member.invitationExpiresAt) })}</div>}
         <FormError text={formError} />
       </td>
+      <td data-nhan={t("security")}>
+        {member.securitySetUp !== null && (
+          <span className={`nhan ${member.securitySetUp ? "thanh-cong" : "canh-bao"}`}>{t(member.securitySetUp ? "security_set" : "security_unset")}</span>
+        )}
+      </td>
       <td data-nhan="">
+        {canManage && member.status === "active" && <ResetAuthenticationButton merchantId={merchantId} member={member} onDone={onChanged} />}
         {canManage && (
           <button
             type="button"
@@ -272,6 +324,8 @@ export default function AffiliateMerchantPage() {
               </form>
             )}
           </section>
+          <AffiliateCollection merchantId={data.id} onSaved={(message) => done(message)} />
+          <AffiliateEinvoiceMandate merchantId={data.id} onSaved={(message) => done(message)} />
           <section className="the">
             <div className="tieu-de">
               <h2>{t("outlets")}</h2>
@@ -330,18 +384,20 @@ export default function AffiliateMerchantPage() {
                     <th>{t("memberRole")}</th>
                     <th>{t("memberOutlets")}</th>
                     <th>{t("status")}</th>
+                    <th>{t("security")}</th>
                     <th />
                   </tr>
                 </thead>
                 <tbody>
                   {data.members.map((member) => (
-                    <MemberRow key={member.id} member={member} outlets={data.outlets} canManage={data.canManage} onChanged={() => done(t("saved"))} />
+                    <MemberRow key={member.id} merchantId={data.id} member={member} outlets={data.outlets} canManage={data.canManage} onChanged={(message) => done(message ?? t("saved"))} />
                   ))}
                 </tbody>
               </table>
             </div>
           </section>
           <AffiliateApiKeys merchantId={data.id} outlets={data.outlets} canManage={data.canManage} terminated={data.status === "terminated"} notify={notify} />
+          <IposMerchantBlock merchantId={data.id} active={data.status === "active"} terminated={data.status === "terminated"} notify={notify} />
           {outlet && (
             <OutletDrawer
               merchantId={data.id}

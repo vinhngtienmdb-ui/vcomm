@@ -82,6 +82,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_23: tài khoản người mua VComm (xét tại công ty vận hành sàn).
   { code: "marketplace.buyer.view", appCode: "crm", nameVi: "Xem tài khoản người mua", nameEn: "View buyer accounts", isSensitive: false },
   { code: "marketplace.buyer.manage", appCode: "crm", nameVi: "Đổi người giới thiệu, đánh dấu nhân viên kinh doanh", nameEn: "Change referrers, flag sales staff", isSensitive: true },
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_567): chăm sóc khách hàng hủy Smart OTP khi khách mất máy và số điện thoại.
+  { code: "marketplace.buyer.security", appCode: "crm", nameVi: "Hủy Smart OTP của người mua", nameEn: "Revoke buyer Smart OTP", isSensitive: true },
   { code: "marketplace.order.view", appCode: "crm", nameVi: "Xem đơn VComm, yêu cầu trả hàng", nameEn: "View VComm orders and return requests", isSensitive: false },
   {
     code: "marketplace.order.manage",
@@ -110,6 +112,15 @@ export const permissionCatalog: PermissionDefinition[] = [
     appCode: "crm",
     nameVi: "Quản lý hợp đồng cửa hàng liên kết, voucher VComm, trả lời khiếu nại đối soát",
     nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
+    isSensitive: true,
+  },
+  // CONG_VIEC_74: iPOS (xét tại công ty vận hành sàn; xem dùng affiliate.view).
+  { code: "ipos.plan.manage", appCode: "crm", nameVi: "Khai báo gói iPOS", nameEn: "Manage iPOS plans", isSensitive: false },
+  {
+    code: "ipos.subscription.manage",
+    appCode: "crm",
+    nameVi: "Cấp, gia hạn, khóa, hủy thuê bao iPOS; cách thu phí; hủy phiếu phí",
+    nameEn: "Manage iPOS subscriptions, billing methods and fee invoices",
     isSensitive: true,
   },
   // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn (xét tại công ty vận hành sàn; QUYTAC_NGHIEPVU_551).
@@ -169,6 +180,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "loyalty.settlement.view", appCode: "finance", nameVi: "Xem bảng đối soát điểm nội bộ", nameEn: "View intercompany loyalty settlements", isSensitive: false },
   { code: "loyalty.settlement.manage", appCode: "finance", nameVi: "Xác nhận, khiếu nại bảng đối soát điểm nội bộ", nameEn: "Confirm intercompany loyalty settlements", isSensitive: false },
   { code: "finance.collection.setup", appCode: "finance", nameVi: "Khai đơn vị thu hộ", nameEn: "Set up collectors", isSensitive: true },
+  // CONG_VIEC_73: thu tiền mua hàng tại cửa hàng qua ứng dụng VComm (xét tại công ty vận hành sàn): biểu phí cổng, bảng chuyển tiền thu hộ.
+  { code: "finance.instore.view", appCode: "finance", nameVi: "Xem biểu phí cổng tại cửa hàng, bảng chuyển tiền thu hộ", nameEn: "View in-store gateway fees and payouts", isSensitive: false },
+  { code: "finance.instore.manage", appCode: "finance", nameVi: "Sửa biểu phí cổng tại cửa hàng, ghi đã chuyển tiền thu hộ", nameEn: "Manage in-store gateway fees and payouts", isSensitive: true },
   { code: "finance.consolidation.view", appCode: "finance", nameVi: "Xem báo cáo hợp nhất (phạm vi tập đoàn)", nameEn: "View consolidated statements", isSensitive: false },
   { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
@@ -276,6 +290,7 @@ const companyAdminPermissions = [
   "crm.visit.manage",
   "marketplace.buyer.view",
   "marketplace.buyer.manage",
+  "marketplace.buyer.security",
   "marketplace.order.view",
   "marketplace.order.manage",
   "marketplace.payment.manage",
@@ -284,6 +299,8 @@ const companyAdminPermissions = [
   "loyalty.fraud.manage",
   "affiliate.view",
   "affiliate.manage",
+  "ipos.plan.manage",
+  "ipos.subscription.manage",
   "loyalty.partner.view",
   "loyalty.partner.manage",
   "marketplace.community.manage",
@@ -322,6 +339,8 @@ const companyAdminPermissions = [
   "loyalty.settlement.view",
   "loyalty.settlement.manage",
   "finance.collection.setup",
+  "finance.instore.view",
+  "finance.instore.manage",
   "retail.sale",
   "retail.return",
   "retail.shift.manage",
@@ -455,6 +474,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.bank.manage",
       "finance.collection.view",
       "finance.collection.manage",
+      "finance.instore.view",
       "loyalty.settlement.view",
       "loyalty.settlement.manage",
       "crm.access",
@@ -503,6 +523,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "loyalty.settlement.view",
       "loyalty.settlement.manage",
       "finance.collection.setup",
+      "finance.instore.view",
+      "finance.instore.manage",
       "finance.consolidation.view",
       "finance.consolidation.manage",
       "crm.access",

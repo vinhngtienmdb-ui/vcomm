@@ -8,10 +8,12 @@ import {
   type PageResponse,
   type SmartOtpActivationResponse,
   type SmartOtpStatusResponse,
+  transferSmartOtpSchema,
 } from "contracts";
-import type { AuthenticatedRequest } from "../auth/auth.guard";
+import { clientInfo } from "../auth/auth.controller";
+import { AllowDevicePending, type AuthenticatedRequest } from "../auth/auth.guard";
 import { LoyaltyAccountsService } from "./accounts.service";
-import { SmartOtpService } from "./smart-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
 
 @Controller("buyer/loyalty")
 export class BuyerLoyaltyController {
@@ -31,20 +33,37 @@ export class BuyerLoyaltyController {
   }
 
   // API_199: Smart OTP dùng điểm tại quầy (CONG_VIEC_53 lát L6).
+  // Phiên chờ xác nhận thiết bị mới được xem trạng thái, gửi mã, kích hoạt để khôi phục khi mất máy (CONG_VIEC_72; QUYTAC_NGHIEPVU_566).
+  @AllowDevicePending()
   @Get("smart-otp")
   async smartOtpStatus(@Req() request: AuthenticatedRequest): Promise<SmartOtpStatusResponse> {
-    return this.smartOtp.status(request.auth.userId);
+    return this.smartOtp.status(request.auth.userId, clientInfo(request).deviceId ?? null);
   }
 
+  @AllowDevicePending()
   @Post("smart-otp/send-code")
   @HttpCode(204)
   async smartOtpSendCode(@Req() request: AuthenticatedRequest): Promise<void> {
     await this.smartOtp.sendCode(request.auth.userId);
   }
 
+  @AllowDevicePending()
   @Post("smart-otp/activate")
   async smartOtpActivate(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<SmartOtpActivationResponse> {
-    return this.smartOtp.activate(request.auth.userId, activateSmartOtpSchema.parse(body));
+    const client = clientInfo(request);
+    return this.smartOtp.activate(request.auth.userId, activateSmartOtpSchema.parse(body), client.deviceId ?? null, { id: request.auth.sessionId, client });
+  }
+
+  // API_319: chuyển Smart OTP sang máy đang dùng bằng mã của máy cũ (CONG_VIEC_72).
+  @Post("smart-otp/transfer")
+  async smartOtpTransfer(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<SmartOtpActivationResponse> {
+    return this.smartOtp.transfer(request.auth.userId, transferSmartOtpSchema.parse(body), clientInfo(request).deviceId ?? null);
+  }
+
+  // API_199 (sửa, CONG_VIEC_72): ứng dụng báo sai mã khóa 5 lần liên tiếp, máy chủ hủy Smart OTP (QUYTAC_NGHIEPVU_563).
+  @Post("smart-otp/lockout")
+  async smartOtpLockout(@Req() request: AuthenticatedRequest): Promise<SmartOtpStatusResponse> {
+    return this.smartOtp.revoke(request.auth.userId, "pin_lockout");
   }
 
   @Delete("smart-otp")

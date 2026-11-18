@@ -2,13 +2,14 @@
 
 // Khung cổng cửa hàng liên kết (CONG_VIEC_55): thanh trên (cửa hàng, điểm bán đang chọn, người dùng, đăng xuất), menu theo vai trò,
 // vùng thông báo nổi. Trang đăng nhập không dùng khung.
-import type { MerchantPortalMe } from "contracts";
+import type { IposPortalAccess, MerchantPortalMe, MerchantPortalSecurity } from "contracts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { Loaded, MessageView } from "ui/components/StatusViews";
-import { apiFetch } from "ui/lib/api";
+import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
+import { apiFetch, ApiFailure } from "ui/lib/api";
+import { formatDate } from "ui/lib/format";
 import { loginPath, rememberMerchant, selectedMerchantId, usePortalApi } from "@/lib/portal-api";
 
 type Membership = MerchantPortalMe["memberships"][number];
@@ -32,11 +33,46 @@ const portalMenu = [
   { href: "/counter", key: "counter", ownerOnly: false },
   { href: "/vouchers", key: "vouchers", ownerOnly: true },
   { href: "/reports", key: "reports", ownerOnly: true },
+  // CONG_VIEC_73 MAN_HINH_282: tiền thu hộ qua ứng dụng VComm.
+  { href: "/payouts", key: "payouts", ownerOnly: true },
   { href: "/store", key: "store", ownerOnly: true },
   { href: "/connection", key: "connection", ownerOnly: true },
 ] as const;
 
-function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) {
+// CONG_VIEC_74: nhóm menu iPOS hiện khi cửa hàng có thuê bao (QUYTAC_NGHIEPVU_595); mục thêm dần theo lát.
+const iposMenu = [
+  { href: "/ipos/overview", key: "iposOverview", ownerOnly: true },
+  { href: "/ipos/sales", key: "iposSales", ownerOnly: true },
+  { href: "/ipos/shifts", key: "iposShifts", ownerOnly: true },
+  { href: "/ipos/reports", key: "iposReports", ownerOnly: true },
+  { href: "/ipos/items", key: "iposItems", ownerOnly: true },
+  { href: "/ipos/stock", key: "iposStock", ownerOnly: true },
+  { href: "/ipos/registers", key: "iposRegisters", ownerOnly: true },
+  { href: "/ipos/cashiers", key: "iposCashiers", ownerOnly: true },
+  { href: "/ipos/settings", key: "iposSettings", ownerOnly: true },
+  { href: "/ipos/subscription", key: "iposSubscription", ownerOnly: true },
+] as const;
+
+function IposMenu({ role, pathname }: { role: Membership["role"]; pathname: string }) {
+  const t = useTranslations("merchantPortal");
+  const { state } = usePortalApi<IposPortalAccess>("/merchant-portal/ipos/access");
+  if (state.kind !== "ready" || !state.data.enabled) return null;
+  const items = iposMenu.filter((item) => !item.ownerOnly || role === "owner");
+  if (items.length === 0) return null;
+  return (
+    <>
+      <div className="ten-app">{t("menuIpos")}</div>
+      {items.map((item) => (
+        <Link key={item.href} href={item.href} className={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "chon" : ""}>
+          {t(`menu_${item.key}`)}
+          {item.key === "iposCashiers" && state.data.pendingRegistrations > 0 ? ` (${state.data.pendingRegistrations})` : ""}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+function Shell({ me, security, children }: { me: MerchantPortalMe; security: MerchantPortalSecurity; children: ReactNode }) {
   const t = useTranslations("merchantPortal");
   const pathname = usePathname();
   const [toasts, setToasts] = useState<{ id: number; text: string; kind: string }[]>([]);
@@ -113,9 +149,19 @@ function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) 
                 {t(`menu_${item.key}`)}
               </Link>
             ))}
+          <IposMenu role={membership.role} pathname={pathname} />
         </nav>
         <main className="noi-dung">
           {membership.merchantStatus !== "active" && <div className="khoi-canh-bao canh-bao">{t(`merchantNotActive_${membership.merchantStatus}`)}</div>}
+          {/* CONG_VIEC_72 (QUYTAC_NGHIEPVU_571): dải nhắc thiết lập bảo mật trong thời hạn chuyển đổi. */}
+          {security.status === "optional" && (
+            <div className="khoi-canh-bao canh-bao" style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-3)", alignItems: "center" }}>
+              <span style={{ flex: "1 1 240px" }}>{t("securityBanner", { date: formatDate(security.transitionEndsOn), days: security.daysLeft })}</span>
+              <Link className="nut phu" href="/bao-mat">
+                {t("securityBannerAction")}
+              </Link>
+            </div>
+          )}
           {children}
         </main>
       </div>
@@ -130,17 +176,46 @@ function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) 
   );
 }
 
+// Trạng thái bảo mật trước khi vào cổng (CONG_VIEC_72): chờ mã thì về nhập mã, chưa thiết lập mà bắt buộc thì sang thiết lập.
 function SignedIn({ children }: { children: ReactNode }) {
+  const common = useTranslations("common");
+  const [security, setSecurity] = useState<MerchantPortalSecurity | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    apiFetch<MerchantPortalSecurity>("/merchant-portal/security")
+      .then((loaded) => {
+        if (loaded.status === "mfa_pending") window.location.replace(`${loginPath}?buoc=ma`);
+        else if (loaded.status === "required" || loaded.status === "blocked") window.location.replace("/merchant/bao-mat");
+        else setSecurity(loaded);
+      })
+      .catch((error) => {
+        if (error instanceof ApiFailure && error.status === 401) window.location.replace(loginPath);
+        else setFailed(true);
+      });
+  }, []);
+  if (failed) return <MessageView text={common("loadError")} onRetry={() => window.location.reload()} />;
+  if (!security) return <LoadingView />;
+  return <Member security={security}>{children}</Member>;
+}
+
+function Member({ security, children }: { security: MerchantPortalSecurity; children: ReactNode }) {
   const { state, reload } = usePortalApi<MerchantPortalMe>("/merchant-portal/me");
   return (
     <Loaded state={state} onRetry={() => void reload()}>
-      {(me) => <Shell me={me}>{children}</Shell>}
+      {(me) => (
+        <Shell me={me} security={security}>
+          {children}
+        </Shell>
+      )}
     </Loaded>
   );
 }
 
+// Trang ngoài khung: đăng nhập, thiết lập bảo mật (MAN_HINH_273), quên mật khẩu (MAN_HINH_274).
+const outsidePages = ["/dang-nhap", "/bao-mat", "/quen-mat-khau"];
+
 export function PortalShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  if (pathname === "/dang-nhap") return <>{children}</>;
+  if (outsidePages.includes(pathname)) return <>{children}</>;
   return <SignedIn>{children}</SignedIn>;
 }

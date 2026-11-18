@@ -24,6 +24,8 @@ const newBackupCode = () => {
 };
 
 type Executor = Pick<Database, "execute" | "insert">;
+type AttemptScope = { reason: string; windowMinutes: number };
+const standaloneLockMinutes = 15;
 
 @Injectable()
 export class MfaService {
@@ -97,6 +99,21 @@ export class MfaService {
     });
   }
 
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_570): quên mật khẩu cổng cửa hàng kiểm mã ứng dụng xác thực hoặc mã dự phòng khi chưa có phiên.
+  // Bộ đếm sai theo tài khoản: 5 lần trong 15 phút thì tạm khóa.
+  async verifyWithoutSession(userId: string, input: { code?: string | undefined; backupCode?: string | undefined }, client: ClientInfo): Promise<boolean> {
+    const factor = await this.factor(userId, true);
+    const scope: AttemptScope = { reason: `mfa_failed:password_reset`, windowMinutes: standaloneLockMinutes };
+    if (!factor) return false;
+    return input.code ? this.codeMatches(userId, scope, factor.secret, input.code, client) : this.useBackupCode(userId, scope, input.backupCode ?? "", client);
+  }
+
+  // Đặt lại xác thực cổng cửa hàng (QUYTAC_NGHIEPVU_570): xóa ứng dụng xác thực và mã dự phòng.
+  async removeAll(executor: Pick<Database, "execute">, userId: string): Promise<void> {
+    await executor.execute(sql`DELETE FROM core.mfa_factors WHERE user_id = ${userId}`);
+    await executor.execute(sql`DELETE FROM core.mfa_backup_codes WHERE user_id = ${userId}`);
+  }
+
   private async replaceBackupCodes(transaction: Executor, userId: string): Promise<string[]> {
     const codes = Array.from({ length: backupCodeCount }, newBackupCode);
     await transaction.execute(sql`DELETE FROM core.mfa_backup_codes WHERE user_id = ${userId}`);
@@ -107,8 +124,8 @@ export class MfaService {
   }
 
   // Mã dự phòng dùng một lần (TIEUCHI_NGHIEMTHU_16): đánh dấu đã dùng có điều kiện để không dùng được hai lần.
-  private async useBackupCode(userId: string, sessionId: string, code: string, client: ClientInfo): Promise<boolean> {
-    await this.requireAttemptsLeft(userId, sessionId);
+  private async useBackupCode(userId: string, scope: AttemptScope | string, code: string, client: ClientInfo): Promise<boolean> {
+    await this.requireAttemptsLeft(userId, scope);
     const normalized = code.trim().toUpperCase().replace(/\s/g, "");
     const rows = await this.database.execute<{ id: string; code_hash: string }>(sql`SELECT id, code_hash FROM core.mfa_backup_codes WHERE user_id = ${userId} AND used_at IS NULL`);
     for (const row of rows.rows) {
@@ -117,31 +134,36 @@ export class MfaService {
         if (used.rows.length > 0) return true;
       }
     }
-    await this.recordFailure(userId, sessionId, client);
+    await this.recordFailure(userId, scope, client);
     return false;
   }
 
-  private async codeMatches(userId: string, sessionId: string, secret: string, code: string, client: ClientInfo): Promise<boolean> {
-    await this.requireAttemptsLeft(userId, sessionId);
+  private async codeMatches(userId: string, scope: AttemptScope | string, secret: string, code: string, client: ClientInfo): Promise<boolean> {
+    await this.requireAttemptsLeft(userId, scope);
     // Chấp nhận lệch một bước 30 giây do đồng hồ điện thoại.
     if (totpFor(secret, "").validate({ token: code, window: 1 }) !== null) return true;
-    await this.recordFailure(userId, sessionId, client);
+    await this.recordFailure(userId, scope, client);
     return false;
   }
 
-  private async requireAttemptsLeft(userId: string, sessionId: string): Promise<void> {
+  // Phạm vi đếm sai: theo phiên (chuỗi mã phiên, sai 5 lần thu hồi phiên) hoặc theo tài khoản trong một khoảng thời gian.
+  private async requireAttemptsLeft(userId: string, scope: AttemptScope | string): Promise<void> {
+    const reason = typeof scope === "string" ? `mfa_failed:${scope}` : scope.reason;
+    const window = typeof scope === "string" ? sql`` : sql`AND attempted_at > now() - make_interval(mins => ${scope.windowMinutes})`;
     const result = await this.database.execute<{ failures: number }>(sql`
-      SELECT count(*)::int AS failures FROM core.login_attempts WHERE user_id = ${userId} AND failure_reason = ${`mfa_failed:${sessionId}`}`);
+      SELECT count(*)::int AS failures FROM core.login_attempts WHERE user_id = ${userId} AND failure_reason = ${reason} ${window}`);
     if ((result.rows[0]?.failures ?? 0) >= maximumWrongCodes) {
-      await this.database.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE id = ${sessionId} AND revoked_at IS NULL`);
+      if (typeof scope !== "string") throw new ApiError("ACCOUNT_LOCKED", "mfaResetLocked", { retryAfterSeconds: scope.windowMinutes * 60 });
+      await this.database.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE id = ${scope} AND revoked_at IS NULL`);
       throw new ApiError("UNAUTHENTICATED", "mfaTooManyAttempts");
     }
   }
 
-  private async recordFailure(userId: string, sessionId: string, client: ClientInfo): Promise<void> {
+  private async recordFailure(userId: string, scope: AttemptScope | string, client: ClientInfo): Promise<void> {
+    const reason = typeof scope === "string" ? `mfa_failed:${scope}` : scope.reason;
     await this.database.execute(sql`
       INSERT INTO core.login_attempts (provider, identifier, user_id, success, failure_reason, ip, user_agent)
-      VALUES ('mfa', ${`mfa:${userId}`}, ${userId}, false, ${`mfa_failed:${sessionId}`}, ${client.ip}, ${client.userAgent})`);
+      VALUES ('mfa', ${`mfa:${userId}`}, ${userId}, false, ${reason}, ${client.ip}, ${client.userAgent})`);
   }
 
   private async factor(userId: string, confirmed: boolean): Promise<{ id: string; secret: string } | null> {

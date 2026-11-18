@@ -107,7 +107,11 @@ import { MarketplaceCommissionsService } from "./marketplace/commissions.service
 import { LoyaltyController } from "./loyalty/loyalty.controller";
 import { LoyaltyProgramService } from "./loyalty/program.service";
 import { LoyaltyLedgerService } from "./loyalty/ledger.service";
-import { SmartOtpService } from "./loyalty/smart-otp.service";
+import { SmartOtpService } from "./auth/smart-otp.service";
+import { AuthenticationSettingsService } from "./auth/authentication-settings.service";
+import { DeviceTrustService } from "./auth/device-trust.service";
+import { BuyerSecurityService } from "./auth/buyer-security.service";
+import { SmartOtpRemindersService } from "./auth/smart-otp-reminders.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -130,14 +134,46 @@ import { PartnerSettlementsService } from "./loyalty/partners/settlements.servic
 import { PartnerGiftsService } from "./loyalty/partners/gifts.service";
 import { OpenPartnerGiftsController } from "./loyalty/partners/open-gifts.controller";
 import { AffiliateController } from "./affiliate/affiliate.controller";
+import { IposController } from "./ipos/ipos.controller";
+import { IposPosController } from "./ipos/ipos-pos.controller";
+import { IposPortalController } from "./ipos/ipos-portal.controller";
+import { IposDeviceAuthService } from "./ipos/ipos-device-auth.service";
+import { IposRegistersService } from "./ipos/ipos-registers.service";
+import { IposRegistrationsService } from "./ipos/ipos-registrations.service";
+import { IposErpService } from "./ipos/ipos-erp.service";
+import { IposFeesService } from "./ipos/ipos-fees.service";
+import { IposPlansService } from "./ipos/ipos-plans.service";
+import { IposSubscriptionsService } from "./ipos/ipos-subscriptions.service";
+import { IposCatalogService } from "./ipos/ipos-catalog.service";
+import { IposImportService } from "./ipos/ipos-import.service";
+import { IposStockService } from "./ipos/ipos-stock.service";
+import { IposSettingsService } from "./ipos/ipos-settings.service";
+import { IposShiftsService } from "./ipos/ipos-shifts.service";
+import { IposSalesService } from "./ipos/ipos-sales.service";
+import { IposCheckoutsService } from "./ipos/ipos-checkouts.service";
+import { IposReturnsService } from "./ipos/ipos-returns.service";
+import { IposReportsService } from "./ipos/ipos-reports.service";
 import { MerchantPortalController } from "./affiliate/merchant-portal.controller";
 import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
+import { MerchantPortalSecurityService } from "./affiliate/portal-security.service";
 import { AffiliateTransactionsService } from "./affiliate/transactions.service";
 import { AffiliateVouchersService } from "./affiliate/vouchers.service";
 import { AffiliateSettlementsService } from "./affiliate/settlements.service";
 import { AffiliateReportsService } from "./affiliate/reports.service";
 import { BuyerAffiliateController } from "./affiliate/buyer-affiliate.controller";
+import { BuyerInstoreController } from "./instore/buyer-instore.controller";
+import { InstoreCheckoutsService } from "./instore/checkouts.service";
+import { RetailCheckoutsService } from "./retail/retail-checkouts.service";
+import { AffiliateCheckoutsService } from "./affiliate/affiliate-checkouts.service";
+import { InstoreAdminController } from "./instore/instore-admin.controller";
+import { InstorePayoutsService } from "./instore/payouts.service";
+import { InstoreEinvoicesService } from "./instore/mandated-einvoices.service";
+import { PublicAffiliateEinvoicesController } from "./instore/public-einvoices.controller";
+import { OpenInstoreCheckoutsController } from "./instore/open-checkouts.controller";
+import { OpenInstoreCheckoutsService } from "./instore/open-checkouts.service";
+import { AffiliateWebhooksService } from "./affiliate/webhooks.service";
+import { PayCodeService } from "./instore/pay-code.service";
 import { AffiliateApiKeysService } from "./affiliate/api-keys.service";
 import { OpenAffiliateController } from "./affiliate/open-affiliate.controller";
 import { OpenAffiliateService } from "./affiliate/open-affiliate.service";
@@ -272,7 +308,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, AiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, DropshipController, ResellerShipmentsController, SalesController, ResellerSettlementsController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, IposController, IposPosController, IposPortalController, MerchantPortalController, BuyerAffiliateController, BuyerInstoreController, InstoreAdminController, ApiKeysController, OpenApiController, AiController, OpenAffiliateController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController, PartnerContractsController, BuyerPartnersController, OpenPartnerGiftsController, ShareController, ProductFeedController, PublicAffiliateEinvoicesController, OpenInstoreCheckoutsController],
   providers: [
     AuthService,
     ActivationService,
@@ -351,6 +387,10 @@ import { UsersService } from "./users/users.service";
     LoyaltyProgramService,
     LoyaltyLedgerService,
     SmartOtpService,
+    AuthenticationSettingsService,
+    DeviceTrustService,
+    BuyerSecurityService,
+    SmartOtpRemindersService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,
@@ -367,8 +407,33 @@ import { UsersService } from "./users/users.service";
     PartnerApiKeysService,
     PartnerSettlementsService,
     AffiliateMerchantsService,
+    IposPlansService,
+    IposErpService,
+    IposFeesService,
+    IposCatalogService,
+    IposImportService,
+    IposStockService,
+    IposSettingsService,
+    IposShiftsService,
+    IposSalesService,
+    IposCheckoutsService,
+    IposReturnsService,
+    IposReportsService,
+    IposSubscriptionsService,
+    IposDeviceAuthService,
+    IposRegistersService,
+    IposRegistrationsService,
     MerchantPortalService,
+    MerchantPortalSecurityService,
     AffiliateTransactionsService,
+    PayCodeService,
+    InstoreCheckoutsService,
+    RetailCheckoutsService,
+    AffiliateCheckoutsService,
+    InstorePayoutsService,
+    InstoreEinvoicesService,
+    OpenInstoreCheckoutsService,
+    AffiliateWebhooksService,
     AffiliateVouchersService,
     AffiliateSettlementsService,
     AffiliateReportsService,

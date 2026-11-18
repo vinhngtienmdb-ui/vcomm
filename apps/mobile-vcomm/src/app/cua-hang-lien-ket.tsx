@@ -1,15 +1,17 @@
 // MAN_HINH_181 Cửa hàng liên kết trên ứng dụng VComm (CONG_VIEC_55; CHUC_NANG_194; API_209; QUYTAC_NGHIEPVU_395 đến 397):
 // quét mã QR của cửa hàng rồi xác nhận, yêu cầu chờ xác nhận theo số điện thoại, mã thành viên cho thu ngân quét, lịch sử giao dịch.
 // Lát L2 (CHUC_NANG_195; API_211; QUYTAC_NGHIEPVU_401, 402): nhận voucher (đổi bằng điểm, miễn phí), voucher của tôi, chọn voucher khi xác nhận hoặc tạo mã thành viên.
-import type { BuyerAffiliateRequest, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
+import type { BuyerAffiliateRequest, BuyerAuthenticationPolicy, BuyerInstoreCheckout, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as Linking from "expo-linking";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { Button, Card, Field, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
-import { api, ApiFailure } from "@/lib/api";
+import { api, ApiFailure, assetUrl } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
+import { checkoutToken } from "@/lib/pay-code";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
@@ -243,6 +245,13 @@ export default function AffiliateScreen() {
   const [mine, setMine] = useState<BuyerVoucherCode[]>([]);
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState<{ text: string; tone: "error" | "success" } | null>(null);
+  // Mã thành viên cũ chỉ còn trong thời hạn chuyển đổi của người mua (CONG_VIEC_73; QUYTAC_NGHIEPVU_574); sau đó khách dùng Mã thanh toán.
+  const [memberCodeOpen, setMemberCodeOpen] = useState(true);
+  useEffect(() => {
+    api<BuyerAuthenticationPolicy>("/buyer/authentication-policy")
+      .then((policy) => setMemberCodeOpen(policy.smsFallbackOpen))
+      .catch(() => undefined);
+  }, []);
   const fail = useCallback((failure: unknown) => setMessage({ text: failure instanceof ApiFailure ? failure.message : t("unknownError"), tone: "error" }), []);
   const reload = useCallback(() => {
     Promise.all([
@@ -282,7 +291,9 @@ export default function AffiliateScreen() {
           <ConfirmCard key={request.transactionId} request={request} code={null} onDone={done} onError={fail} />
         ))}
         <Button label={t("affiliateScanStore")} onPress={() => (setMessage(null), setScanning(true))} />
-        <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />
+        {/* CONG_VIEC_73: cửa hàng quét Mã thanh toán thay mã thành viên; mã thành viên cũ còn nhận trong thời hạn chuyển đổi. */}
+        <Button label={t("affiliateOpenPayCode")} kind="secondary" onPress={() => router.push("/ma-thanh-toan")} />
+        {memberCodeOpen && <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />}
         <Vouchers offers={offers} mine={mine} onClaimed={(text) => (setMessage({ text, tone: "success" }), reload())} onError={fail} />
         <Card>
           <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateHistory")}</Text>
@@ -295,6 +306,22 @@ export default function AffiliateScreen() {
               </View>
               <Muted>{`${shortDate(item.createdAt)} · ${item.outletName} · ${money(item.billAmount)}`}</Muted>
               <Muted>{t("affiliateHistoryPoints", { used: points(item.redeemedPoints), earned: points(item.earnedPoints) })}</Muted>
+              {/* Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6): mở PDF bằng đường dẫn có hạn 10 phút. */}
+              {item.einvoice ? (
+                item.einvoice.hasPdf ? (
+                  <Button
+                    label={t("affiliateEinvoiceOpen", { no: `${item.einvoice.series ?? ""}-${item.einvoice.invoiceNo ?? ""}` })}
+                    kind="secondary"
+                    onPress={() =>
+                      void api<{ url: string }>(`/buyer/affiliate/transactions/${item.id}/einvoice-link`, { method: "POST" })
+                        .then((link) => Linking.openURL(assetUrl(link.url)!))
+                        .catch(fail)
+                    }
+                  />
+                ) : (
+                  <Muted>{t("affiliateEinvoicePending")}</Muted>
+                )
+              ) : null}
             </View>
           ))}
         </Card>
@@ -303,6 +330,14 @@ export default function AffiliateScreen() {
             onClose={() => setScanning(false)}
             onCode={(code) => {
               setScanning(false);
+              // Mã QR thanh toán của cửa hàng (CONG_VIEC_73): nhận đơn rồi mở MAN_HINH_277; mã QR cũ của cách 1 xử lý như trước.
+              const token = checkoutToken(code);
+              if (token) {
+                api<BuyerInstoreCheckout>("/buyer/instore/checkouts/claim", { method: "POST", json: { token } })
+                  .then((checkout) => router.push({ pathname: "/thanh-toan-cua-hang/[id]", params: { id: checkout.id } }))
+                  .catch(fail);
+                return;
+              }
               api<BuyerAffiliateRequest>("/buyer/affiliate/scan", { method: "POST", json: { code } })
                 .then((request) => setScanned({ request, code }))
                 .catch(fail);

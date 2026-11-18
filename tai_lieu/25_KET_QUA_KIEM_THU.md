@@ -864,6 +864,18 @@
 - Tự rà soát mã và dọn dẹp: Đạt.
 - Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-18 – CONG_VIEC_76 lát L1
+
+- Phạm vi: tệp dựng ảnh, luồng `kiem-tra-anh.yml`, `deploy.sh`; chạy toàn bộ kiểm thử trên PostgreSQL 17.
+- Lệnh đã chạy: vitest `apps/api` trên mã `phat-hanh/v0.14.0` (f439c11d), postgres:17.12, redis:7; 145 database migration chạy bằng vai trò không phải SUPERUSER; tự kiểm `deploy.sh`.
+- Kết quả:
+  - KICHBAN_KIEMTHU_811: Đạt (177 tệp, 986/986).
+  - KICHBAN_KIEMTHU_810: phần dựng ảnh api, web và kiểm nội dung ảnh Đạt; phần quét lỗ hổng ảnh chưa làm (chờ người dùng duyệt công cụ quét).
+  - KICHBAN_KIEMTHU_817, 823: Đạt (lệnh dữ liệu mẫu bị từ chối ở môi trường thật; tag thiếu bản vá khẩn cấp thì dừng).
+  - KICHBAN_KIEMTHU_824: phần tệp lệnh Đạt (database migration bị từ chối khi chưa sao lưu); phần người duyệt GitHub chưa thử (chưa có môi trường GitHub).
+  - Các kịch bản còn lại chờ tạo tài nguyên.
+- Không có lỗi mới. Sẽ chạy lại trên 0.14.1.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |

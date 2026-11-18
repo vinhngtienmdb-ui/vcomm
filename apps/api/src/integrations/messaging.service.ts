@@ -9,7 +9,11 @@ import { type EsmsCredentials, MESSAGE_GATEWAY, type MessageGateway } from "./es
 import { IntegrationSettingsService } from "./integration-settings.service";
 
 // CONG_VIEC_57: tin của đơn trạm giao hàng O2O (QUYTAC_NGHIEPVU_429).
-export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed" | "station_order_ready" | "station_hold_reminder" | "station_order_shipping" | "station_order_cancelled";
+export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed" | "station_order_ready" | "station_hold_reminder" | "station_order_shipping" | "station_order_cancelled"
+  // CONG_VIEC_72: Smart OTP chuyển máy (khôi phục), bị hủy, nhắc kích hoạt (QUYTAC_NGHIEPVU_571).
+  | "smart_otp_transferred"
+  | "smart_otp_revoked"
+  | "smart_otp_reminder";
 
 const maskPhone = (phone: string) => (phone.length > 7 ? `${phone.slice(0, 5)}***${phone.slice(-4)}` : "***");
 
@@ -29,11 +33,12 @@ export class MessagingService {
     return Boolean(values["esms.api_key"] && values["esms.secret_key"] && values["esms.brandname"]);
   }
 
-  async sendLoginOtp(phone: string, code: string, userId: string | null, purpose: "login_otp" | "test" = "login_otp"): Promise<boolean> {
+  // otpPurpose: mục đích mã OTP (đăng nhập, đăng ký…) để thống kê số tin theo mục đích (CONG_VIEC_72, QUYTAC_NGHIEPVU_572).
+  async sendLoginOtp(phone: string, code: string, userId: string | null, purpose: "login_otp" | "test" = "login_otp", otpPurpose: string | null = null): Promise<boolean> {
     const values = await this.settings.getMany(["esms.api_key", "esms.secret_key", "esms.brandname", "esms.sandbox", "esms.oa_id", "esms.template.login_otp"]);
     const credentials = this.credentials(values);
     if (!credentials || !values["esms.brandname"]) {
-      await this.record({ channel: "sms", purpose, userId, phone, templateId: null, status: "skipped", messageId: null, error: "Chưa cài đặt eSMS" });
+      await this.record({ channel: "sms", purpose, otpPurpose, userId, phone, templateId: null, status: "skipped", messageId: null, error: "Chưa cài đặt eSMS" });
       return false;
     }
     const withZalo = Boolean(values["esms.oa_id"] && values["esms.template.login_otp"]);
@@ -48,6 +53,7 @@ export class MessagingService {
     await this.record({
       channel: withZalo ? "zns_sms" : "sms",
       purpose,
+      otpPurpose,
       userId,
       phone,
       templateId: values["esms.template.login_otp"],
@@ -56,6 +62,13 @@ export class MessagingService {
       error: result.error,
     });
     return result.ok;
+  }
+
+  // Đã cài đủ khóa eSMS, mã OA và mẫu ZNS của sự kiện (CONG_VIEC_72: chỉ đánh dấu đã nhắc khi gửi được).
+  async znsConfigured(event: ZnsEvent): Promise<boolean> {
+    const templateKey = `esms.template.${event}` as IntegrationSettingKey;
+    const values = await this.settings.getMany(["esms.api_key", "esms.secret_key", "esms.sandbox", "esms.oa_id", templateKey]);
+    return Boolean(this.credentials(values) && values["esms.oa_id"] && values[templateKey]);
   }
 
   // Tin ZNS theo sự kiện duyệt (CHUC_NANG_26). Thiếu số điện thoại hoặc chưa cài mẫu tin thì bỏ qua, không ghi lỗi.
@@ -130,6 +143,7 @@ export class MessagingService {
   private async record(input: {
     channel: "zns" | "zns_sms" | "sms";
     purpose: string;
+    otpPurpose?: string | null;
     userId: string | null;
     phone: string;
     templateId: string | null;
@@ -138,7 +152,7 @@ export class MessagingService {
     error: string | null;
   }): Promise<void> {
     await this.database.execute(sql`
-      INSERT INTO core.message_deliveries (channel, purpose, user_id, phone_masked, template_id, status, provider_message_id, error)
-      VALUES (${input.channel}, ${input.purpose}, ${input.userId}, ${maskPhone(input.phone)}, ${input.templateId}, ${input.status}, ${input.messageId}, ${input.error})`);
+      INSERT INTO core.message_deliveries (channel, purpose, otp_purpose, user_id, phone_masked, template_id, status, provider_message_id, error)
+      VALUES (${input.channel}, ${input.purpose}, ${input.otpPurpose ?? null}, ${input.userId}, ${maskPhone(input.phone)}, ${input.templateId}, ${input.status}, ${input.messageId}, ${input.error})`);
   }
 }

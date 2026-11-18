@@ -1,6 +1,7 @@
 "use client";
 
 // MAN_HINH_98 Hoàn tiền đơn VComm (CONG_VIEC_25; CHUC_NANG_122; API_133; QUYTAC_NGHIEPVU_168): việc chờ hoàn, tài khoản người mua, ghi đã hoàn tiền.
+// CONG_VIEC_73 lát L7: gồm việc hoàn của đơn chờ thanh toán tại cửa hàng.
 import { refundStatuses, type PageResponse, type RefundItem, type RefundStatus } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -43,7 +44,9 @@ function RefundCard({ item, onChanged }: { item: RefundItem; onChanged: () => Pr
     <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: "var(--khoang-2)", flexWrap: "wrap", alignItems: "center" }}>
         <strong>
-          <Link href={`/orders/${item.orderId}`}>{item.documentNo}</Link> · {item.buyerName} · {item.buyerPhone}
+          {/* Đơn chờ tại cửa hàng (CONG_VIEC_73 lát L7): số TT…, tên cửa hàng, không có trang đơn VComm. */}
+          {item.orderId ? <Link href={`/orders/${item.orderId}`}>{item.documentNo}</Link> : `${item.documentNo} · ${t("instorePlace", { place: item.placeName ?? "" })}`} · {item.buyerName} ·{" "}
+          {item.buyerPhone}
         </strong>
         <strong>{formatNumber(item.amount, 0)}</strong>
       </div>

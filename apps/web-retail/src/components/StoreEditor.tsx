@@ -1,6 +1,7 @@
 "use client";
 
 // Thêm, sửa cửa hàng (MAN_HINH_166; QUYTAC_NGHIEPVU_368): chi nhánh cửa hàng, kho của chi nhánh, kênh, quỹ, VietQR, số ngày trả hàng.
+// CONG_VIEC_73 (QUYTAC_NGHIEPVU_573): nhận thanh toán qua ứng dụng VComm, phí sàn.
 import type { RetailSetupOptions, RetailStoreResponse, SaveRetailStoreRequest } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
@@ -20,6 +21,8 @@ export function StoreEditor({ store, options, onSaved, onCancel }: { store: Reta
   const [returnDays, setReturnDays] = useState(String(store?.returnDays ?? 7));
   const [receiptFooter, setReceiptFooter] = useState(store?.receiptFooter ?? "");
   const [active, setActive] = useState(store ? store.status === "active" : true);
+  const [appPaymentEnabled, setAppPaymentEnabled] = useState(store?.appPaymentEnabled ?? false);
+  const [platformFeePercent, setPlatformFeePercent] = useState(store?.platformFeePercent ?? "0");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const warehouses = options.warehouses.filter((warehouse) => warehouse.branchId === branchId);
   function submit(event: FormEvent) {
@@ -37,6 +40,8 @@ export function StoreEditor({ store, options, onSaved, onCancel }: { store: Reta
         returnDays: Number(returnDays),
         receiptFooter,
         status: active ? "active" : "inactive",
+        appPaymentEnabled,
+        platformFeePercent: platformFeePercent.replace(",", ".") || "0",
         ...(store ? { version: store.version } : {}),
       };
       await apiFetch<RetailStoreResponse>(store ? `/retail/stores/${store.id}` : "/retail/stores", { method: store ? "PATCH" : "POST", body: JSON.stringify(body) });
@@ -133,6 +138,18 @@ export function StoreEditor({ store, options, onSaved, onCancel }: { store: Reta
       <Field id="chan-hoa-don" label={t("receiptFooter")} error={fields.receiptFooter}>
         <textarea id="chan-hoa-don" className={inputClass("receiptFooter")} rows={2} maxLength={300} value={receiptFooter} onChange={(event) => setReceiptFooter(event.target.value)} />
       </Field>
+      {kind === "store" && (
+        <>
+          <label>
+            <input type="checkbox" checked={appPaymentEnabled} onChange={(event) => setAppPaymentEnabled(event.target.checked)} /> {t("appPaymentEnabled")}
+          </label>
+          {appPaymentEnabled && (
+            <Field id="phi-san" label={t("platformFeePercent")} error={fields.platformFeePercent} hint={t("platformFeeHint")}>
+              <input id="phi-san" className={inputClass("platformFeePercent")} inputMode="decimal" value={platformFeePercent} onChange={(event) => setPlatformFeePercent(event.target.value)} />
+            </Field>
+          )}
+        </>
+      )}
       {store && (
         <label>
           <input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} /> {t("activeLabel")}

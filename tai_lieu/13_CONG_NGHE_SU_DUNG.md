@@ -4,7 +4,7 @@
 - Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 12)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15)
 
 ## 1. Danh sách công nghệ
 
@@ -221,11 +221,55 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_63.md` mục 12. Người dùng duyệ
 
 Dịch vụ trả phí mới: API Anthropic tính theo token (mô hình mặc định `claude-sonnet-5-5`, 2 / 10 USD mỗi triệu token vào / ra). Chi phí do từng công ty giới hạn bằng hạn mức tháng (mặc định 0, không phát sinh khi chưa bật).
 
-## 12. Thư viện gửi email – CONG_VIEC_77 – 2026-11-18
+## 12. Phân tích giải pháp có sẵn – CONG_VIEC_72 Smart OTP – 2026-11-17
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_563 (mở Smart OTP bằng vân tay, khuôn mặt hoặc mã khóa 6 số; mã khóa băm PBKDF2-SHA256 có muối, chỉ lưu trên máy).
+- Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58, `expo-secure-store`, `otpauth` 9.6.0 dùng `@noble/hashes` 2.4.0); kho npm. React Native 0.88 trên Hermes không bảo đảm có `crypto.subtle`.
+- Từ khóa đã dùng: tên thư viện cụ thể; không chứa thông tin nghiệp vụ.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `expo-local-authentication` | Hộp vân tay, khuôn mặt của hệ điều hành | MIT (đã đọc tệp LICENSE) | 58.0.2 (2026-10-01; 58.0.3 chưa đủ hai tuần nên không dùng) | Expo SDK 58; không có trên bản web | Thấp |
+| `react-native-biometrics` | Như trên | MIT | Không xét tiếp | Cần mã gốc riêng, không hợp quy trình Expo | Cao |
+| `@noble/hashes` | PBKDF2-SHA256 băm mã khóa | MIT (đã đọc tệp LICENSE) | 2.4.0 (2026-08-27; đã có sẵn trong dự án qua `otpauth`) | Chạy bằng JavaScript trên iOS, Android, web | Thấp |
+| `expo-crypto` | Băm SHA-256 một lần | MIT | Expo SDK 58 | Không có PBKDF2, phải tự lặp | Trung bình |
+
+Quyết định: người dùng duyệt `expo-local-authentication` 58.0.2 ngày 2026-11-17 (cùng đặc tả CONG_VIEC_72) và chọn `@noble/hashes` 2.4.0 làm phụ thuộc trực tiếp ngày 2026-11-17. Cả hai ghi cố định phiên bản trong `apps/mobile-vcomm/package.json`.
+
+## 13. Thư viện thêm cho CONG_VIEC_73 mua hàng tại cửa hàng – 2026-11-17
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_574 (tăng độ sáng màn hình khi hiện mã thanh toán để máy quét đọc được).
+- Nguồn đã tìm: mã nguồn dự án (React Native không có cách đặt độ sáng màn hình); kho npm.
+
+| Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc | Rủi ro |
+|---|---|---|---|---|---|
+| `expo-brightness` | Đặt độ sáng cho riêng màn hình ứng dụng (`setBrightnessAsync`), không đổi cài đặt máy nên không cần quyền | MIT (đã đọc tệp LICENSE) | 58.0.2 (2026-10-01; 58.0.3 chưa đủ hai tuần nên không dùng) | Không có phụ thuộc riêng; Expo SDK 58; không có trên bản web (ẩn nút) | Thấp |
+
+Quyết định: người dùng duyệt `expo-brightness` ngày 2026-11-17; phiên điều phối thêm vào `apps/mobile-vcomm/package.json` (phiên bản cố định) theo yêu cầu người dùng.
+
+## 14. Phân tích giải pháp có sẵn – CONG_VIEC_74 in hóa đơn iPOS – 2026-11-17
+
+Phạm vi: ứng dụng iPOS (`apps/mobile-ipos`, Expo SDK 58) in hóa đơn trên máy Sunmi T2 (máy in 80 mm gắn sẵn), máy in rời qua mạng LAN và Bluetooth; mở ngăn kéo tiền (QUYTAC_NGHIEPVU_620). Tra cứu trên npm ngày 2026-11-17; giấy phép đọc từ tệp `LICENSE` sau khi cài.
+
+| Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc kéo theo | Rủi ro |
+|---|---|---|---|---|---|
+| `@point-of-sale/receipt-printer-encoder` | Dựng lệnh ESC/POS (chữ, căn lề, cắt giấy, mở ngăn kéo; bảng mã windows1258 cho tiếng Việt) cho máy in rời | MIT | 4.0.1, 2026-09-18 | `@point-of-sale/codepage-encoder` 3.0.2, `canvas-dither` 1.0.1, `canvas-flatten` 1.0.1, `resize-image-data` 0.3.1, `@canvas/image-data` 1.1.0 (đều MIT) | Thấp; JavaScript thuần |
+| `@mitsuharu/react-native-sunmi-printer-library` | Máy in gắn sẵn của Sunmi qua dịch vụ in Sunmi (in chữ Unicode, gửi lệnh ESC/POS thô để mở ngăn kéo) | MIT | 3.0.0, 2026-09-07 | Không | Trung bình; mã gốc Android, cần bản dựng phát triển; tác giả thử với Expo SDK 57 |
+| `react-native-tcp-socket` | Gửi lệnh in tới máy in mạng LAN (cổng 9100) | MIT | 6.4.3, 2026-09-10 | `buffer` 5.7.1, `eventemitter3` 4.0.7 (MIT) | Thấp |
+| `react-native-bluetooth-classic` | Gửi lệnh in tới máy in nhiệt Bluetooth Classic (SPP) đã ghép đôi | MIT | 1.73.0-rc.17, 2025-11-19 (thẻ `latest` là bản rc) | `buffer` 6.0.3 (MIT) | Cao: bảo trì chậm (gần 1 năm chưa có bản mới), tác giả thử với Expo 51; chưa kiểm thử trên máy thật (tài liệu `22`) |
+| `react-native-ble-plx` (dự phòng, chưa cài) | Bluetooth năng lượng thấp | MIT | 3.5.1, 2026-02-18 | Không xét | Chỉ dùng được cho máy in BLE |
+| `react-native-view-shot` (không dùng) | Vẽ hóa đơn thành ảnh để in | MIT | Không xét | Không xét | Người dùng chọn in chữ, chưa in ảnh |
+
+Quyết định: người dùng duyệt 3 thư viện đầu ngày 2026-11-17 (qua phiên điều phối), duyệt `react-native-bluetooth-classic` 1.73.0-rc.17 cùng ngày kèm phương án dự phòng: nếu không dựng được trên Expo SDK 58 bản dựng phát triển thì chuyển `react-native-ble-plx` 3.5.1 (chỉ máy in BLE) hoặc hoãn Bluetooth. Cả bốn ghi cố định phiên bản trong `apps/mobile-ipos/package.json`. Máy in USB chưa làm, xin duyệt khi có máy cụ thể.
+
+In tiếng Việt (điều chỉnh QUYTAC_NGHIEPVU_620 khoản 2, người dùng đồng ý 2026-11-17): in chữ, không in ảnh. Máy Sunmi in qua dịch vụ in Sunmi (tự vẽ phông Unicode); máy in rời in theo bảng mã windows1258, có tùy chọn in không dấu cho máy không có bảng mã này. Chế độ in ảnh xin duyệt thư viện khi có máy in rời cụ thể.
+
+Bổ sung lát L4 (2026-11-17): người dùng duyệt `qrcode-generator` 2.0.4 (MIT, JavaScript thuần, dự án đã dùng ở `web-affiliate`, `web-retail`, `web-platform`, `web-hr`) cho `apps/mobile-ipos` để vẽ mã VietQR, mã QR cửa hàng, mã QR đơn chờ bằng ô vuông của React Native (không cần `react-native-svg`). Chuỗi VietQR dựng bằng hàm `iposVietqrPayload` trong `packages/contracts`, kiểm thử khớp hàm `vietQrData` của cổng chuyển khoản.
+
+## 15. Thư viện gửi email – CONG_VIEC_77 – 2026-11-18
 
 Người dùng duyệt ngày 2026-11-18: gửi qua SMTP hộp thư doanh nghiệp có sẵn, ưu tiên `nodemailer`, ghim phiên bản phát hành cũ hơn 2 tuần.
 
 | Thư viện | Dùng cho | Giấy phép | Phiên bản, ngày | Phụ thuộc | Rủi ro |
 |---|---|---|---|---|---|
 | `nodemailer` | Gửi thư qua SMTP (TLS cổng 465 hoặc STARTTLS bắt buộc cổng 587), tệp đính kèm | MIT-0 | 10.3.1, 2026-10-29 (bản mới nhất 10.6.0 ngày 2026-11-15 chưa đủ 2 tuần) | Không có | Thấp; tệp kiểu đi kèm, không cần `@types/nodemailer` |
-

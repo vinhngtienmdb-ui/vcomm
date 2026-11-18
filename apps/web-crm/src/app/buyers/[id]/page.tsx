@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
 import { ConfirmDialog } from "ui/components/Dialogs";
+import { BuyerSecurity } from "@/components/BuyerSecurity";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
@@ -300,6 +301,7 @@ export default function BuyerPage() {
             </div>
             {can("marketplace.order.manage") && <TestBuyer buyer={buyer} onSaved={setSaved} />}
             {can("marketplace.payment.manage") || can("marketplace.buyer.view") ? <WalletBlocks userId={buyer.id} canManage={can("marketplace.payment.manage")} /> : null}
+            {can("marketplace.buyer.view") ? <BuyerSecurity userId={buyer.id} buyerName={buyer.fullName} /> : null}
             {canManage && (
               <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
                 <h2>{t("changeReferrer")}</h2>

@@ -39,7 +39,7 @@ Giao diện `OutboundMessages`, `OUTBOUND_MESSAGES` và mọi nơi gọi giữ n
 
 ## 5. Phân tích giải pháp có sẵn
 
-Tài liệu `13` mục 12: `nodemailer` 10.3.1 (MIT-0, không phụ thuộc). Người dùng duyệt ngày 2026-11-18.
+Tài liệu `13` mục 15: `nodemailer` 10.3.1 (MIT-0, không phụ thuộc). Người dùng duyệt ngày 2026-11-18.
 
 ## 6. Tiêu chí nghiệm thu đề xuất (mã do phiên điều phối cấp)
 

@@ -18,6 +18,7 @@ import { StockDocumentsService } from "../inventory/stock-documents.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { amountInWords } from "./amount-in-words";
+import { mandateSeriesFor, mandateSupported, mandateUnsupportedError } from "./mandates";
 import { cashRegisterSupported, einvoicePermissions, nextCashRegisterNumber, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
 import type { EinvoiceProviderAdapter, ProviderInvoice, ProviderResult } from "./providers/provider";
 import { MisaProvider } from "./providers/misa";
@@ -64,7 +65,16 @@ export async function insertInvoice(
   transaction: Executor,
   input: {
     companyId: string;
-    sourceDocumentId: string;
+    // Nguồn: phiếu xuất; hoặc giao dịch cửa hàng liên kết (lập theo ủy nhiệm, kèm cửa hàng); hoặc hóa đơn phí sàn tháng (CONG_VIEC_73 lát L6).
+    sourceDocumentId: string | null;
+    affiliateTransactionId?: string;
+    mandateMerchantId?: string;
+    instoreFeeInvoiceId?: string;
+    // Phiếu phí thuê bao iPOS (CONG_VIEC_74 lát L7).
+    iposFeeInvoiceId?: string;
+    // Hóa đơn ủy nhiệm: ký hiệu riêng của cửa hàng (null: chưa khai), lỗi cài đặt khi nhà cung cấp chưa hỗ trợ ủy nhiệm.
+    series?: string | null;
+    setupError?: string | null;
     kind: EinvoiceKind;
     relatedInvoiceId: string | null;
     invoiceDate: string;
@@ -80,12 +90,14 @@ export async function insertInvoice(
 ): Promise<string> {
   const total = (key: "netAmount" | "taxAmount" | "totalAmount") => Math.round(input.items.reduce((sum, item) => sum + item[key], 0) * 10000) / 10000;
   const cashRegister = input.cashRegister;
-  const series = cashRegister ? cashRegister.series : await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
-  const setupError = series ? null : "einvoiceSeriesMissing";
+  const series =
+    input.series !== undefined ? input.series : cashRegister ? cashRegister.series : await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
+  const setupError = input.setupError ?? (series ? null : "einvoiceSeriesMissing");
   const inserted = await transaction.execute<{ id: string }>(sql`
-    INSERT INTO finance.einvoices (company_id, source_document_id, kind, related_invoice_id, provider, invoice_date, template_code, series, invoice_no, with_tax_code, seller, buyer,
-      currency, net_amount, tax_amount, total_amount, note, status, last_error, due_date, origin, lookup_code)
-    VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.kind}, ${input.relatedInvoiceId}, ${input.settings.provider}, ${input.invoiceDate}::date, ${input.settings.template_code},
+    INSERT INTO finance.einvoices (company_id, source_document_id, affiliate_transaction_id, mandate_merchant_id, instore_fee_invoice_id, ipos_fee_invoice_id, kind, related_invoice_id, provider, invoice_date,
+      template_code, series, invoice_no, with_tax_code, seller, buyer, currency, net_amount, tax_amount, total_amount, note, status, last_error, due_date, origin, lookup_code)
+    VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.affiliateTransactionId ?? null}, ${input.mandateMerchantId ?? null}, ${input.instoreFeeInvoiceId ?? null}, ${input.iposFeeInvoiceId ?? null},
+      ${input.kind}, ${input.relatedInvoiceId}, ${input.settings.provider}, ${input.invoiceDate}::date, ${input.settings.template_code},
       ${series}, ${cashRegister?.invoiceNo ?? null}, ${input.settings.with_tax_code}, ${JSON.stringify(input.seller)}::jsonb, ${JSON.stringify(input.buyer)}::jsonb, ${input.currency},
       ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${input.note}, ${setupError ? "setup_error" : "pending"}, ${setupError},
       ${cashRegister ? input.invoiceDate : nextWorkingDay(input.invoiceDate)}::date, ${cashRegister ? "cash_register" : "standard"}, ${cashRegister?.lookupCode ?? null})
@@ -146,8 +158,10 @@ export async function documentItems(transaction: Executor, documentId: string, t
 type InvoiceRow = {
   id: string;
   company_id: string;
-  source_document_id: string;
+  source_document_id: string | null;
   source_document_no: string | null;
+  source_kind: "document" | "affiliate_transaction" | "fee_invoice" | "ipos_fee_invoice";
+  mandate_merchant_id: string | null;
   kind: EinvoiceKind;
   related_invoice_id: string | null;
   reference_id: string;
@@ -193,8 +207,15 @@ type LineRow = {
   is_promotion: boolean;
 };
 
+// Số chứng từ nguồn: phiếu xuất, giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng, CONG_VIEC_73 lát L6).
+const invoiceFrom = sql`
+  finance.einvoices e LEFT JOIN inventory.documents d ON d.id = e.source_document_id LEFT JOIN affiliate.transactions t ON t.id = e.affiliate_transaction_id
+  LEFT JOIN instore.fee_invoices fi ON fi.id = e.instore_fee_invoice_id
+  LEFT JOIN ipos.fee_invoices pi ON pi.id = e.ipos_fee_invoice_id`;
 const invoiceColumns = sql`
-  e.id, e.company_id, e.source_document_id, d.document_no AS source_document_no, e.kind, e.related_invoice_id, e.reference_id, e.provider, e.invoice_date::text, e.template_code,
+  e.id, e.company_id, e.source_document_id, coalesce(d.document_no, t.document_no, pi.document_no, 'Phí sàn ' || to_char(fi.month, 'MM/YYYY')) AS source_document_no,
+  CASE WHEN e.affiliate_transaction_id IS NOT NULL THEN 'affiliate_transaction' WHEN e.instore_fee_invoice_id IS NOT NULL THEN 'fee_invoice' WHEN e.ipos_fee_invoice_id IS NOT NULL THEN 'ipos_fee_invoice' ELSE 'document' END AS source_kind,
+  e.mandate_merchant_id, e.kind, e.related_invoice_id, e.reference_id, e.provider, e.invoice_date::text, e.template_code,
   e.series, e.invoice_no, e.with_tax_code, e.tax_authority_code, e.origin, e.lookup_code, e.provider_transaction_id, e.seller, e.buyer, e.currency, e.net_amount::text, e.tax_amount::text, e.total_amount::text,
   e.note, e.status, e.replaced_by_id, e.last_error, e.attempt_count, e.due_date::text, e.issued_at, e.pdf_content IS NOT NULL AS has_pdf, e.xml_content IS NOT NULL AS has_xml,
   (e.status <> 'issued' AND e.due_date < (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) AS overdue, e.version`;
@@ -321,7 +342,7 @@ export class EinvoicesService implements OnModuleInit {
   private async invoiceRow(executor: Executor, condition: SQL): Promise<InvoiceRow | undefined> {
     return (
       await executor.execute<InvoiceRow>(sql`
-      SELECT ${invoiceColumns} FROM finance.einvoices e JOIN inventory.documents d ON d.id = e.source_document_id WHERE ${condition}`)
+      SELECT ${invoiceColumns} FROM ${invoiceFrom} WHERE ${condition}`)
     ).rows[0];
   }
 
@@ -471,7 +492,7 @@ export class EinvoicesService implements OnModuleInit {
           next_attempt_at = now() + make_interval(mins => ${retryDelayMinutes(attempts)}),
           issued_at = CASE WHEN ${status} = 'issued' THEN now() ELSE issued_at END,
           pdf_content = coalesce(${files.pdf}, pdf_content), xml_content = coalesce(${files.xml}, xml_content), version = version + 1
-        WHERE id = ${invoiceId} AND status <> 'issued'
+        WHERE id = ${invoiceId} AND status NOT IN ('issued', 'cancelled')
           AND (SELECT a.id FROM finance.einvoice_attempts a WHERE a.invoice_id = ${invoiceId} ORDER BY a.started_at DESC, a.id DESC LIMIT 1) = ${claimed.attemptId}`);
       // Chỉ kết quả của lần gửi mới nhất được ghi; hóa đơn đã phát hành không lùi trạng thái.
       // Hóa đơn thay thế phát hành xong mới đánh dấu hóa đơn bị thay thế.
@@ -521,17 +542,19 @@ export class EinvoicesService implements OnModuleInit {
     if (query.overdue === "true") conditions.push(sql`e.status <> 'issued' AND e.due_date < (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date`);
     if (query.from) conditions.push(sql`e.invoice_date >= ${query.from}::date`);
     if (query.to) conditions.push(sql`e.invoice_date <= ${query.to}::date`);
+    if (query.mandated) conditions.push(query.mandated === "true" ? sql`e.mandate_merchant_id IS NOT NULL` : sql`e.mandate_merchant_id IS NULL`);
     if (query.search) {
       const pattern = `%${query.search.replace(/[%_\\]/g, (character) => `\\${character}`)}%`;
-      conditions.push(sql`(e.buyer->>'name' ILIKE ${pattern} OR e.buyer->>'taxCode' ILIKE ${pattern} OR e.invoice_no ILIKE ${pattern} OR d.document_no ILIKE ${pattern})`);
+      conditions.push(sql`(e.buyer->>'name' ILIKE ${pattern} OR e.buyer->>'taxCode' ILIKE ${pattern} OR e.invoice_no ILIKE ${pattern} OR d.document_no ILIKE ${pattern}
+        OR t.document_no ILIKE ${pattern} OR e.seller->>'name' ILIKE ${pattern})`);
     }
     const where = sql.join(conditions, sql` AND `);
     const total = Number(
-      (await this.database.execute<{ total: string }>(sql`SELECT count(*)::text AS total FROM finance.einvoices e JOIN inventory.documents d ON d.id = e.source_document_id WHERE ${where}`)).rows[0]!
+      (await this.database.execute<{ total: string }>(sql`SELECT count(*)::text AS total FROM ${invoiceFrom} WHERE ${where}`)).rows[0]!
         .total,
     );
     const rows = await this.database.execute<InvoiceRow>(sql`
-      SELECT ${invoiceColumns} FROM finance.einvoices e JOIN inventory.documents d ON d.id = e.source_document_id WHERE ${where}
+      SELECT ${invoiceColumns} FROM ${invoiceFrom} WHERE ${where}
       ORDER BY e.invoice_date DESC, e.created_at DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
     return { data: rows.rows.map((row) => this.listItem(row)), page: query.page, pageSize: query.pageSize, total };
   }
@@ -551,6 +574,9 @@ export class EinvoicesService implements OnModuleInit {
       overdue: row.overdue,
       replaced: Boolean(row.replaced_by_id),
       sourceDocumentNo: row.source_document_no,
+      sourceKind: row.source_kind,
+      sellerName: row.seller.name ?? "",
+      mandated: row.mandate_merchant_id !== null,
     };
   }
 
@@ -654,10 +680,11 @@ export class EinvoicesService implements OnModuleInit {
           invoice_date: string;
           invoice_no: string | null;
           origin: EinvoiceOrigin;
+          mandate_merchant_id: string | null;
           last_outcome: string | null;
           in_flight: boolean;
         }>(sql`
-        SELECT e.status, e.version, e.invoice_date::text, e.invoice_no, e.origin,
+        SELECT e.status, e.version, e.invoice_date::text, e.invoice_no, e.origin, e.mandate_merchant_id,
           (SELECT a.outcome FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id ORDER BY a.started_at DESC, a.id DESC LIMIT 1) AS last_outcome,
           EXISTS (SELECT 1 FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id AND a.finished_at IS NULL AND a.started_at > now() - interval '10 minutes') AS in_flight
         FROM finance.einvoices e WHERE e.id = ${id} AND e.company_id = ${actor.companyId} FOR UPDATE`)
@@ -678,7 +705,18 @@ export class EinvoicesService implements OnModuleInit {
         await this.auditService.record({ ...financeAudit(actor, "einvoice"), action: "einvoice.resend", entityId: id, beforeData: { status: row.status } }, transaction);
         return;
       }
-      const series = await seriesFor(transaction, actor.companyId, Number(row.invoice_date.slice(0, 4)));
+      // Hóa đơn ủy nhiệm (CONG_VIEC_73 lát L6): ký hiệu, người bán theo dữ liệu ủy nhiệm hiện tại của cửa hàng; nhà cung cấp phải hỗ trợ ủy nhiệm.
+      const mandate = row.mandate_merchant_id
+        ? (
+            await transaction.execute<{ seller_name: string; tax_code: string; address: string }>(sql`
+            SELECT seller_name, tax_code, address FROM affiliate.einvoice_mandates WHERE merchant_id = ${row.mandate_merchant_id}`)
+          ).rows[0]
+        : undefined;
+      if (row.mandate_merchant_id && !mandateSupported(settings.provider)) throw new ApiError("BUSINESS_RULE", mandateUnsupportedError);
+      if (row.mandate_merchant_id && !mandate) throw new ApiError("BUSINESS_RULE", "einvoiceMandateMissing");
+      const series = row.mandate_merchant_id
+        ? await mandateSeriesFor(transaction, row.mandate_merchant_id, Number(row.invoice_date.slice(0, 4)))
+        : await seriesFor(transaction, actor.companyId, Number(row.invoice_date.slice(0, 4)));
       if (!series) throw new ApiError("BUSINESS_RULE", "einvoiceSeriesMissing");
       const company = (
         await transaction.execute<{ legal_name: string; tax_code: string | null; address: string | null }>(sql`SELECT legal_name, tax_code, address FROM core.companies WHERE id = ${actor.companyId}`)
@@ -694,8 +732,11 @@ export class EinvoicesService implements OnModuleInit {
           UPDATE finance.einvoices SET status = 'pending', next_attempt_at = now(), last_error = NULL, version = version + 1,
             reference_id = CASE WHEN ${rejected} THEN gen_random_uuid() ELSE reference_id END,
             invoice_no = NULL, tax_authority_code = NULL, provider_transaction_id = NULL,
-            provider = ${settings.provider}, series = ${series}, with_tax_code = ${settings.with_tax_code}, template_code = ${settings.template_code},
-            seller = ${JSON.stringify({ name: company.legal_name, taxCode: company.tax_code, address: company.address })}::jsonb
+            provider = ${settings.provider}, series = ${series}, with_tax_code = ${settings.with_tax_code},
+            template_code = CASE WHEN ${row.mandate_merchant_id !== null} THEN template_code ELSE ${settings.template_code} END,
+            seller = ${JSON.stringify(
+              mandate ? { name: mandate.seller_name, taxCode: mandate.tax_code, address: mandate.address } : { name: company.legal_name, taxCode: company.tax_code, address: company.address },
+            )}::jsonb
           WHERE id = ${id}`);
       }
       await this.auditService.record({ ...financeAudit(actor, "einvoice"), action: "einvoice.resend", entityId: id, beforeData: { status: row.status } }, transaction);

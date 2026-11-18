@@ -1,11 +1,10 @@
 // Chống gian lận nâng cao (CONG_VIEC_60; CHUC_NANG_215; QUYTAC_NGHIEPVU_474 đến 477).
 // Quy tắc xét khi phát sinh giao dịch điểm, không quét lại quá khứ. Mức xử lý: cảnh báo, chặn giao dịch, chặn và khóa ví.
 // Chặn dùng điểm làm hủy giao dịch của bên gọi, nên vụ việc và khóa ví lúc đó ghi bằng kết nối riêng (đã cam kết trước khi báo lỗi).
-import { createHmac } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { notify } from "../common/notifications";
-import { purposeKey } from "../common/secret-box";
+import { deviceHashOf } from "../common/device-hash";
 import type { Database } from "../database/database.module";
 import { usersWithPermission } from "../hr/attendance-access";
 
@@ -26,11 +25,8 @@ export const setFraudDatabase = (database: Database | null) => {
   independent = database;
 };
 
-// QUYTAC_NGHIEPVU_474: mã cài đặt 16 đến 128 ký tự chữ, số, gạch; sai định dạng thì bỏ qua.
-export function deviceHashOf(deviceId: string | null | undefined): string | null {
-  if (!deviceId || !/^[A-Za-z0-9_-]{16,128}$/.test(deviceId)) return null;
-  return createHmac("sha256", purposeKey("loyalty-device")).update(deviceId, "utf8").digest("hex");
-}
+// QUYTAC_NGHIEPVU_474: băm mã cài đặt ứng dụng (chuyển sang common để phần xác thực dùng chung, CONG_VIEC_72).
+export { deviceHashOf };
 
 export async function linkDevice(executor: Executor, userId: string, deviceHash: string | null): Promise<void> {
   if (!deviceHash) return;
