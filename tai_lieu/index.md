@@ -1,7 +1,7 @@
 # MỤC LỤC BỘ TÀI LIỆU THIẾT KẾ
 
 - Dự án: VComm
-- Ngày cập nhật: 2026-11-17
+- Ngày cập nhật: 2026-11-18
 
 | Số | Tệp | Tên tài liệu | Mô tả | Giai đoạn | Trạng thái |
 |---|---|---|---|---|---|
@@ -72,5 +72,6 @@
 | CONG_VIEC_68 | [cong_viec/CONG_VIEC_68.md](cong_viec/CONG_VIEC_68.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_70 | [cong_viec/CONG_VIEC_70.md](cong_viec/CONG_VIEC_70.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_63 | [cong_viec/CONG_VIEC_63.md](cong_viec/CONG_VIEC_63.md) | Đã nghiệm thu, chờ phát hành |
+| CONG_VIEC_77 | [cong_viec/CONG_VIEC_77.md](cong_viec/CONG_VIEC_77.md) | Đang thực hiện |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.

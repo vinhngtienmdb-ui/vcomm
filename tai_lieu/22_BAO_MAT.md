@@ -1139,7 +1139,7 @@ Ranh giới và kiểm soát riêng:
 | Khóa xác thực webhook ngân hàng của từng kết nối (CONG_VIEC_18) | Bảng `finance.bank_connections`, mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); hệ thống sinh, Kế toán trưởng khai vào dịch vụ trung gian; đổi bằng "Đổi khóa xác thực" ở MAN_HINH_59; không đặt trong biến môi trường | Từng môi trường, từng quỹ | Chưa tạo | Chưa tạo |
 | Thông tin kết nối nhà cung cấp ký số từ xa của từng công ty (CONG_VIEC_59) | Bảng `office.signing_settings.credentials_encrypted`, mã hóa AES-256-GCM bằng `common/secret-box.ts` (khóa như Cài đặt tích hợp); người có `office.signing.manage` nhập ở MAN_HINH_217, không trả qua API | Từng môi trường (giai đoạn này chỉ Bộ giả lập ở môi trường thử) | Chưa tạo | Chưa tạo |
 | Thông tin truy cập AWS S3 lưu tệp đính kèm | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
-| Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
+| Tài khoản SMTP hộp thư doanh nghiệp gửi email (CONG_VIEC_77) | Biến bí mật `SMTP_PASSWORD` (cùng `SMTP_USER`) ở nơi chạy dịch vụ `api` (môi trường thật: biến bí mật Railway); không ghi vào mã, log, thông báo lỗi; nên dùng mật khẩu ứng dụng riêng của hộp thư gửi, không dùng mật khẩu đăng nhập của người | Từng môi trường | Khi đổi mật khẩu hộp thư hoặc nghi lộ | Chưa tạo |
 | Token, mã cửa hàng GHN; khóa webhook vận chuyển (CONG_VIEC_24) | Biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY` (môi trường thật: AWS Secrets Manager) | Từng môi trường (thử nghiệm dùng tài khoản thử nghiệm của GHN) | Chưa tạo | Chưa tạo |
 | Mã website, khóa bí mật VNPAY (CONG_VIEC_25) | Biến môi trường `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` (môi trường thật: AWS Secrets Manager); `VNPAY_RETURN_URL`, `VNPAY_PAYMENT_URL`, `VCOMM_APP_LINK_BASE` không bí mật | Từng môi trường (thử nghiệm dùng tài khoản môi trường thử nghiệm của VNPAY) | Chưa tạo | Chưa tạo |
 
@@ -1228,7 +1228,7 @@ Ma trận quyền:
 |---|---|
 | Mục 2 | Tệp Excel tối đa 5 MB |
 | Mục 3 | Đổi mới token làm mới mỗi lần dùng; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho API không cần đăng nhập |
-| Mục 5 | Gửi email qua Amazon SES; tự đổi mật khẩu cơ sở dữ liệu mỗi 90 ngày |
+| Mục 5 | Gửi email qua SMTP hộp thư doanh nghiệp (CONG_VIEC_77, thay Amazon SES); tự đổi mật khẩu cơ sở dữ liệu mỗi 90 ngày |
 
 ### Ma trận phân quyền Nhân sự MODULE_08 phần 3 – Lương (CONG_VIEC_48)
 
@@ -1247,7 +1247,7 @@ Thêm quyền `hr.payroll.view`, `hr.payroll.manage`, `hr.payroll.setup` (nhạy
 Ranh giới và kiểm soát riêng:
 - Mọi truy vấn lọc `company_id` của công ty đang chọn; bảng lương công ty khác `404`.
 - Nhật ký thao tác không ghi số tiền lương, lương đóng bảo hiểm (chỉ tháng, loại khoản, nội dung).
-- Email phiếu lương chỉ gửi tới email cá nhân trong hồ sơ, sau khi giao dịch duyệt xong. Trình gửi `EMAIL_DRIVER=log` khi phát triển ghi nội dung email (có số tiền) ra log: chỉ dùng trên máy phát triển; môi trường thật dùng nhà cung cấp thật, không ghi nội dung.
+- Email phiếu lương chỉ gửi tới email cá nhân trong hồ sơ, sau khi giao dịch duyệt xong. Trình gửi `EMAIL_DRIVER=log` khi phát triển ghi nội dung email (có số tiền) ra log: chỉ dùng trên máy phát triển; môi trường thật bắt buộc `EMAIL_DRIVER=smtp` (CONG_VIEC_77), không ghi nội dung.
 - Bút toán lương ghi qua module Kế toán, kiểm kỳ đã khóa; kỳ cuối tháng đã khóa sau khi gửi duyệt thì bút toán ghi ngày duyệt.
 
 ## Kiểm soát Kinh doanh trên ứng dụng VComm (CONG_VIEC_22, THAY_DOI_26)
@@ -1508,4 +1508,12 @@ Kết quả rà soát bảo mật CONG_VIEC_74 đợt 1 (2026-11-17):
 - Mọi endpoint mới của lát L5 đến L7 (trả hàng, báo cáo, đối soát ERP, phiếu phí, mã VietQR trả phí) đều kiểm quyền và phạm vi cửa hàng; đầu vào kiểm bằng zod.
 - Không thêm thư viện ở lát L5 đến L7. `pnpm audit --prod`: không có mức Cao; 1 Thấp, 5 Trung bình đều nằm trong công cụ dòng lệnh của Expo (`@expo/cli`: `glob`, `minimatch`, `node-forge`), chỉ dùng khi dựng ứng dụng, không chạy trên máy bán hay máy chủ.
 - Giới hạn đã biết, người dùng chấp nhận: thư viện in Bluetooth bản rc (RUIRO CONG_VIEC_74 ở trên); in thật, ngắt mạng thử trên máy Sunmi T2 khi nghiệm thu.
+
+## Gửi email qua SMTP (CONG_VIEC_77)
+
+- Môi trường thật (`NODE_ENV=production`) chỉ nhận `EMAIL_DRIVER=smtp`; để trống, đặt `log` hoặc thiếu `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (hoặc `SMTP_SECURE` khác `true`/`false`) thì API từ chối khởi động, lỗi nêu tên biến, không in giá trị.
+- Kết nối luôn mã hóa: `SMTP_SECURE=true` (mặc định khi cổng 465) dùng TLS ngay; `false` (mặc định với cổng khác) bắt buộc STARTTLS, máy chủ không hỗ trợ thì không gửi mật khẩu, không gửi thư. Kiểm tra chứng thư máy chủ theo mặc định.
+- Trình gửi SMTP không ghi nội dung thư (đường dẫn kích hoạt, đặt lại mật khẩu, số tiền phiếu lương) ra log. Tin kênh SMS (người dùng không có email) chưa có nhà cung cấp ở trình gửi này: chỉ ghi cảnh báo kèm số điện thoại che (3 số cuối) và tiêu đề, không ghi nội dung.
+- Quên mật khẩu: lỗi gửi thư chỉ ghi log (mã người dùng, lỗi máy chủ thư), API vẫn trả `204` như tài khoản không tồn tại để không lộ tài khoản.
+- Lỗi gửi thư ở các luồng khác trả về nơi gọi như trước (phiếu lương ghi lỗi gửi vào dòng lương).
 

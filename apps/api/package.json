@@ -29,6 +29,7 @@
     "i18n": "workspace:*",
     "ioredis": "5.11.1",
     "node-forge": "1.4.3",
+    "nodemailer": "10.3.1",
     "otpauth": "9.6.0",
     "pdf-lib": "1.17.1",
     "pdfmake": "0.3.12",

@@ -971,3 +971,13 @@ Mã nguồn backend trong `apps/api/src/ipos/` (viết tắt `ipos/` trong bản
 - Mã nguồn không truy được về yêu cầu nào: Không có (`packages/contracts/src/ipos.ts`, phần CONG_VIEC_74 của `packages/contracts/src/index.ts`, `affiliate.ts`; `apps/api/src/permissions/permission-catalog.ts` (`ipos.plan.manage`, `ipos.subscription.manage`); `apps/api/src/app.module.ts`; `apps/mobile-ipos/src/lib/api.ts`, `i18n.ts`, `pos.tsx`, `storage.ts`, `theme.ts`, `components/TopBar.tsx`, `ui.tsx`; `apps/web-crm/src/components/CrmShell.tsx`; `packages/i18n` phục vụ CHUC_NANG_252 đến 260).
 
 Màn hình MAN_HINH_283 đến 306. API_335 đến 357 (API_358 đến 370 dự phòng đợt 2). Database migration 0165 đến 0170, 0173.
+
+## Kiểm tra bao phủ CONG_VIEC_77 – 2026-11-18
+
+Gửi email thật qua SMTP cho các chức năng đã có (không thêm chức năng, màn hình, API). Phiếu thay đổi THAY_DOI_41 (đổi Amazon SES sang SMTP hộp thư doanh nghiệp).
+
+| Chức năng | Tiêu chí, kịch bản | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_04 (thư kích hoạt), CHUC_NANG_06 (đặt lại mật khẩu), các thư nhân sự, phiếu lương, ký số | TIEUCHI_NGHIEMTHU_602 đến 608; KICHBAN_KIEMTHU_827 đến 833 | `apps/api/src/common/outbound-messages.ts`, `apps/api/src/app.module.ts`, `apps/api/src/auth/password.service.ts` | `apps/api/test/c77-email-smtp.test.ts` |
+
+Toàn bộ CONG_VIEC_77: TIEUCHI_NGHIEMTHU_602 đến 608, KICHBAN_KIEMTHU_827 đến 833 đều có mã nguồn và kiểm thử tự động; không có mã nguồn không truy được về yêu cầu.

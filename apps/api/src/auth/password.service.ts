@@ -1,5 +1,5 @@
 // Quên, đặt lại, đổi mật khẩu (CHUC_NANG_06, CHUC_NANG_10; QUYTAC_NGHIEPVU_07; TIEUCHI_NGHIEMTHU_12).
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import * as argon2 from "argon2";
 import { normalizePhone } from "contracts";
 import { sql } from "drizzle-orm";
@@ -37,6 +37,8 @@ const requirePasswordLength = (password: string, field: string) => {
 
 @Injectable()
 export class PasswordService {
+  private readonly logger = new Logger("PasswordService");
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
@@ -63,12 +65,17 @@ export class PasswordService {
         VALUES (${user.id}, 'password_reset', ${hashToken(token)}, ${new Date(now.getTime() + resetMinutes * 60_000).toISOString()}::timestamptz)`);
     });
     const link = `${webOrigin()}/quen-mat-khau?token=${encodeURIComponent(token)}`;
-    await this.messages.send({
-      channel: user.email ? "email" : "sms",
-      to: (user.email ?? user.phone)!,
-      subject: "Đặt lại mật khẩu VComm",
-      body: `Chào ${user.full_name}, mở đường dẫn sau trong ${resetMinutes} phút để đặt mật khẩu mới: ${link}. Nếu bạn không yêu cầu, hãy bỏ qua.`,
-    });
+    try {
+      await this.messages.send({
+        channel: user.email ? "email" : "sms",
+        to: (user.email ?? user.phone)!,
+        subject: "Đặt lại mật khẩu VComm",
+        body: `Chào ${user.full_name}, mở đường dẫn sau trong ${resetMinutes} phút để đặt mật khẩu mới: ${link}. Nếu bạn không yêu cầu, hãy bỏ qua.`,
+      });
+    } catch (error) {
+      // Lỗi gửi (CONG_VIEC_77) không trả về người gọi để không lộ tài khoản có tồn tại; log không chứa đường dẫn.
+      this.logger.error(`Không gửi được thư đặt lại mật khẩu cho người dùng ${user.id}: ${(error as Error).message}`);
+    }
   }
 
   // API_13: đường dẫn dùng một lần, hết hạn sau 1 giờ; đặt xong thu hồi mọi phiên và bỏ khóa đăng nhập.
