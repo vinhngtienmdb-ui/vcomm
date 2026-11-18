@@ -16,6 +16,8 @@ type Executor = Pick<Database, "execute">;
 export type MarketplacePermission =
   | "marketplace.buyer.view"
   | "marketplace.buyer.manage"
+  // CONG_VIEC_72: chăm sóc khách hàng hủy Smart OTP.
+  | "marketplace.buyer.security"
   | "marketplace.order.view"
   | "marketplace.order.manage"
   | "marketplace.payment.manage"
@@ -30,7 +32,10 @@ export type MarketplacePermission =
   | "loyalty.fraud.manage"
   // CONG_VIEC_65: đối tác liên minh điểm.
   | "loyalty.partner.view"
-  | "loyalty.partner.manage";
+  | "loyalty.partner.manage"
+  // CONG_VIEC_74: iPOS.
+  | "ipos.plan.manage"
+  | "ipos.subscription.manage";
 
 export interface BuyerAdminActor {
   userId: string;

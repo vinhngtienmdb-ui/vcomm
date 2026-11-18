@@ -29,7 +29,7 @@ import { NumberSequencesService, periodKey } from "../settings/number-sequences.
 import { financePermissions, requireFinancePermission } from "../finance/finance-context";
 import { PaymentsService } from "../finance/payments.service";
 import { assertSettlementPayment, settlementPaymentState } from "./settlement-payments";
-import { maskName } from "./smart-otp.service";
+import { maskName } from "../auth/smart-otp.service";
 
 type Executor = Pick<Database, "execute">;
 

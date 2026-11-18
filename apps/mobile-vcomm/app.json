@@ -36,6 +36,12 @@
           "cameraPermission": "VComm cần dùng máy ảnh để bạn chụp ảnh hàng khi yêu cầu trả hàng.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "VComm dùng Face ID để mở Smart OTP thay cho mã khóa."
+        }
       ]
     ]
   }

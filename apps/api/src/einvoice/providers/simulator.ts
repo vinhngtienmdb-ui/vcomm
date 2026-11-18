@@ -19,17 +19,21 @@ export class SimulatorProvider implements EinvoiceProviderAdapter {
     return { ok: true, message: null };
   }
 
-  private async nextNumber(config: ProviderConfig, series: string): Promise<string> {
+  // Dãy số theo người bán và ký hiệu: hóa đơn ủy nhiệm của cửa hàng liên kết có dãy số riêng (CONG_VIEC_73 lát L6).
+  private async nextNumber(config: ProviderConfig, invoice: ProviderInvoice): Promise<string> {
+    const series = invoice.series;
+    const seller = invoice.seller.taxCode ?? "";
     const stored = (
       await this.database.execute<{ value: string }>(sql`
-      SELECT coalesce(max(invoice_no::integer), 0)::text AS value FROM finance.einvoices WHERE company_id = ${config.companyId} AND series = ${series} AND invoice_no IS NOT NULL`)
+      SELECT coalesce(max(invoice_no::integer), 0)::text AS value FROM finance.einvoices
+      WHERE company_id = ${config.companyId} AND series = ${series} AND coalesce(seller->>'taxCode', '') = ${seller} AND invoice_no IS NOT NULL`)
     ).rows[0]!.value;
-    const inMemory = [...this.received.entries()].filter(([key]) => key.startsWith(`${config.companyId}:${series}:`)).map(([, value]) => Number(value.invoiceNo));
+    const inMemory = [...this.received.entries()].filter(([key]) => key.startsWith(`${config.companyId}:${seller}:${series}:`)).map(([, value]) => Number(value.invoiceNo));
     return String(Math.max(Number(stored), 0, ...inMemory) + 1);
   }
 
   async publish(config: ProviderConfig, invoice: ProviderInvoice): Promise<ProviderResult> {
-    const key = `${config.companyId}:${invoice.series}:${invoice.referenceId}`;
+    const key = `${config.companyId}:${invoice.seller.taxCode ?? ""}:${invoice.series}:${invoice.referenceId}`;
     const calls = (this.publishCalls.get(key) ?? 0) + 1;
     this.publishCalls.set(key, calls);
     const existing = this.received.get(key);
@@ -37,7 +41,7 @@ export class SimulatorProvider implements EinvoiceProviderAdapter {
     if (existing) return { outcome: existing.outcome, invoiceNo: existing.invoiceNo, taxAuthorityCode: existing.taxAuthorityCode, transactionId: invoice.referenceId };
     if (config.simulation === "data_error") return { outcome: "data_error", errorCode: "InvalidData", message: "Dữ liệu hóa đơn không hợp lệ (giả lập)." };
     if (config.simulation === "temporary_error" && calls === 1) return { outcome: "temporary_error", errorCode: "ServiceUnavailable", message: "Nhà cung cấp tạm thời không phản hồi (giả lập)." };
-    const invoiceNo = invoice.invoiceNo ?? (await this.nextNumber(config, invoice.series));
+    const invoiceNo = invoice.invoiceNo ?? (await this.nextNumber(config, invoice));
     const code = config.withTaxCode ? `M${invoice.series.slice(1, 3)}-${randomBytes(6).toString("hex").toUpperCase()}` : null;
     if (config.simulation === "rejected") {
       this.received.set(key, { invoiceNo, taxAuthorityCode: null, outcome: "rejected", statusChecks: 0 });
@@ -51,7 +55,7 @@ export class SimulatorProvider implements EinvoiceProviderAdapter {
   }
 
   async status(config: ProviderConfig, invoice: ProviderInvoice): Promise<ProviderResult> {
-    const key = `${config.companyId}:${invoice.series}:${invoice.referenceId}`;
+    const key = `${config.companyId}:${invoice.seller.taxCode ?? ""}:${invoice.series}:${invoice.referenceId}`;
     const stored = this.received.get(key);
     if (!stored) return { outcome: "not_found" };
     stored.statusChecks += 1;

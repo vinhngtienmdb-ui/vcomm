@@ -104,6 +104,7 @@ export const testTimesheet: { data: Map<string, MonthTimesheet> | null; locks: s
   },
 };
 
+export const testDeviceId = "may-kiem-thu-mac-dinh-0001";
 // Trợ lý AI (CONG_VIEC_63): luôn dùng bộ giả lập, không gọi nhà cung cấp thật. Đổi `provider`, `noticeVersion` để thử từng điều kiện.
 export const testAiConfig: AiConfig = { ...readAiConfig({}), provider: "fake" };
 export const testModel = new FakeModelClient("claude-sonnet-5-5");
@@ -120,7 +121,7 @@ export async function startTestApplication(options: { seed?: boolean } = {}): Pr
   process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
   await pool.query(
-    "DROP SCHEMA IF EXISTS ai CASCADE; DROP SCHEMA IF EXISTS office CASCADE; DROP SCHEMA IF EXISTS affiliate CASCADE; DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
+    "DROP SCHEMA IF EXISTS ipos CASCADE; DROP SCHEMA IF EXISTS instore CASCADE; DROP SCHEMA IF EXISTS ai CASCADE; DROP SCHEMA IF EXISTS office CASCADE; DROP SCHEMA IF EXISTS affiliate CASCADE; DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
   );
   await runMigrations(pool);
   if (options.seed !== false) await seedTestData(pool);
@@ -147,7 +148,15 @@ export async function startTestApplication(options: { seed?: boolean } = {}): Pr
     .overrideProvider(AI_MODEL_CLIENT)
     .useValue(testModel)
     .compile();
-  const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
+  const application = moduleReference.createNestApplication<NestExpressApplication>();
+  // CONG_VIEC_72: ứng dụng VComm luôn gửi mã cài đặt (X-Device-Id); yêu cầu kiểm thử không gửi thì coi như cùng một máy kiểm thử,
+  // để các kiểm thử có trước không vướng xác nhận thiết bị mới. Kiểm thử thiết bị mới tự gửi mã máy khác.
+  application.use((request: { headers: Record<string, string | string[] | undefined> }, _response: unknown, next: () => void) => {
+    // Kiểm thử gửi mã rỗng để giả lập ứng dụng không gửi mã cài đặt.
+    if (request.headers["x-device-id"] === undefined) request.headers["x-device-id"] = testDeviceId;
+    next();
+  });
+  configureApplication(application);
   await application.init();
   return { application, pool };
 }

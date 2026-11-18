@@ -1,7 +1,8 @@
 "use client";
 
 // Hộp thoại thanh toán (MAN_HINH_161; QUYTAC_NGHIEPVU_373): chuyển khoản qua mã VietQR (thu ngân xác nhận đã nhận), tiền mặt có gợi ý mệnh giá, tiền thừa;
-// điểm của khách VComm kèm mã Smart OTP (lát L6; QUYTAC_NGHIEPVU_379); khóa yêu cầu tạo một lần cho mỗi lần mở hộp thoại để gửi lại không ghi trùng.
+// điểm của khách VComm: quét mã thanh toán 18 số trên ứng dụng của khách (CONG_VIEC_73 lát L3), nhập mã Smart OTP 6 số khách đọc làm dự phòng
+// (lát L6; QUYTAC_NGHIEPVU_379); khóa yêu cầu tạo một lần cho mỗi lần mở hộp thoại để gửi lại không ghi trùng.
 import type { CreateRetailSaleRequest, RetailCustomerResponse, RetailQuoteResponse, RetailSaleResponse, RetailShiftResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import qrcode from "qrcode-generator";
@@ -36,6 +37,7 @@ export function PaymentDialog({
   onQuoteChanged,
   onPaid,
   onClose,
+  onApp,
 }: {
   shift: RetailShiftResponse;
   cart: CartItem[];
@@ -45,6 +47,8 @@ export function PaymentDialog({
   onQuoteChanged: () => void;
   onPaid: (sale: RetailSaleResponse) => void;
   onClose: () => void;
+  // CONG_VIEC_73: khách trả toàn bộ qua ứng dụng VComm (MAN_HINH_278).
+  onApp: () => void;
 }) {
   const t = useTranslations("retailCounter");
   const [clientKey] = useState(() => crypto.randomUUID());
@@ -63,9 +67,11 @@ export function PaymentDialog({
   const [pointsOn, setPointsOn] = useState(false);
   const [points, setPoints] = useState("");
   const [smartOtp, setSmartOtp] = useState("");
+  const [payCode, setPayCode] = useState("");
+  const [scanCode, setScanCode] = useState(true);
   const pointsUsed = pointsOn ? Math.trunc(Number(points) || 0) : 0;
   const pointsAmount = pointsOn && customer?.pointValue ? Math.floor(pointsUsed * Number(customer.pointValue)) : 0;
-  const pointsValid = !pointsOn || (pointsUsed >= (customer?.minPoints ?? 0) && pointsUsed <= (customer?.maxPoints ?? 0) && /^[0-9]{6}$/.test(smartOtp));
+  const pointsValid = !pointsOn || (pointsUsed >= (customer?.minPoints ?? 0) && pointsUsed <= (customer?.maxPoints ?? 0) && (scanCode ? /^[0-9]{18}$/.test(payCode) : /^[0-9]{6}$/.test(smartOtp)));
   const transferAmount = transferOn ? Number(transfer) || 0 : 0;
   const cashAmount = Number(cash) || 0;
   const remaining = Math.max(0, payable - transferAmount - pointsAmount);
@@ -78,6 +84,7 @@ export function PaymentDialog({
     const suggested = on && customer ? Math.min(customer.maxPoints, Math.floor(payable / Number(customer.pointValue))) : 0;
     setPoints(on ? String(suggested) : "");
     setSmartOtp("");
+    setPayCode("");
     setCash(String(Math.max(0, payable - transferAmount - (on && customer ? Math.floor(suggested * Number(customer.pointValue)) : 0))));
   }
   function changePoints(value: string) {
@@ -111,7 +118,7 @@ export function PaymentDialog({
         clientKey,
         lines: cart.map(({ variantId, unitId, quantity, discountPercent, serials }) => ({ variantId, unitId, quantity, discountPercent, serials })),
         buyer: { name: buyer.name, taxCode: buyer.taxCode, address: buyer.address, identityNo: buyer.identityNo },
-        ...(customer?.userId ? { customer: { userId: customer.userId, points: pointsUsed, ...(pointsUsed > 0 ? { smartOtp } : {}) } } : {}),
+        ...(customer?.userId ? { customer: { userId: customer.userId, points: pointsUsed, ...(pointsUsed > 0 ? (scanCode ? { payCode } : { smartOtp }) : {}) } } : {}),
         payments,
         expectedTotal: quote.totalAmount,
       };
@@ -129,6 +136,11 @@ export function PaymentDialog({
     <div className="man-che giua" onKeyDown={(event) => event.key === "Escape" && onClose()}>
       <form className="hop-thoai rong" role="dialog" aria-modal="true" aria-label={t("paymentTitle", { amount: money(payable) })} onSubmit={submit}>
         <h2>{t("paymentTitle", { amount: money(payable) })}</h2>
+        {shift.store.appPayment && (
+          <button type="button" className="nut phu" onClick={onApp}>
+            {t("appPayButton")}
+          </button>
+        )}
         {canRedeem && customer && (
           <label>
             <input type="checkbox" checked={pointsOn} onChange={(event) => togglePoints(event.target.checked)} /> {t("usePoints", { points: customer.balance.toLocaleString("vi-VN") })}
@@ -143,18 +155,46 @@ export function PaymentDialog({
             >
               <input id="diem-dung" className="o-nhap" inputMode="numeric" value={points} onChange={(event) => changePoints(event.target.value)} />
             </Field>
-            <Field id="ma-smart-otp" label={t("smartOtp")} hint={t("smartOtpHint")}>
-              <input
-                id="ma-smart-otp"
-                className="o-nhap"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={smartOtp}
-                onChange={(event) => setSmartOtp(event.target.value.replace(/[^0-9]/g, ""))}
-                style={{ letterSpacing: "6px", fontWeight: 800, maxWidth: "12rem" }}
-              />
-            </Field>
+            {scanCode ? (
+              <Field id="ma-thanh-toan-khach" label={t("payCode")} hint={t("payCodeHint")}>
+                <input
+                  id="ma-thanh-toan-khach"
+                  className="o-nhap o-quet"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  maxLength={18}
+                  value={payCode}
+                  // Máy quét gõ 18 số rồi Enter: chặn Enter để không gửi hộp thoại khi thu ngân chưa kiểm số tiền.
+                  onKeyDown={(event) => event.key === "Enter" && event.preventDefault()}
+                  onChange={(event) => setPayCode(event.target.value.replace(/[^0-9]/g, ""))}
+                  style={{ fontWeight: 800, maxWidth: "16rem" }}
+                />
+              </Field>
+            ) : (
+              <Field id="ma-smart-otp" label={t("smartOtp")} hint={t("smartOtpHint")}>
+                <input
+                  id="ma-smart-otp"
+                  className="o-nhap"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={smartOtp}
+                  onChange={(event) => setSmartOtp(event.target.value.replace(/[^0-9]/g, ""))}
+                  style={{ letterSpacing: "6px", fontWeight: 800, maxWidth: "12rem" }}
+                />
+              </Field>
+            )}
+            <button
+              type="button"
+              className="nut chu"
+              onClick={() => {
+                setScanCode(!scanCode);
+                setPayCode("");
+                setSmartOtp("");
+              }}
+            >
+              {scanCode ? t("payCodeUseOtp") : t("payCodeUseScan")}
+            </button>
           </div>
         )}
         {bank && (

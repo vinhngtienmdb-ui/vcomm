@@ -1164,6 +1164,7 @@ Chưa có.
 - RUIRO CONG_VIEC_47 (người dùng chấp nhận 2026-11-11): chấm công bằng GPS có thể bị giả vị trí bằng ứng dụng giả lập; hệ thống không ràng buộc thiết bị, không chụp ảnh. Biện pháp giảm thiểu: cấu hình địa điểm kết hợp mạng công ty hoặc mã QR động; lưu độ chính xác, cách xác thực để rà soát; trưởng phòng duyệt đơn giải trình. Thời hạn: xem lại khi có yêu cầu chấm công bằng khuôn mặt hoặc thiết bị.
 - Ghi nhận (CONG_VIEC_47): vị trí GPS tại lượt chấm là dữ liệu cá nhân; doanh nghiệp cần thông báo mục đích, có đồng ý của người lao động (nội quy hoặc văn bản) trước khi bật chấm công GPS; đưa vào hồ sơ đánh giá tác động xử lý dữ liệu cá nhân.
 - RUIRO THAY_DOI_23 (người dùng chấp nhận 2026-11-11, CONG_VIEC_54): API_204 trang tuyển dụng công khai không giới hạn số yêu cầu theo IP, không OTP, không giới hạn số lần nộp. Rủi ro: hồ sơ rác hàng loạt, đầy kho lưu trữ tệp, tốn tài nguyên máy chủ, ứng viên giả mạo dữ liệu người khác. Biện pháp giảm thiểu: tệp tối đa 10 MB, chỉ PDF hoặc DOCX, kiểm chữ ký đầu tệp; lược đồ dữ liệu chặt (từ chối trường lạ); chỉ nhận cho tin đang đăng công khai, chưa quá hạn; nộp công khai không gộp vào ứng viên có sẵn, chỉ đánh dấu trùng; hồ sơ không trúng tuyển tự xóa sau 30 ngày; theo dõi dung lượng kho tệp và số hồ sơ mỗi ngày khi vận hành (tài liệu `26`). Các API công khai khác giữ giới hạn 20 yêu cầu mỗi phút. Thời hạn: rà lại sau 3 tháng vận hành hoặc khi có dấu hiệu lạm dụng.
+- RUIRO CONG_VIEC_74 (người dùng chấp nhận 2026-11-17): thư viện in Bluetooth `react-native-bluetooth-classic` 1.73.0-rc.17 là bản rc, bảo trì chậm (bản gần nhất 2025-11-19, gần 1 năm chưa có bản mới), tác giả chỉ thử với Expo 51; chưa kiểm thử trên máy thật và chưa dựng thử trên Expo SDK 58. Rủi ro: lỗi khi nâng React Native hoặc Expo, lỗ hổng không được vá kịp. Biện pháp giảm thiểu: chỉ dùng để gửi lệnh in tới máy in đã ghép đôi, không đọc dữ liệu từ thiết bị; quyền `BLUETOOTH_CONNECT` xin lúc chạy; lỗi máy in không chặn ghi hóa đơn; phương án dự phòng `react-native-ble-plx` 3.5.1 hoặc hoãn Bluetooth. Thời hạn: rà lại khi dựng bản phát triển đầu tiên và mỗi lần nâng Expo.
 - Ghi nhận (CONG_VIEC_46): đánh giá tác động xử lý dữ liệu cá nhân (Luật 91/2025/QH15 Điều 21; Nghị định 356/2025/NĐ-CP Điều 19) là nghĩa vụ của doanh nghiệp, cần lập hồ sơ gửi cơ quan chuyên trách trong 60 ngày kể từ khi bắt đầu xử lý; ngoài phạm vi phần mềm.
 
 ## Kiểm soát điểm thưởng (CONG_VIEC_51)
@@ -1427,6 +1428,86 @@ Trạng thái: bản nháp mô tả dữ kiện kỹ thuật; không tra cứu, 
 | Thời gian lưu | Trên VComm: hội thoại 90 ngày, nhật ký lượt (không nội dung) 24 tháng. Tại nhà cung cấp: theo điều khoản thương mại khi đăng ký khóa |
 | Biện pháp bảo vệ | Che dữ liệu một chiều trước khi gửi; chỉ đọc theo quyền của người hỏi; quản trị bật từng tính năng, cấp quyền theo vai trò; hạn mức chi phí; thông báo và xác nhận trước lần dùng đầu; nhật ký thao tác khi đổi cài đặt |
 | Người phụ trách | Người dùng điền |
+
+### Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa TOTP của Smart OTP | Khóa bí mật | Máy chủ: `core.smart_otp_devices.secret_encrypted`, mã hóa bằng `secret-box` như CONG_VIEC_53; trả cho ứng dụng một lần khi kích hoạt, chuyển máy, khôi phục, đăng ký kèm kích hoạt. Máy: bộ nhớ an toàn (`expo-secure-store`) | Không ai (không có API đọc lại) |
+| Mã khóa Smart OTP | Bí mật của khách | Chỉ lưu trên máy, băm PBKDF2-SHA256 20.000 vòng, muối ngẫu nhiên 16 byte (`@noble/hashes`), trong bộ nhớ an toàn; không gửi máy chủ | Không ai |
+| Mã cài đặt ứng dụng (`X-Device-Id`) | Định danh thiết bị | Máy chủ chỉ lưu băm HMAC-SHA256 (`core.trusted_devices`, `core.sessions.device_hash`, `core.smart_otp_devices.device_hash`) | Người mua (danh sách thiết bị của mình, không có băm) |
+| Trạng thái bảo mật tài khoản | Nội bộ | `core.account_security` (khóa dùng điểm, lần khôi phục, ngoại lệ đặt lại mật khẩu) | `marketplace.buyer.view` (khối Bảo mật đăng nhập) |
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `POST /api/v1/buyer/login` (API_117) | Mật khẩu, khóa 15 phút sau 5 lần sai (như cũ) | Thiết bị chưa tin cậy chỉ nhận phiên chờ xác nhận (`device_verified = false`): mọi API khác `401 DEVICE_VERIFICATION_REQUIRED`, hiệu lực 10 phút, không làm mới được (làm mới phiên chờ trả `401`) |
+| `/api/v1/buyer/login/device-verification*` (API_318) | Phiên chờ xác nhận | Mã Smart OTP kiểm trong giao dịch có khóa dòng, mỗi bước dùng một lần, sai 5 lần khóa 15 phút (chung đăng nhập, quên mật khẩu, giao dịch điểm); nhóm giới hạn `otp-verify`; gửi SMS luôn `204` |
+| `/api/v1/buyer/login/otp*`, `/buyer/password-reset*` (API_117) | Công khai | Luôn `204`, không cho biết số có tài khoản hay đã kích hoạt (QUYTAC_NGHIEPVU_05); khách đã kích hoạt không nhận SMS; 5 mã mỗi giờ mỗi số; quên mật khẩu thu hồi mọi phiên, hết tin cậy thiết bị khác |
+| `/api/v1/buyer/loyalty/smart-otp*` (API_199, API_319) | Token ứng dụng (trạng thái, gửi mã, kích hoạt gọi được từ phiên chờ) | Bản web không kích hoạt; kích hoạt bằng SMS trên thiết bị chưa tin cậy hoặc khi đã từng có Smart OTP tính là khôi phục: khóa mọi cách dùng điểm theo số giờ tham số, thông báo trong ứng dụng và ZNS cho chủ tài khoản; chuyển máy cần mã của máy cũ |
+| `/api/v1/buyer/devices*` (API_321) | Token ứng dụng | Chỉ thiết bị của mình; gỡ thiết bị thu hồi mọi phiên của thiết bị đó |
+| `/api/v1/marketplace/buyers/{id}/security`, `/smart-otp/revoke` (API_322) | Phiên nhân viên, CSRF; xem `marketplace.buyer.view`; hủy `marketplace.buyer.security` (nhạy cảm) tại công ty vận hành sàn | Lý do bắt buộc 10 đến 500 ký tự, `version`; thu hồi mọi phiên, mọi thiết bị tin cậy; nhật ký thao tác kèm lý do; thông báo khách |
+| `/api/v1/marketplace/authentication-settings` (API_323) | Xem `marketplace.buyer.view`; sửa `marketplace.buyer.manage` (nhạy cảm) | Phạm vi giá trị, ngày bắt đầu không sau hôm nay, `version`; nhật ký thao tác trước, sau |
+| `/api/v1/merchant-portal/password-reset`, `/security*` (API_324) | Công khai (quên mật khẩu, nhóm giới hạn `login`); phiên cổng kể cả chưa qua bước hai (trạng thái, đặt mật khẩu) | Quên mật khẩu cần mã ứng dụng xác thực hoặc mã dự phòng; số không có tài khoản cổng đã thiết lập trả cùng lỗi như mã sai; sai 5 lần trong 15 phút khóa 15 phút (`423`); thu hồi mọi phiên web |
+| `/api/v1/merchant-portal/members/{id}/reset-authentication`, `/affiliate/merchants/{id}/members/{memberId}/reset-authentication` (API_325) | Chủ cửa hàng (chỉ thu ngân cửa hàng mình); `affiliate.manage` | Xóa ứng dụng xác thực, mã dự phòng, thu hồi mọi phiên web; không làm được với tài khoản nhân viên bắt buộc xác thực hai lớp (`409 merchantPortalResetStaff`); lần vào tới phải nhận mã SMS một lần; nhật ký thao tác |
+| `/api/v1/auth/otp/*` từ cổng (API_02, API_03) | Công khai | Hết thời hạn cổng `409 merchantPortalSmsDisabled`, không gửi SMS |
+
+- Không ghi mã Smart OTP, mã SMS, khóa TOTP, mã khóa vào log, nhật ký thao tác, thông báo lỗi; nhật ký thao tác chỉ ghi tên máy, nền tảng, lý do (tài liệu `19` mục 3.5).
+- Sai mã khóa 5 lần liên tiếp: ứng dụng xóa khóa Smart OTP trên máy và gọi `POST /buyer/loyalty/smart-otp/lockout`, máy chủ hủy Smart OTP; khách kích hoạt lại theo khôi phục.
+- Khóa dùng điểm sau khôi phục (mặc định 24 giờ) lưu ở `core.account_security`, nên khách tự hủy Smart OTP không xóa được khóa; không ai mở sớm, kể cả chăm sóc khách hàng; áp mọi cách dùng điểm, xét trước giới hạn và chống gian lận. Kẻ chiếm SIM có mật khẩu chỉ khôi phục được Smart OTP mà không dùng điểm ngay, chủ tài khoản nhận thông báo.
+- Thiết bị tin cậy hết sau 12 tháng không dùng; đặt lại mật khẩu bỏ tin cậy mọi thiết bị trừ thiết bị đang làm; chăm sóc khách hàng hủy Smart OTP bỏ tin cậy mọi thiết bị.
+- Ngoại lệ đặt lại mật khẩu bằng SMS sau khi chăm sóc khách hàng hủy Smart OTP chỉ dùng một lần trong 24 giờ.
+- Yêu cầu xác thực hai lớp của cổng xét theo ứng dụng đăng nhập; không làm ứng dụng VComm đòi mã ứng dụng xác thực.
+- Giới hạn đã biết: `expo-local-authentication` không báo máy vừa thêm vân tay, khuôn mặt mới nên ứng dụng không tự tắt sinh trắc học như QUYTAC_NGHIEPVU_563 dự kiến; bù lại hệ điều hành bắt nhập mật mã máy khi thêm, ứng dụng không cho dùng mật mã máy thay sinh trắc học. Người dùng chấp nhận 2026-11-17.
+- Thư viện mới ở ứng dụng VComm: `expo-local-authentication` 58.0.2 (MIT), `@noble/hashes` 2.4.0 (MIT), người dùng duyệt 2026-11-17.
+
+Kết quả rà soát bảo mật CONG_VIEC_72 (2026-11-17):
+- Không phát hiện lỗi mức Nghiêm trọng, Cao còn mở.
+- Đã sửa trong rà soát: sau thời hạn, thành viên cổng chưa thiết lập chỉ có mật khẩu hoặc Zalo tự đăng ký được ứng dụng xác thực qua API_07, API_08 và vào cổng mà không qua đặt lại xác thực, mã SMS kích hoạt; nay trả `409 merchantPortalSecurityBlocked` (KICHBAN_KIEMTHU_746, 747).
+- Không ghi mã Smart OTP, mã SMS, mã khóa, khóa TOTP vào log, nhật ký thao tác, thông báo lỗi; mã SMS chỉ in ra log trên máy phát triển khi chưa cài eSMS (đã có từ trước, chặn khi `NODE_ENV=production`).
+- Thư viện mới `expo-local-authentication` 58.0.2, `@noble/hashes` 2.4.0 (MIT, cố định phiên bản). `pnpm audit --prod`: không có mức Cao (1 Thấp, 5 Trung bình là phụ thuộc có từ trước).
+- Giới hạn đã biết, người dùng chấp nhận 2026-11-17: sinh trắc học không tự tắt khi thêm vân tay, khuôn mặt mới trên máy.
+
+## Kiểm soát mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (CONG_VIEC_73)
+
+- Mã thanh toán động: 12 số của thiết bị lưu băm HMAC-SHA256, 6 số là Smart OTP kiểm như đăng nhập (mỗi bước một lần, sai 5 lần khóa 15 phút); mã chỉ cấp cho thiết bị đang giữ Smart OTP, cấp lại thì mã cũ hết hiệu lực; không chứa số điện thoại, tên.
+- Quét mã sai tối đa 10 lần mỗi giờ mỗi thu ngân, khóa API; mở đường dẫn QR sai tối đa 20 lần mỗi giờ mỗi người mua (`instore.attempt_failures`). Mã QR 128 bit ngẫu nhiên, lưu băm, hết hạn cùng đơn; khách đầu tiên giữ đơn.
+- Kết quả cổng chỉ nhận qua thông báo có chữ ký, đúng số tiền, một lần; trang trả về chỉ để hiển thị.
+- Tiền, chứng từ, điểm, bút toán ghi trong một giao dịch cơ sở dữ liệu, khóa đơn `FOR UPDATE`.
+- Webhook: khóa ký mã hóa bằng `secret-box`, hiện một lần khi cấp; chữ ký HMAC-SHA256 trên thời điểm và thân để máy nhận chống phát lại; chỉ gửi tới địa chỉ HTTPS.
+- Open API: phạm vi `instore.checkout` gán riêng; khóa chỉ thấy đơn của cửa hàng của khóa; hủy đã thanh toán theo cùng quy tắc chủ cửa hàng.
+- Hóa đơn ủy nhiệm: tệp văn bản ủy nhiệm chỉ người có `affiliate.manage` tải; khách mở PDF qua đường dẫn ký có hạn 10 phút.
+- Thu hộ mặc định tắt; bật lần đầu phải xác nhận cảnh báo pháp lý, ghi người, thời điểm xác nhận.
+- Nhật ký thao tác: bật, tắt thu hộ, sửa phí, biểu phí cổng, dữ liệu ủy nhiệm, ghi đã chuyển, cấp lại khóa ký, lập bù hóa đơn; không ghi mã động, khóa ký.
+- Thư viện mới ở ứng dụng VComm: `expo-brightness` 58.0.2 (MIT), người dùng duyệt 2026-11-17.
+- Rủi ro chuyển cho người dùng (đặc tả CONG_VIEC_73 mục 20): hồ sơ pháp lý trung gian thanh toán; tính hợp lệ ủy nhiệm lập hóa đơn; kế toán trưởng xác nhận tài khoản 3388. Không bật thu hộ trên môi trường thật khi chưa xác nhận.
+- Đã sửa trong lúc làm: sửa khóa API cửa hàng liên kết trả lỗi 500 (CONG_VIEC_67, thiếu cột cửa hàng khi đọc khóa).
+
+### Phần mềm bán hàng iPOS cho cửa hàng liên kết (MODULE_17, CONG_VIEC_74)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa thiết bị (máy bán đã ghép) | Khóa bí mật | Sinh 32 byte ngẫu nhiên, trả cho máy một lần khi ghép; máy chủ chỉ lưu băm SHA-256 (`ipos.devices.key_hash`); thu hồi thiết bị thì khóa hết hiệu lực | Không ai |
+| Mã ghép thiết bị 8 ký tự | Bí mật ngắn hạn | Băm SHA-256 (`ipos.pairing_codes.code_hash`), dùng một lần, hết hạn theo đếm ngược | Chủ cửa hàng lúc tạo |
+| Mã PIN thu ngân 6 số | Bí mật của người dùng | Băm argon2id theo (thành viên, thiết bị) (`ipos.member_pins`); sai 5 lần khóa 15 phút | Không ai |
+| Mã duyệt PIN của chủ (giảm giá vượt mức, trả hàng) | Bí mật ngắn hạn | 6 số, dùng một lần, gắn thiết bị, hết hạn 2 phút (`ipos.approval_codes`) | Thiết bị yêu cầu |
+| Dữ liệu bán hàng của cửa hàng (hóa đơn, dòng hàng, giá vốn, khách) | Dữ liệu kinh doanh của cửa hàng | Schema riêng `ipos`; mọi truy vấn lọc theo cửa hàng của phiên; ERP chỉ đọc chỉ số tổng (không dòng hàng, giá vốn, khách; QUYTAC_NGHIEPVU_626) | Chủ cửa hàng; thu ngân (ca của mình); công ty vận hành sàn (chỉ số tổng, đối soát) |
+| Phiếu phí thuê bao, công nợ, bút toán | Tài chính | `ipos.fee_invoices`, `finance.debt_items`, `accounting.journals` của công ty vận hành sàn | `affiliate.view`; hủy, lập lại: `ipos.subscription.manage` |
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `/api/v1/ipos/devices/pair` | Công khai (mã ghép) | Mã băm, dùng một lần, hết hạn; nhóm giới hạn tần suất; nhật ký ghép |
+| `/api/v1/ipos/pos/*` (API_336 đến 343) | Khóa thiết bị (header `x-ipos-device`) và token phiên thu ngân gắn thiết bị | Phiên theo chuỗi phiên gắn thiết bị; đăng nhập lần đầu bằng Smart OTP hoặc mã SMS (khi còn thời hạn chuyển đổi), sau đó mã PIN; giao dịch điểm, đơn chờ, hóa đơn chỉ của quầy, điểm bán của thiết bị; khóa yêu cầu chống ghi trùng |
+| `/api/v1/merchant-portal/ipos/*` (API_344 đến 353) | Phiên cổng cửa hàng, CSRF | Chủ cửa hàng cho mọi trang quản lý, báo cáo, thuê bao và phí; dữ liệu lọc theo cửa hàng đang chọn |
+| `/api/v1/ipos/*`, `/api/v1/affiliate/merchants/{id}/ipos*` (API_354 đến 357) | Phiên nhân viên, CSRF | Xem `affiliate.view`; sửa gói `ipos.plan.manage`; thuê bao, phiếu phí `ipos.subscription.manage`; phạm vi cửa hàng của công ty vận hành sàn |
+
+- Không ghi mã PIN, mã ghép, khóa thiết bị, mã OTP, mã thanh toán động vào log, nhật ký thao tác, thông báo lỗi; nhật ký thao tác ghi quầy, máy, người duyệt, lý do.
+- Mỗi module chỉ ghi schema của mình: iPOS ghi `affiliate` (bảng đối soát tuần) qua chỗ đăng ký khoản thu thêm của service `affiliate`, ghi `instore` (đơn chờ, khoản trừ) qua service và móc của CONG_VIEC_73.
+
+Kết quả rà soát bảo mật CONG_VIEC_74 đợt 1 (2026-11-17):
+- Truy vấn dùng tham số của `sql` (drizzle); `sql.raw` chỉ nhận bí danh bảng cố định trong mã (báo cáo cửa hàng, báo cáo ERP), không nhận dữ liệu người dùng.
+- Mọi endpoint mới của lát L5 đến L7 (trả hàng, báo cáo, đối soát ERP, phiếu phí, mã VietQR trả phí) đều kiểm quyền và phạm vi cửa hàng; đầu vào kiểm bằng zod.
+- Không thêm thư viện ở lát L5 đến L7. `pnpm audit --prod`: không có mức Cao; 1 Thấp, 5 Trung bình đều nằm trong công cụ dòng lệnh của Expo (`@expo/cli`: `glob`, `minimatch`, `node-forge`), chỉ dùng khi dựng ứng dụng, không chạy trên máy bán hay máy chủ.
+- Giới hạn đã biết, người dùng chấp nhận: thư viện in Bluetooth bản rc (RUIRO CONG_VIEC_74 ở trên); in thật, ngắt mạng thử trên máy Sunmi T2 khi nghiệm thu.
 
 ## Lệnh khởi tạo môi trường thật (CONG_VIEC_78)
 

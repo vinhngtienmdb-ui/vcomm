@@ -116,8 +116,19 @@ Phần B. Liên kết OA với eSMS và đăng ký mẫu ZNS:
 | Mã mẫu chờ duyệt | Không | Mã mẫu ZNS: có chứng từ chờ duyệt |
 | Mã mẫu nhắc quá hạn | Không | Mã mẫu ZNS: nhắc quá hạn duyệt |
 | Mã mẫu kết quả duyệt | Không | Mã mẫu ZNS: kết quả duyệt |
+| Mã mẫu nhắc kích hoạt Smart OTP (CONG_VIEC_72) | Không | Mã mẫu ZNS: nhắc kích hoạt Smart OTP (khóa `esms.template.smart_otp_reminder`) |
+| Mã mẫu Smart OTP chuyển máy (CONG_VIEC_72) | Không | Mã mẫu ZNS: Smart OTP chuyển máy (khóa `esms.template.smart_otp_transferred`) |
+| Mã mẫu Smart OTP bị hủy (CONG_VIEC_72) | Không | Mã mẫu ZNS: Smart OTP bị hủy (khóa `esms.template.smart_otp_revoked`) |
 
 Mẫu nào để trống thì VComm không gửi ZNS cho sự kiện đó (mã OTP vẫn gửi SMS). Nhân viên phải có số điện thoại trong hồ sơ mới nhận được ZNS. Kiểm tra bằng nút **Gửi thử tin**: có mã OA và mẫu OTP thì tin thử đi qua Zalo trước.
+
+Ba mẫu ZNS cho người mua (CONG_VIEC_72, QUYTAC_NGHIEPVU_566, 567, 571): người dùng đăng ký từng mẫu với eSMS (như các bước ở mục 2.3), eSMS duyệt xong thì nhập mã mẫu vào ô tương ứng ở **Cài đặt tích hợp**. Mẫu nào để trống thì VComm chỉ gửi thông báo trong ứng dụng, không gửi SMS thay. Tin gửi tới số điện thoại của tài khoản người mua. Tham số VComm truyền vào mẫu (tên tham số khi đăng ký mẫu phải trùng):
+
+| Mẫu | Khi gửi | Tham số |
+|---|---|---|
+| Nhắc kích hoạt Smart OTP | Một tin mỗi khách chưa kích hoạt (hoặc đang dùng Smart OTP trên bản web), từ 7 ngày trước hạn chuyển đổi; việc nền 9 giờ hằng ngày | `date`: ngày cuối thời hạn (dd/mm/yyyy) |
+| Smart OTP chuyển máy | Khi khôi phục Smart OTP (kích hoạt bằng mã SMS trên thiết bị chưa tin cậy, hoặc khi tài khoản đã từng có Smart OTP) | `device`: tên máy mới; `time`: thời điểm; `locked_until`: giờ hết khóa dùng điểm (trống khi không khóa); `hotline`: số tổng đài chăm sóc khách hàng (trống khi chưa nhập ở MAN_HINH_275) |
+| Smart OTP bị hủy | Khi chăm sóc khách hàng hủy Smart OTP của khách | `hotline`: số tổng đài chăm sóc khách hàng (trống khi chưa nhập) |
 
 ### 2.5. Thời gian và chi phí
 

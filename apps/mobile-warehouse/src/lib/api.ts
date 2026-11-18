@@ -73,11 +73,15 @@ async function refresh(): Promise<RefreshOutcome> {
   return refreshing;
 }
 
-export async function api<T>(path: string, init: RequestInit & { json?: unknown } = {}, retried = false): Promise<T> {
+// CONG_VIEC_75 (sau LOI_15): dữ liệu JSON phải truyền qua `json` để được gắn content-type application/json;
+// `body` chỉ nhận dữ liệu nhị phân, biểu mẫu, nên truyền chuỗi (ví dụ JSON.stringify) báo lỗi khi kiểm tra kiểu.
+export type ApiInit = Omit<RequestInit, "body"> & { body?: FormData | Blob | URLSearchParams; json?: unknown };
+
+export async function api<T>(path: string, init: ApiInit = {}, retried = false): Promise<T> {
   const headers: Record<string, string> = { "accept-language": "vi", ...(init.headers as Record<string, string> | undefined) };
   if (tokens) headers.authorization = `Bearer ${tokens.accessToken}`;
   if (companyId) headers["x-company-id"] = companyId;
-  let body = init.body;
+  let body: BodyInit | undefined = init.body;
   if (init.json !== undefined) {
     headers["content-type"] = "application/json";
     body = JSON.stringify(init.json);

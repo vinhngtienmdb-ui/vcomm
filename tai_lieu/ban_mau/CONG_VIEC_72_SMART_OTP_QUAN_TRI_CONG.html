@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_72 Smart OTP – quản trị, cổng</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<style>
+  /* Bản mẫu CONG_VIEC_72 (web-crm, cổng cửa hàng liên kết). Chỉ dùng biến của tài liệu 15. */
+  body { background: var(--mau-nen); }
+  .trang-mau { padding: var(--khoang-5) var(--khoang-4); display: grid; gap: var(--khoang-5); max-width: 1300px; margin: 0 auto; }
+  .chu-phu { color: var(--mau-chu-phu); font-size: 12px; line-height: 16px; }
+  .hang-mau { display: flex; flex-wrap: wrap; gap: var(--khoang-5); align-items: flex-start; }
+  .khung { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); padding: var(--khoang-4); display: grid; gap: var(--khoang-3); }
+  .khung h3, .khung h4 { margin: 0; }
+  .luoi-truong { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--khoang-3); }
+  .o-nhap { border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); padding: 8px 10px; font: inherit; background: var(--mau-be-mat); }
+  .so-lieu { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--khoang-3); }
+  .so-lieu div { border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-3); display: grid; gap: 2px; }
+  .so-lieu strong { font-size: 22px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--mau-vien); }
+  th { font-size: 12px; color: var(--mau-chu-phu); }
+  td.so { text-align: right; font-variant-numeric: tabular-nums; }
+  .hop-thoai-tinh { width: min(460px, 100%); box-sizing: border-box; background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); padding: var(--khoang-4); display: grid; gap: var(--khoang-3); }
+  .the-dang-nhap { width: min(380px, 100%); box-sizing: border-box; background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); padding: var(--khoang-5); display: grid; gap: var(--khoang-3); }
+  .the-dang-nhap h3 { margin: 0; }
+  .nut-rong { width: 100%; justify-content: center; }
+  .o-ma { display: flex; gap: var(--khoang-2); }
+  .o-ma input { width: 40px; height: 48px; text-align: center; font: inherit; font-size: 22px; font-weight: 800; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); }
+  .ma-qr { width: 140px; height: 140px; background: repeating-linear-gradient(45deg, var(--mau-chu) 0 6px, var(--mau-be-mat) 6px 12px); border: 8px solid var(--mau-be-mat); outline: 1px solid var(--mau-vien); }
+  .ma-du-phong { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--khoang-1) var(--khoang-4); font-family: ui-monospace, monospace; font-size: 15px; }
+  .buoc { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--khoang-2); flex-wrap: wrap; }
+  .buoc li { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: var(--bo-tron); background: var(--mau-nen); border: 1px solid var(--mau-vien); }
+  .buoc li.chon { background: var(--mau-chinh); color: #fff; border-color: var(--mau-chinh); }
+  .lien-ket { color: var(--mau-chinh); font-weight: 700; }
+  pre { background: var(--mau-nen); border: 1px solid var(--mau-vien); border-radius: var(--bo-nho); padding: var(--khoang-3); font-size: 12px; margin: 0; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="trang-mau">
+  <header>
+    <h1>CONG_VIEC_72 – Ưu tiên Smart OTP (web quản trị, cổng cửa hàng liên kết)</h1>
+    <p class="chu-phu">Sửa MAN_HINH_86 (thẻ Xác thực), MAN_HINH_80 (khối Bảo mật đăng nhập), trang đăng nhập cổng, MAN_HINH_177, 178; mới MAN_HINH_273, 274. Số liệu giả.</p>
+  </header>
+
+  <h2>1. Web-crm: Cài đặt bán hàng VComm – thẻ "Xác thực" (MAN_HINH_86 sửa)</h2>
+  <section class="khung">
+    <div class="cac-the"><button type="button">Bán hàng</button><button type="button">Đặt hàng và thanh toán</button><button type="button">Hoa hồng và rút tiền</button><button type="button" class="chon">Xác thực</button></div>
+    <div class="khoi-canh-bao thong-tin">Thời hạn chuyển đổi: <strong>18/11/2026 đến hết 17/12/2026</strong> (người mua), <strong>đến hết 17/12/2026</strong> (cổng cửa hàng liên kết). Sau hạn, khách chưa kích hoạt Smart OTP không nhận SMS dự phòng.</div>
+    <div class="luoi-truong">
+      <label class="truong"><label>Ngày bắt đầu chuyển đổi</label><input class="o-nhap" value="18/11/2026"><span class="chu-phu">Mặc định ngày triển khai; không sau hôm nay</span></label>
+      <label class="truong"><label>Số ngày chuyển đổi – người mua</label><input class="o-nhap" value="30"><span class="chu-phu">1 đến 180</span></label>
+      <label class="truong"><label>Số ngày chuyển đổi – cổng cửa hàng liên kết</label><input class="o-nhap" value="30"><span class="chu-phu">1 đến 180</span></label>
+      <label class="truong"><label>Khóa dùng điểm sau khôi phục (giờ)</label><input class="o-nhap" value="24"><span class="chu-phu">0 đến 168</span></label>
+      <label class="truong"><label>Số tổng đài chăm sóc khách hàng</label><input class="o-nhap" value="1900 1234"><span class="chu-phu">Tùy chọn; hiện trong thông báo khôi phục, hủy Smart OTP</span></label>
+    </div>
+    <div class="nhom-nut"><button class="nut chinh" type="button">Lưu</button><span class="chu-phu">Cần quyền <code>marketplace.buyer.manage</code>; người chỉ xem thấy ô khóa.</span></div>
+    <h3>Tình hình kích hoạt</h3>
+    <div class="so-lieu">
+      <div><span class="chu-phu">Người mua đã kích hoạt Smart OTP</span><strong>12.480 / 31.200</strong><span class="chu-phu">40,0% · trên bản web còn 37</span></div>
+      <div><span class="chu-phu">Tài khoản cổng đã thiết lập bảo mật</span><strong>86 / 140</strong><span class="chu-phu">61,4%</span></div>
+    </div>
+    <h3>Tin SMS mã OTP 30 ngày gần nhất</h3>
+    <div class="khung-bang"><table>
+      <thead><tr><th>Mục đích</th><th style="text-align:right">Số tin</th></tr></thead>
+      <tbody>
+        <tr><td>Đăng ký</td><td class="so">4.120</td></tr>
+        <tr><td>Kích hoạt Smart OTP, khôi phục</td><td class="so">9.880</td></tr>
+        <tr><td>Đăng nhập (dự phòng)</td><td class="so">2.310</td></tr>
+        <tr><td>Quên mật khẩu (dự phòng)</td><td class="so">640</td></tr>
+        <tr><td>Cửa hàng liên kết qua Open API (dự phòng)</td><td class="so">1.150</td></tr>
+        <tr><td>Cổng cửa hàng liên kết (dự phòng)</td><td class="so">210</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <h2>2. Web-crm: Chi tiết tài khoản người mua – khối "Bảo mật đăng nhập" (MAN_HINH_80 sửa)</h2>
+  <section class="hang-mau">
+    <div class="khung" style="width:min(520px,100%)">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3>Bảo mật đăng nhập</h3><button class="nut nguy-hiem" type="button">Hủy Smart OTP</button></div>
+      <table>
+        <tbody>
+          <tr><th>Smart OTP</th><td><span class="nhan thanh-cong">Đang hoạt động</span> iPhone · kích hoạt 17/11/2026 09:12</td></tr>
+          <tr><th>Khóa dùng điểm</th><td><span class="nhan canh-bao">Đến 10:05 18/11/2026</span> (khôi phục 17/11/2026 10:05)</td></tr>
+          <tr><th>Mã sai gần nhất</th><td>Không khóa</td></tr>
+          <tr><th>Thiết bị tin cậy</th><td>3 (gần nhất 17/11/2026 10:02)</td></tr>
+          <tr><th>Thời hạn chuyển đổi</th><td>Đến hết 17/12/2026</td></tr>
+        </tbody>
+      </table>
+      <span class="chu-phu">Nút "Hủy Smart OTP" chỉ hiện với quyền <code>marketplace.buyer.security</code>.</span>
+    </div>
+    <div class="hop-thoai-tinh" role="dialog" aria-labelledby="tieu-de-huy">
+      <h3 id="tieu-de-huy">Hủy Smart OTP của Tr** Vă* Minh?</h3>
+      <div class="khoi-canh-bao canh-bao">Khách bị đăng xuất mọi thiết bị, mất mọi thiết bị tin cậy. Kích hoạt lại tính là khôi phục: dùng điểm tạm khóa 24 giờ. Khách được đặt lại mật khẩu bằng SMS một lần trong 24 giờ.</div>
+      <label class="truong"><label>Lý do (bắt buộc)</label><textarea class="o-nhap" rows="3">Khách gọi tổng đài báo mất điện thoại và mất SIM, đã xác minh CCCD tại cửa hàng.</textarea><span class="chu-phu">10 đến 500 ký tự; ghi vào nhật ký thao tác</span></label>
+      <div class="nhom-nut"><button class="nut nguy-hiem" type="button">Hủy Smart OTP</button><button class="nut phu" type="button">Đóng</button></div>
+    </div>
+  </section>
+
+  <h2>3. Cổng cửa hàng liên kết</h2>
+  <section class="hang-mau">
+    <div class="the-dang-nhap">
+      <h3>3a. Đăng nhập cổng (sửa)</h3>
+      <label class="truong"><label>Số điện thoại</label><input class="o-nhap" value="0912 345 678"></label>
+      <label class="truong"><label>Mật khẩu</label><input class="o-nhap" type="password" value="matkhau"></label>
+      <button class="nut chinh nut-rong" type="button">Đăng nhập</button>
+      <button class="nut phu nut-rong" type="button">Đăng nhập bằng Zalo</button>
+      <a class="lien-ket" href="#quen">Quên mật khẩu?</a>
+      <span class="chu-phu">Trong thời hạn (đến 17/12/2026): <a class="lien-ket" href="#">Đăng nhập bằng mã SMS</a> cho tài khoản chưa thiết lập bảo mật.</span>
+    </div>
+
+    <div class="the-dang-nhap">
+      <h3>3b. Nhập mã ứng dụng xác thực (MAN_HINH_273)</h3>
+      <span class="chu-phu">Mở Google Authenticator, Microsoft Authenticator hoặc ứng dụng xác thực bạn đã cài, nhập mã 6 số của "VComm".</span>
+      <div class="o-ma" aria-label="Mã ứng dụng xác thực"><input value="7"><input value="3"><input value="0"><input value="1"><input value="9"><input value="2"></div>
+      <button class="nut chinh nut-rong" type="button">Xác nhận</button>
+      <a class="lien-ket" href="#">Dùng mã dự phòng</a>
+      <span class="chu-phu">Mất ứng dụng xác thực và hết mã dự phòng: nhờ chủ cửa hàng (thu ngân) hoặc VComm (chủ cửa hàng) đặt lại xác thực.</span>
+    </div>
+
+    <div class="the-dang-nhap" style="width:min(440px,100%)">
+      <h3>3c. Thiết lập bảo mật (MAN_HINH_273)</h3>
+      <ol class="buoc"><li>1. Mật khẩu</li><li class="chon">2. Ứng dụng xác thực</li><li>3. Mã dự phòng</li></ol>
+      <div class="khoi-canh-bao thong-tin">Từ 18/12/2026 cổng không đăng nhập bằng mã SMS nữa. Còn 30 ngày.</div>
+      <div style="display:flex;gap:var(--khoang-3);align-items:center"><div class="ma-qr" role="img" aria-label="Mã QR đăng ký ứng dụng xác thực"></div><span class="chu-phu">Quét mã bằng ứng dụng xác thực. Không quét được? Nhập khóa: <code>JBSW Y3DP EHPK 3PXP</code></span></div>
+      <label class="truong"><label>Mã 6 số trong ứng dụng xác thực</label><input class="o-nhap" value=""></label>
+      <div class="nhom-nut"><button class="nut chinh" type="button">Tiếp tục</button><button class="nut chu" type="button">Để sau</button></div>
+    </div>
+
+    <div class="the-dang-nhap" style="width:min(440px,100%)">
+      <h3>3d. Mã dự phòng (bước 3)</h3>
+      <span class="chu-phu">Lưu 10 mã này ở nơi an toàn. Mỗi mã dùng một lần khi không có ứng dụng xác thực. Mã chỉ hiện một lần.</span>
+      <div class="ma-du-phong"><span>K7QM-2XPA</span><span>R4TZ-9WNC</span><span>H2LD-6YVB</span><span>P8JF-3MKE</span><span>W5NS-7QGT</span><span>C9XR-4HLA</span><span>M3VB-8TZD</span><span>Y6GE-2PJN</span><span>D4KH-5RWX</span><span>T7ZC-9LQM</span></div>
+      <div class="nhom-nut"><button class="nut phu" type="button">Sao chép</button><button class="nut phu" type="button">Tải tệp</button><button class="nut chinh" type="button">Đã lưu, vào cổng</button></div>
+    </div>
+
+    <div class="the-dang-nhap" id="quen">
+      <h3>3e. Quên mật khẩu cổng (MAN_HINH_274)</h3>
+      <label class="truong"><label>Số điện thoại</label><input class="o-nhap" value="0912 345 678"></label>
+      <label class="truong"><label>Mã ứng dụng xác thực hoặc mã dự phòng</label><input class="o-nhap" value=""></label>
+      <label class="truong"><label>Mật khẩu mới</label><input class="o-nhap" type="password" value=""></label>
+      <button class="nut chinh nut-rong" type="button">Đặt mật khẩu mới</button>
+      <span class="chu-phu">Đặt xong, mọi phiên cổng của tài khoản bị đăng xuất.</span>
+    </div>
+  </section>
+
+  <h2>4. Cổng: Cửa hàng của tôi – nhân viên (MAN_HINH_177 sửa; MAN_HINH_178 tương tự)</h2>
+  <section class="khung">
+    <div class="khung-bang"><table>
+      <thead><tr><th>Họ tên</th><th>Số điện thoại</th><th>Vai trò</th><th>Bảo mật</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Nguyễn Thị Lan</td><td>0912 345 678</td><td>Chủ cửa hàng</td><td><span class="nhan thanh-cong">Đã thiết lập</span></td><td></td></tr>
+        <tr><td>Phạm Văn Hùng</td><td>0987 654 321</td><td>Thu ngân</td><td><span class="nhan canh-bao">Chưa thiết lập</span></td><td><button class="nut chu" type="button">Đặt lại xác thực</button></td></tr>
+        <tr><td>Lê Thu Hà</td><td>0909 111 222</td><td>Thu ngân</td><td><span class="nhan thanh-cong">Đã thiết lập</span></td><td><button class="nut chu" type="button">Đặt lại xác thực</button></td></tr>
+      </tbody>
+    </table></div>
+    <span class="chu-phu">Đặt lại xác thực: xóa ứng dụng xác thực và mã dự phòng, đăng xuất; lần vào tới người đó nhận mã SMS một lần, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới.</span>
+  </section>
+
+  <h2>5. Open API cửa hàng liên kết (CONG_VIEC_67 sửa)</h2>
+  <section class="hang-mau">
+    <div class="khung" style="width:min(600px,100%)">
+      <h4>Tra điểm – kết quả thêm trường</h4>
+<pre>{
+  "buyerName": "Tr** Vă* Minh",
+  "redeemable": true,
+  "smartOtpActive": false,
+  "otpMethod": "sms",            // smart_otp | sms (trong thời hạn) | unavailable (hết hạn, chưa kích hoạt)
+  "redeemLockedUntil": null      // có giá trị khi vừa khôi phục Smart OTP
+}</pre>
+      <h4>Gửi mã sau thời hạn, khách chưa kích hoạt</h4>
+<pre>409 { "code": "BUSINESS_RULE", "message": "affiliateSmartOtpRequired" }</pre>
+    </div>
+  </section>
+</div>
+</body>
+</html>

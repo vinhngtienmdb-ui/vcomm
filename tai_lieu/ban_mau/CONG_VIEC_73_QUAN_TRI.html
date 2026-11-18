@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_73 Thu hộ và ủy nhiệm hóa đơn – Web quản trị</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<style>
+  /* Bản mẫu CONG_VIEC_73. Chỉ dùng biến của tài liệu 15. */
+  body { padding: var(--khoang-5); display: grid; gap: var(--khoang-6); background: var(--mau-nen); }
+  .khung-mau { display: grid; gap: var(--khoang-3); background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-4); }
+  .khung-mau > h2 { margin: 0; }
+  .luoi-truong { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--khoang-3); }
+  .bang-mau { width: 100%; border-collapse: collapse; }
+  .bang-mau th, .bang-mau td { text-align: left; padding: var(--khoang-2); border-bottom: 1px solid var(--mau-vien); font-size: 14px; }
+  .bang-mau .so { text-align: right; }
+  .cuon { overflow-x: auto; }
+  .dong-ngang { display: flex; flex-wrap: wrap; gap: var(--khoang-2); align-items: center; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<!-- MAN_HINH_279 -->
+<section class="khung-mau" aria-labelledby="k1">
+  <div class="dong-ngang"><h2 id="k1">MAN_HINH_279 · Thu hộ và ủy nhiệm hóa đơn</h2><span class="chu-thich">Thẻ trong chi tiết cửa hàng liên kết CH000012 Cà phê Hạt Nâu (web-crm, quyền <code>affiliate.manage</code>)</span></div>
+  <h3>Thu hộ qua ứng dụng</h3>
+  <label style="display:flex;gap:var(--khoang-2);align-items:center"><input type="checkbox"> Bật thu hộ qua ứng dụng VComm <span class="nhan trung-tinh">Đang tắt</span></label>
+  <div class="luoi-truong">
+    <label class="truong">Phí thu hộ (%)<input class="o-nhap" value="1,50"></label>
+    <label class="truong">Tài khoản nhận tiền<select class="o-nhap"><option>Vietcombank · 0071 0012 3456 · HO KINH DOANH HAT NAU</option></select></label>
+  </div>
+  <div class="khoi-canh-bao canh-bao">Bật lần đầu hiện hộp xác nhận: "Thu hộ tiền của cửa hàng có thể là hoạt động trung gian thanh toán. Chỉ bật khi hồ sơ pháp lý đã được xác nhận." cùng ô "Tôi đã đọc".</div>
+  <h3>Ủy nhiệm lập hóa đơn điện tử</h3>
+  <div class="luoi-truong">
+    <label class="truong">Tên người bán<input class="o-nhap" value="Hộ kinh doanh Cà phê Hạt Nâu"></label>
+    <label class="truong">Mã số thuế<input class="o-nhap" value="0312345678"></label>
+    <label class="truong">Địa chỉ<input class="o-nhap" value="12 Lê Lợi, Quận 1, Thành phố Hồ Chí Minh"></label>
+    <label class="truong">Phương pháp tính thuế<select class="o-nhap"><option>Trực tiếp, hộ kinh doanh – hóa đơn bán hàng</option><option>Khấu trừ – hóa đơn giá trị gia tăng</option></select></label>
+    <label class="truong">Thuế suất mặc định<select class="o-nhap"><option>Tỷ lệ % trên doanh thu (cài theo ngành)</option><option>8 %</option><option>10 %</option></select></label>
+    <label class="truong">Số văn bản ủy nhiệm<input class="o-nhap" value="01/2026/UN-HN"></label>
+    <label class="truong">Hiệu lực từ<input class="o-nhap" type="date" value="2026-11-20"></label>
+    <label class="truong">Hiệu lực đến (trống: không thời hạn)<input class="o-nhap" type="date"></label>
+    <label class="truong">Ký hiệu hóa đơn năm 2026<input class="o-nhap" value="2C26THN"></label>
+    <label class="truong">Văn bản ủy nhiệm (PDF, tối đa 10 MB)<input class="o-nhap" type="file"></label>
+  </div>
+  <div class="khoi-canh-bao thong-tin">Hóa đơn lập bằng tài khoản nhà cung cấp hóa đơn của công ty vận hành sàn, ghi "Hóa đơn lập theo ủy nhiệm số 01/2026/UN-HN ngày 20/11/2026". Thiếu dữ liệu hoặc hết hiệu lực: vẫn bán, ghi việc chờ lập hóa đơn (3 việc đang chờ · <a href="#">Lập bù</a>).</div>
+  <div class="nhom-nut"><button class="nut phu" type="button">Hủy</button><button class="nut chinh" type="button">Lưu</button></div>
+</section>
+
+<!-- Sửa MAN_HINH_231 webhook -->
+<section class="khung-mau" aria-labelledby="k4">
+  <h2 id="k4">Sửa MAN_HINH_231, 232 · Khối Webhook của khóa API</h2>
+  <div class="luoi-truong">
+    <label class="truong">Phạm vi khóa<span><label><input type="checkbox" checked> loyalty.member</label> <label><input type="checkbox" checked> instore.checkout</label></span></label>
+    <label class="truong">Địa chỉ nhận (HTTPS)<input class="o-nhap" value="https://pos.hatnau.vn/vcomm/webhook"></label>
+  </div>
+  <div class="dong-ngang"><span class="chu-thich">Khóa ký tạo ngày 18/11/2026, chỉ hiện một lần khi cấp.</span><span class="nhom-nut"><button class="nut phu" type="button">Cấp lại khóa ký</button><button class="nut phu" type="button">Gửi thử</button></span></div>
+  <div class="cuon"><table class="bang-mau"><thead><tr><th>Thời điểm</th><th>Sự kiện</th><th>Đơn</th><th>Lần</th><th>Kết quả</th><th></th></tr></thead><tbody>
+    <tr><td>18/11 10:42:05</td><td>checkout.completed</td><td>TT2611-000415</td><td>1</td><td><span class="nhan thanh-cong">200</span></td><td></td></tr>
+    <tr><td>18/11 09:12:40</td><td>checkout.expired</td><td>TT2611-000409</td><td>3</td><td><span class="nhan loi">Hết thời gian chờ · thử lại lúc 09:42</span></td><td><button class="nut chu" type="button">Gửi lại</button></td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- MAN_HINH_280 -->
+<section class="khung-mau" aria-labelledby="k2">
+  <div class="dong-ngang"><h2 id="k2">MAN_HINH_280 · Biểu phí cổng tại cửa hàng</h2><span class="chu-thich">web-finance · <code>finance.instore.manage</code> · công ty vận hành sàn</span></div>
+  <div class="cuon"><table class="bang-mau"><thead><tr><th>Cổng</th><th>Phương thức</th><th class="so">Tỷ lệ (%)</th><th class="so">Cố định mỗi giao dịch (đ)</th><th>Áp dụng từ</th></tr></thead><tbody>
+    <tr><td>VNPAY</td><td>Mã QR ứng dụng ngân hàng</td><td class="so"><input class="o-nhap" value="0,90" style="width:80px"></td><td class="so"><input class="o-nhap" value="1.100" style="width:100px"></td><td>18/11/2026</td></tr>
+    <tr><td>VNPAY</td><td>Thẻ ATM nội địa</td><td class="so"><input class="o-nhap" value="1,10" style="width:80px"></td><td class="so"><input class="o-nhap" value="1.650" style="width:100px"></td><td>18/11/2026</td></tr>
+  </tbody></table></div>
+  <div class="khoi-canh-bao thong-tin">Phí cổng trừ vào tiền chuyển cho cửa hàng theo biểu phí tại thời điểm thanh toán. Chênh lệch với phí thực tế trên tệp đối soát cổng do công ty vận hành sàn chịu hoặc hưởng.</div>
+</section>
+
+<!-- MAN_HINH_281 -->
+<section class="khung-mau" aria-labelledby="k3">
+  <div class="dong-ngang"><h2 id="k3">MAN_HINH_281 · Bảng chuyển tiền thu hộ</h2><span class="chu-thich">web-finance · xem <code>finance.instore.view</code>, ghi đã chuyển <code>finance.instore.manage</code></span></div>
+  <div class="khoi-canh-bao canh-bao">2 bảng chờ chuyển quá 2 ngày làm việc.</div>
+  <div class="bo-loc" style="display:flex;gap:var(--khoang-2);flex-wrap:wrap">
+    <select class="o-nhap" style="width:auto"><option>Mọi người nhận</option><option>Cửa hàng liên kết</option><option>Công ty tập đoàn</option></select>
+    <select class="o-nhap" style="width:auto"><option>Chờ chuyển</option><option>Đã chuyển</option></select>
+    <input class="o-nhap" type="date" value="2026-11-17" style="width:auto">
+  </div>
+  <div class="cuon"><table class="bang-mau"><thead><tr><th>Số</th><th>Ngày</th><th>Người nhận</th><th class="so">Thu hộ (G)</th><th class="so">Phí sàn và thuế (H+I)</th><th class="so">Phí cổng (K)</th><th class="so">Ghi ngược, mang sang (L, M)</th><th class="so">Tiền chuyển</th><th>Trạng thái</th></tr></thead><tbody>
+    <tr><td><a href="#">CT2611-000088</a></td><td>17/11</td><td>CH000012 Cà phê Hạt Nâu</td><td class="so">8.420.000</td><td class="so">138.930</td><td class="so">98.200</td><td class="so">0</td><td class="so">8.182.870</td><td><span class="nhan canh-bao">Chờ chuyển</span></td></tr>
+    <tr><td><a href="#">CT2611-000089</a></td><td>17/11</td><td>Công ty Bán lẻ VCR (cửa hàng Thủ Đức, Quận 7)</td><td class="so">25.300.000</td><td class="so">278.300</td><td class="so">271.900</td><td class="so">0</td><td class="so">24.749.800</td><td><span class="nhan canh-bao">Chờ chuyển</span></td></tr>
+    <tr><td><a href="#">CT2611-000090</a></td><td>17/11</td><td>CH000031 Tiệm bánh Mai</td><td class="so">120.000</td><td class="so">1.980</td><td class="so">2.180</td><td class="so">− 410.500</td><td class="so">0 <span class="chu-thich">(mang sang − 294.660)</span></td><td><span class="nhan trung-tinh">Không phải chuyển</span></td></tr>
+  </tbody></table></div>
+  <h3>Ghi đã chuyển CT2611-000088</h3>
+  <div class="luoi-truong">
+    <label class="truong">Ngày chuyển<input class="o-nhap" type="date" value="2026-11-18"></label>
+    <label class="truong">Từ tài khoản<select class="o-nhap"><option>Vietcombank · 0011 0099 8888 (nhận tiền cổng)</option></select></label>
+    <label class="truong">Số giao dịch ngân hàng<input class="o-nhap" value="FT2632204512"></label>
+  </div>
+  <div class="khoi-canh-bao thong-tin">Lưu thì lập phiếu chi ở công ty vận hành sàn (Nợ 331 / Có tiền gửi ngân hàng). Người nhận là công ty tập đoàn: lập cùng lúc phiếu thu ở công ty đó (Nợ tiền gửi ngân hàng / Có 136).</div>
+  <div class="nhom-nut"><button class="nut phu" type="button">Hủy</button><button class="nut chinh" type="button">Ghi đã chuyển</button></div>
+</section>
+
+<div class="ghi-chu-ban-mau">Bản mẫu CONG_VIEC_73 · dữ liệu giả. QUYTAC_NGHIEPVU_573, 584 đến 588, 591. <a href="index.html">Mục lục bản mẫu</a></div>
+</body>
+</html>

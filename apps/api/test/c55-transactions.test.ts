@@ -10,6 +10,7 @@ import { testIds } from "../src/database/seed";
 import { creditLot } from "../src/loyalty/ledger.service";
 import { lockAccount } from "../src/loyalty/tiers";
 import { PermissionService } from "../src/permissions/permission.service";
+import { completePortalSetup } from "./portal-setup";
 import { sessionFrom, signIn, type Session } from "./helpers";
 import type { BuyerCall } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
@@ -35,7 +36,9 @@ async function activate(phone: string): Promise<Session> {
   await setOtp(phone);
   const response = await http().post("/api/v1/merchant-portal/activation").send({ phone, code: "246810" });
   expect(response.status, JSON.stringify(response.body)).toBe(200);
-  return sessionFrom(application, response.headers["set-cookie"]);
+  const session = sessionFrom(application, response.headers["set-cookie"]);
+  await completePortalSetup(session);
+  return session;
 }
 async function register(phone: string, name: string): Promise<{ id: string; call: BuyerCall; phone: string }> {
   expect((await http().post("/api/v1/buyer/register/otp").send({ phone })).status).toBe(204);
@@ -181,6 +184,26 @@ describe("CONG_VIEC_55 giao dịch tại quầy", () => {
     // Chỉ tích (0 điểm cho phép).
     const earnOnly = await create(cashier, { outletId: outletA, billAmount: "100000", method: "buyer_qr", memberCode: other });
     expect(earnOnly.body.transaction).toMatchObject({ redeemedPoints: 0, paidAmount: "100000", earnedPoints: 2 });
+  });
+
+  it("KICHBAN_KIEMTHU_751 (CONG_VIEC_73): hết thời hạn chuyển đổi của người mua thì không cấp, không nhận mã thành viên cũ", async () => {
+    const { second } = buyers;
+    const before = (await pool.query("SELECT transition_starts_on::text AS starts_on, buyer_transition_days AS days FROM core.authentication_settings")).rows[0];
+    // Mã cấp trong thời hạn.
+    const issued = (await second.call("post", "/buyer/affiliate/member-code", { points: 0 })).body.code as string;
+    await pool.query("UPDATE core.authentication_settings SET transition_starts_on = '2020-01-01', buyer_transition_days = 30");
+    try {
+      const refused = await second.call("post", "/buyer/affiliate/member-code", { points: 0 });
+      expect(refused.status).toBe(409);
+      expect(refused.body.error.message).toBe("Mã thành viên cũ không còn dùng. Khách mở Mã thanh toán trên ứng dụng VComm.");
+      const rejected = await create(cashier, { outletId: outletA, billAmount: "100000", method: "buyer_qr", memberCode: issued });
+      expect(rejected.status).toBe(409);
+      expect(rejected.body.error.message).toBe("Mã thành viên cũ không còn dùng. Khách mở Mã thanh toán trên ứng dụng VComm.");
+    } finally {
+      await pool.query("UPDATE core.authentication_settings SET transition_starts_on = $1, buyer_transition_days = $2", [before.starts_on, before.days]);
+    }
+    // Trong thời hạn mã vẫn dùng được.
+    expect((await create(cashier, { outletId: outletA, billAmount: "100000", method: "buyer_qr", memberCode: issued })).status).toBe(201);
   });
 
   it("KICHBAN_KIEMTHU_538: cách 3 số điện thoại – số chưa có tài khoản; một yêu cầu chờ mỗi số; khách xác nhận trên ứng dụng", async () => {
