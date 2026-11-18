@@ -9,7 +9,7 @@
 
 ### Quyết định
 
-- Người dùng chọn phát hành 0.14.0 ngay, thử máy thật sau: nghiệm thu phần tự động CONG_VIEC_72 (Smart OTP); 0.14.0 gồm CONG_VIEC_72, 73, 75. Chưa triển khai. Điều kiện bắt buộc trước khi triển khai: thử 12 bước Smart OTP trên điện thoại thật; ba mẫu ZNS và số tổng đài; hồ sơ pháp lý thu hộ; xác nhận ủy nhiệm hóa đơn và MISA; kế toán trưởng xác nhận tài khoản QUYTAC_NGHIEPVU_587 và 3388; xác nhận ngày hóa đơn phí sàn tháng; thử VNPAY môi trường thử nghiệm. Lỗi phát hiện khi thử máy thật sửa bằng bản vá.
+- Người dùng chọn phát hành 0.14.0 ngay, thử máy thật sau: nghiệm thu phần tự động CONG_VIEC_72 (Smart OTP); người dùng yêu cầu thêm iPOS: 0.14.0 gồm CONG_VIEC_72, 73, 75 và CONG_VIEC_74 đợt 1 (nghiệm thu phần tự động; thử trên Sunmi T2 trước khi triển khai). Chưa triển khai. Điều kiện bắt buộc trước khi triển khai: thử 12 bước Smart OTP trên điện thoại thật; ba mẫu ZNS và số tổng đài; hồ sơ pháp lý thu hộ; xác nhận ủy nhiệm hóa đơn và MISA; kế toán trưởng xác nhận tài khoản QUYTAC_NGHIEPVU_587 và 3388; xác nhận ngày hóa đơn phí sàn tháng; thử VNPAY môi trường thử nghiệm. Lỗi phát hiện khi thử máy thật sửa bằng bản vá.
 
 ### Công việc đã thực hiện
 
