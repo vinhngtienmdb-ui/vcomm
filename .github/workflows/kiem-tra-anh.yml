@@ -34,6 +34,17 @@ jobs:
       - name: Build ảnh
         run: docker build -f infra/docker/${{ matrix.anh }}.Dockerfile -t vcomm-${{ matrix.anh }}:kiem-tra .
 
+      # Chặn lỗ hổng mức HIGH, CRITICAL đã có bản vá (người dùng duyệt Trivy 2026-11-18); lỗ hổng chưa có bản vá xử lý theo tài liệu 22 mục 8.
+      - name: Quét lỗ hổng ảnh
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
+        with:
+          image-ref: vcomm-${{ matrix.anh }}:kiem-tra
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
       # Ảnh không được chứa tệp môi trường, mã nguồn kiểm thử.
       - name: Kiểm nội dung ảnh
         run: |

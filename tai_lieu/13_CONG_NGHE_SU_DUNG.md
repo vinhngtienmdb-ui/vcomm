@@ -34,6 +34,7 @@
 | Bí mật hệ thống | Đợt đầu: biến bí mật Railway, biến bí mật môi trường GitHub (THAY_DOI_40); sau này AWS Secrets Manager | Tài liệu `22` mục 5 |
 | Kiểm thử | Vitest (đơn vị, tích hợp với PostgreSQL thật), Playwright (giao diện) | |
 | Giám sát | Đợt đầu: log và cảnh báo của Railway (THAY_DOI_40); sau này CloudWatch, Sentry | Log, lỗi, cảnh báo |
+| Quét lỗ hổng ảnh container | Hành động GitHub `aquasecurity/trivy-action` v0.36.0 (2026-04-22, giấy phép Apache 2.0, ghim mã commit `ed142fd0`; Trivy v0.70.0 mặc định của hành động); chặn HIGH, CRITICAL đã có bản vá | CONG_VIEC_76; người dùng duyệt 2026-11-18 |
 | Băm mật khẩu | argon2id | Chuẩn hiện hành |
 | Mã hóa bí mật | AWS KMS | Bí mật xác thực hai lớp |
 | Ký số PDF | `pdf-lib` 1.17.1, `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0, `node-forge` 1.4.3 (`@types/node-forge` 1.3.14); nhà cung cấp ký số từ xa qua lớp kết nối chung, bộ giả lập tự viết cho môi trường thử | CONG_VIEC_59; người dùng duyệt 2026-11-12 (mục 10) |

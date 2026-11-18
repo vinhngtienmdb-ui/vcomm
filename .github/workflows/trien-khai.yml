@@ -88,6 +88,35 @@ jobs:
             infra/scripts/deploy.sh build
           fi
 
+      # Chặn lỗ hổng mức HIGH, CRITICAL đã có bản vá trước khi sao lưu, migration (người dùng duyệt Trivy 2026-11-18).
+      - name: Tải ảnh về máy chạy để quét
+        if: inputs.hanh_dong == 'trien-khai'
+        run: |
+          docker pull "$IMAGE_REPOSITORY/vcomm-api:$VERSION"
+          docker pull "$IMAGE_REPOSITORY/vcomm-web:$VERSION"
+
+      - name: Quét lỗ hổng ảnh api
+        if: inputs.hanh_dong == 'trien-khai'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
+        with:
+          image-ref: ${{ env.IMAGE_REPOSITORY }}/vcomm-api:${{ inputs.phien_ban }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+      - name: Quét lỗ hổng ảnh web
+        if: inputs.hanh_dong == 'trien-khai'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
+        with:
+          image-ref: ${{ env.IMAGE_REPOSITORY }}/vcomm-web:${{ inputs.phien_ban }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
       - name: Ghi ảnh đang chạy
         run: infra/scripts/deploy.sh record
 

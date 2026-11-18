@@ -71,6 +71,7 @@ Tệp lệnh: `infra/scripts/deploy.sh`; luồng: `.github/workflows/trien-khai.
 
 1. Kiểm tag (`check-tag`): tag tồn tại, chứa mọi tag trong `infra/emergency-patches.txt`.
 2. Build ảnh (`build`, bỏ qua nếu ảnh của phiên bản đã có): mã ứng dụng lấy từ tag, Dockerfile lấy từ `infra/docker` của `main`; đẩy `vcomm-api`, `vcomm-web` nhãn `<phiên bản>` và `<phiên bản>-<commit>`.
+2a. Quét lỗ hổng hai ảnh bằng Trivy (luồng GitHub Actions): lỗ hổng HIGH, CRITICAL đã có bản vá thì dừng, chưa chạm cơ sở dữ liệu. Chạy từ máy phiên: chạy `trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 <ảnh>` trước bước 4.
 3. Ghi ảnh đang chạy (`record`) của từng dịch vụ, in ra log để quay lui.
 4. Sao lưu (`backup`, bắt buộc): `pg_dump` bản 17 dạng custom, mã hóa bằng age, tải lên R2 `production/truoc-<phiên bản>-<thời điểm>.dump.age`. Lỗi thì dừng. Tệp lệnh từ chối bước migration nếu chưa sao lưu.
 5. Database migration (`migrate`): chạy `node apps/api/dist/database/run-migrations.js` bằng ảnh mới. Lỗi thì dừng; tệp lỗi đã hoàn tác, bản cũ vẫn chạy.

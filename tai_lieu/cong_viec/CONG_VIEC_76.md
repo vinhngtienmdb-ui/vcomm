@@ -542,7 +542,12 @@ Kiểm tra:
 - 2026-11-18: mã nhánh `phat-hanh/v0.14.0` (commit `f439c11d`), `postgres:17` (17.12), `redis:7`, `vitest run` của `apps/api`: 177 tệp, 986 kiểm thử, đạt cả 986, 1384 giây. Chạy lại trên mã 0.14.1 trước lần triển khai đầu.
 - Database migration 145 tệp trên PostgreSQL 17 bằng vai trò không phải SUPERUSER: đạt (mục 20.2).
 
-Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK; quét lỗ hổng ảnh (đề xuất thêm hành động `aquasecurity/trivy-action`, giấy phép Apache 2.0, chờ người dùng duyệt).
+### 24.2 Quét lỗ hổng ảnh (người dùng duyệt Trivy 2026-11-18)
+
+- `aquasecurity/trivy-action` v0.36.0 (phát hành 2026-04-22, Apache 2.0) ghim mã commit `ed142fd0673e97e23eac54620cfb913e5ce36c25`; thêm vào `kiem-tra-anh.yml` (sau bước build) và `trien-khai.yml` (sau build, trước sao lưu, migration); `severity: HIGH,CRITICAL`, `ignore-unfixed: true`, `exit-code: 1`.
+- Kết quả KICHBAN_KIEMTHU_810 phần quét: xem lần chạy CI ghi ở mục này sau khi luồng chạy.
+
+Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK.
 
 ## 25. Tên miền `vcomm.vn` (đề xuất ban đầu, đã thay bằng mục 26.1)
 

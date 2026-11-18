@@ -1158,6 +1158,8 @@ Ranh giới và kiểm soát riêng:
 
 Máy phát triển dùng tệp `.env` không commit; kho mã có `.env.example` không chứa giá trị thật.
 
+Quét lỗ hổng ảnh container (CONG_VIEC_76, người dùng duyệt 2026-11-18): Trivy quét ảnh `vcomm-api`, `vcomm-web` khi đổi Dockerfile (`kiem-tra-anh.yml`) và trước sao lưu, migration ở mỗi lần triển khai (`trien-khai.yml`); lỗ hổng HIGH, CRITICAL đã có bản vá thì dừng; lỗ hổng chưa có bản vá không chặn, xử lý theo mục 8.
+
 ## 6. Kết quả kiểm tra phần E (vận hành)
 
 Chưa vận hành.
