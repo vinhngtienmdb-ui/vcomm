@@ -108,7 +108,8 @@ export const testTimesheet: { data: Map<string, MonthTimesheet> | null; locks: s
 export const testAiConfig: AiConfig = { ...readAiConfig({}), provider: "fake" };
 export const testModel = new FakeModelClient("claude-sonnet-5-5");
 
-export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
+// seed=false: cơ sở dữ liệu trống sau database migration, dùng cho lệnh khởi tạo (CONG_VIEC_78).
+export async function startTestApplication(options: { seed?: boolean } = {}): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
   }
@@ -122,7 +123,7 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     "DROP SCHEMA IF EXISTS ai CASCADE; DROP SCHEMA IF EXISTS office CASCADE; DROP SCHEMA IF EXISTS affiliate CASCADE; DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
   );
   await runMigrations(pool);
-  await seedTestData(pool);
+  if (options.seed !== false) await seedTestData(pool);
   testClock.fixed = null;
   const moduleReference = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(CLOCK)

@@ -10,5 +10,6 @@ Lệnh (chạy tại gốc dự án, nạp biến từ `.env`):
 - Chạy phát triển: `pnpm --filter api dev`
 - Database migration: `pnpm --filter api build && pnpm --filter api db:migrate`
 - Dữ liệu thử: `pnpm --filter api db:seed`
+- Khởi tạo môi trường thật trống (CONG_VIEC_78, một lần, sau database migration): `node apps/api/dist/database/bootstrap.js`, tham số ghi ở đầu tệp `src/database/bootstrap.ts`
 - Kiểm thử: `pnpm --filter api test` (cần PostgreSQL và cơ sở dữ liệu `vcomm_test`; đổi bằng `TEST_DATABASE_URL`, tên phải kết thúc bằng `_test`)
 - Kiểm tra kiểu: `pnpm --filter api typecheck`

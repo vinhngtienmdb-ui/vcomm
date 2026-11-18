@@ -104,16 +104,7 @@ export class InvitationsService {
   }
 
   private async issueActivationToken(transaction: Executor, actor: Actor, userId: string): Promise<string> {
-    const now = this.clock.now();
-    await transaction.execute(sql`
-      UPDATE core.user_tokens SET expires_at = LEAST(expires_at, ${now.toISOString()}::timestamptz)
-      WHERE user_id = ${userId} AND purpose = 'activation' AND used_at IS NULL`);
-    const token = newRandomToken();
-    const expiresAt = new Date(now.getTime() + activationHours * 3600 * 1000);
-    await transaction.execute(sql`
-      INSERT INTO core.user_tokens (user_id, purpose, token_hash, expires_at, created_by)
-      VALUES (${userId}, 'activation', ${hashToken(token)}, ${expiresAt.toISOString()}::timestamptz, ${actor.userId})`);
-    return token;
+    return issueActivationToken(transaction, userId, this.clock.now(), actor.userId);
   }
 
   // Gửi qua email nếu có, không thì SMS. Nội dung không chứa mật khẩu.
@@ -130,3 +121,17 @@ export class InvitationsService {
     });
   }
 }
+
+// Đường dẫn kích hoạt cũ chưa dùng hết hiệu lực ngay; dùng chung cho lời mời và lệnh khởi tạo (CONG_VIEC_78, createdBy rỗng).
+export async function issueActivationToken(transaction: Pick<Executor, "execute">, userId: string, now: Date, createdBy: string | null): Promise<string> {
+  await transaction.execute(sql`
+    UPDATE core.user_tokens SET expires_at = LEAST(expires_at, ${now.toISOString()}::timestamptz)
+    WHERE user_id = ${userId} AND purpose = 'activation' AND used_at IS NULL`);
+  const token = newRandomToken();
+  const expiresAt = new Date(now.getTime() + activationHours * 3600 * 1000);
+  await transaction.execute(sql`
+    INSERT INTO core.user_tokens (user_id, purpose, token_hash, expires_at, created_by)
+    VALUES (${userId}, 'activation', ${hashToken(token)}, ${expiresAt.toISOString()}::timestamptz, ${createdBy})`);
+  return token;
+}
+
