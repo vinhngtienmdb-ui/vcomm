@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đang cập nhật
 
-## Phiên bản 0.14.0 – 2026-11-18 – Chờ phát hành
+## Phiên bản 0.14.0 – 2026-11-18 – Đã phát hành
 
 - Chức năng mới:
   - Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72): Smart OTP chuyển về `core`, kích hoạt trên ứng dụng VComm có mã khóa và vân tay, khuôn mặt (`expo-local-authentication`); thiết bị tin cậy 12 tháng, đăng nhập trên thiết bị mới phải xác nhận bằng Smart OTP (mã SMS chỉ dự phòng đến hết thời hạn chuyển đổi); chuyển Smart OTP sang máy mới, khôi phục khi mất máy; chăm sóc khách hàng hủy Smart OTP; quên mật khẩu người mua; cổng cửa hàng liên kết xác thực bằng Smart OTP, chủ cửa hàng đặt lại xác thực cho thu ngân; nhắc kích hoạt (thẻ nhắc, thông báo trong ứng dụng, tin ZNS 7 ngày trước hạn); thống kê và tham số chuyển đổi (thời hạn, số tổng đài) ở web quản trị (CHUC_NANG_242 đến 246, MAN_HINH_269 đến 275, QUYTAC_NGHIEPVU_560 đến 572, API_318 đến 326).
@@ -44,7 +44,7 @@
 - Khả năng tương thích: API có sẵn giữ nguyên đường dẫn và dữ liệu, trừ đăng nhập người mua trên thiết bị mới có thêm bước xác nhận (QUYTAC_NGHIEPVU_565). Cấu trúc dữ liệu chỉ thêm, trừ việc chuyển bảng Smart OTP sang lược đồ `core`.
 - Công việc gộp trong phiên bản: CONG_VIEC_72 (pull request #177), CONG_VIEC_75 (pull request #200), CONG_VIEC_73 (pull request #183), CONG_VIEC_74 đợt 1 (pull request #188). Nhánh phát hành tạo từ `main` `0f0a5ce` (sau khi hợp nhất pull request #206; pull request #207 ghi sổ chưa vào `main` vì bước quét bảo mật của CI chờ bản vá `picomatch`, phiên điều phối cho tạo nhánh không chờ).
 - Kiểm thử trên nhánh phát hành: `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; khóa dịch khớp 11887 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`, vai trò cơ sở dữ liệu kiểm thử SUPERUSER, PostgreSQL 16 `max_locks_per_transaction` 1024) 177 tệp, 986 kiểm thử đạt (thêm 23 tệp so với 0.13.1); database migration hai đường như mục Thứ tự database migration.
-- Tag: `v0.14.0` trên commit hợp nhất nhánh `phat-hanh/v0.14.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Tag: `v0.14.0` trên commit hợp nhất `7707c74` (pull request #210), gắn tự động sau khi CI trên `main` đạt. Chưa triển khai.
 - Triển khai: chưa triển khai.
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.13.1` (API, các ứng dụng web; ứng dụng VComm, ứng dụng kho phát hành lại bản dựng từ `v0.13.1`). Ngừng phát `apps/mobile-ipos` (không có ở 0.13.1); báo cửa hàng đang dùng iPOS tạm ngừng.

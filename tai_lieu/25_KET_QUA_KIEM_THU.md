@@ -874,6 +874,7 @@
   - KICHBAN_KIEMTHU_817, 823: Đạt (lệnh dữ liệu mẫu bị từ chối ở môi trường thật; tag thiếu bản vá khẩn cấp thì dừng).
   - KICHBAN_KIEMTHU_824: phần tệp lệnh Đạt (database migration bị từ chối khi chưa sao lưu); phần người duyệt GitHub chưa thử (chưa có môi trường GitHub).
   - Các kịch bản còn lại chờ tạo tài nguyên.
+- KICHBAN_KIEMTHU_810 phần quét lỗ hổng ảnh (Trivy, mức Cao, Nghiêm trọng đã có bản vá): lần 1 Không đạt (ảnh api có 10 lỗ hổng mức Cao trong npm đi kèm ảnh nền node:22; mã ứng dụng và gói hệ điều hành 0 lỗ hổng); sửa bằng cách bỏ npm, npx, corepack khỏi ảnh chạy (commit `a6842bfd`); lần 2 Đạt cho cả ảnh api và web. Không cấp mã lỗi vì lỗ hổng nằm trong công cụ ảnh nền đã loại khỏi ảnh.
 - Không có lỗi mới. Sẽ chạy lại trên 0.14.1.
 
 ## Lỗi phát hiện 2026-11-10
