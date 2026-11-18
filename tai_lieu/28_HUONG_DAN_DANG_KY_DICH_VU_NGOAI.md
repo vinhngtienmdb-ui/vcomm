@@ -1,7 +1,7 @@
 # 28. HƯỚNG DẪN ĐĂNG KÝ DỊCH VỤ NGOÀI
 - Mô tả: Hướng dẫn chủ dự án đăng ký eSMS.vn (SMS Brandname, Zalo ZNS), Zalo, Google, Microsoft, AWS S3 và nhập khóa vào VComm.
 - Phiên bản: 0.2
-- Ngày cập nhật: 2026-11-09
+- Ngày cập nhật: 2026-11-18
 - Trạng thái: Đang dùng (khớp phiên bản 0.2.0)
 
 ## 0. Quy tắc chung
@@ -357,6 +357,16 @@ Ghi ngày hết hạn client secret vào lịch; tạo mã mới trước hạn,
 3. Cấp cho máy chủ API quyền IAM tối thiểu trên bucket: `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`.
 4. Đặt biến môi trường của máy chủ API: `STORAGE_DRIVER=s3`, `S3_BUCKET=<tên bucket>`, `AWS_REGION=ap-southeast-1`. Việc này lập trình viên làm khi triển khai.
 
+### 6.3. Dùng Supabase Storage thay AWS S3 (CONG_VIEC_79)
+
+Các bước theo tài liệu Supabase, chưa kiểm trên tài khoản thật:
+
+1. Trong dự án Supabase của môi trường (vùng Singapore), mở **Storage**, tạo bucket riêng tư (không bật Public bucket), ví dụ `vcomm-tep`.
+2. Mở **Storage → Settings → S3 Connection**: bật kết nối S3, ghi lại **Endpoint** (dạng `https://<mã dự án>.storage.supabase.co/storage/v1/s3`) và **Region**.
+3. Cùng trang, tạo **S3 Access Key**; ghi lại Access key ID và Secret access key (chỉ hiện một lần). Khóa có toàn quyền kho của dự án: chỉ đặt ở biến bí mật của máy chủ API.
+4. Đặt biến môi trường của máy chủ API: `STORAGE_DRIVER=s3`, `S3_BUCKET=vcomm-tep`, `AWS_REGION=<Region ở bước 2>`, `S3_ENDPOINT=<Endpoint ở bước 2>`, `S3_FORCE_PATH_STYLE=true`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (bí mật).
+5. Kiểm tra: đính kèm tệp vào đề xuất, tải lại được; tệp hiện trong bucket ở trang Storage.
+
 ## 7. Bảng kiểm tra cuối
 
 | Dịch vụ | Việc người dùng làm | Nhập ở Cài đặt tích hợp | Kiểm tra |
@@ -366,7 +376,7 @@ Ghi ngày hết hạn client secret vào lịch; tạo mã mới trước hạn,
 | Đăng nhập Zalo | Tạo ứng dụng, bật Đăng nhập, khai báo địa chỉ chuyển hướng | App ID, Secret Key | Liên kết Zalo ở Hồ sơ cá nhân, rồi đăng nhập bằng Zalo |
 | Đăng nhập Google | Tạo dự án, màn hình đồng ý, mã khách Web application, địa chỉ chuyển hướng | Client ID, Client Secret | Đăng nhập bằng Google với email nhân viên |
 | Đăng nhập Microsoft | Đăng ký ứng dụng, địa chỉ chuyển hướng, client secret | Client ID, Client secret, tenant | Đăng nhập bằng Microsoft với email nhân viên |
-| AWS S3 | Tạo bucket, quyền IAM | Không (biến môi trường máy chủ) | Đính kèm tệp vào đề xuất, tải lại được |
+| AWS S3 hoặc Supabase Storage | Tạo bucket; quyền IAM (AWS) hoặc khóa S3 (Supabase) | Không (biến môi trường máy chủ) | Đính kèm tệp vào đề xuất, tải lại được |
 
 Trước khi đánh dấu xong mỗi dòng:
 

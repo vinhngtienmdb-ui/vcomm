@@ -108,3 +108,16 @@ export async function allowManualGoodsOrders(pool: Pool, companyId: string): Pro
     [companyId],
   );
 }
+
+// Nhật ký gọi Open API ghi sau khi trả phản hồi (sự kiện finish, LOI_17): chờ tới khi có ít nhất `minimum` dòng thỏa điều kiện,
+// tối đa 5 giây, thay cho chờ cố định. Điều kiện là đoạn SQL cố định trong kiểm thử, giá trị truyền qua tham số.
+export async function waitForApiCallLogs(pool: Pool, condition: string, parameters: unknown[], minimum = 1): Promise<void> {
+  const deadline = Date.now() + 5000;
+  for (;;) {
+    const count = (await pool.query<{ total: number }>(`SELECT count(*)::int AS total FROM core.api_call_logs WHERE ${condition}`, parameters)).rows[0]!.total;
+    if (count >= minimum) return;
+    if (Date.now() > deadline) throw new Error(`Sau 5 giây chỉ có ${count}/${minimum} dòng nhật ký gọi thỏa điều kiện: ${condition}`);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+

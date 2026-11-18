@@ -5,6 +5,49 @@
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.14.1 – 2026-11-18 – Chờ phát hành
+
+- Chức năng mới:
+  - Gửi email thật qua SMTP của hộp thư doanh nghiệp (MODULE_01, CONG_VIEC_77, THAY_DOI_41): `EMAIL_DRIVER=smtp` gửi thư kích hoạt, đặt lại mật khẩu, thư nhân sự, phiếu lương, ký số qua `nodemailer`; môi trường thật bắt buộc SMTP, thiếu cấu hình thì API từ chối khởi động; kết nối luôn mã hóa (TLS hoặc STARTTLS bắt buộc); không ghi nội dung thư, đường dẫn kích hoạt, địa chỉ nhận đầy đủ vào log; quên mật khẩu khi gửi lỗi vẫn trả `204`.
+  - Lệnh khởi tạo môi trường thật (MODULE_01, CONG_VIEC_78): `node apps/api/dist/database/bootstrap.js` tạo tập đoàn gốc và quản trị tập đoàn đầu tiên (trạng thái Đã mời), in một lần đường dẫn kích hoạt dùng một lần hết hạn 72 giờ; từ chối khi đã có công ty hoặc người dùng; `--reissue-link` cấp lại đường dẫn.
+  - Lưu tệp trên kho tương thích S3 khác AWS (MODULE_01, CONG_VIEC_79): Supabase Storage qua `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`; `S3_SERVER_SIDE_ENCRYPTION` không bắt buộc (mặc định không gửi tiêu đề mã hóa khi có `S3_ENDPOINT`); cấu hình AWS cũ chạy như trước.
+  - Đóng gói và quy trình triển khai (CONG_VIEC_76 đợt 1, phần tự động, THAY_DOI_40): Dockerfile ảnh `api`, `web` (`infra/docker/`), tệp lệnh `infra/scripts/deploy.sh`, luồng GitHub Actions `trien-khai.yml` (chạy tay, môi trường `production` cần người dùng duyệt) và `kiem-tra-anh.yml` (dựng, quét Trivy hai ảnh), `.dockerignore`, `infra/emergency-patches.txt`; tài liệu `26` bản nháp. Chưa tạo tài nguyên, chưa triển khai.
+- Sửa lỗi:
+  - LOI_17 (mức Thấp, kiểm thử): KICHBAN_KIEMTHU_690 và ba kiểm thử cùng kiểu (`c61-open-api`, `c67-open-affiliate`, `c67-otp-sms`) chờ cố định 200 ms nhật ký gọi Open API vốn ghi sau khi trả phản hồi, nên lỗi không đều trên CI; thay bằng chờ có điều kiện `waitForApiCallLogs` (tối đa 5 giây) trong `apps/api/test/helpers.ts`. Không sửa mã chức năng.
+- Ghép giữa các công việc (hợp nhất, không rebase): nhánh phát hành tạo từ `main` `6d91ee7` (sau pull request #217), hợp nhất lần lượt `chuc-nang/CONG_VIEC_77-email-smtp` (`be19761`), `chuc-nang/CONG_VIEC_78-lenh-khoi-tao` (`f8ac2ab`), `chuc-nang/CONG_VIEC_79-luu-tep-s3` (`bc0a7d6`), `chuc-nang/CONG_VIEC_76-ha-tang-aws` (`6d8d154`), `sua-loi/LOI_17-kiem-thu-nhat-ky-goi` (`d1aa6be`). Không có xung đột mã. Xung đột tài liệu dạng sổ (10, 11, 13, 21, 22, 27, index): giữ đủ các bên, mục xếp theo mã; dòng "Thay đổi theo" gộp làm một; tài liệu `13` lấy phiên bản 1.5 của CONG_VIEC_76, dòng "Lưu tệp" ghép phần của CONG_VIEC_76 và CONG_VIEC_79. Không phải đánh lại số mục (mục thư viện email của CONG_VIEC_77 ở tài liệu `13` đã là mục 15 trên nhánh).
+- Thay đổi dữ liệu: không có database migration (vẫn 145 tệp đến `0173`).
+- Thay đổi API: không có. Lệnh dòng lệnh mới `apps/api/dist/database/bootstrap.js` (không phải API).
+- Quyền mới: không có.
+- Thư viện mới (đối chiếu `package.json`): `apps/api`: `nodemailer` 10.3.1 (MIT-0, không phụ thuộc thư viện khác; tài liệu `13` mục 15).
+- Biến môi trường mới (`.env.example`; giá trị môi trường thật ở tài liệu `26` mục 1.3):
+  - Email (CONG_VIEC_77): `EMAIL_DRIVER` (`log` | `smtp`; môi trường thật bắt buộc `smtp`), `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` (bí mật), `SMTP_FROM`, `SMTP_SECURE` (không bắt buộc; để trống thì cổng 465 dùng TLS ngay, cổng khác bắt buộc STARTTLS).
+  - Lưu tệp (CONG_VIEC_79): `STORAGE_DRIVER=s3` với `S3_BUCKET` (bắt buộc khi `s3`), `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `S3_SERVER_SIDE_ENCRYPTION` (không bắt buộc), `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (bí mật, khóa S3 của Supabase).
+  - Lệnh khởi tạo (CONG_VIEC_78) dùng `DATABASE_URL`, `WEB_ORIGIN` (môi trường thật bắt buộc) có sẵn.
+- Tác vụ nền mới: không có.
+- Điều kiện trước khi triển khai (chưa đạt thì không triển khai lên môi trường thật):
+  1. Các điều kiện còn mở của 0.14.0 (mục 0.14.0 bên dưới) và điểm chặn mức A còn lại ở đặc tả CONG_VIEC_76 mục 26.3; pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn.
+  2. Người dùng tạo hộp thư gửi, mật khẩu ứng dụng riêng, khai SPF, DKIM cho tên miền gửi; đặt biến SMTP ở dịch vụ `api` (đặc tả CONG_VIEC_77 mục 8). Thiếu biến thì API môi trường thật không khởi động.
+  3. Người dùng tạo bucket riêng tư và khóa S3 trên Supabase Storage (tài liệu `28` mục 6.3); đặt biến lưu tệp. Chưa thử với tài khoản Supabase thật: thử tải lên, tải xuống tệp đính kèm ngay sau lần triển khai đầu.
+  4. Tạo tài nguyên Supabase, Railway, Cloudflare và biến bí mật theo đặc tả CONG_VIEC_76 mục 20.10, tài liệu `26`; người dùng duyệt lần triển khai.
+  5. Sau lần triển khai đầu trên cơ sở dữ liệu trống: chạy lệnh khởi tạo một lần (tài liệu `26` mục lần đầu); mở đường dẫn kích hoạt ngay vì đầu ra lệnh có thể nằm trong log của lần chạy.
+- Rủi ro:
+  - Lỗi gửi SMTP khi mời nhân viên, gửi lại kích hoạt nay báo lỗi cho người thao tác (trước đây chỉ ghi log nên luôn thành công); người dùng chỉ có số điện thoại vẫn chưa nhận được tin (trình gửi SMTP không gửi SMS, chỉ ghi cảnh báo không nội dung).
+  - Giới hạn số thư mỗi ngày của hộp thư doanh nghiệp khi gửi phiếu lương hàng loạt.
+  - Supabase Storage chưa kiểm trên tài khoản thật (chỉ kiểm với kho S3 giả).
+  - Lỗ hổng `picomatch` (LOI_16) vẫn trong thời hạn chấp nhận rủi ro như 0.14.0.
+- Khả năng tương thích: API, cấu trúc dữ liệu, quyền không đổi. Máy phát triển không đặt biến mới vẫn chạy như trước (email ghi log, lưu tệp cục bộ). Cấu hình AWS S3 cũ không đổi hành vi. Môi trường `NODE_ENV=production` bắt buộc cấu hình SMTP (thay đổi có chủ đích).
+- Công việc gộp trong phiên bản: CONG_VIEC_77 (pull request #213), CONG_VIEC_78 (pull request #214), CONG_VIEC_79 (pull request #215), CONG_VIEC_76 đợt 1 phần tự động (pull request #209), LOI_17 (pull request sửa lỗi kiểm thử). Người dùng nghiệm thu CONG_VIEC_76 đợt 1, 77, 78, 79 ngày 2026-11-18.
+- Kiểm thử trên nhánh phát hành (sau khi gộp đủ năm nhánh): `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; khóa dịch khớp 11887 khóa; `mobile-warehouse` 5/5 đạt; kiểm thử API toàn bộ (PostgreSQL 16 cục bộ, `max_locks_per_transaction` 512) 180 tệp, 1011 kiểm thử đạt (thêm 3 tệp, 25 kiểm thử so với 0.14.0: `c77-email-smtp` 13, `c78-lenh-khoi-tao` 4, `c79-luu-tep-s3` 8); `pnpm audit --prod --audit-level high` giống `main` (không có lỗ hổng mới; `nodemailer` không có lỗ hổng đã biết); gitleaks 8.30.1 trên các commit mới của nhánh không có phát hiện. Dựng, quét Trivy ảnh `api`, `web` chạy ở CI (`kiem-tra-anh.yml`).
+- Tag: `v0.14.1`, gắn tự động trên commit hợp nhất nhánh `phat-hanh/v0.14.1` vào `main` sau khi CI trên `main` đạt.
+- Triển khai: chưa triển khai.
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại ảnh `api`, `web` dựng từ tag `v0.14.0` (đổi lại nhãn ảnh theo tài liệu `26`, đặc tả CONG_VIEC_76 mục 20.6). Không có database migration nên không phải xử lý dữ liệu.
+  - Email: sau khi quay về 0.14.0, email quay lại chỉ ghi log (lớp `LogOutboundMessages` là lớp duy nhất, không đọc `EMAIL_DRIVER`, `SMTP_*`): thư kích hoạt, đặt lại mật khẩu, phiếu lương không tới người nhận và đường dẫn kích hoạt nằm trong log môi trường thật (trái tài liệu `19` mục 3 điểm 5). Không mời nhân viên, không dùng quên mật khẩu trong thời gian quay lui; khóa quyền đọc log nền tảng chỉ cho người quản trị; sau khi triển khai lại 0.14.1 thì cấp lại các đường dẫn đã sinh trong thời gian quay lui (gửi lại lời mời).
+  - Lưu tệp: 0.14.0 không nhận `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE` nên `STORAGE_DRIVER=s3` sẽ gọi AWS S3 với bucket Supabase và lỗi. Khi quay lui đặt tạm `STORAGE_DRIVER=local` (volume) và chạy `api` một bản; tệp đã lưu trên Supabase Storage không đọc được đến khi triển khai lại 0.14.1 (không mất, vẫn ở bucket).
+  - Dữ liệu do lệnh khởi tạo tạo ra (tập đoàn, quản trị tập đoàn) là dữ liệu bình thường, 0.14.0 đọc được; không xóa.
+  - Biến môi trường mới để nguyên, 0.14.0 bỏ qua.
+  - Thư viện `nodemailer` chỉ có trong ảnh 0.14.1; không phải gỡ.
+
 ## Phiên bản 0.14.0 – 2026-11-18 – Đã phát hành
 
 - Chức năng mới:

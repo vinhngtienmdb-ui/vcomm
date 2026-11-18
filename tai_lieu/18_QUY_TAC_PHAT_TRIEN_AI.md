@@ -1,8 +1,8 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Quy tắc viết mã, quy ước Git, nguồn mã riêng, cách chạy ứng dụng để xem trước.
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
 
 ## 1. Quy trình
@@ -54,9 +54,10 @@ Bổ sung riêng:
 | Chạy backend | `pnpm --filter api dev` (cổng 4000) |
 | Kiểm thử | `pnpm test` |
 | Kiểm tra kiểu | `pnpm typecheck` |
+| Khởi tạo môi trường thật trống (một lần, sau database migration, CONG_VIEC_78) | `node apps/api/dist/database/bootstrap.js --company-code=<mã> --legal-name="<tên pháp lý>" --short-name="<tên ngắn>" [--tax-code=<mã số thuế>] --admin-email=<email> --admin-name="<họ tên>"`; cấp lại đường dẫn khi quản trị chưa kích hoạt: `--reissue-link --admin-email=<email>` |
 
 - Trình duyệt tích hợp của Claude desktop: cấu hình `.claude/launch.json`, mục `web-platform`.
-- Email, SMS trên máy phát triển ghi ra log (`EMAIL_DRIVER=log`, `SMS_DRIVER=log`), không gửi thật.
+- Email, SMS trên máy phát triển ghi ra log (`EMAIL_DRIVER=log`, `SMS_DRIVER=log`), không gửi thật. Gửi thật qua SMTP: `EMAIL_DRIVER=smtp` và các biến `SMTP_*`, `SMTP_FROM` trong `.env.example` (CONG_VIEC_77).
 - Lệnh `pnpm --filter web-platform dev`, `pnpm --filter api dev` chạy được sau lát đầu tiên của CONG_VIEC_02.
 
 Tài khoản thử (dữ liệu giả, nạp bằng `pnpm --filter api db:seed`; mật khẩu chung `MatKhauThu@2026`):
@@ -71,7 +72,7 @@ Tài khoản thử (dữ liệu giả, nạp bằng `pnpm --filter api db:seed`;
 
 ## 6. Tệp ở thư mục gốc
 
-Được người dùng đồng ý ngày 2026-11-09: `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` (pnpm tự sinh), `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.env.example`, `docker-compose.yml`, `.editorconfig`, `.claude/launch.json`, `CLAUDE.md`, `README.md`.
+Được người dùng đồng ý ngày 2026-11-09: `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` (pnpm tự sinh), `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.env.example`, `docker-compose.yml`, `.editorconfig`, `.claude/launch.json`, `CLAUDE.md`, `README.md`. Được người dùng đồng ý ngày 2026-11-18 (CONG_VIEC_76): thư mục `infra/`, tệp `.dockerignore`.
 
 ## 7. CLAUDE.md cho từng phần
 

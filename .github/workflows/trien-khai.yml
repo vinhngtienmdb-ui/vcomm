@@ -1,0 +1,147 @@
+# Triển khai một phiên bản lên môi trường thật, hoặc quay lui (CONG_VIEC_76, tài liệu 26 mục 2).
+# Đợt đầu chỉ có môi trường thật (quyết định của người dùng 2026-11-18); tệp lệnh vẫn nhận staging để dùng khi dựng lại môi trường thử nghiệm.
+# Chạy tay. Môi trường GitHub "production" bắt người dùng duyệt từng lần chạy. Khóa bí mật nằm trong biến bí mật của môi trường GitHub.
+name: Triển khai
+
+on:
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Mã phiên bản, ví dụ 0.14.0 (phải có tag v0.14.0)"
+        required: true
+        type: string
+      moi_truong:
+        description: "Môi trường"
+        required: true
+        type: choice
+        options: [production]
+      hanh_dong:
+        description: "trien-khai: sao lưu, migration, đổi ảnh. quay-lui: đổi ảnh về phiên bản đã nhập, không chạy migration"
+        required: true
+        type: choice
+        default: trien-khai
+        options: [trien-khai, quay-lui]
+
+permissions:
+  contents: read
+  packages: write
+
+# Mỗi môi trường chỉ một lần triển khai tại một thời điểm; không hủy lần đang chạy.
+concurrency:
+  group: trien-khai-${{ inputs.moi_truong }}
+  cancel-in-progress: false
+
+jobs:
+  trien-khai:
+    name: ${{ inputs.hanh_dong }} ${{ inputs.phien_ban }} lên ${{ inputs.moi_truong }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: ${{ inputs.moi_truong }}
+    env:
+      DEPLOY_ENVIRONMENT: ${{ inputs.moi_truong }}
+      VERSION: ${{ inputs.phien_ban }}
+      IMAGE_REPOSITORY: ghcr.io/${{ github.repository_owner }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
+      RAILWAY_SERVICE_API_ID: ${{ vars.RAILWAY_SERVICE_API_ID }}
+      RAILWAY_SERVICE_WORKER_ID: ${{ vars.RAILWAY_SERVICE_WORKER_ID }}
+      RAILWAY_SERVICE_WEB_ID: ${{ vars.RAILWAY_SERVICE_WEB_ID }}
+      BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+      BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+      PUBLIC_WEB_URL: ${{ vars.PUBLIC_WEB_URL }}
+      # Ảnh đang chạy trước khi đổi được in ra log của bước "Ghi ảnh đang chạy" (dùng khi quay lui).
+      PREVIOUS_IMAGES_FILE: tam_thoi/anh-truoc-trien-khai.txt
+    steps:
+      - name: Chỉ triển khai từ nhánh main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Luồng triển khai chỉ chạy từ nhánh main (mã hạ tầng đã duyệt)."
+          exit 1
+
+      - name: Lấy mã nguồn (kèm tag)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Kiểm tag và bản vá khẩn cấp
+        run: infra/scripts/deploy.sh check-tag
+
+      - name: Đăng nhập kho ảnh GitHub
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
+        run: echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
+
+      # Ảnh đã có (build ở lần chạy trước) thì dùng lại, không build lại.
+      - name: Build và đẩy ảnh (nếu chưa có)
+        if: inputs.hanh_dong == 'trien-khai'
+        run: |
+          if docker manifest inspect "$IMAGE_REPOSITORY/vcomm-api:$VERSION" >/dev/null 2>&1 && docker manifest inspect "$IMAGE_REPOSITORY/vcomm-web:$VERSION" >/dev/null 2>&1; then
+            echo "Ảnh $VERSION đã có, không build lại."
+          else
+            infra/scripts/deploy.sh build
+          fi
+
+      # Chặn lỗ hổng mức HIGH, CRITICAL đã có bản vá trước khi sao lưu, migration (người dùng duyệt Trivy 2026-11-18).
+      - name: Tải ảnh về máy chạy để quét
+        if: inputs.hanh_dong == 'trien-khai'
+        run: |
+          docker pull "$IMAGE_REPOSITORY/vcomm-api:$VERSION"
+          docker pull "$IMAGE_REPOSITORY/vcomm-web:$VERSION"
+
+      - name: Quét lỗ hổng ảnh api
+        if: inputs.hanh_dong == 'trien-khai'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
+        with:
+          image-ref: ${{ env.IMAGE_REPOSITORY }}/vcomm-api:${{ inputs.phien_ban }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+      - name: Quét lỗ hổng ảnh web
+        if: inputs.hanh_dong == 'trien-khai'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
+        with:
+          image-ref: ${{ env.IMAGE_REPOSITORY }}/vcomm-web:${{ inputs.phien_ban }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+      - name: Ghi ảnh đang chạy
+        run: infra/scripts/deploy.sh record
+
+      # Luôn sao lưu trước migration, không tắt được (quyết định của người dùng 2026-11-18).
+      - name: Cài age
+        if: inputs.hanh_dong == 'trien-khai'
+        run: sudo apt-get update -q && sudo apt-get install -y -q age
+
+      - name: Sao lưu cơ sở dữ liệu
+        if: inputs.hanh_dong == 'trien-khai'
+        run: infra/scripts/deploy.sh backup
+
+      - name: Database migration
+        if: inputs.hanh_dong == 'trien-khai'
+        run: infra/scripts/deploy.sh migrate
+
+      - name: Đổi ảnh các dịch vụ
+        if: inputs.hanh_dong == 'trien-khai'
+        run: infra/scripts/deploy.sh release
+
+      - name: Quay lui ảnh
+        if: inputs.hanh_dong == 'quay-lui'
+        env:
+          ROLLBACK_VERSION: ${{ inputs.phien_ban }}
+        run: infra/scripts/deploy.sh rollback
+
+      - name: Kiểm tra sau triển khai
+        run: infra/scripts/deploy.sh verify
