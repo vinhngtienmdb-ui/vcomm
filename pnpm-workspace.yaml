@@ -9,3 +9,8 @@ onlyBuiltDependencies:
 # Không cần dựng: chỉ dùng để theo dõi tệp khi phát triển.
 ignoredBuiltDependencies:
   - "@parcel/watcher"
+# LOI_16: chấp nhận rủi ro có thời hạn (người dùng duyệt 2026-11-18, hết hạn 2026-12-18) cho lỗ hổng picomatch chưa có bản vá.
+# Chỉ nằm trong công cụ dựng và phát triển (@nestjs/cli, @expo/cli), không chạy trên máy chủ, ứng dụng. Có bản vá thì nâng phiên bản và gỡ dòng này.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
