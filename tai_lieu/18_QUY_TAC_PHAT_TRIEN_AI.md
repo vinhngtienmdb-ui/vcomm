@@ -1,8 +1,8 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Quy tắc viết mã, quy ước Git, nguồn mã riêng, cách chạy ứng dụng để xem trước.
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
 
 ## 1. Quy trình
@@ -72,7 +72,7 @@ Tài khoản thử (dữ liệu giả, nạp bằng `pnpm --filter api db:seed`;
 
 ## 6. Tệp ở thư mục gốc
 
-Được người dùng đồng ý ngày 2026-11-09: `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` (pnpm tự sinh), `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.env.example`, `docker-compose.yml`, `.editorconfig`, `.claude/launch.json`, `CLAUDE.md`, `README.md`.
+Được người dùng đồng ý ngày 2026-11-09: `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` (pnpm tự sinh), `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.env.example`, `docker-compose.yml`, `.editorconfig`, `.claude/launch.json`, `CLAUDE.md`, `README.md`. Được người dùng đồng ý ngày 2026-11-18 (CONG_VIEC_76): thư mục `infra/`, tệp `.dockerignore`.
 
 ## 7. CLAUDE.md cho từng phần
 

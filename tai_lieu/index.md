@@ -30,6 +30,7 @@
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Phiên bản, nội dung, phương án quay lui | 11 | Đang cập nhật |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
 | 25 | [25_KET_QUA_KIEM_THU.md](25_KET_QUA_KIEM_THU.md) | Kết quả kiểm thử | Kết quả từng lần kiểm thử, danh sách lỗi LOI | 10 | Đang cập nhật |
+| 26 | [26_TRIEN_KHAI.md](26_TRIEN_KHAI.md) | Triển khai | Môi trường, các bước triển khai, quay lui chung, biên bản triển khai | 12 | Bản nháp |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
 | 28 | [28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md](28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md) | Hướng dẫn đăng ký dịch vụ ngoài | eSMS (SMS Brandname, Zalo ZNS), Zalo OA, đăng nhập Zalo, Google, Microsoft, AWS S3; nhập khóa ở Cài đặt tích hợp | 08 | Đang dùng |
 
@@ -72,6 +73,7 @@
 | CONG_VIEC_68 | [cong_viec/CONG_VIEC_68.md](cong_viec/CONG_VIEC_68.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_70 | [cong_viec/CONG_VIEC_70.md](cong_viec/CONG_VIEC_70.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_63 | [cong_viec/CONG_VIEC_63.md](cong_viec/CONG_VIEC_63.md) | Đã nghiệm thu, chờ phát hành |
+| CONG_VIEC_76 | [cong_viec/CONG_VIEC_76.md](cong_viec/CONG_VIEC_76.md) | Đang thực hiện (lát L1) |
 | CONG_VIEC_77 | [cong_viec/CONG_VIEC_77.md](cong_viec/CONG_VIEC_77.md) | Đang thực hiện |
 
-Tài liệu `26` chưa lập; tạo khi triển khai.
+Tài liệu `26` lập bản nháp ở CONG_VIEC_76 (2026-11-18).

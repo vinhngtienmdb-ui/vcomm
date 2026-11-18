@@ -1,10 +1,10 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Công nghệ, thư viện, dịch vụ hạ tầng và phân tích giải pháp có sẵn.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-18
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77, THAY_DOI_41 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15); CONG_VIEC_79 (2026-11-18): lưu tệp trên kho tương thích S3 khác AWS (mục 1)
+- Thay đổi theo: THAY_DOI_40 qua CONG_VIEC_76 (2026-11-18): nền tảng triển khai đợt đầu Supabase, Railway, Cloudflare (mục 1); THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8); CONG_VIEC_77, THAY_DOI_41 (2026-11-18): gửi email qua SMTP bằng `nodemailer` (mục 1, mục 15); CONG_VIEC_79 (2026-11-18): lưu tệp trên kho tương thích S3 khác AWS (mục 1)
 
 ## 1. Danh sách công nghệ
 
@@ -16,13 +16,13 @@
 | Truy cập cơ sở dữ liệu, database migration | Drizzle ORM | Hỗ trợ nhiều schema, ràng buộc kiểm tra, chỉ mục có điều kiện; người dùng chọn ngày 2026-11-09 |
 | Giao diện web | Next.js, shadcn/ui | Một bộ thành phần cho mọi mini app |
 | Ứng dụng di động | React Native (Expo) | Một mã nguồn cho iOS và Android |
-| Cơ sở dữ liệu | PostgreSQL 16 (Amazon Aurora) | Giao dịch toàn vẹn cho kế toán và sổ cái điểm |
-| Bộ nhớ đệm, hàng đợi nhẹ | Redis (ElastiCache), BullMQ | Phiên, quyền, giỏ hàng, tác vụ nền |
+| Cơ sở dữ liệu | PostgreSQL 16 (máy phát triển, CI); đợt triển khai đầu: Supabase Postgres 17 vùng Singapore (THAY_DOI_40); sau này Amazon Aurora | Giao dịch toàn vẹn cho kế toán và sổ cái điểm |
+| Bộ nhớ đệm, hàng đợi nhẹ | Redis (đợt đầu: Redis trên Railway, THAY_DOI_40; sau này ElastiCache), BullMQ | Phiên, quyền, giỏ hàng, tác vụ nền |
 | Sự kiện giữa module | Outbox, Amazon SQS/SNS | Không mất sự kiện |
 | Tìm kiếm | Amazon OpenSearch | Tìm sản phẩm tiếng Việt có dấu và không dấu |
-| Lưu tệp | S3, CloudFront; kho tương thích S3 khác AWS (Supabase Storage) qua cùng thư viện `@aws-sdk/client-s3`, biến `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `S3_SERVER_SIDE_ENCRYPTION` (CONG_VIEC_79, không thêm thư viện) | Ảnh, video sản phẩm và cộng đồng, tệp đính kèm |
-| Chạy ứng dụng | ECS Fargate, vùng Singapore | Không quản trị máy chủ, tự co giãn |
-| Hạ tầng bằng mã | AWS CDK (TypeScript) | Cùng ngôn ngữ, cùng monorepo; người dùng chọn ngày 2026-11-09 |
+| Lưu tệp | S3, CloudFront; đợt đầu: ổ đĩa bền Railway (thử nghiệm), Supabase Storage qua giao thức S3 (thật; CONG_VIEC_79: biến `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE`, `S3_SERVER_SIDE_ENCRYPTION`, cùng thư viện `@aws-sdk/client-s3`, không thêm thư viện); bản web ứng dụng di động trên Cloudflare Pages (THAY_DOI_40) | Ảnh, video sản phẩm và cộng đồng, tệp đính kèm |
+| Chạy ứng dụng | Đợt đầu: container trên Railway vùng Singapore, DNS và chứng chỉ Cloudflare (THAY_DOI_40); sau này ECS Fargate vùng Singapore | Không quản trị máy chủ |
+| Hạ tầng bằng mã | Đợt đầu: Dockerfile, tệp lệnh triển khai `infra/scripts/deploy.sh`, luồng GitHub Actions (THAY_DOI_40); sau này AWS CDK (TypeScript) | Cùng ngôn ngữ, cùng monorepo; người dùng chọn CDK ngày 2026-11-09 |
 | Tác vụ nền | BullMQ trên Redis | Nhắc duyệt quá hạn, lấy tỷ giá, đẩy sự kiện outbox |
 | Gửi email | SMTP của hộp thư doanh nghiệp có sẵn, thư viện `nodemailer` 10.3.1 (MIT-0, không phụ thuộc thư viện khác, có sẵn tệp kiểu); biến môi trường `EMAIL_DRIVER`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_SECURE` (không bắt buộc) | Đường dẫn kích hoạt, đặt lại mật khẩu, thư mời phỏng vấn, đề nghị nhận việc, phiếu lương, ký số. CONG_VIEC_77, THAY_DOI_41: người dùng chọn SMTP hộp thư doanh nghiệp ngày 2026-11-18 (thay Amazon SES) |
 | Gửi mã OTP, đường dẫn | Zalo ZNS trước, SMS thương hiệu dự phòng (người dùng chọn 2026-11-09); **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS, Zalo Official Account | Mã OTP, đường dẫn kích hoạt |
@@ -31,9 +31,10 @@
 | Đơn vị vận chuyển | Giao Hàng Nhanh (GHN) qua REST, gọi bằng `fetch` của Node.js, không thêm thư viện; biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY`, `GHN_BASE_URL` (để trống: môi trường thử nghiệm `https://dev-online-gateway.ghn.vn`); kiểm thử dùng máy chủ giả lập | CONG_VIEC_24 (người dùng chọn GHN ngày 2026-11-11) |
 | Cổng thanh toán | VNPAY theo đặc tả công khai phiên bản 2.1.0 (QR VNPAY, thẻ ATM nội địa, thẻ quốc tế), ký HMAC SHA512 bằng `node:crypto`, không thêm thư viện; biến môi trường `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, `VNPAY_PAYMENT_URL` (để trống: môi trường thử nghiệm `https://sandbox.vnpayment.vn/paymentv2/vpcpay.html`), `VCOMM_APP_LINK_BASE` (liên kết mở ứng dụng từ trang trả về, mặc định `vcomm://`); kiểm thử dùng giả lập; phải thử với tài khoản môi trường thử nghiệm của VNPAY trước khi phát hành | CONG_VIEC_25 (người dùng chọn VNPAY ngày 2026-11-11) |
 | Danh mục tỉnh, xã hai cấp | Bộ dữ liệu `thanglequoc/vietnamese-provinces-database` v5.2.0 (giấy phép MIT, mã Tổng cục Thống kê), chuyển thành câu lệnh nạp trong database migration 0025; không thêm thư viện | CONG_VIEC_24 (người dùng chọn ngày 2026-11-11) |
-| Bí mật hệ thống | AWS Secrets Manager | Tài liệu `22` mục 5 |
+| Bí mật hệ thống | Đợt đầu: biến bí mật Railway, biến bí mật môi trường GitHub (THAY_DOI_40); sau này AWS Secrets Manager | Tài liệu `22` mục 5 |
 | Kiểm thử | Vitest (đơn vị, tích hợp với PostgreSQL thật), Playwright (giao diện) | |
-| Giám sát | CloudWatch, Sentry | Log, lỗi, cảnh báo |
+| Giám sát | Đợt đầu: log và cảnh báo của Railway (THAY_DOI_40); sau này CloudWatch, Sentry | Log, lỗi, cảnh báo |
+| Quét lỗ hổng ảnh container | Hành động GitHub `aquasecurity/trivy-action` v0.36.0 (2026-04-22, giấy phép Apache 2.0, ghim mã commit `ed142fd0`; Trivy v0.70.0 mặc định của hành động); chặn HIGH, CRITICAL đã có bản vá | CONG_VIEC_76; người dùng duyệt 2026-11-18 |
 | Băm mật khẩu | argon2id | Chuẩn hiện hành |
 | Mã hóa bí mật | AWS KMS | Bí mật xác thực hai lớp |
 | Ký số PDF | `pdf-lib` 1.17.1, `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0, `node-forge` 1.4.3 (`@types/node-forge` 1.3.14); nhà cung cấp ký số từ xa qua lớp kết nối chung, bộ giả lập tự viết cho môi trường thử | CONG_VIEC_59; người dùng duyệt 2026-11-12 (mục 10) |

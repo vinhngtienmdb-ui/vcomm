@@ -1,0 +1,18 @@
+# Không đưa vào ảnh container (CONG_VIEC_76): khóa bí mật, thư mục build cũ, tài liệu, Git.
+.git
+.github
+.claude
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/.expo
+**/coverage
+**/.storage
+**/*.log
+**/*.tsbuildinfo
+.env
+.env.*
+!.env.example
+tai_lieu
+tam_thoi

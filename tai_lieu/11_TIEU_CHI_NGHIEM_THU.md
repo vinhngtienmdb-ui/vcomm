@@ -843,6 +843,25 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketpl
 | TIEUCHI_NGHIEMTHU_588 | CHUC_NANG_252 đến 260 | Nhật ký thao tác có đủ các thao tác của QUYTAC_NGHIEPVU_628; log, nhật ký, thông báo lỗi không chứa PIN, mã ghép, khóa thiết bị, OTP, mã động | Truy vấn nhật ký thao tác; rà soát mã | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_589 | CHUC_NANG_252 đến 260 | Màn hình MAN_HINH_283 đến 306 và phần sửa màn hình đủ trạng thái có dữ liệu, rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; ứng dụng chạy trên Sunmi T2 và máy tính bảng Android; cổng và ERP chạy trên máy tính, máy tính bảng | Ảnh chụp ở điểm xem trước; thử trên máy thật | Bắt buộc |
 
+## Triển khai: hạ tầng, quy trình triển khai (CONG_VIEC_76, THAY_DOI_40)
+
+Không gắn chức năng nghiệp vụ; truy vết về tài liệu `12` mục 4, 5 và tài liệu `26`. Đợt đầu chỉ có môi trường thật (người dùng quyết định 2026-11-18).
+
+| Mã | Tiêu chí | Mức | Lát |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_590 | Hai ảnh build được từ tag; không chứa `.env`, khóa bí mật, mã nguồn kiểm thử; quét ảnh không còn lỗ hổng Nghiêm trọng, Cao chưa xử lý | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_591 | Toàn bộ database migration và kiểm thử tự động đạt trên PostgreSQL 17 | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_592 | Môi trường thật: HTTPS đúng tên miền (`erp.vcomm.vn`, `api.vcomm.vn`), đăng nhập quản trị tập đoàn, mở 11 mini app | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_593 | Bản web ứng dụng VComm, kho, iPOS (`app`, `kho`, `ipos.vcomm.vn`) gọi được API môi trường thật; APK Android cài và đăng nhập được | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_594 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại hoặc đổi bản chạy của dịch vụ `api` | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_595 | Tác vụ nền chạy theo lịch ở dịch vụ `worker`, không chạy trùng ở `api` | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; luôn có bản sao lưu mã hóa trước migration (không tắt được); migration chạy lại không còn tệp mới | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối; môi trường `production` cần người duyệt; migration khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_598 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_600 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật: `NODE_ENV=production`, bộ giả lập tắt, `api` và `web` 2 bản, `worker` riêng, Supabase Small, PITR 7 ngày | Bắt buộc | L2 |
+
 ## MODULE_01 Gửi email thật qua SMTP (CONG_VIEC_77, THAY_DOI_41)
 
 Dữ liệu mẫu: máy chủ SMTP giả chạy cục bộ trong kiểm thử (`apps/api/test/c77-email-smtp.test.ts`); dữ liệu thử chuẩn (tài liệu `18` mục 5).
