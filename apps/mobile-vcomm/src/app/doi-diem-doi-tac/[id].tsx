@@ -1,15 +1,19 @@
 // MAN_HINH_265 Đổi điểm với đối tác (CONG_VIEC_65; CHUC_NANG_237; API_307; QUYTAC_NGHIEPVU_539, 540, 542 đến 544): chọn chiều, nhập số đơn vị đối tác (bội số),
 // xem số điểm VComm tương ứng và giới hạn còn lại; đổi ra cần Smart OTP khi đã kích hoạt; đổi vào cần OTP do đối tác gửi; lịch sử đổi.
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_569): hết thời hạn chuyển đổi thì phải kích hoạt Smart OTP; máy đang giữ Smart OTP lấy mã bằng vân tay hoặc mã khóa, mã tự điền.
 import type { BuyerPartnerExchange, BuyerPartnerExchangeQuote, BuyerPartnerItem, PageResponse, PartnerExchangeDirection } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import { UnlockFlow } from "@/components/SmartOtpLock";
 import { Button, Card, Field, Loading, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { shortDate, translator } from "@/lib/i18n";
+import { codeOf, loadSmartOtp } from "@/lib/smart-otp";
 import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("loyaltyPartnerApp");
+const app = translator("vcommApp");
 const number = (value: number) => value.toLocaleString("vi-VN");
 const tone = (status: BuyerPartnerExchange["status"]) =>
   status === "completed" ? "success" : status === "pending_partner" || status === "needs_review" || status === "otp_pending" || status === "sending" ? "warning" : "neutral";
@@ -22,6 +26,8 @@ export default function PartnerExchangeScreen() {
   const [units, setUnits] = useState("");
   const [quote, setQuote] = useState<BuyerPartnerExchangeQuote | null>(null);
   const [smartOtp, setSmartOtp] = useState("");
+  const [holdsSmartOtp, setHoldsSmartOtp] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
   const [otp, setOtp] = useState("");
   const [inbound, setInbound] = useState<BuyerPartnerExchange | null>(null);
   const [busy, setBusy] = useState(false);
@@ -32,6 +38,11 @@ export default function PartnerExchangeScreen() {
     if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0) setFields(failure.fields);
     else setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
   };
+
+  // Máy này đang giữ Smart OTP (đã đặt mã khóa) thì cho lấy mã ngay trên máy.
+  useEffect(() => {
+    void loadSmartOtp().then((stored) => setHoldsSmartOtp(Boolean(stored?.pin)));
+  }, []);
 
   const reload = useCallback(() => {
     setError(null);
@@ -146,16 +157,37 @@ export default function PartnerExchangeScreen() {
                 ) : null}
                 {direction === "outbound" ? (
                   <>
-                    {quote?.smartOtpRequired ? (
+                    {quote?.smartOtpRequired && !quote.smartOtpActive ? (
+                      <>
+                        <Notice tone="warning" text={app("partnerActivateSmartOtp")} />
+                        <Button label={app("smartOtpActivate")} onPress={() => router.push("/diem-thuong")} />
+                      </>
+                    ) : quote?.smartOtpRequired && unlocking ? (
+                      <>
+                        <UnlockFlow
+                          onUnlocked={(stored) => {
+                            setSmartOtp(codeOf(stored.secret, Date.now()));
+                            setUnlocking(false);
+                          }}
+                          onLockedOut={() => {
+                            setHoldsSmartOtp(false);
+                            setUnlocking(false);
+                            setError(app("smartOtpLockedOut"));
+                          }}
+                        />
+                        <Button label={app("cancel")} kind="secondary" onPress={() => setUnlocking(false)} />
+                      </>
+                    ) : quote?.smartOtpRequired ? (
                       <>
                         <Field label={t("smartOtp")} value={smartOtp} onChangeText={setSmartOtp} keyboardType="number-pad" maxLength={6} error={fields.smartOtp} />
-                        <Muted>{t("smartOtpHint")}</Muted>
+                        <Muted>{holdsSmartOtp ? app("partnerSmartOtpHere") : t("smartOtpHint")}</Muted>
+                        {holdsSmartOtp ? <Button label={app("resetSmartOtpTake")} kind="secondary" onPress={() => setUnlocking(true)} /> : null}
                       </>
                     ) : null}
                     <Button
                       label={quote ? t("submitOut", { points: number(quote.vcommPoints), units: number(amount), unit }) : t("exchange")}
                       busy={busy}
-                      disabled={!quote}
+                      disabled={!quote || (quote.smartOtpRequired && !quote.smartOtpActive)}
                       onPress={() =>
                         void attempt(async () => {
                           const done = await api<BuyerPartnerExchange>("/buyer/loyalty/partner-exchanges", {

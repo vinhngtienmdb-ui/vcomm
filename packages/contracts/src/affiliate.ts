@@ -93,6 +93,8 @@ export interface AffiliateMember {
   status: AffiliateMemberStatus;
   outletIds: string[];
   invitationExpiresAt: string | null;
+  // CONG_VIEC_72: thành viên đã kích hoạt đã thiết lập mật khẩu và ứng dụng xác thực chưa; null khi chưa kích hoạt.
+  securitySetUp: boolean | null;
   version: number;
 }
 export interface AffiliateMerchantTerms {
@@ -145,6 +147,8 @@ export interface MerchantPortalMe {
     merchantStatus: AffiliateMerchantStatus;
     role: AffiliateMemberRole;
     outlets: AffiliateOutlet[];
+    // Cửa hàng đã bật thu hộ qua ứng dụng VComm (CONG_VIEC_73; QUYTAC_NGHIEPVU_573).
+    collectionEnabled: boolean;
   }[];
 }
 export interface MerchantPortalStore extends AffiliateMerchantTerms {
@@ -163,7 +167,8 @@ export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] 
 // Cách `otp` chỉ có qua Open API (CONG_VIEC_67).
 export const affiliateAllTransactionMethods = [...affiliateTransactionMethods, "otp"] as const;
 export type AffiliateTransactionMethod = (typeof affiliateAllTransactionMethods)[number];
-export type AffiliateTransactionSource = "portal" | "open_api";
+// "ipos": giao dịch từ đơn chờ do ứng dụng iPOS tạo (CONG_VIEC_74, qua CONG_VIEC_73).
+export type AffiliateTransactionSource = "portal" | "open_api" | "ipos";
 export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
 // CONG_VIEC_60: fraud_rule – quy tắc chống gian lận chặn tích.
 export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue" | "fraud_rule";
@@ -217,6 +222,18 @@ export interface AffiliateTransactionItem {
   expiresAt: string | null;
   cancelReason: string | null;
   canCancel: boolean;
+  // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6); chỉ có ở chi tiết giao dịch.
+  einvoice?: TransactionEinvoice | null;
+}
+// Hóa đơn điện tử của giao dịch cửa hàng liên kết, lập theo ủy nhiệm (cổng cửa hàng, ứng dụng khách).
+export interface TransactionEinvoice {
+  id: string;
+  status: string;
+  series: string | null;
+  invoiceNo: string | null;
+  invoiceDate: string;
+  totalAmount: string;
+  hasPdf: boolean;
 }
 export interface AffiliateTransactionCreated {
   transaction: AffiliateTransactionItem;
@@ -244,7 +261,7 @@ export interface BuyerAffiliateRequest {
   maxPoints: number;
   pointValue: string | null;
   redeemable: boolean;
-  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null;
   earnPercent: string;
   // Voucher của khách dùng được cho giao dịch này, kèm tiền giảm tính theo tiền hóa đơn (lát L2).
   vouchers: (BuyerVoucherCode & { discount: string })[];
@@ -263,6 +280,8 @@ export interface BuyerAffiliateTransaction {
   earnedPoints: number;
   skipReason: AffiliateSkipReason | null;
   createdAt: string;
+  // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6).
+  einvoice: TransactionEinvoice | null;
 }
 export interface BuyerMemberCode {
   code: string;
@@ -441,6 +460,8 @@ export interface AffiliateSettlementItem {
   smsFeeAmount: string;
   feeTaxRate: string;
   feeTaxAmount: string;
+  // Phí thuê bao iPOS (G; CONG_VIEC_74), đã gồm thuế.
+  iposFeeAmount: string;
   adjustmentAmount: string;
   netAmount: string;
   status: AffiliateSettlementStatus;
@@ -523,7 +544,8 @@ export interface AffiliateCompanyReport {
   rows: (AffiliateReportMetrics & { merchantId: string; merchantCode: string; merchantName: string; feeAmount: string; exposure: AffiliateExposure })[];
 }
 
-export const affiliateAlertKinds = ["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage"] as const;
+// late_payments: khách thanh toán từ 3 lần sau khi đơn chờ đã hết hạn hoặc bị hủy (CONG_VIEC_73 lát L7; QUYTAC_NGHIEPVU_592).
+export const affiliateAlertKinds = ["same_buyer_burst", "near_cap", "cancel_rate", "phone_declines", "credit_usage", "late_payments"] as const;
 export type AffiliateAlertKind = (typeof affiliateAlertKinds)[number];
 export const affiliateAlertQuerySchema = z.object({ kind: z.enum(affiliateAlertKinds).optional(), merchantId: z.string().uuid().optional() });
 // Cảnh báo tính trong 7 ngày gần nhất; chỉ cảnh báo, không tự chặn.
@@ -574,6 +596,8 @@ const affiliateApiKeySettings = {
   smsDailyLimit: z.number().int().min(0).max(5000).default(200),
   expiresOn: isoDate.nullable().default(null),
   allowedIps: z.array(ipEntry).max(20).default([]),
+  // Phạm vi instore.checkout: tạo, tra, hủy đơn chờ thanh toán qua Open API (CONG_VIEC_73 lát L7).
+  instoreCheckout: z.boolean().default(false),
 };
 export const affiliateApiKeyCreateSchema = z.object(affiliateApiKeySettings).strict();
 export type AffiliateApiKeyCreateRequest = z.input<typeof affiliateApiKeyCreateSchema>;
@@ -596,6 +620,9 @@ export interface AffiliateApiKeyItem {
   smsToday: number;
   createdAt: string;
   version: number;
+  instoreCheckout: boolean;
+  // Webhook (CONG_VIEC_73 lát L7; API_331): địa chỉ nhận, đã cấp khóa ký chưa.
+  webhook: { url: string | null; secretSet: boolean; secretAt: string | null; version: number };
 }
 export interface AffiliateApiKeySecret {
   key: AffiliateApiKeyItem;
@@ -630,13 +657,17 @@ export const openAffiliateQuoteSchema = z
 export interface OpenAffiliateQuote {
   buyerName: string | null;
   redeemable: boolean;
-  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null;
   minPoints: number;
   maxPoints: number;
   pointValue: string | null;
   estimatedEarnPoints: number;
   vouchers: { id: string; title: string; discount: string; expiresAt: string }[];
   smartOtpActive: boolean;
+  // CONG_VIEC_72: smart_otp; sms (chưa kích hoạt, trong thời hạn chuyển đổi); unavailable (hết hạn, chưa kích hoạt).
+  otpMethod: "smart_otp" | "sms" | "unavailable";
+  // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
+  redeemLockedUntil: string | null;
 }
 export const openAffiliateTransactionSchema = z
   .object({
@@ -696,3 +727,28 @@ export interface OpenAffiliateTransaction {
   expiresAt: string | null;
   cancelReason: string | null;
 }
+
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_570): bảo mật đăng nhập cổng cửa hàng liên kết.
+// set_up: đã có mật khẩu và ứng dụng xác thực; optional: chưa thiết lập, còn thời hạn chuyển đổi ("Để sau");
+// required: phiên kích hoạt bằng mã SMS, phải thiết lập xong mới vào cổng; mfa_pending: cần nhập mã ứng dụng xác thực;
+// blocked: hết hạn hoặc đã bị đặt lại mà chưa kích hoạt lại bằng mã SMS, nhờ người mời đặt lại xác thực.
+export const merchantPortalSecurityStatuses = ["set_up", "optional", "required", "mfa_pending", "blocked"] as const;
+export type MerchantPortalSecurityStatus = (typeof merchantPortalSecurityStatuses)[number];
+export interface MerchantPortalSecurity {
+  status: MerchantPortalSecurityStatus;
+  needsPassword: boolean;
+  needsAuthenticator: boolean;
+  transitionEndsOn: string;
+  daysLeft: number;
+}
+// API_324: chính sách công khai cho trang đăng nhập cổng: còn liên kết "Đăng nhập bằng mã SMS" trong thời hạn.
+export interface MerchantPortalAuthenticationPolicy {
+  transitionEndsOn: string;
+  smsLoginOpen: boolean;
+}
+export const merchantPortalPasswordSchema = z.object({ password: z.string().max(256) }).strict();
+const authenticatorCode = z.string().regex(/^\d{6}$/);
+export const merchantPortalPasswordResetSchema = z
+  .object({ phone: vietnamPhone, code: authenticatorCode.optional(), backupCode: z.string().trim().min(8).max(20).optional(), password: z.string().max(256) })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.backupCode), { path: ["code"] });

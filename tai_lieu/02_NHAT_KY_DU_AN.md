@@ -5,6 +5,21 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## 2026-11-18
+
+### Quyết định
+
+- CONG_VIEC_76: người dùng chọn không dựng môi trường thử nghiệm, triển khai thẳng môi trường thật trên erp, api, app, kho, ipos.vcomm.vn (vcomm.vn và www chuyển sang app.vcomm.vn), chế độ thật, sao lưu bắt buộc; tự kiểm trên môi trường thật với công ty riêng, chỉ mở cho người dùng ngoài khi xử lý hoặc chấp nhận các điểm chặn (pháp lý điểm thưởng, dữ liệu ở Singapore, thử máy thật Smart OTP và iPOS, hồ sơ thu hộ, ủy nhiệm hóa đơn và MISA, kế toán trưởng xác nhận tài khoản, MISA thật từng công ty, ký số và đối tác liên minh chưa có kết nối thật). Mở CONG_VIEC_77 (email SMTP doanh nghiệp có sẵn), 78 (lệnh khởi tạo một lần), 79 (lưu tệp Supabase Storage), phát hành 0.14.1 rồi triển khai.
+- CONG_VIEC_78: người dùng chọn đường dẫn kích hoạt dùng một lần (cơ chế mời sẵn có) thay cho mật khẩu tạm buộc đổi, để giữ mức Nhỏ, không đổi cơ sở dữ liệu và API đăng nhập.
+- LOI_16: lỗ hổng picomatch chưa có bản vá chặn CI mọi pull request; người dùng ban đầu chọn chờ bản vá, sau đó chấp nhận rủi ro 30 ngày để phát hành và triển khai (pull request #208).
+- Người dùng yêu cầu triển khai để tự kiểm trên môi trường thật; mở CONG_VIEC_76. Đặc tả AWS ước tính thử nghiệm ~110, thật ~515 USD/tháng; người dùng chọn triển khai trước trên Supabase, Cloudflare (AWS để sau); khảo sát: 145 database migration chạy đạt trên PostgreSQL 17 không SUPERUSER; đề xuất Railway Singapore cho API vì Cloudflare Containers không đặt được ở Singapore; thử nghiệm ~51 USD/tháng.
+- CONG_VIEC_76 (người dùng duyệt 2026-11-18): Supabase + Railway + Cloudflare, cấp THAY_DOI_40; sao lưu môi trường thật 7 ngày kèm PITR 7 ngày (giảm từ 35 ngày ở đợt này); tên miền vcomm.vn; người dùng yêu cầu tạm tắt sao lưu tự động trước khi triển khai môi trường thử nghiệm (bỏ bước bắt buộc của quy trình ở môi trường thử nghiệm, dữ liệu giả; môi trường thật vẫn sao lưu).
+- Người dùng chọn phát hành 0.14.0 ngay, thử máy thật sau: nghiệm thu phần tự động CONG_VIEC_72 (Smart OTP); người dùng yêu cầu thêm iPOS: 0.14.0 gồm CONG_VIEC_72, 73, 75 và CONG_VIEC_74 đợt 1 (nghiệm thu phần tự động; thử trên Sunmi T2 trước khi triển khai). Chưa triển khai. Điều kiện bắt buộc trước khi triển khai: thử 12 bước Smart OTP trên điện thoại thật; ba mẫu ZNS và số tổng đài; hồ sơ pháp lý thu hộ; xác nhận ủy nhiệm hóa đơn và MISA; kế toán trưởng xác nhận tài khoản QUYTAC_NGHIEPVU_587 và 3388; xác nhận ngày hóa đơn phí sàn tháng; thử VNPAY môi trường thử nghiệm. Lỗi phát hiện khi thử máy thật sửa bằng bản vá.
+
+### Công việc đã thực hiện
+
+- CONG_VIEC_74 nối hủy hóa đơn có thanh toán qua ứng dụng VComm (hợp nhất nhánh CONG_VIEC_73 đến `450105e`), sửa 3 điểm rà soát mức thấp; toàn bộ kiểm thử API 177 tệp, 986 đạt; chờ người dùng thử trên Sunmi T2.
+
 ## 2026-11-17
 
 ### Công việc đã thực hiện

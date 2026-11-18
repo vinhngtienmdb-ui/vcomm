@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_73 Thanh toán qua ứng dụng – Quầy và cổng cửa hàng</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+<style>
+  /* Bản mẫu CONG_VIEC_73. Chỉ dùng biến của tài liệu 15. */
+  body { padding: var(--khoang-5); display: grid; gap: var(--khoang-6); background: var(--mau-nen); }
+  .khung-mau { display: grid; gap: var(--khoang-3); }
+  .khung-mau > h2 { margin: 0; }
+  .hop-thoai.tinh { position: static; max-width: 760px; }
+  .cac-the { display: flex; gap: var(--khoang-2); }
+  .cac-the button { font: inherit; font-weight: 700; padding: 6px 14px; border-radius: var(--bo-tron); border: 1px solid var(--mau-vien-o-nhap); background: var(--mau-be-mat); cursor: pointer; }
+  .cac-the button.chon { background: var(--mau-chinh); color: #fff; border-color: var(--mau-chinh); }
+  .khung-camera { height: 150px; border: 2px dashed var(--mau-vien-o-nhap); border-radius: var(--bo-vua); display: grid; place-items: center; color: var(--mau-chu-phu); }
+  .ma-qr-lon { width: 180px; height: 180px; background: repeating-conic-gradient(var(--mau-chu) 0 25%, var(--mau-be-mat) 0 50%) 0 0 / 18px 18px; border: 8px solid var(--mau-be-mat); outline: 1px solid var(--mau-vien); }
+  .hai-cot-mau { display: grid; grid-template-columns: 1fr 1fr; gap: var(--khoang-4); }
+  .bang-mau { width: 100%; border-collapse: collapse; background: var(--mau-be-mat); }
+  .bang-mau th, .bang-mau td { text-align: left; padding: var(--khoang-2); border-bottom: 1px solid var(--mau-vien); font-size: 14px; }
+  .bang-mau .so { text-align: right; }
+  @media (max-width: 720px) { .hai-cot-mau { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Khung 1: MAN_HINH_278 tại quầy tập đoàn -->
+<section class="khung-mau" aria-labelledby="k1">
+  <h2 id="k1">MAN_HINH_278 · Thanh toán qua ứng dụng tại quầy (quầy tập đoàn)</h2>
+  <div class="hop-thoai tinh" role="dialog" aria-label="Thanh toán qua ứng dụng VComm">
+    <div class="dong"><h2>Thanh toán · 262.150</h2><button class="nut chu" type="button">Đóng <span class="phim">Esc</span></button></div>
+    <div class="cac-the" role="tablist"><button class="chon" type="button">Ứng dụng VComm</button><button type="button">Tiền mặt, chuyển khoản, điểm</button></div>
+    <div class="hai-cot-mau">
+      <div style="display:grid;gap:var(--khoang-3)">
+        <strong>Cách 1 · Quét mã thanh toán của khách</strong>
+        <div class="khung-camera">Đưa mã vào khung hoặc dùng máy quét</div>
+        <label class="truong">Hoặc nhập 18 số<input placeholder="482 913 075 631 284 517"></label>
+      </div>
+      <div style="display:grid;gap:var(--khoang-3);justify-items:start">
+        <strong>Cách 2 · Khách quét mã này bằng ứng dụng VComm</strong>
+        <div class="ma-qr-lon" role="img" aria-label="Mã QR thanh toán TT2611-000412"></div>
+        <span class="chu-phu">Đơn TT2611-000412 · giữ hàng đến 14:38</span>
+      </div>
+    </div>
+    <div class="khoi thong-tin">Khách Tr*** M*** (hạng Bạc) đang chọn điểm và thanh toán trên ứng dụng… <span class="nhan thong-tin">Chờ khách</span></div>
+    <div class="khoi canh-bao">Ví dụ lỗi: "Mã không hợp lệ hoặc đã hết hạn" · "Đơn đã có khách" · "Quét sai quá 10 lần, tạm khóa quét mã đến 15:40".</div>
+    <div class="dong"><button class="nut nguy-hiem" type="button">Hủy đơn chờ</button><button class="nut phu" type="button">Tạo mã mới</button></div>
+  </div>
+  <div class="hop-thoai tinh" role="status" aria-label="Kết quả">
+    <div class="dong"><h2>Đã thanh toán · BL2611-000124</h2><span class="nhan thanh-cong">Hoàn tất</span></div>
+    <div class="dong"><span>Điểm (500 điểm)</span><span>50.000</span></div>
+    <div class="dong"><span>Ứng dụng VComm · VNPAY</span><span>212.150</span></div>
+    <div class="dong"><span class="tong">Phải trả</span><span class="tong">262.150</span></div>
+    <div class="khoi thong-tin">Tiền qua ứng dụng không vào két, không tính khi đóng ca. Hóa đơn điện tử khởi tạo từ máy tính tiền đã cấp số.</div>
+    <div class="khoi loi">Ví dụ "Đã thu, lỗi ghi sổ" (kỳ kế toán khóa): báo Cửa hàng trưởng; nút "Ghi lại", "Hủy và hoàn tiền".</div>
+    <div class="dong"><button class="nut phu" type="button">In hóa đơn</button><button class="nut chinh" type="button">Đơn mới</button></div>
+  </div>
+  <p class="chu-phu">Sửa MAN_HINH_161: dòng thanh toán "Điểm" thêm nút "Quét mã thanh toán" thay ô nhập 6 số Smart OTP (ô nhập giữ làm dự phòng, liên kết "Nhập mã 6 số"). Sửa MAN_HINH_166: công tắc "Nhận thanh toán qua ứng dụng VComm", "Phí sàn (%)".</p>
+</section>
+
+<!-- Khung 2: sửa MAN_HINH_174 cổng cửa hàng liên kết -->
+<section class="khung-mau" aria-labelledby="k2">
+  <h2 id="k2">Sửa MAN_HINH_174 · Quầy tích đổi điểm (cổng cửa hàng liên kết, đã bật thu hộ)</h2>
+  <div class="hop-thoai tinh">
+    <label class="truong">Tiền hóa đơn (đ)<input value="450.000" inputmode="numeric"></label>
+    <label style="display:flex;gap:var(--khoang-2);align-items:center"><input type="radio" name="thu" checked> Khách trả qua ứng dụng VComm (VComm thu hộ)</label>
+    <label style="display:flex;gap:var(--khoang-2);align-items:center"><input type="radio" name="thu"> Khách trả tại quầy (chỉ tích, dùng điểm, voucher)</label>
+    <div class="cac-the"><button class="chon" type="button">Hiện mã QR</button><button type="button">Quét mã khách</button><button type="button">Số điện thoại</button></div>
+    <div style="display:grid;justify-items:center;gap:var(--khoang-2)"><div class="ma-qr-lon" role="img" aria-label="Mã QR thanh toán TT2611-000415"></div><span class="nhan thong-tin">Chờ khách thanh toán · còn 09:10</span></div>
+    <div class="dong"><h3>Kết quả LK-2611-000320</h3><span class="nhan thanh-cong">Hoàn tất</span></div>
+    <div class="dong"><span>Tiền hóa đơn</span><span>450.000</span></div>
+    <div class="dong"><span>Voucher, điểm</span><span>− 80.000</span></div>
+    <div class="dong"><span class="tong">Khách đã trả qua ứng dụng</span><span class="tong">370.000</span></div>
+    <div class="dong chu-phu"><span>Phí thu hộ 1,5 % và thuế 10 % · phí cổng 0,9 % + 1.100</span><span>− 10.535</span></div>
+    <div class="khoi thong-tin">Không thu tiền của khách. VComm chuyển 359.465 đ vào tài khoản của cửa hàng trong bảng chuyển tiền ngày 18/11. Hóa đơn điện tử 1C26TCH số 0000057 đã lập theo ủy nhiệm.</div>
+  </div>
+</section>
+
+<!-- Khung 3: MAN_HINH_282 cổng cửa hàng: tiền thu hộ -->
+<section class="khung-mau" aria-labelledby="k3">
+  <h2 id="k3">MAN_HINH_282 · Tiền thu hộ (cổng cửa hàng, chủ cửa hàng)</h2>
+  <table class="bang-mau"><thead><tr><th>Số</th><th>Ngày</th><th class="so">Thu hộ</th><th class="so">Phí thu hộ và thuế</th><th class="so">Phí cổng</th><th class="so">Ghi ngược, mang sang</th><th class="so">Tiền chuyển</th><th>Trạng thái</th></tr></thead><tbody>
+    <tr><td><a href="#">CT2611-000088</a></td><td>17/11</td><td class="so">8.420.000</td><td class="so">138.930</td><td class="so">98.200</td><td class="so">0</td><td class="so">8.182.870</td><td><span class="nhan canh-bao">Chờ chuyển</span></td></tr>
+    <tr><td><a href="#">CT2611-000071</a></td><td>16/11</td><td class="so">6.150.000</td><td class="so">101.475</td><td class="so">71.650</td><td class="so">− 359.465</td><td class="so">5.617.410</td><td><span class="nhan thanh-cong">Đã chuyển 17/11 · FT2632104455</span></td></tr>
+  </tbody></table>
+  <p class="chu-phu">Chi tiết bảng: danh sách giao dịch thu hộ, hóa đơn điện tử ủy nhiệm từng giao dịch, giao dịch hủy ghi ngược. Bảng đối soát điểm tuần (MAN_HINH_176) giữ nguyên.</p>
+</section>
+
+<div class="ghi-chu-ban-mau">Bản mẫu CONG_VIEC_73 · dữ liệu giả. QUYTAC_NGHIEPVU_575 đến 581, 584, 585. <a href="index.html">Mục lục bản mẫu</a></div>
+</body>
+</html>

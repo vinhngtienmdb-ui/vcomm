@@ -1,7 +1,7 @@
 // Tài khoản người mua VComm: đăng ký bằng số điện thoại và OTP, đăng nhập, quên mật khẩu, giới thiệu
 // (CONG_VIEC_23; CHUC_NANG_104 đến 106; QUYTAC_NGHIEPVU_141 đến 147; API_116 đến 118).
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerDetail, BuyerSalesCustomerItem, MarketplaceOrderStatus, MySalesTeamResponse } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, BuyerRegisterResponse, SmartOtpPlatform, BuyerReferralItem, BuyerSalesCustomerDetail, BuyerSalesCustomerItem, MarketplaceOrderStatus, MySalesTeamResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -13,6 +13,11 @@ import { minimumPasswordLength } from "../auth/activation.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "../auth/auth.service";
 import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
+import { SmartOtpService } from "../auth/smart-otp.service";
+import { AuthenticationSettingsService } from "../auth/authentication-settings.service";
+import { DeviceTrustService, deviceLabel } from "../auth/device-trust.service";
+import { deviceHashOf } from "../common/device-hash";
+import { notify } from "../common/notifications";
 import { users } from "../database/schema";
 import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesCareService } from "./sales-care.service";
@@ -37,6 +42,10 @@ export const maskPhone = (phone: string) => {
   return local.length <= 7 ? local : `${local.slice(0, 4)}***${local.slice(-3)}`;
 };
 
+const deviceVerificationMinutes = 10;
+const vietnamTime = (moment: Date) =>
+  new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" }).format(moment);
+
 const invalidField = (field: string, key: ErrorMessageKey) => new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [field]: key } });
 
 @Injectable()
@@ -50,7 +59,22 @@ export class BuyerAccountsService {
     private readonly salesTeam: SalesTeamService,
     private readonly commissions: MarketplaceCommissionsService,
     private readonly care: SalesCareService,
+    private readonly smartOtp: SmartOtpService,
+    private readonly settings: AuthenticationSettingsService,
+    private readonly deviceTrust: DeviceTrustService,
   ) {}
+
+  // Khách còn được nhận mã SMS đăng nhập, quên mật khẩu: chưa kích hoạt Smart OTP và còn thời hạn chuyển đổi (CONG_VIEC_72; QUYTAC_NGHIEPVU_560).
+  private async smsFallbackAllowed(userId: string): Promise<boolean> {
+    if ((await this.smartOtp.state(this.database, userId)).active) return false;
+    return this.settings.buyerTransitionOpen();
+  }
+
+  // Quên mật khẩu bằng SMS: như trên, cộng ngoại lệ một lần trong 24 giờ sau khi chăm sóc khách hàng hủy Smart OTP (QUYTAC_NGHIEPVU_567).
+  private async smsResetAllowed(userId: string): Promise<boolean> {
+    const exception = await this.database.execute(sql`SELECT 1 FROM core.account_security WHERE user_id = ${userId} AND sms_password_reset_until > now()`);
+    return exception.rows.length > 0 || this.smsFallbackAllowed(userId);
+  }
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
   async sendRegisterOtp(phone: string): Promise<void> {
@@ -59,13 +83,25 @@ export class BuyerAccountsService {
   }
 
   // API_116: kiểm tra mã giới thiệu trước khi dùng mã OTP để khách sửa mã mà không phải xin mã OTP mới.
-  async register(input: { phone: string; code: string; fullName: string; password: string; referralCode?: string | null }, client: ClientInfo): Promise<AppLoginResponse> {
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_562): kèm `smartOtp` thì kích hoạt Smart OTP luôn trong cùng giao dịch bằng chính mã SMS đăng ký, không gửi thêm tin.
+  async register(
+    input: {
+      phone: string;
+      code: string;
+      fullName: string;
+      password: string;
+      referralCode?: string | null;
+      smartOtp?: { deviceName: string; platform: Extract<SmartOtpPlatform, "ios" | "android"> } | undefined;
+    },
+    client: ClientInfo,
+  ): Promise<BuyerRegisterResponse> {
     await this.requirePhoneFree(input.phone);
     if (input.password.length < minimumPasswordLength) throw invalidField("password", "passwordTooShort");
     const referrerId = input.referralCode ? await this.resolveReferrer(this.database, input.referralCode, null) : null;
     if (!(await this.phoneOtp.consume(input.phone, input.code, "register"))) throw invalidField("code", "otpInvalid");
     const now = this.clock.now();
     let userId: string;
+    let smartOtpSecret: { secret: string } | null = null;
     try {
       userId = await this.database.transaction(async (transaction) => {
         const created = await transaction.execute<{ id: string }>(sql`
@@ -93,6 +129,9 @@ export class BuyerAccountsService {
           },
           transaction,
         );
+        // Thiết bị đăng ký thành thiết bị tin cậy (QUYTAC_NGHIEPVU_564).
+        await this.deviceTrust.trust(transaction, id, deviceHashOf(client.deviceId), client);
+        if (input.smartOtp) smartOtpSecret = await this.smartOtp.install(transaction, id, { ...input.smartOtp, deviceId: client.deviceId ?? null }, "smart_otp.activate");
         return id;
       });
     } catch (error) {
@@ -107,7 +146,8 @@ export class BuyerAccountsService {
         .where(sql`${users.id} = ${userId}`)
     )[0]!;
     const { response, session } = await this.auth.completeLogin(user, "password", input.phone, client, "vcomm_app");
-    return { ...response, tokens: appTokens(session) };
+    const smartOtpActivation = smartOtpSecret ? await this.smartOtp.activationResponse(userId, smartOtpSecret, client.deviceId ?? null) : null;
+    return { ...response, tokens: appTokens(session), smartOtpActivation };
   }
 
   // API_117: đăng nhập bằng mật khẩu, khóa 15 phút sau 5 lần sai như web (QUYTAC_NGHIEPVU_147).
@@ -117,11 +157,18 @@ export class BuyerAccountsService {
     return { ...response, tokens: appTokens(session) };
   }
 
+  // Khách đã kích hoạt Smart OTP hoặc hết thời hạn chuyển đổi: vẫn trả 204 như mọi số (không lộ trạng thái) nhưng không gửi tin.
   async sendLoginOtp(phone: string): Promise<void> {
-    await this.phoneOtp.send(phone, "login");
+    const user = await this.phoneOtp.activeUserByPhone(phone);
+    await this.phoneOtp.send(phone, "login", user ? await this.smsFallbackAllowed(user.id) : true);
   }
 
   async verifyLoginOtp(phone: string, code: string, client: ClientInfo): Promise<AppLoginResponse> {
+    const user = await this.phoneOtp.activeUserByPhone(phone);
+    if (user && !(await this.smsFallbackAllowed(user.id))) {
+      await this.auth.recordAttempt(phone, user.id, false, "sms_login_disabled", client, this.clock.now(), "phone_otp");
+      throw new ApiError("UNAUTHENTICATED", "otpInvalid");
+    }
     const { response, session } = await this.phoneOtp.verify(phone, code, client, "vcomm_app");
     await this.ensureAccount(response.user.id);
     return { ...response, tokens: appTokens(session) };
@@ -129,21 +176,122 @@ export class BuyerAccountsService {
 
   // Luôn trả thành công để không lộ số nào có tài khoản; chỉ gửi mã cho số đang hoạt động.
   async sendPasswordResetOtp(phone: string): Promise<void> {
-    await this.phoneOtp.send(phone, "password_reset");
+    const user = await this.phoneOtp.activeUserByPhone(phone);
+    await this.phoneOtp.send(phone, "password_reset", user ? await this.smsResetAllowed(user.id) : true);
   }
 
   // Đặt mật khẩu mới bằng mã OTP; thu hồi mọi phiên, bỏ khóa đăng nhập (QUYTAC_NGHIEPVU_147).
-  async resetPassword(phone: string, code: string, password: string, client: ClientInfo): Promise<void> {
+  // CONG_VIEC_72 (QUYTAC_NGHIEPVU_568): mã Smart OTP là cách chính; mã SMS chỉ khi chưa kích hoạt và còn thời hạn chuyển đổi.
+  async resetPassword(phone: string, proof: { code?: string | undefined; smartOtp?: string | undefined }, password: string, client: ClientInfo): Promise<void> {
     if (password.length < minimumPasswordLength) throw invalidField("password", "passwordTooShort");
     // Tài khoản có thư điện tử (nhân viên) đặt lại mật khẩu bằng đường dẫn gửi qua thư điện tử trên web (rà soát CONG_VIEC_23).
     const user = await this.phoneOtp.activeUserByPhone(phone);
-    if (!user || user.email || !(await this.phoneOtp.consume(phone, code, "password_reset"))) throw invalidField("code", "otpInvalid");
+    if (!user || user.email) throw invalidField("code", "otpInvalid");
+    if (proof.smartOtp) {
+      try {
+        await this.smartOtp.verify(user.id, proof.smartOtp, null);
+      } catch (error) {
+        if (error instanceof ApiError && error.message === "retailSmartOtpLocked") throw new ApiError("BUSINESS_RULE", "smartOtpLocked");
+        if (error instanceof ApiError && (error.message === "retailSmartOtpInvalid" || error.message === "retailSmartOtpInactive")) throw invalidField("code", "otpInvalid");
+        throw error;
+      }
+    } else if (!(await this.smsResetAllowed(user.id)) || !(await this.phoneOtp.consume(phone, proof.code!, "password_reset"))) {
+      throw invalidField("code", "otpInvalid");
+    }
     await this.database.transaction(async (transaction) => {
+      // Hết tin cậy mọi thiết bị trừ thiết bị đang làm (QUYTAC_NGHIEPVU_568).
+      await this.deviceTrust.removeAllExcept(transaction, user.id, deviceHashOf(client.deviceId));
+      // Ngoại lệ đặt lại bằng SMS sau khi chăm sóc khách hàng hủy Smart OTP chỉ dùng một lần (QUYTAC_NGHIEPVU_567).
+      await transaction.execute(sql`UPDATE core.account_security SET sms_password_reset_until = NULL, updated_at = now() WHERE user_id = ${user.id} AND sms_password_reset_until IS NOT NULL`);
       await setPassword(transaction, user.id, password);
       await transaction.execute(sql`UPDATE core.users SET login_locked_until = NULL, updated_at = now() WHERE id = ${user.id}`);
       await transaction.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE user_id = ${user.id} AND revoked_at IS NULL`);
       await this.audit.record(
-        { actorUserId: user.id, appCode: "marketplace", action: "password.reset", entityType: "user", entityId: user.id, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
+        {
+          actorUserId: user.id,
+          appCode: "marketplace",
+          action: "password.reset",
+          entityType: "user",
+          entityId: user.id,
+          afterData: { method: proof.smartOtp ? "smart_otp" : "sms" },
+          ip: client.ip,
+          userAgent: client.userAgent,
+          requestId: client.requestId,
+        },
+        transaction,
+      );
+    });
+  }
+
+  // API_318: phiên chờ xác nhận thiết bị mới, hiệu lực 10 phút (QUYTAC_NGHIEPVU_565).
+  private async pendingDevice(userId: string, sessionId: string) {
+    const row = (
+      await this.database.execute<{ device_verified: boolean; created_at: Date; device_hash: string | null; phone: string | null }>(sql`
+        SELECT s.device_verified, s.created_at, s.device_hash, u.phone FROM core.sessions s JOIN core.users u ON u.id = s.user_id
+        WHERE s.id = ${sessionId} AND s.user_id = ${userId} AND s.revoked_at IS NULL`)
+    ).rows[0];
+    if (!row) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    // Phiên ghi giờ thật như phần phiên đăng nhập (AuthService), nên hạn 10 phút cũng tính theo giờ thật.
+    const now = new Date();
+    if (!row.device_verified && new Date(row.created_at).getTime() + deviceVerificationMinutes * 60_000 < now.getTime()) {
+      await this.database.execute(sql`UPDATE core.sessions SET revoked_at = ${now} WHERE id = ${sessionId}`);
+      throw new ApiError("UNAUTHENTICATED", "deviceVerificationExpired");
+    }
+    return row;
+  }
+
+  // Gửi mã SMS xác nhận thiết bị: chỉ khi khách chưa kích hoạt Smart OTP và còn thời hạn chuyển đổi; luôn trả 204.
+  async sendDeviceVerificationSms(userId: string, sessionId: string): Promise<void> {
+    const pending = await this.pendingDevice(userId, sessionId);
+    if (pending.device_verified || !pending.phone) return;
+    const method = await this.deviceTrust.verificationMethod(this.database, userId, pending.device_hash);
+    if (method === "sms") await this.phoneOtp.send(pending.phone, "login");
+  }
+
+  async verifyDevice(userId: string, sessionId: string, input: { smartOtp?: string | undefined; smsCode?: string | undefined }, client: ClientInfo): Promise<void> {
+    const pending = await this.pendingDevice(userId, sessionId);
+    if (pending.device_verified) return;
+    const method = await this.deviceTrust.verificationMethod(this.database, userId, pending.device_hash);
+    if (method === "smart_otp") {
+      if (!input.smartOtp) throw invalidField("smartOtp", "required");
+      try {
+        await this.smartOtp.verify(userId, input.smartOtp, null);
+      } catch (error) {
+        if (error instanceof ApiError && error.message === "retailSmartOtpLocked") throw new ApiError("BUSINESS_RULE", "smartOtpLocked");
+        if (error instanceof ApiError && error.message === "retailSmartOtpInvalid") throw invalidField("smartOtp", "smartOtpCodeInvalid");
+        throw error;
+      }
+    } else if (method === "sms") {
+      if (!input.smsCode || !pending.phone || !(await this.phoneOtp.consume(pending.phone, input.smsCode, "login"))) throw invalidField("smsCode", "otpInvalid");
+    } else if (method === "smart_otp_activation") {
+      // Hết thời hạn mà chưa kích hoạt: kích hoạt Smart OTP trên máy này theo luồng khôi phục (lát L4).
+      throw new ApiError("BUSINESS_RULE", "smartOtpNotActive");
+    }
+    const label = deviceLabel(client.userAgent);
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`UPDATE core.sessions SET device_verified = true WHERE id = ${sessionId}`);
+      await this.deviceTrust.trust(transaction, userId, pending.device_hash, client);
+      await notify(transaction, [
+        {
+          userId,
+          companyId: null,
+          kind: "auth.new_device_login",
+          title: `Tài khoản vừa đăng nhập trên ${label.name} lúc ${vietnamTime(this.clock.now())}. Không phải bạn? Đổi mật khẩu và gỡ thiết bị.`,
+          payload: { deviceName: label.name },
+        },
+      ]);
+      await this.audit.record(
+        {
+          actorUserId: userId,
+          appCode: "marketplace",
+          action: "device.trust",
+          entityType: "core.sessions",
+          entityId: sessionId,
+          afterData: { method, deviceName: label.name },
+          ip: client.ip,
+          userAgent: client.userAgent,
+          requestId: client.requestId,
+        },
         transaction,
       );
     });

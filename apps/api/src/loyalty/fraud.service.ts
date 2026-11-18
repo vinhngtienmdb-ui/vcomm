@@ -16,7 +16,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { BuyerAdminActor } from "../marketplace/buyer-admin.service";
 import { deviceHashOf, linkDevice, ruleNames, setFraudDatabase, type FraudRuleCode } from "./fraud";
-import { maskName, maskPhone } from "./smart-otp.service";
+import { maskName, maskPhone } from "../auth/smart-otp.service";
 
 const iso = (value: Date | string | null) => (value === null ? null : new Date(value).toISOString());
 const shortHash = (hash: string | null) => (hash ? hash.slice(0, 8) : null);

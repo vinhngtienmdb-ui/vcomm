@@ -3974,3 +3974,110 @@ Schema mới `ai`. 0136 làm ở L1; 0137 ở L2 (thêm bảng `ai.active_turns`
 | 0137 (L2) | `ai.feedback` | `message_id` (khóa chính, xóa theo tin nhắn), `user_id`, `rating` (`up`, `down`), `reason` (`wrong_figures`, `not_relevant`, `missing_data`, `other`; bắt buộc khi `down`), `note` (≤ 500), `updated_at` |
 
 Chính sách xóa: tin nhắn, đánh giá, hội thoại xóa hẳn sau 90 ngày kể từ tin nhắn cuối hoặc khi người dùng xóa; nhật ký lượt giữ 24 tháng (tác vụ `ai-conversation-retention` xóa dòng quá hạn không còn tin nhắn trỏ tới); cài đặt, xác nhận thông báo giữ cùng công ty, người dùng.
+
+## 45. Database migration 0158 đến 0160 – CONG_VIEC_72 (ưu tiên Smart OTP thay tin nhắn SMS)
+
+Tệp `database/migrations/0158_core_smart_otp.sql`, `0159_core_authentication_settings.sql`, `0160_merchant_portal_authentication.sql` (lát L1). Phần xác thực ghi schema `core`; không lưu mã khóa, mã Smart OTP, khóa bí mật dạng rõ (khóa TOTP vẫn mã hóa bằng `secret-box`).
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0158 | `core.smart_otp_devices` | Chuyển từ `loyalty.smart_otp_devices` bằng `ALTER TABLE … SET SCHEMA core`, giữ nguyên dữ liệu và cột cũ (0119). Thêm `platform` text bắt buộc, ràng buộc `smart_otp_devices_platform_check` (`ios`, `android`, `web`); dữ liệu cũ suy theo tên máy (`iPhone` → `ios`, `Điện thoại Android` → `android`, `Trình duyệt` → `web`, khác → `android`). Thêm `device_hash` text (băm mã cài đặt ứng dụng; dữ liệu cũ trống) |
+| 0158 | `core.account_security` (mới) | `user_id` (khóa chính, khóa ngoại `core.users`), `smart_otp_first_activated_at`, `smart_otp_recovered_at`, `redeem_locked_until` (khóa mọi giao dịch dùng điểm sau khôi phục), `sms_password_reset_until` (ngoại lệ đặt lại mật khẩu bằng SMS một lần sau khi chăm sóc khách hàng hủy Smart OTP), `updated_at`. Một dòng mỗi tài khoản, sống qua các lần hủy, kích hoạt lại Smart OTP. Nạp `smart_otp_first_activated_at` từ `activated_at` của Smart OTP đang có |
+| 0158 | `core.trusted_devices` (mới) | `id` (uuid), `user_id` (khóa ngoại `core.users`), `device_hash` (bắt buộc), `device_name` (trống hoặc 1 đến 100 ký tự), `platform` (trống hoặc `ios`, `android`, `web`), `first_seen_at`, `last_seen_at`, `removed_at`; duy nhất (`user_id`, `device_hash`); chỉ mục `trusted_devices_user_idx` (`user_id`, `last_seen_at` giảm dần) khi `removed_at` trống. Nạp từ `loyalty.device_links` có `last_seen_at` trong 12 tháng (cùng cách băm của CONG_VIEC_60) |
+| 0158 | `core.sessions` | Thêm `device_hash` text; `device_verified` boolean bắt buộc, mặc định `true` (phiên chờ xác nhận thiết bị mới là `false`). Phiên có trước triển khai không có băm: thiết bị thành tin cậy ở lần làm mới phiên đầu tiên |
+| 0159 | `core.authentication_settings` (mới) | Một dòng (`id` smallint khóa chính, mặc định 1, ràng buộc `id = 1`): `transition_starts_on` date (mặc định ngày chạy theo giờ Việt Nam), `buyer_transition_days` (1 đến 180, mặc định 30), `portal_transition_days` (1 đến 180, mặc định 30), `recovery_redeem_lock_hours` (0 đến 168, mặc định 24), `support_hotline` (trống hoặc 8 đến 15 chữ số), `version` (mặc định 1), `updated_at`, `updated_by` (khóa ngoại `core.users`). Nạp sẵn dòng `id = 1` |
+| 0159 | `core.smart_otp_reminders` (mới) | `user_id` (khóa ngoại `core.users`), `kind` (`start`, `day_14`, `day_7`, `day_1`, `zns_7`), `sent_at`; khóa chính (`user_id`, `kind`) chống gửi trùng |
+| 0159 | `core.message_deliveries` | Thêm `otp_purpose` text (mục đích mã OTP của tin; tin cũ để trống); chỉ mục `message_deliveries_otp_purpose_idx` (`created_at`, `otp_purpose`) khi `otp_purpose` có giá trị |
+| 0160 | `core.permissions` | Quyền `marketplace.buyer.security` (mini app `crm`, nhạy cảm) "Hủy Smart OTP của người mua"; gán Quản trị tập đoàn, Quản trị công ty qua danh mục quyền trong mã nguồn (`apps/api/src/permissions/permission-catalog.ts`) |
+| 0160 | `affiliate.members` | Thêm `authentication_reset_at` timestamptz: thành viên bị đặt lại xác thực, lần vào tới phải nhận mã SMS một lần, đặt mật khẩu mới, đăng ký ứng dụng xác thực mới |
+
+Quy tắc xóa và lưu giữ: thiết bị tin cậy đánh dấu `removed_at`, không xóa dòng; hết tin cậy sau 12 tháng không dùng tính theo `last_seen_at`. Smart OTP bị hủy (khách, chăm sóc khách hàng, sai mã khóa, hết hạn trên bản web) xóa dòng `core.smart_otp_devices`, giữ `core.account_security`. Không sửa tệp database migration đã chạy.
+
+## 46. Database migration 0161 đến 0164, 0171, 0172 – CONG_VIEC_73 (mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm)
+
+Tệp `database/migrations/0161_instore_checkouts.sql` (L1), `0162_instore_retail_payments.sql` (L2), `0163_instore_affiliate_collection.sql` (L4), `0164_instore_payouts.sql` (L5), `0171_instore_mandated_einvoices.sql` (L6), `0172_instore_open_api_refunds.sql` (L7). Đặc tả dự kiến 0161 đến 0164; phần hóa đơn ủy nhiệm (L6) và Open API, hoàn tiền (L7) dùng số 0171, 0172 do phiên điều phối cấp. Không lưu mã thanh toán, mã QR, khóa ký webhook dạng rõ.
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0161 | Schema `instore`; `instore.checkouts` (mới) | Đơn chờ `TT…`: `operator_company_id`, `kind` (`retail`, `affiliate`), `source` (`retail_counter`, `merchant_portal`, `open_api`, `ipos`), nơi bán (`company_id`, `store_id`, `register_id`, `shift_id` hoặc `merchant_id`, `outlet_id`), người tạo hoặc `api_key_id`, `partner_checkout_code`, `ipos_invoice_id`, `idempotency_key`, `bill_amount`, `lines` (jsonb), `collect_in_app`, `qr_token_hash`, khách và cách gắn, điểm, voucher, `amount_due`, `status`, `expires_at`, `retail_sale_id`, `affiliate_transaction_id`, phí, `payout_id`, `buyer_invoice_info`, lý do hủy, `version`; ràng buộc theo `kind`; duy nhất (`merchant_id`, `partner_checkout_code`) |
+| 0161 | `instore.attempt_failures` (mới) | `subject`, `failed_at`: đếm quét mã sai, mở QR sai trong 60 phút |
+| 0161 | `core.smart_otp_devices` | `pay_code_prefix_hash` (duy nhất), `pay_code_issued_for` |
+| 0161 | `marketplace.payments`, `marketplace.refunds` | `checkout_id`; lần thanh toán có đúng một trong `order_id`, `checkout_id`; lý do hoàn tiền thêm `instore_cancelled` |
+| 0162 | `retail.stores` | `app_payment_enabled`, `platform_fee_percent` (0 đến 10) |
+| 0162 | `retail.sale_payments`, `retail.return_refunds` | Phương thức `vcomm_app`; `retail.sale_payments.checkout_id` |
+| 0162 | `instore.checkouts` | `sale_input`, `reserved_sale_id`, `paid_amount`, `paid_at`, `posting_error`; trạng thái `paid_unposted` |
+| 0163 | `affiliate.merchants` | `collection_enabled` (mặc định tắt), `collection_fee_percent`, `payout_bank_account_id`, `collection_acknowledged_at`, `collection_acknowledged_by` |
+| 0163 | `instore.gateway_fee_rates` (mới) | `company_id`, `method`, `percent`, `fixed_amount`, `effective_from` |
+| 0163 | `instore.payouts` (mới) | Bảng chuyển tiền `CT…`: người nhận (`recipient_kind`, `recipient_company_id` hoặc `merchant_id`), `business_date`, G `collected_amount`, H `platform_fee`, I `platform_fee_tax`, K `gateway_fee`, L `reversal_amount`, M `carried_amount`, N `deduction_amount`, `amount`, `status`, `transferred_on`, `bank_transaction_no`; duy nhất (người nhận, ngày) |
+| 0163 | `instore.payout_deductions` (mới) | Khoản trừ khác N: `payout_id` (trống khi chưa vào bảng), người nhận, `business_date`, `kind` (`ipos_subscription`), `amount` > 0, `reference_id`, `note`; dòng do CONG_VIEC_74 ghi |
+| 0163 | `affiliate.transactions` | `collected_amount`, `platform_fee`, `gateway_fee`, `checkout_id`; nguồn `ipos` |
+| 0164 | `instore.settings` (mới) | Thuế suất phí sàn, phí thu hộ theo công ty vận hành sàn (mặc định 10 %; 0171 giới hạn còn 0, 5, 8, 10 %) |
+| 0164 | `instore.payouts` | `fee_tax_rate`, công nợ phải trả, phải thu nội bộ, `payment_id`, `receipt_id`, `transferred_at`, `transferred_by`; `finance.payments.instore_payout_id`; loại phiếu, nguồn bút toán, nguồn công nợ, vai trò tài khoản `instore_fee_revenue`, `instore_payable_internal`, `instore_receivable_internal` |
+| 0171 | `affiliate.einvoice_mandates` (mới) | Dữ liệu ủy nhiệm theo cửa hàng: người bán, mã số thuế, địa chỉ, phương pháp tính thuế, thuế suất mặc định, số văn bản, hiệu lực, tệp PDF (tối đa 10 MB), `version` |
+| 0171 | `affiliate.einvoice_series` (mới) | Ký hiệu riêng theo (cửa hàng, năm) |
+| 0171 | `affiliate.einvoice_backlog` (mới) | Việc chờ lập hóa đơn ủy nhiệm: giao dịch, lý do |
+| 0171 | `instore.fee_invoices` (mới) | Hóa đơn phí sàn tháng: người nhận, tháng, phí, thuế |
+| 0171 | `finance.einvoices` | `affiliate_transaction_id`, `instore_fee_invoice_id`, `mandate_merchant_id`; ràng buộc đúng một nguồn; số hóa đơn duy nhất theo người bán |
+| 0172 | `affiliate.api_keys` | Phạm vi `instore.checkout`; `webhook_url`, `webhook_secret` (mã hóa), `webhook_secret_at`, `webhook_version` |
+| 0172 | `affiliate.webhook_deliveries` (mới) | `api_key_id`, `event_id`, `event_type`, `payload`, `status` (`pending`, `succeeded`, `failed`), `attempt_count`, `next_attempt_at`, `last_status_code`, `last_error`, `delivered_at` |
+| 0172 | `instore.checkouts` | Trạng thái `refunded`; `refunded_at`, `reversal_amount`, `reversal_fee`, `reversal_fee_tax`, `reversal_payout_id` |
+| 0172 | `instore.payouts` | `reversal_fee`, `reversal_fee_tax` (phí đã ghi ngược, trừ vào hóa đơn phí sàn tháng) |
+| 0172 | `marketplace.refunds`, `finance.einvoices`, `finance.einvoice_return_tasks` | Lý do `transaction_cancelled`; hóa đơn trạng thái `cancelled`; việc chờ xử lý hóa đơn nhận `affiliate_transaction_id` |
+| 0172 | Kế toán | Vai trò `instore_refund_payable` (3388); nguồn bút toán `instore_checkout_cancel`, `instore_refund_receipt`, `instore_refund` |
+
+Quy tắc xóa và lưu giữ: đơn chờ, bảng chuyển tiền, nhật ký gửi webhook không xóa; đơn hết hạn, hủy giữ dòng với trạng thái. Kế toán trưởng xác nhận tài khoản 3388 trước khi triển khai.
+
+## 47. Database migration 0165 đến 0170 – CONG_VIEC_74 (MODULE_17 iPOS, đợt 1)
+
+Schema mới `ipos` (THAY_DOI_39). Khóa ngoại chỉ trỏ vào `core`, `crm`, `affiliate`. Tiền `numeric(18,4)`. Chi tiết theo lát ở đặc tả `cong_viec/CONG_VIEC_74.md` mục 9; mục này ghi phần đã làm.
+
+| Database migration | Bảng, cột | Nội dung |
+|---|---|---|
+| 0165 (L0) | `ipos.plans` | `company_id` (công ty vận hành sàn), `code` (chữ in hoa, số, gạch nối, 1 đến 20 ký tự; duy nhất theo công ty), `name`, `monthly_price` (≥ 0), `tax_percent` (0, 5, 8, 10), `max_registers` (1 đến 50), `max_items` (100 đến 100.000 hoặc trống là không giới hạn), `trial_days` (0 đến 90), `status` (`selling`, `retired`), `version` |
+| 0165 (L0) | `ipos.merchant_billing` | `merchant_id` (khóa chính, khóa ngoại `affiliate.merchants`), `method` (`collection_deduction`, `settlement_deduction`, `vietqr`, `free`), `free_until`, `free_reason` (bắt buộc khi và chỉ khi `free`), `version` |
+| 0165 (L0) | `ipos.subscriptions` | `merchant_id`, `outlet_id`, `plan_id`, `period_months` (1, 6, 12), `starts_on`, `trial_ends_on`, `ends_on`, `custom_monthly_price`, `custom_max_registers`, `status` (`trial`, `active`, `overdue`, `locked`, `cancelled`), `locked_manually` (khóa tay; chỉ khi `locked`), `status_reason`, `cancelled_at` (có khi và chỉ khi `cancelled`), `version`. Chỉ mục duy nhất (`outlet_id`) khi chưa hủy; trigger `ipos.check_outlet_merchant` chặn điểm bán không thuộc cửa hàng |
+| 0166 (L1) | `ipos.registers` | `merchant_id`, `outlet_id` (trigger kiểm điểm bán thuộc cửa hàng), `name` (1 đến 50 ký tự, duy nhất theo điểm bán), `status` (`active`, `inactive`), `version` |
+| 0166 (L1) | `ipos.devices` | `merchant_id`, `register_id`, `key_hash` (băm SHA-256 của khóa thiết bị ngẫu nhiên 256 bit, duy nhất), `model`, `app_version`, `paired_by`, `paired_at`, `last_seen_at`, `revoked_at`, `revoked_by`. Chỉ mục duy nhất (`register_id`) khi chưa thu hồi |
+| 0166 (L1) | `ipos.pairing_codes` | `register_id`, `code_hash`, `expires_at` (10 phút), `used_at`, `created_by` |
+| 0166 (L1) | `ipos.member_pins` | (`member_id`, `device_id`) khóa chính, `pin_hash` (argon2id), `failed_count` (0 đến 5), `locked_until`, `last_login_at` |
+| 0166 (L1) | `ipos.device_sessions` | `family_id` (chuỗi phiên của `core.sessions`, khóa chính), `device_id`, `member_id`, `created_at` (phiên sống tối đa 12 giờ kể từ đây) |
+| 0166 (L1) | `ipos.cashier_registrations` | `merchant_id`, `user_id`, `phone`, `full_name`, `requested_outlet_ids` (`uuid[]`), `status` (`pending`, `approved`, `rejected`, `expired`), `expires_at` (7 ngày), `decided_by`, `decided_at`, `reason`. Chỉ mục duy nhất (`merchant_id`, `phone`) khi `pending` |
+| 0166 (L1) | `core.sessions`, `core.otp_codes` | Định nghĩa lại ràng buộc: loại phiên thêm `ipos_app` (token làm mới 12 giờ); mục đích OTP thêm `ipos_register`, `ipos_login` (gồm mọi giá trị trên `main`) |
+| 0167 (L2) | `ipos.number_counters` | (`merchant_id`, `kind`) khóa chính; `kind` `item` (mã `SP…`), `receipt` (`PN…`), `adjustment` (`PC…`); `last_number` |
+| 0167 (L2) | `ipos.categories` | `merchant_id`, `parent_id` (hai cấp, kiểm ở máy chủ), `name` (1 đến 100 ký tự, duy nhất không phân biệt hoa thường theo cùng nhóm cha), `sort_order`, `status`, `version` |
+| 0167 (L2) | `ipos.items` | `merchant_id`, `code` (1 đến 30 ký tự; chỉ mục duy nhất (`merchant_id`, `upper(code)`)), `name`, `search_text` (không dấu), `category_id`, `unit`, `price` (đồng, đã gồm thuế), `vat_rate` (`0`, `5`, `8`, `10`, `exempt`), `track_stock`, `attribute1_name`, `attribute2_name`, `status`, `version` |
+| 0167 (L2) | `ipos.item_variants` | `merchant_id`, `item_id`, `code` (duy nhất theo mặt hàng), `attribute1_value`, `attribute2_value`, `price` (trống: giá mặt hàng), `min_quantity`, `status`, `sort_order`. Mặt hàng không thuộc tính có một biến thể mặc định cùng mã |
+| 0167 (L2) | `ipos.item_barcodes` | `merchant_id`, `variant_id`, `barcode` (1 đến 50 ký tự); chỉ mục duy nhất (`merchant_id`, `barcode`) |
+| 0167 (L2) | `ipos.outlet_prices` | (`outlet_id`, `variant_id`) khóa chính, `merchant_id` (trigger kiểm điểm bán), `price` |
+| 0167 (L2) | `ipos.stock_balances` | (`outlet_id`, `variant_id`) khóa chính, `merchant_id`, `quantity` (cho phép âm), `average_cost` (bình quân gia quyền, 4 chữ số thập phân) |
+| 0167 (L2) | `ipos.stock_documents`, `ipos.stock_document_lines` | Phiếu `number` (`PN…`, `PC…`, duy nhất theo cửa hàng), `kind` (`receipt`, `adjustment`), `source` (`manual`, `import`), `note` (bắt buộc với điều chỉnh). Dòng: nhập có `quantity`, `unit_cost`; điều chỉnh có `actual_quantity`; cả hai ghi `before_quantity` |
+| 0167 (L2) | `ipos.stock_moves` | `merchant_id`, `outlet_id`, `variant_id`, `quantity` (khác 0, âm là giảm), `unit_cost`, `balance_after`, `source_type` (`stock_document`; `sale`, `return` dùng từ L3), `source_id`, `source_number`, `created_by`, `occurred_at` |
+| 0168 (L3) | `affiliate.outlets` | Thêm `code` (2 đến 10 ký tự chữ in hoa, số; chỉ mục duy nhất (`merchant_id`, `code`) khi có mã); ghi qua hàm `setOutletCode` của service `affiliate` |
+| 0168 (L3) | `ipos.settings` | (`merchant_id`) khóa chính: `vietqr_bank_bin`, `vietqr_account_no`, `vietqr_account_name` (cả ba cùng có hoặc cùng trống), `cashier_max_discount_percent` (mặc định 10), `return_days` (7), `cashier_can_return`, `block_negative_stock` (mặc định cho phép tồn âm), `receipt_footer`, `paper_width` (58, 80), `version` |
+| 0168 (L3) | `ipos.shifts` | `register_id`, `member_id`, `device_id`, `opened_at`, `opening_cash` (0 đến 1.000.000.000), `opening_note`, `closed_at`, `closed_by`, `system_cash`, `counted_cash`, `difference`, `difference_reason`, `left_cash` (≤ tiền đếm), `denominations`. Chỉ mục duy nhất ca mở theo quầy và theo thành viên |
+| 0168 (L3) | `ipos.cash_movements` | `shift_id`, `direction` (`in`, `out`), `category` (`handover`, `expense`, `other`), `amount`, `reason`, `member_id` |
+| 0168 (L3) | `ipos.document_sequences` | (`outlet_id`, `day`, `kind`) khóa chính, `last_number` (1 đến 9999); `kind` `sale`, `return` |
+| 0168 (L3) | `ipos.sales` | `document_no` (duy nhất theo điểm bán), `idempotency_key` (duy nhất theo thiết bị), `shift_id`, `register_id`, `device_id`, `member_id`, `buyer_user_id` (L4), `subtotal`, `line_discount`, `invoice_discount`, `total` (ràng buộc bằng tiền hàng trừ giảm), `discount_approved_by`, `print_count`, `status`, `sold_at` |
+| 0168 (L3) | `ipos.sale_lines` | `line_no`, `variant_id`, mã, tên, đơn vị lúc bán, `quantity`, `unit_price`, `gross`, `discount`, `allocated_discount` (phần giảm hóa đơn phân bổ), `amount`, `vat_rate`, `unit_cost` (giá vốn bình quân lúc bán, trống nếu không theo dõi tồn) |
+| 0168 (L3) | `ipos.sale_payments` | `method` (`cash`; `vietqr`, `vcomm_app`, `points`, `voucher` từ L4), `amount`, `tendered` (≥ `amount`), `confirmed_by` |
+| 0168 (L3) | `ipos.held_carts` | (`register_id`, `slot` 1 đến 5) khóa chính, `label`, `payload` (giỏ dạng JSON), `member_id`; xóa khi đóng ca |
+| 0168 (L3) | `ipos.approval_codes` | `device_id`, `approver_id` (chủ cửa hàng), `purpose` (`discount`, `return`), `code_hash` (băm, duy nhất), `expires_at` (2 phút), `used_at` |
+| 0168 (L3) | `ipos.device_events` | Nhật ký `reprint` (in lại hóa đơn, có `sale_id`) và `drawer_open` (chủ cửa hàng mở ngăn kéo): `device_id`, `member_id`, `reason`, `occurred_at` |
+| 0169 (L4) | `ipos.sale_payments` | Thêm `vietqr_reference` (nội dung chuyển khoản "<mã điểm bán> <8 ký tự mã yêu cầu>", bắt buộc cùng `confirmed_by` với dòng `vietqr`), `affiliate_transaction_id` (giao dịch điểm `LK…`, bắt buộc với dòng `points`, `voucher` khi không có đơn chờ), `instore_checkout_id` (đơn chờ `TT…`, bắt buộc với dòng `vcomm_app`). Chỉ mục duy nhất (giao dịch, phương thức) và (đơn chờ, phương thức) |
+| 0169 (L4) | `ipos.sales` | Thêm `loyalty_skip_reason` (lý do không tích điểm: hạn mức, quá hạn đối soát) |
+| 0169 (L4) | `ipos.shift_links` | Giao dịch điểm, đơn chờ do máy bán lập trong ca: `shift_id`, `affiliate_transaction_id` hoặc `instore_checkout_id` (đúng một, duy nhất), `sale_id` khi đã gắn hóa đơn; dùng để chặn đóng ca khi còn dở |
+| 0169 (L4) | `instore.checkouts` | Thêm khóa ngoại `ipos_invoice_id` → `ipos.sales` (cột do CONG_VIEC_73 chừa sẵn) |
+| 0170 (L5) | `ipos.returns` | Phiếu trả `TR-<mã điểm bán>-<YYMMDD>-<4 số>` (đếm chung `ipos.document_sequences`, loại `return`): hóa đơn, quầy, thiết bị, ca, thu ngân lập; `kind` (`partial` trả một phần, `full_cancel` hủy toàn bộ hóa đơn), `amount` tiền hàng trả, `refund_cash` tiền mặt hoàn từ két ca đang mở, `approved_by` (chủ cửa hàng duyệt bằng PIN), `reason` (1 đến 200 ký tự), `print_count`. Duy nhất (điểm bán, số phiếu), (thiết bị, khóa yêu cầu); mỗi hóa đơn chỉ một phiếu `full_cancel` |
+| 0170 (L5) | `ipos.return_lines` | Dòng trả: dòng hóa đơn, số lượng (> 0, không vượt số đã mua trừ đã trả, kiểm ở service khi khóa hóa đơn), tiền hoàn theo phần sau giảm (gồm giảm hóa đơn phân bổ), giá vốn lúc bán để cộng lại tồn |
+| 0170 (L5) | `ipos.sales` | Thêm `cancelled_at` (hóa đơn bị hủy toàn bộ chuyển trạng thái `cancelled`) |
+| 0173 (L7) | `ipos.fee_invoices` | Phiếu phí `PI…` (dãy `ipos.fee_invoice_no_seq`): công ty vận hành sàn, cửa hàng, thuê bao, điểm bán, gói, kỳ (`period_start`, `period_end`, `period_months`), giá mỗi tháng, tiền, thuế suất, thuế, tổng, đã thu, cách thu (`collection_deduction`, `settlement_deduction`, `vietqr`), trạng thái (`awaiting`, `paid`, `voided`), ngày lập, hạn trả, `switched_at`, bảng đối soát tuần, công nợ, lý do hủy. Duy nhất (thuê bao, đầu kỳ) với phiếu chưa hủy |
+| 0173 (L7) | `affiliate.settlements` | Thêm `ipos_fee_amount` (G); ràng buộc `settlements_net_amount_check` gồm G – ghi qua service `affiliate` (đăng ký khoản thu thêm) |
+| 0173 (L7) | `instore.payout_deductions` | Chỉ mục theo `reference_id` (phiếu phí); dòng `ipos_subscription` do iPOS ghi khi lập phiếu trừ thu hộ |
+| 0173 (L7) | `finance.einvoices` | Thêm `ipos_fee_invoice_id`; `einvoices_source_check` gồm nguồn này; chỉ mục duy nhất hóa đơn gốc theo phiếu phí |
+| 0173 (L7) | `finance.debt_items`, `accounting.journals`, `accounting.posting_rules` | Nguồn công nợ `ipos_fee_invoice`, `ipos_fee_invoice_close`, `ipos_fee_deduction`; nguồn bút toán `ipos_fee_invoice`, `ipos_fee_invoice_void`, `ipos_fee_deduction`; vai trò `ipos_fee_receivable` (131), `ipos_fee_revenue` (511 / 5113) cho công ty đã khởi tạo sổ |
+
+Khác đặc tả: thuế suất phí phần mềm lưu `tax_percent` (0, 5, 8, 10) thay vì khóa ngoại danh mục thuế suất, vì schema `ipos` không được trỏ vào `catalog`.
+
+Quyền mới (danh mục trong mã nguồn): `ipos.plan.manage`, `ipos.subscription.manage` (nhạy cảm), mini app `crm`, gán Quản trị tập đoàn, Quản trị công ty.
+
+Chính sách xóa: không xóa gói, thuê bao, cách thu; hủy thuê bao chỉ đổi trạng thái (QUYTAC_NGHIEPVU_596).

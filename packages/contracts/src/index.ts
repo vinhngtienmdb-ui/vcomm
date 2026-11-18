@@ -5,6 +5,7 @@ export const errorCodes = [
   "VALIDATION_FAILED",
   "UNAUTHENTICATED",
   "MFA_REQUIRED",
+  "DEVICE_VERIFICATION_REQUIRED",
   "FORBIDDEN",
   "IP_NOT_ALLOWED",
   "SCOPE_NOT_GRANTED",
@@ -56,7 +57,9 @@ export interface AppTokens {
   accessExpiresAt: string;
   refreshExpiresAt: string;
 }
-export type AppLoginResponse = LoginResponse & { tokens: AppTokens };
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_565): đăng nhập ứng dụng trên thiết bị chưa tin cậy thì phiên chờ xác nhận (API_318).
+export type DeviceVerificationMethod = "smart_otp" | "sms" | "smart_otp_activation";
+export type AppLoginResponse = LoginResponse & { tokens: AppTokens; deviceVerificationRequired?: boolean; verificationMethod?: DeviceVerificationMethod | null };
 export const appRefreshSchema = z.object({ refreshToken: z.string().min(16).max(200) }).strict();
 
 // API_14
@@ -821,6 +824,9 @@ export const integrationSettingKeys = [
   "esms.template.station_hold_reminder",
   "esms.template.station_order_shipping",
   "esms.template.station_order_cancelled",
+  "esms.template.smart_otp_transferred",
+  "esms.template.smart_otp_revoked",
+  "esms.template.smart_otp_reminder",
 ] as const;
 export type IntegrationSettingKey = (typeof integrationSettingKeys)[number];
 export const secretIntegrationKeys: readonly IntegrationSettingKey[] = ["google.client_secret", "microsoft.client_secret", "zalo.app_secret", "esms.api_key", "esms.secret_key"];
@@ -867,10 +873,11 @@ export interface MessageDeliveryItem {
 }
 
 // API_02, API_03: đăng nhập bằng số điện thoại (CHUC_NANG_08).
-export const otpSendSchema = z.object({ phone: phoneE164 }).strict();
+// app "merchant": gọi từ trang đăng nhập cổng cửa hàng liên kết (CONG_VIEC_72; sau thời hạn cổng bị từ chối).
+export const otpSendSchema = z.object({ phone: phoneE164, app: z.literal("merchant").optional() }).strict();
 // MAN_HINH_19: gửi thử một tin theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau) tới số do quản trị nhập.
 export const integrationTestMessageSchema = z.object({ phone: phoneE164 }).strict();
-export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/) }).strict();
+export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/), app: z.literal("merchant").optional() }).strict();
 
 // API_54: cách đăng nhập đang dùng được, để MAN_HINH_01 hiện nút.
 export interface AuthMethodsResponse {
@@ -3299,14 +3306,18 @@ export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
 export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
 export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
+// CONG_VIEC_73 (QUYTAC_NGHIEPVU_585, 587): phiếu chi chuyển tiền thu hộ, phiếu thu nhận tiền thu hộ, hệ thống lập khi ghi đã chuyển bảng chuyển tiền.
+export const instorePayoutPaymentKinds = ["instore_payout_receipt", "instore_payout_payment"] as const;
+export type InstorePayoutPaymentKind = (typeof instorePayoutPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind | InstorePayoutPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
   kind === "customer_receipt" ||
   kind === "supplier_refund" ||
   kind === "retail_receipt" ||
   kind === "cash_surplus" ||
   kind === "customs_tax_refund" ||
-  kind === "loyalty_intercompany_receipt";
+  kind === "loyalty_intercompany_receipt" ||
+  kind === "instore_payout_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
@@ -3804,6 +3815,8 @@ export const einvoiceListQuerySchema = z
     from: isoDate.optional(),
     to: isoDate.optional(),
     search: z.string().trim().max(100).optional(),
+    // Lập theo ủy nhiệm thay cửa hàng liên kết (CONG_VIEC_73 lát L6).
+    mandated: z.enum(["true", "false"]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -3823,7 +3836,12 @@ export interface EinvoiceListItem {
   status: EinvoiceStatus;
   overdue: boolean;
   replaced: boolean;
+  // Số phiếu xuất, số giao dịch LK… (hóa đơn ủy nhiệm) hoặc "Phí sàn MM/YYYY" (hóa đơn phí sàn tháng).
   sourceDocumentNo: string | null;
+  // ipos_fee_invoice: phiếu phí thuê bao iPOS (CONG_VIEC_74 lát L7).
+  sourceKind: "document" | "affiliate_transaction" | "fee_invoice" | "ipos_fee_invoice";
+  sellerName: string;
+  mandated: boolean;
 }
 export interface EinvoiceParty {
   partnerId?: string | null;
@@ -3861,7 +3879,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   lastError: string | null;
   dueDate: string;
   issuedAt: string | null;
-  sourceDocumentId: string;
+  sourceDocumentId: string | null;
   related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];
@@ -3877,7 +3895,9 @@ export const einvoiceReturnQuerySchema = z.object({ status: z.enum(einvoiceRetur
 export interface EinvoiceReturnTask {
   id: string;
   status: EinvoiceReturnStatus;
-  returnDocumentId: string;
+  // Phiếu nhận hàng trả lại; hoặc giao dịch cửa hàng liên kết bị hủy có hóa đơn ủy nhiệm (CONG_VIEC_73 lát L7, số LK…).
+  returnDocumentId: string | null;
+  affiliateTransactionId: string | null;
   returnDocumentNo: string | null;
   returnDate: string;
   buyerName: string;
@@ -4317,11 +4337,38 @@ const referralCode = z.string().trim().max(20);
 
 export const buyerPhoneSchema = z.object({ phone: vietnamPhone }).strict();
 export const buyerRegisterSchema = z
-  .object({ phone: vietnamPhone, code: otpCode, fullName: z.string().trim().min(1).max(100), password: z.string().max(256), referralCode: referralCode.nullable().optional() })
+  .object({
+    phone: vietnamPhone,
+    code: otpCode,
+    fullName: z.string().trim().min(1).max(100),
+    password: z.string().max(256),
+    referralCode: referralCode.nullable().optional(),
+    // CONG_VIEC_72 (QUYTAC_NGHIEPVU_562): kích hoạt Smart OTP luôn trong bước đăng ký bằng chính mã SMS đăng ký; chỉ trên ứng dụng điện thoại.
+    smartOtp: z.object({ deviceName: z.string().trim().min(1).max(100), platform: z.enum(["ios", "android"]) }).strict().optional(),
+  })
   .strict();
 export const buyerLoginSchema = z.object({ phone: vietnamPhone, password: z.string().min(1).max(256) }).strict();
 export const buyerOtpVerifySchema = z.object({ phone: vietnamPhone, code: otpCode }).strict();
-export const buyerPasswordResetSchema = z.object({ phone: vietnamPhone, code: otpCode, password: z.string().max(256) }).strict();
+// CONG_VIEC_72 (QUYTAC_NGHIEPVU_568): quên mật khẩu bằng mã Smart OTP; mã SMS chỉ khi chưa kích hoạt và còn thời hạn chuyển đổi.
+export const buyerPasswordResetSchema = z
+  .object({ phone: vietnamPhone, code: otpCode.optional(), smartOtp: otpCode.optional(), password: z.string().max(256) })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.smartOtp), { path: ["code"] });
+// API_318: xác nhận thiết bị mới bằng mã Smart OTP hoặc mã SMS (CONG_VIEC_72).
+export const buyerDeviceVerificationSchema = z
+  .object({ smartOtp: otpCode.optional(), smsCode: otpCode.optional() })
+  .strict()
+  .refine((value) => Boolean(value.smartOtp) !== Boolean(value.smsCode), { path: ["smartOtp"] });
+// API_321: thiết bị đã đăng nhập (CONG_VIEC_72; QUYTAC_NGHIEPVU_564).
+export interface BuyerDeviceItem {
+  id: string;
+  deviceName: string | null;
+  platform: SmartOtpPlatform | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  thisDevice: boolean;
+  holdsSmartOtp: boolean;
+}
 export const buyerSetReferrerSchema = z.object({ referralCode: referralCode.min(1) }).strict();
 export const buyerChangeReferrerSchema = z.object({ referralCode: referralCode.nullable(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
 export const buyerSalesFlagSchema = z.object({ departmentId: z.uuid(), version: z.number().int().min(1) }).strict();
@@ -4987,7 +5034,7 @@ export interface BuyerOrderPreview {
   // Phương thức đang bật, theo thứ tự hiển thị. Đơn mua chung chỉ gồm phương thức trực tuyến.
   paymentMethods: PaymentMethodCode[];
   // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
-  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | null };
   pointsToRedeem: number;
   pointsAmount: string;
   expectedPoints: number;
@@ -5067,7 +5114,8 @@ export interface MarketplacePaymentItem {
 }
 
 // API_133: hoàn tiền (QUYTAC_NGHIEPVU_168).
-export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received"] as const;
+// instore_cancelled, transaction_cancelled: đơn chờ thanh toán tại cửa hàng (CONG_VIEC_73).
+export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received", "instore_cancelled", "transaction_cancelled"] as const;
 export type RefundReason = (typeof refundReasons)[number];
 export const refundStatuses = ["pending", "completed"] as const;
 export type RefundStatus = (typeof refundStatuses)[number];
@@ -5094,7 +5142,11 @@ export const buyerBankAccountSchema = z
 
 export interface RefundItem {
   id: string;
-  orderId: string;
+  // Đơn VComm; trống với việc hoàn của đơn chờ tại cửa hàng (checkoutId, số TT…, CONG_VIEC_73 lát L7).
+  orderId: string | null;
+  checkoutId: string | null;
+  // Cửa hàng hoặc quầy của đơn tại cửa hàng.
+  placeName: string | null;
   documentNo: string;
   buyerName: string;
   buyerPhone: string;
@@ -5844,6 +5896,11 @@ export const saveRetailStoreSchema = z
     returnDays: z.number().int().min(0).max(90).default(7),
     receiptFooter: blankToNull(300),
     status: z.enum(["active", "inactive"]).default("active"),
+    // CONG_VIEC_73 (QUYTAC_NGHIEPVU_573): nhận thanh toán qua ứng dụng VComm, phí sàn 0 đến 10 %.
+    appPaymentEnabled: z.boolean().default(false),
+    platformFeePercent: decimalText(4)
+      .refine((value) => Number(value) <= 10, "invalidValue")
+      .default("0"),
     version: z.number().int().positive().optional(),
   })
   .strict();
@@ -6056,6 +6113,8 @@ export interface RetailStoreResponse {
   returnDays: number;
   receiptFooter: string | null;
   status: "active" | "inactive";
+  appPaymentEnabled: boolean;
+  platformFeePercent: string;
   currency: string;
   registers: RetailRegisterResponse[];
   version: number;
@@ -6107,7 +6166,8 @@ export interface RetailShiftSummaryLine {
 export interface RetailShiftResponse {
   id: string;
   // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
-  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
+  // appPayment: cửa hàng nhận thanh toán qua ứng dụng VComm (CONG_VIEC_73).
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null; appPayment: boolean };
   register: { id: string; code: string; name: string };
   cashier: { id: string; name: string };
   openedAt: string;
@@ -6213,7 +6273,8 @@ export interface RetailQuoteResponse {
   maxManualDiscountPercent: string;
   currency: string;
 }
-export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+// CONG_VIEC_73: "vcomm_app" là phần khách trả trong ứng dụng VComm qua cổng thanh toán.
+export const retailPaymentMethods = ["cash", "bank_transfer", "points", "vcomm_app"] as const;
 export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
 export const createRetailSaleSchema = z
   .object({
@@ -6229,7 +6290,8 @@ export const createRetailSaleSchema = z
       })
       .strict()
       .optional(),
-    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã Smart OTP 6 số. Tiền điểm do máy chủ tính.
+    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã thanh toán 18 số quét từ ứng dụng
+    // (CONG_VIEC_73 lát L3) hoặc mã Smart OTP 6 số khách đọc (dự phòng). Tiền điểm do máy chủ tính.
     customer: z
       .object({
         userId: z.uuid(),
@@ -6238,8 +6300,13 @@ export const createRetailSaleSchema = z
           .string()
           .regex(/^[0-9]{6}$/, "invalidValue")
           .optional(),
+        payCode: z
+          .string()
+          .regex(/^[0-9]{18}$/, "invalidValue")
+          .optional(),
       })
       .strict()
+      .refine((value) => !(value.smartOtp && value.payCode), { path: ["payCode"], message: "invalidValue" })
       .optional(),
     payments: z
       .array(
@@ -6256,6 +6323,27 @@ export const createRetailSaleSchema = z
   })
   .strict();
 export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+// API_328: đơn chờ khách thanh toán qua ứng dụng VComm tại quầy (CONG_VIEC_73; QUYTAC_NGHIEPVU_575, 580).
+// Giỏ như khi bán; khách VComm, điểm, tiền do khách chọn và trả trên ứng dụng.
+export const createRetailCheckoutSchema = createRetailSaleSchema.omit({ customer: true, payments: true });
+export type CreateRetailCheckoutRequest = z.input<typeof createRetailCheckoutSchema>;
+export const retailCheckoutPayCodeSchema = z.object({ code: z.string().trim().min(1).max(40) }).strict();
+export const retailCheckoutCancelSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface RetailCheckoutResponse {
+  id: string;
+  documentNo: string;
+  status: "awaiting_buyer" | "awaiting_payment" | "paid_unposted" | "completed" | "expired" | "cancelled" | "declined";
+  totalAmount: string;
+  expiresAt: string;
+  // Đường dẫn thanh toán in trong mã QR (luồng 2); chỉ trả khi vừa tạo.
+  qrUrl: string | null;
+  buyer: { maskedName: string; tierName: string | null } | null;
+  points: number;
+  pointsAmount: string;
+  amountDue: string | null;
+  saleId: string | null;
+  postingError: string | null;
+}
 // API_198: tra khách VComm tại quầy theo số điện thoại.
 export const retailCustomerQuerySchema = z
   .object({
@@ -6274,9 +6362,11 @@ export interface RetailCustomerResponse {
   minPoints: number;
   maxPoints: number;
   pointValue: string | null;
-  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "smart_otp_inactive" | "smart_otp_locked" | null;
+  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "redeem_locked" | "smart_otp_inactive" | "smart_otp_locked" | null;
   smartOtpActive: boolean;
   smartOtpLockedUntil: string | null;
+  // CONG_VIEC_72: khóa dùng điểm sau khôi phục Smart OTP (QUYTAC_NGHIEPVU_566).
+  redeemLockedUntil: string | null;
   expectedPoints: number;
 }
 export interface RetailSaleResponse {
@@ -8059,10 +8149,22 @@ export interface LoyaltyTierProgress {
   remainingToNext: string | null;
 }
 // API_199: Smart OTP dùng điểm tại quầy (CONG_VIEC_53 lát L6). Khóa TOTP chỉ trả một lần khi kích hoạt.
+// CONG_VIEC_72: nền tảng máy; bản web không kích hoạt được (QUYTAC_NGHIEPVU_562). Ứng dụng cũ chưa gửi thì suy theo tên máy.
+export const smartOtpPlatforms = ["ios", "android", "web"] as const;
+export type SmartOtpPlatform = (typeof smartOtpPlatforms)[number];
 export const activateSmartOtpSchema = z
   .object({
     code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
     deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms).optional(),
+  })
+  .strict();
+// API_319: chuyển Smart OTP sang máy đang dùng bằng mã của máy cũ (CONG_VIEC_72; QUYTAC_NGHIEPVU_562).
+export const transferSmartOtpSchema = z
+  .object({
+    code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
+    deviceName: z.string().trim().min(1).max(100),
+    platform: z.enum(smartOtpPlatforms),
   })
   .strict();
 export interface SmartOtpStatusResponse {
@@ -8071,12 +8173,20 @@ export interface SmartOtpStatusResponse {
   activatedAt: string | null;
   lockedUntil: string | null;
   maskedPhone: string | null;
+  // CONG_VIEC_72.
+  platform: SmartOtpPlatform | null;
+  // Smart OTP đang ở máy này (so băm mã cài đặt ứng dụng); null khi chưa kích hoạt.
+  onThisDevice: boolean | null;
+  redeemLockedUntil: string | null;
+  transitionEndsOn: string;
 }
 export interface SmartOtpActivationResponse extends SmartOtpStatusResponse {
   secret: string;
   digits: 6;
   period: 30;
 }
+// API_116 (sửa, CONG_VIEC_72): đăng ký kèm kích hoạt Smart OTP trả khóa một lần.
+export type BuyerRegisterResponse = AppLoginResponse & { smartOtpActivation: SmartOtpActivationResponse | null };
 export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
   balance: number;
   locked: boolean;
@@ -8229,3 +8339,6 @@ export * from "./office";
 export * from "./office-signing";
 export * from "./office-contracts";
 export * from "./dropship";
+export * from "./ipos";
+export * from "./authentication";
+export * from "./instore";

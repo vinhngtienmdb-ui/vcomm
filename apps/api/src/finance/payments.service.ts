@@ -61,6 +61,7 @@ type FieldErrors = Record<string, keyof Messages["errors"]>;
 const receiptType = "finance.receipt";
 const paymentType = "finance.payment";
 const documentTypeOf = (kind: AnyPaymentKind) => (paymentKindIsReceipt(kind) ? receiptType : paymentType);
+const isInstorePayoutKind = (kind: string) => kind === "instore_payout_payment" || kind === "instore_payout_receipt";
 // Dãy số: phiếu mua ngoại tệ có dãy riêng tiền tố MNT, vẫn đi luồng duyệt phiếu chi (CONG_VIEC_56; quyết định người dùng 2026-11-12).
 const currencyPurchaseType = "finance.currency_purchase";
 const sequenceOf = (kind: AnyPaymentKind) =>
@@ -501,7 +502,7 @@ export class PaymentsService implements OnModuleInit {
     await this.database.transaction(async (transaction) => {
       const before = await this.lockEditable(transaction, actor.companyId, id, input.version);
       // Phiếu nợ nội bộ điểm lập từ bảng đối soát điểm nội bộ, không sửa ở đây (CONG_VIEC_60).
-      if (isLoyaltySettlementPaymentKind(before.kind)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+      if (isLoyaltySettlementPaymentKind(before.kind) || isInstorePayoutKind(before.kind)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
       if (before.kind === "currency_purchase" || before.kind === "customs_tax_payment" || before.kind === "customs_tax_refund") {
         throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "invalidValue" } });
       }
@@ -580,6 +581,8 @@ export class PaymentsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, financePermissions.managePayments);
     const current = await this.single(this.database, actor.companyId, id);
     if (!["draft", "rejected", "withdrawn"].includes(current.status)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    // Phiếu thu nháp của bảng chuyển tiền thu hộ ghi sổ ở MAN_HINH_281 (chọn quỹ ngân hàng), không gửi ở đây.
+    if (isInstorePayoutKind(current.kind)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     const typeCode = documentTypeOf(current.kind);
     const sequence = sequenceOf(current.kind);
     await ensureSequence(this.database, this.sequences, actor, sequence.type, sequence.prefix);
@@ -648,6 +651,120 @@ export class PaymentsService implements OnModuleInit {
     for (const hook of this.postedHooks) await hook(transaction, id);
     await this.auditService.record({ ...financeAudit(actor, "payment"), action: "payment.retail_record", entityId: id, afterData: { documentNo, ...input } }, transaction);
     return id;
+  }
+
+  // CONG_VIEC_73 (QUYTAC_NGHIEPVU_585, 587): phiếu chi chuyển tiền thu hộ (công ty vận hành sàn) hoặc phiếu thu nhận tiền (công ty sở hữu cửa hàng tập đoàn),
+  // lập và ghi sổ ngay khi kế toán ghi đã chuyển (tiền đã chuyển thật, không qua duyệt), trừ đúng công nợ của bảng chuyển tiền.
+  // Không kiểm số dư quỹ: tiền cổng về tài khoản ngân hàng không qua phiếu thu nên số dư quỹ trên hệ thống không gồm tiền thu hộ.
+  // Gọi ensureSequence (prepareInstorePayoutNumbering) cho công ty trước giao dịch.
+  async prepareInstorePayoutNumbering(actor: Actor): Promise<void> {
+    await ensureSequence(this.database, this.sequences, actor, receiptType, "PT");
+    await ensureSequence(this.database, this.sequences, actor, paymentType, "PC");
+  }
+
+  // Phiếu thu nhận tiền thu hộ khi cửa hàng của công ty nhận chưa cài quỹ ngân hàng (lựa chọn người dùng 2026-11-17): lưu nháp, chưa cấp số, quỹ tạm là quỹ tiền mặt
+  // của cửa hàng; dòng phiếu giữ công nợ phải thu nội bộ của bảng. Kế toán công ty nhận chọn quỹ ngân hàng rồi ghi sổ ở MAN_HINH_281 (postInstorePayoutDraftWithin).
+  async draftInstorePayoutReceiptWithin(
+    transaction: Executor & Pick<Database, "insert">,
+    actor: Actor,
+    input: { partnerId: string; fundId: string; paymentDate: string; amount: string; referenceNo: string; note: string; payoutId: string; debtItemId: string },
+  ): Promise<string> {
+    const id = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO finance.payments (company_id, kind, partner_id, fund_id, payment_date, amount, note, reference_no, status, created_by, instore_payout_id)
+      VALUES (${actor.companyId}, 'instore_payout_receipt', ${input.partnerId}, ${input.fundId}, ${input.paymentDate}::date, ${input.amount}::numeric, ${input.note},
+        ${input.referenceNo}, 'draft', ${actor.userId}, ${input.payoutId})
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, id, [{ debitItemId: input.debtItemId, amount: input.amount, foreignAmount: null }]);
+    await this.auditService.record({ ...financeAudit(actor, "payment"), action: "payment.instore_payout_draft", entityId: id, afterData: input }, transaction);
+    return id;
+  }
+
+  async recordInstorePayoutWithin(
+    transaction: Executor & Pick<Database, "insert">,
+    actor: Actor,
+    input: {
+      kind: "instore_payout_payment" | "instore_payout_receipt";
+      partnerId: string;
+      fundId: string;
+      paymentDate: string;
+      amount: string;
+      referenceNo: string;
+      note: string;
+      payoutId: string;
+      debtItemId: string;
+    },
+  ): Promise<string> {
+    await this.lockInstoreFund(transaction, actor.companyId, input.fundId);
+    const side = input.kind === "instore_payout_payment" ? "payable" : "receivable";
+    await this.debts.lockPartner(transaction, actor.companyId, side, input.partnerId);
+    const documentNo = await this.sequences.next(actor.companyId, input.kind === "instore_payout_payment" ? paymentType : receiptType, transaction);
+    const id = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO finance.payments (company_id, document_no, kind, partner_id, fund_id, payment_date, amount, note, reference_no, status, posted_at, created_by, instore_payout_id)
+      VALUES (${actor.companyId}, ${documentNo}, ${input.kind}, ${input.partnerId}, ${input.fundId}, ${input.paymentDate}::date, ${input.amount}::numeric, ${input.note},
+        ${input.referenceNo}, 'posted', now(), ${actor.userId}, ${input.payoutId})
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.settleInstorePayout(transaction, actor.companyId, { id, side, documentNo, ...input });
+    await this.auditService.record(
+      { ...financeAudit(actor, "payment"), action: "payment.instore_payout", entityId: id, afterData: { documentNo, ...input } },
+      transaction,
+    );
+    return id;
+  }
+
+  // Ghi sổ phiếu thu nháp của bảng chuyển tiền vào quỹ ngân hàng kế toán chọn: cấp số, trừ đúng công nợ phải thu nội bộ của bảng, sinh bút toán.
+  async postInstorePayoutDraftWithin(transaction: Executor & Pick<Database, "insert">, actor: Actor, paymentId: string, fundId: string): Promise<void> {
+    const draft = (
+      await transaction.execute<{ partner_id: string; payment_date: string; amount: string; note: string; debit_item_id: string }>(sql`
+      SELECT p.partner_id, p.payment_date::text, p.amount::text, p.note, l.debit_item_id
+      FROM finance.payments p JOIN finance.payment_lines l ON l.payment_id = p.id
+      WHERE p.id = ${paymentId} AND p.company_id = ${actor.companyId} AND p.kind = 'instore_payout_receipt' AND p.status = 'draft' FOR UPDATE OF p`)
+    ).rows[0];
+    if (!draft) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    const kind = (await transaction.execute<{ kind: string }>(sql`SELECT kind FROM finance.funds WHERE id = ${fundId} AND company_id = ${actor.companyId}`)).rows[0]?.kind;
+    if (kind !== "bank") throw new ApiError("VALIDATION_FAILED", "invalidValue", { fields: { fundId: "invalidValue" } });
+    await this.lockInstoreFund(transaction, actor.companyId, fundId);
+    await this.debts.lockPartner(transaction, actor.companyId, "receivable", draft.partner_id);
+    const documentNo = await this.sequences.next(actor.companyId, receiptType, transaction);
+    await transaction.execute(sql`
+      UPDATE finance.payments SET document_no = ${documentNo}, fund_id = ${fundId}, status = 'posted', posted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${paymentId}`);
+    await this.settleInstorePayout(transaction, actor.companyId, {
+      id: paymentId,
+      side: "receivable",
+      documentNo,
+      partnerId: draft.partner_id,
+      paymentDate: draft.payment_date,
+      amount: draft.amount,
+      note: draft.note,
+      debtItemId: draft.debit_item_id,
+    });
+    await this.auditService.record({ ...financeAudit(actor, "payment"), action: "payment.instore_payout_post", entityId: paymentId, afterData: { documentNo, fundId } }, transaction);
+  }
+
+  private async lockInstoreFund(transaction: Executor & Pick<Database, "insert">, companyId: string, fundId: string): Promise<void> {
+    const fund = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${fundId} AND company_id = ${companyId} FOR UPDATE`)).rows[0];
+    if (!fund) throw new ApiError("VALIDATION_FAILED", "invalidValue", { fields: { fundId: "invalidValue" } });
+    if (fund.status !== "active") throw new ApiError("BUSINESS_RULE", "fundInactive");
+  }
+
+  // Khoản giảm công nợ của phiếu, trừ đúng khoản công nợ của bảng chuyển tiền, rồi chạy các móc sau ghi sổ (bút toán).
+  private async settleInstorePayout(
+    transaction: Executor & Pick<Database, "insert">,
+    companyId: string,
+    input: { id: string; side: "payable" | "receivable"; documentNo: string; partnerId: string; paymentDate: string; amount: string; note: string; debtItemId: string },
+  ): Promise<void> {
+    const itemId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, amount, open_amount, note)
+      VALUES (${companyId}, ${input.partnerId}, ${input.side}, 'credit', 'payment', ${input.id}, ${input.documentNo}, ${input.paymentDate}::date, ${input.amount}::numeric,
+        ${input.amount}::numeric, ${input.note})
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.debts.matchCredit(transaction, itemId, [{ debitItemId: input.debtItemId, amount: input.amount }], false);
+    for (const hook of this.postedHooks) await hook(transaction, input.id);
   }
 
   private async post(transaction: Executor, id: string): Promise<void> {

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONG_VIEC_74 iPOS – Ứng dụng bán hàng (máy tính bảng, Sunmi T2)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+<link rel="stylesheet" href="ipos.css">
+</head>
+<body class="ipos" data-trang-thai="du-lieu">
+
+<div class="ipos-dieu-khien" role="toolbar" aria-label="Điều khiển bản mẫu">
+  <strong>Ứng dụng iPOS</strong>
+  <div class="nhom">
+    <button type="button" data-den="m283">283 Đăng nhập</button>
+    <button type="button" data-den="m284">284 Đăng ký</button>
+    <button type="button" data-den="m285">285 Mở ca</button>
+    <button type="button" data-den="m286">286 Bán hàng</button>
+    <button type="button" data-den="m287">287 Thanh toán</button>
+    <button type="button" data-den="m288">288 Kết quả</button>
+    <button type="button" data-den="m289">289 Hóa đơn ca</button>
+    <button type="button" data-den="m290">290 Trả hàng</button>
+    <button type="button" data-den="m291">291 Đóng ca</button>
+    <button type="button" data-den="m292">292 Thiết bị</button>
+  </div>
+  <label>Trạng thái
+    <select id="chon-trang-thai">
+      <option value="du-lieu">Có dữ liệu</option>
+      <option value="rong">Rỗng</option>
+      <option value="dang-tai">Đang tải</option>
+      <option value="loi">Lỗi</option>
+      <option value="khong-quyen">Không có quyền</option>
+      <option value="tam-khoa">Thuê bao tạm khóa</option>
+      <option value="mat-mang">Mất mạng</option>
+    </select>
+  </label>
+</div>
+
+<main class="ipos-trang">
+
+<!-- MAN_HINH_283 -->
+<section class="ipos-man" id="m283" aria-labelledby="t283">
+  <h2 id="t283">MAN_HINH_283 · Ghép thiết bị và đăng nhập</h2>
+  <div class="hai-cot-ipos">
+    <div class="may-bang">
+      <div class="thanh-may"><span class="day">iPOS · Thiết bị chưa ghép</span></div>
+      <div class="may-than giua"><div class="hop-nho the">
+        <h3>Ghép thiết bị với quầy</h3>
+        <p class="chu-phu">Chủ cửa hàng lấy mã ghép ở cổng cửa hàng: iPOS › Quầy và thiết bị › Ghép thiết bị. Mã có hiệu lực 10 phút.</p>
+        <label class="truong">Mã ghép (8 ký tự)<input value="K7MP-3XQ9" autocomplete="off" aria-describedby="loi-ghep"></label>
+        <span class="loi-o" id="loi-ghep" data-tt="loi">Mã ghép không đúng hoặc đã hết hạn</span>
+        <button class="nut chinh lon" type="button">Ghép thiết bị</button>
+        <button class="nut chu" type="button" data-den="m284">Tôi là thu ngân mới, đăng ký</button>
+      </div></div>
+    </div>
+    <div class="may-bang">
+      <div class="thanh-may"><span class="day">Tạp hóa Minh Anh · Điểm bán Bình Dương 01 · Quầy 1</span><span class="trang-thai">Sunmi T2</span></div>
+      <div class="may-than giua"><div class="hop-nho the">
+        <h3>Chọn người bán</h3>
+        <div class="nhom-chip"><button class="chon" type="button">Nguyễn Thị Thu Trang</button><button type="button">Lê Văn Phúc (chủ)</button><button type="button">Người khác…</button></div>
+        <div class="o-pin" aria-label="Mã PIN 6 số"><span>•</span><span>•</span><span>•</span><span></span><span></span><span></span></div>
+        <span class="loi-o" data-tt="loi">Mã PIN không đúng. Còn 2 lần thử</span>
+        <div class="ban-phim-so"><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button">Xóa</button><button type="button">0</button><button type="button" data-den="m285">Vào</button></div>
+        <button class="nut chu" type="button">Quên PIN · Đăng nhập bằng mã OTP</button>
+        <div class="khoi thong-tin" data-tt="rong">Máy chưa có ai đăng nhập. Nhập số điện thoại để nhận mã OTP (Smart OTP trên ứng dụng VComm hoặc tin nhắn SMS), sau đó đặt mã PIN 6 số.</div>
+        <div class="khoi loi" data-tt="khong-quyen">Bạn không được gán điểm bán Bình Dương 01. Liên hệ chủ cửa hàng.</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAN_HINH_284 -->
+<section class="ipos-man" id="m284" aria-labelledby="t284">
+  <h2 id="t284">MAN_HINH_284 · Thu ngân tự đăng ký</h2>
+  <div class="may-bang"><div class="thanh-may"><span class="day">iPOS · Đăng ký thu ngân</span></div>
+    <div class="may-than giua"><div class="hop-nho the">
+      <label class="truong">Mã cửa hàng<input value="CH000123"></label>
+      <label class="truong">Số điện thoại<input value="0912 345 678" inputmode="tel"></label>
+      <div class="dong"><label class="truong" style="flex:1">Mã OTP<input value="482913" inputmode="numeric"></label><button class="nut phu" type="button" style="align-self:end">Gửi lại (45 giây)</button></div>
+      <label class="truong">Họ và tên<input value="Nguyễn Thị Thu Trang Phương Hoàng Bảo Ngọc"></label>
+      <fieldset class="truong"><legend>Điểm bán muốn làm</legend>
+        <label><input type="checkbox" checked> Bình Dương 01 – 12 Đại lộ Bình Dương, Thủ Dầu Một</label>
+        <label><input type="checkbox"> Bình Dương 02 – Khu dân cư Hiệp Thành 3</label></fieldset>
+      <button class="nut chinh lon" type="button">Gửi yêu cầu</button>
+      <div class="khoi thong-tin" data-tt="du-lieu">Đã gửi yêu cầu. Chủ cửa hàng sẽ duyệt trong 7 ngày; bạn nhận thông báo trên ứng dụng VComm.</div>
+      <div class="khoi canh-bao" data-tt="loi">Bạn đã là thành viên của cửa hàng, hãy đăng nhập</div>
+    </div></div></div>
+</section>
+
+<!-- MAN_HINH_285 -->
+<section class="ipos-man" id="m285" aria-labelledby="t285">
+  <h2 id="t285">MAN_HINH_285 · Mở ca</h2>
+  <div class="may-bang"><div class="thanh-may"><span class="day">Bình Dương 01 · Quầy 1 · Nguyễn Thị Thu Trang</span></div>
+    <div class="may-than giua"><div class="hop-nho the">
+      <div class="khoi canh-bao" data-tt="du-lieu">Thuê bao hết hạn ngày 15/11. Còn 5 ngày trước khi tạm khóa. Báo chủ cửa hàng gia hạn.</div>
+      <div class="khoi loi" data-tt="tam-khoa">Thuê bao iPOS của điểm bán đã tạm khóa do quá hạn. Liên hệ chủ cửa hàng để gia hạn.</div>
+      <label class="truong">Tiền đầu ca (đ)<input value="1.500.000" inputmode="numeric"></label>
+      <p class="chu-phu">Ca trước để lại két: 1.000.000 đ. Tiền đầu ca khác số này cần ghi chú.</p>
+      <label class="truong">Ghi chú<textarea rows="2">Chủ cửa hàng bổ sung 500.000 đ tiền lẻ</textarea></label>
+      <button class="nut chinh lon" type="button" data-den="m286">Mở ca</button>
+      <div class="dang-tai-o" data-tt="dang-tai"></div>
+    </div></div></div>
+</section>
+
+<!-- MAN_HINH_286 -->
+<section class="ipos-man" id="m286" aria-labelledby="t286">
+  <h2 id="t286">MAN_HINH_286 · Bán hàng</h2>
+  <div class="may-bang">
+    <div class="thanh-may"><span class="day">Bình Dương 01 · Quầy 1 · Thu Trang · Ca mở 07:02</span><span class="trang-thai">Máy in: sẵn sàng</span><span class="trang-thai" data-tt="du-lieu rong dang-tai loi khong-quyen tam-khoa">Có mạng</span><span class="trang-thai" data-tt="mat-mang">Mất kết nối</span></div>
+    <div class="may-than">
+      <div class="khoi loi" data-tt="mat-mang">Mất kết nối, chưa thanh toán được. Giỏ hàng vẫn được giữ trên máy.</div>
+      <div class="ban-hang">
+        <div style="display:grid;gap:var(--khoang-3);align-content:start;min-width:0">
+          <div class="o-quet"><input placeholder="Quét mã vạch hoặc gõ mã, tên hàng" aria-label="Quét hoặc tìm hàng"><button class="nut phu" type="button">Camera</button></div>
+          <div class="nhom-chip"><button class="chon" type="button">Tất cả</button><button type="button">Đồ uống</button><button type="button">Bánh kẹo</button><button type="button">Hóa mỹ phẩm</button><button type="button">Gia vị</button></div>
+          <div class="luoi-hang" data-tt="du-lieu mat-mang tam-khoa loi khong-quyen">
+            <button class="o-hang" type="button"><strong>Nước suối Lavie 500ml</strong><span class="chu-phu">5.000 · tồn 120</span></button>
+            <button class="o-hang" type="button"><strong>Sữa tươi tiệt trùng ít đường hộp 180ml lốc 4</strong><span class="chu-phu">32.000 · tồn 18</span></button>
+            <button class="o-hang" type="button"><strong>Mì ăn liền tôm chua cay</strong><span class="chu-phu">4.500 · tồn −3</span></button>
+            <button class="o-hang" type="button"><strong>Nước giặt 3,8 kg hương hoa anh đào</strong><span class="chu-phu">189.000 · tồn 6</span></button>
+            <button class="o-hang" type="button"><strong>Bánh quy bơ</strong><span class="chu-phu">45.000 · 3 biến thể</span></button>
+          </div>
+          <div class="khoi thong-tin" data-tt="rong">Cửa hàng chưa có mặt hàng. Chủ cửa hàng thêm hàng ở cổng cửa hàng (iPOS › Hàng hóa) hoặc nhập Excel.</div>
+          <div data-tt="dang-tai"><div class="dang-tai-o"></div><div class="dang-tai-o"></div><div class="dang-tai-o"></div></div>
+        </div>
+        <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+          <div class="dong"><strong>Giỏ hàng</strong><span><button class="nut chu" type="button">Treo (2/5)</button><button class="nut chu" type="button">Xóa giỏ</button></span></div>
+          <table><tbody>
+            <tr><td>Sữa tươi tiệt trùng ít đường hộp 180ml lốc 4<div class="chu-phu">32.000 · giảm 5 %</div></td><td><span class="so-luong"><button type="button" aria-label="Giảm">−</button><input value="2" aria-label="Số lượng"><button type="button" aria-label="Tăng">+</button></span></td><td class="so">60.800</td></tr>
+            <tr><td>Nước suối Lavie 500ml</td><td><span class="so-luong"><button type="button" aria-label="Giảm">−</button><input value="6" aria-label="Số lượng"><button type="button" aria-label="Tăng">+</button></span></td><td class="so">30.000</td></tr>
+            <tr><td>Nước giặt 3,8 kg hương hoa anh đào</td><td><span class="so-luong"><button type="button" aria-label="Giảm">−</button><input value="1" aria-label="Số lượng"><button type="button" aria-label="Tăng">+</button></span></td><td class="so">189.000</td></tr>
+          </tbody></table>
+          <div class="dong"><span>Tạm tính</span><span>279.800</span></div>
+          <div class="dong"><button class="nut chu" type="button">Giảm giá hóa đơn</button><span>− 0</span></div>
+          <div class="dong"><button class="nut chu" type="button">Khách VComm: quét mã động</button><span class="chu-phu">Khách lẻ</span></div>
+          <div class="dong"><span class="tong">Phải trả</span><span class="tong">279.800</span></div>
+          <span class="loi-o" data-tt="loi">Giá đã thay đổi: Nước suối Lavie 500ml 5.000 → 5.500. Giỏ đã cập nhật.</span>
+          <div class="khoi canh-bao" data-tt="khong-quyen">Giảm 15 % vượt mức của thu ngân (10 %). Chủ cửa hàng nhập mã PIN để duyệt.</div>
+          <button class="nut chinh lon" type="button" data-den="m287">Thanh toán <span class="phim">F9</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAN_HINH_287 -->
+<section class="ipos-man" id="m287" aria-labelledby="t287">
+  <h2 id="t287">MAN_HINH_287 · Thanh toán</h2>
+  <div class="may-bang"><div class="thanh-may"><span class="day">Thanh toán · DB01-261117-0042 · Phải trả 279.800</span></div>
+    <div class="may-than">
+      <div class="phuong-thuc-tab" role="tablist"><button class="chon" type="button">Tiền mặt</button><button type="button">VietQR</button><button type="button">Ứng dụng VComm</button></div>
+      <div class="hai-cot-ipos">
+        <div class="the" style="display:grid;gap:var(--khoang-3)">
+          <strong>Tiền mặt</strong>
+          <label class="truong">Khách đưa (đ)<input value="300.000" inputmode="numeric"></label>
+          <div class="menh-gia-nhanh"><button type="button">279.800</button><button type="button">300.000</button><button type="button">500.000</button><button type="button">1.000.000</button></div>
+          <div class="dong"><span>Tiền thừa</span><span class="tong">20.200</span></div>
+          <button class="nut chu" type="button">+ Thêm VietQR cho phần còn lại</button>
+        </div>
+        <div class="the" style="display:grid;gap:var(--khoang-3);justify-items:start">
+          <strong>VietQR · chuyển khoản vào tài khoản cửa hàng</strong>
+          <div class="ma-qr" role="img" aria-label="Mã VietQR 279.800 đ nội dung DB01-261117-0042"></div>
+          <span class="chu-phu">Vietcombank · 0071 0012 3456 · LE VAN PHUC · nội dung DB01-261117-0042</span>
+          <button class="nut phu" type="button">Đã nhận tiền</button>
+        </div>
+      </div>
+      <div class="the" style="display:grid;gap:var(--khoang-3)">
+        <strong>Ứng dụng VComm</strong>
+        <div class="hai-cot-ipos">
+          <div style="display:grid;gap:var(--khoang-2)"><span>Cách 1 · Quét mã thanh toán trên ứng dụng của khách</span><div class="khung-camera">Đưa mã vào đầu quét hoặc camera</div><label class="truong">Hoặc nhập 18 số<input placeholder="482 913 075 631 284 517"></label></div>
+          <div style="display:grid;gap:var(--khoang-2);justify-items:start"><span>Cách 2 · Khách quét mã này bằng ứng dụng VComm</span><div class="ma-qr" role="img" aria-label="Mã QR thanh toán TT2611-000512"></div><span class="chu-phu">Đơn TT2611-000512 · hết hạn sau 09:12</span></div>
+        </div>
+        <div class="khoi thong-tin">Khách Tr*** M*** (hạng Bạc) đang chọn điểm và thanh toán trên ứng dụng… <span class="nhan thong-tin">Chờ khách</span></div>
+        <div class="khoi canh-bao" data-tt="loi">Ví dụ lỗi: "Mã không hợp lệ hoặc đã hết hạn" · "Đơn đã có khách" · "Khách đã từ chối" · "Đơn đã hết hạn".</div>
+        <p class="chu-phu">Cửa hàng tắt thu hộ: khách chỉ chọn điểm, voucher trên ứng dụng; phần còn lại thu tiền mặt hoặc VietQR ở trên.</p>
+        <div class="dong"><button class="nut nguy-hiem" type="button">Hủy đơn chờ</button><button class="nut chinh" type="button" data-den="m288">Hoàn tất (bản mẫu)</button></div>
+      </div>
+      <div class="khoi loi" data-tt="mat-mang">Mất kết nối, chưa thanh toán được. Khi có mạng, máy tra lại kết quả trước khi cho thu cách khác.</div>
+    </div></div>
+</section>
+
+<!-- MAN_HINH_288 -->
+<section class="ipos-man" id="m288" aria-labelledby="t288">
+  <h2 id="t288">MAN_HINH_288 · Kết quả thanh toán và hóa đơn in</h2>
+  <div class="hai-cot-ipos">
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <div class="dong"><h3>DB01-261117-0042</h3><span class="nhan thanh-cong">Đã thanh toán</span></div>
+      <div class="dong"><span>Điểm (300 điểm)</span><span>30.000</span></div>
+      <div class="dong"><span>Ứng dụng VComm · VNPAY</span><span>249.800</span></div>
+      <div class="dong"><span class="tong">Tổng</span><span class="tong">279.800</span></div>
+      <div class="khoi thong-tin">Khách được tích 25 điểm. Tiền qua ứng dụng do VComm thu hộ, không vào két.</div>
+      <div class="khoi loi" data-tt="loi">Không in được: máy in hết giấy. Hóa đơn đã ghi. Thay giấy rồi bấm In lại.</div>
+      <div class="dong"><button class="nut phu" type="button">In lại</button><button class="nut chinh" type="button" data-den="m286">Đơn mới</button></div>
+    </div>
+    <div class="hoa-don-in" aria-label="Mẫu in 80 mm">
+      <div class="giua-chu"><b>TẠP HÓA MINH ANH</b><br>12 Đại lộ Bình Dương, Thủ Dầu Một<br>ĐT 0274 381 2345</div><br>
+      Số: DB01-261117-0042<br>17/11/2026 09:41 · Thu ngân: Thu Trang<br>--------------------------------<br>
+      <div class="dong"><span>Sữa tươi lốc 4 x2 (−5%)</span><span>60.800</span></div>
+      <div class="dong"><span>Nước suối 500ml x6</span><span>30.000</span></div>
+      <div class="dong"><span>Nước giặt 3,8 kg x1</span><span>189.000</span></div>
+      --------------------------------<br>
+      <div class="dong"><b>TỔNG</b><b>279.800</b></div>
+      <div class="dong"><span>Thuế GTGT 10% (đã gồm)</span><span>25.436</span></div>
+      <div class="dong"><span>Điểm VComm</span><span>30.000</span></div>
+      <div class="dong"><span>Ứng dụng VComm</span><span>249.800</span></div>
+      Tích 25 điểm · Khách Tr*** M***<br>--------------------------------<br>
+      <div class="giua-chu">Hóa đơn điện tử ủy nhiệm: tra cứu tại<br>[mã QR] · mã tra cứu K2611ABC<br>Cảm ơn quý khách, hẹn gặp lại!</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAN_HINH_289 -->
+<section class="ipos-man" id="m289" aria-labelledby="t289">
+  <h2 id="t289">MAN_HINH_289 · Hóa đơn trong ca</h2>
+  <div class="the">
+    <div class="o-quet"><input placeholder="Tìm số hóa đơn" aria-label="Tìm số hóa đơn"></div>
+    <table data-tt="du-lieu"><thead><tr><th>Số</th><th>Giờ</th><th class="so">Tổng</th><th>Phương thức</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td>DB01-261117-0042</td><td>09:41</td><td class="so">279.800</td><td>Điểm, ứng dụng VComm</td><td><span class="nhan thanh-cong">Đã thanh toán</span></td><td><button class="nut chu" type="button">In lại</button></td></tr>
+      <tr><td>DB01-261117-0041</td><td>09:30</td><td class="so">54.000</td><td>Tiền mặt</td><td><span class="nhan canh-bao">Trả một phần</span></td><td><button class="nut chu" type="button">In lại</button></td></tr>
+    </tbody></table>
+    <div class="khoi thong-tin" data-tt="rong">Ca này chưa có hóa đơn.</div>
+    <div data-tt="dang-tai"><div class="dang-tai-o"></div><div class="dang-tai-o"></div></div>
+    <div class="khoi loi" data-tt="loi">Không tải được danh sách. Kiểm tra mạng rồi thử lại.</div>
+  </div>
+</section>
+
+<!-- MAN_HINH_290 -->
+<section class="ipos-man" id="m290" aria-labelledby="t290">
+  <h2 id="t290">MAN_HINH_290 · Trả hàng</h2>
+  <div class="hai-cot-ipos">
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <div class="o-quet"><input value="DB01-261117-0041" aria-label="Số hóa đơn"><button class="nut phu" type="button">Quét mã trên hóa đơn</button></div>
+      <table><thead><tr><th>Hàng</th><th class="so">Đã mua</th><th class="so">Đã trả</th><th class="so">Trả lần này</th></tr></thead><tbody>
+        <tr><td>Bánh quy bơ – hộp thiếc</td><td class="so">2</td><td class="so">0</td><td class="so"><input value="1" size="3" aria-label="Số lượng trả"></td></tr>
+        <tr><td>Nước suối 500ml</td><td class="so">2</td><td class="so">0</td><td class="so"><input value="0" size="3" aria-label="Số lượng trả"></td></tr>
+      </tbody></table>
+      <label class="truong">Lý do<input value="Hộp móp méo"></label>
+      <div class="dong"><span class="tong">Hoàn tiền mặt</span><span class="tong">42.750</span></div>
+      <div class="khoi canh-bao" data-tt="khong-quyen">Thu ngân trả hàng cần chủ cửa hàng nhập mã PIN.</div>
+      <button class="nut chinh lon" type="button">Trả hàng và in phiếu TR-</button>
+    </div>
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <strong>Hóa đơn có ứng dụng VComm, điểm hoặc voucher</strong>
+      <p>DB01-261117-0042 · Điểm 30.000 · Ứng dụng VComm 249.800</p>
+      <div class="khoi thong-tin">Chỉ hủy toàn bộ hóa đơn. Điểm hoàn cho khách; tiền trả qua ứng dụng do công ty vận hành sàn hoàn cho khách. Hàng cộng lại tồn.</div>
+      <div class="khoi loi" data-tt="loi">Tuần đối soát đã chốt, không hủy được; liên hệ công ty vận hành sàn để khiếu nại</div>
+      <button class="nut nguy-hiem" type="button">Hủy toàn bộ hóa đơn</button>
+    </div>
+  </div>
+</section>
+
+<!-- MAN_HINH_291 -->
+<section class="ipos-man" id="m291" aria-labelledby="t291">
+  <h2 id="t291">MAN_HINH_291 · Thu chi và đóng ca</h2>
+  <div class="hai-cot-ipos">
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <strong>Thu chi trong ca</strong>
+      <div class="nhom-chip"><button class="chon" type="button">Chi ra</button><button type="button">Thu thêm</button></div>
+      <label class="truong">Số tiền<input value="200.000"></label>
+      <label class="truong">Loại<select><option>Nộp về chủ</option><option>Chi phí</option><option>Khác</option></select></label>
+      <label class="truong">Lý do<input value="Nộp tiền cho chủ cửa hàng giữa ca"></label>
+      <button class="nut phu" type="button">Ghi và mở ngăn kéo</button>
+    </div>
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <strong>Đóng ca · Quầy 1 · mở 07:02</strong>
+      <div class="khoi loi" data-tt="loi">Còn đơn chờ thanh toán qua ứng dụng, chưa đóng ca được (TT2611-000512).</div>
+      <table><tbody>
+        <tr><td>Tiền đầu ca</td><td class="so">1.500.000</td></tr>
+        <tr><td>Tiền mặt bán</td><td class="so">4.820.500</td></tr>
+        <tr><td>Hoàn trả tiền mặt</td><td class="so">− 42.750</td></tr>
+        <tr><td>Thu thêm / chi ra</td><td class="so">0 / − 200.000</td></tr>
+        <tr><td><b>Tiền hệ thống</b></td><td class="so"><b>6.077.750</b></td></tr>
+      </tbody></table>
+      <details><summary>Đếm theo mệnh giá</summary><p class="chu-phu">500.000 × 8 · 200.000 × 7 · 100.000 × 5 · 50.000 × 3 · 20.000 × 1 · 10.000 × 0 · 5.000 × 1 · 2.000 × 1 · 1.000 × 0</p></details>
+      <label class="truong">Tiền đếm<input value="6.077.000"></label>
+      <div class="dong"><span>Chênh lệch</span><span class="nhan canh-bao">− 750</span></div>
+      <label class="truong">Lý do chênh lệch<input value="Thối thiếu tiền lẻ"></label>
+      <label class="truong">Để lại két cho ca sau<input value="1.000.000"></label>
+      <div class="dong"><span>Tiền nộp</span><b>5.077.000</b></div>
+      <div class="chu-phu">Doanh thu: tiền mặt 4.820.500 · VietQR 1.250.000 · ứng dụng VComm 3.410.000 · điểm 210.000 · voucher 50.000</div>
+      <button class="nut chinh lon" type="button">Đóng ca và in biên bản</button>
+    </div>
+  </div>
+</section>
+
+<!-- MAN_HINH_292 -->
+<section class="ipos-man" id="m292" aria-labelledby="t292">
+  <h2 id="t292">MAN_HINH_292 · Cài đặt thiết bị</h2>
+  <div class="hai-cot-ipos">
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <label class="truong">Máy in<select><option>Máy in gắn sẵn (Sunmi)</option><option>Máy in mạng LAN</option><option>Máy in Bluetooth</option></select></label>
+      <label class="truong">Địa chỉ IP và cổng (máy in mạng LAN)<input placeholder="192.168.1.50:9100" disabled></label>
+      <label class="truong">Khổ giấy<select><option>80 mm</option><option>58 mm</option></select></label>
+      <label class="truong">Cách in chữ<select><option>In dạng ảnh (đúng dấu trên mọi máy)</option><option>In theo bảng mã của máy</option></select></label>
+      <label class="truong">Số liên<select><option>1</option><option>2</option><option>3</option></select></label>
+      <label><input type="checkbox" checked> Tự in sau thanh toán</label>
+      <label><input type="checkbox" checked> Mở ngăn kéo qua máy in khi thu tiền mặt</label>
+      <div class="dong"><button class="nut phu" type="button">In thử</button><button class="nut phu" type="button">Mở ngăn kéo thử</button></div>
+      <div class="khoi loi" data-tt="loi">Không in được: không kết nối được máy in.</div>
+    </div>
+    <div class="the" style="display:grid;gap:var(--khoang-2);align-content:start">
+      <strong>Thiết bị</strong>
+      <div class="dong"><span>Cửa hàng</span><span>Tạp hóa Minh Anh (CH000123)</span></div>
+      <div class="dong"><span>Điểm bán · quầy</span><span>Bình Dương 01 · Quầy 1</span></div>
+      <div class="dong"><span>Máy</span><span>Sunmi T2 · iPOS 1.0.0</span></div>
+      <div class="dong"><span>Thuê bao</span><span class="nhan thanh-cong">Đang hoạt động đến 15/12/2026</span></div>
+      <p class="chu-phu">Máy quét kiểu bàn phím và đầu quét gắn sẵn dùng được ngay ở ô quét, không cần cài đặt.</p>
+      <button class="nut chu" type="button">Đăng xuất mọi người khỏi máy</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<div class="ghi-chu-ban-mau">Bản mẫu CONG_VIEC_74 · dữ liệu giả · QUYTAC_NGHIEPVU_605 đến 624. <a href="index.html">Mục lục bản mẫu</a></div>
+<script src="ipos.js"></script>
+</body>
+</html>

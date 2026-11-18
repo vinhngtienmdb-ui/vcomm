@@ -10,6 +10,8 @@ export const crmMenu = [
   { href: "/buyers", key: "buyers", permission: "marketplace.buyer.view" },
   { href: "/sales-team", key: "salesTeam", permission: "marketplace.buyer.view" },
   { href: "/sales-proposals", key: "salesProposals", permission: "marketplace.buyer.view" },
+  // CONG_VIEC_72: xác thực người mua (MAN_HINH_275).
+  { href: "/buyer-authentication", key: "buyerAuthentication", permission: "marketplace.buyer.view" },
   { href: "/store-settings", key: "storeSettings", permission: "marketplace.order.view" },
   { href: "/listings", key: "listings", permission: "marketplace.order.view" },
   { href: "/orders", key: "orders", permission: "marketplace.order.view" },
@@ -35,6 +37,11 @@ export const crmMenu = [
   { href: "/affiliate/merchants", key: "affiliateMerchants", permission: "affiliate.view" },
   { href: "/affiliate/vouchers", key: "affiliateVouchers", permission: "affiliate.view" },
   { href: "/affiliate/settlements", key: "affiliateSettlements", permission: "affiliate.view" },
+  // CONG_VIEC_74: iPOS (MAN_HINH_303, 304).
+  { href: "/ipos/plans", key: "iposPlans", permission: "affiliate.view" },
+  { href: "/ipos/subscriptions", key: "iposSubscriptions", permission: "affiliate.view" },
+  { href: "/ipos/fees", key: "iposFees", permission: "affiliate.view" },
+  { href: "/ipos/reconciliation", key: "iposReconciliation", permission: "affiliate.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

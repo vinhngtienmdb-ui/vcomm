@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AffiliateReportsService } from "../src/affiliate/reports.service";
 import type { BuyerCall } from "./marketplace-fixture";
 import { prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
-import { cookieValue, signIn } from "./helpers";
+import { cookieValue, sessionFrom, signIn } from "./helpers";
 import { startTestApplication, testOauth } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -134,11 +134,18 @@ describe("TIEUCHI_NGHIEMTHU_369: đăng nhập cổng cửa hàng bằng Zalo", 
     await pool.query("UPDATE core.otp_codes SET code_hash = $1 WHERE phone = '+84909111222' AND consumed_at IS NULL", [createHash("sha256").update("246810").digest("hex")]);
     const login = await server().post("/api/v1/auth/otp/verify").send({ phone: "0909111222", code: "246810" });
     expect(login.status, JSON.stringify(login.body)).toBe(200);
+    // CONG_VIEC_72: chủ cửa hàng đã thiết lập bảo mật nên nhập thêm mã ứng dụng xác thực.
+    expect(login.body.mfaRequired).toBe(true);
+    const verified = await sessionFrom(application, login.headers["set-cookie"]).call("post", "/auth/mfa/verify", { body: { code: fixture.authenticator("0909111222") } });
+    expect(verified.status).toBe(204);
     const linked = await round("mode=link&app=merchant", `vc_access=${cookieValue(login.headers["set-cookie"], "vc_access")}`);
     expect(linked.headers.location).toMatch(/\/merchant\/counter\?lienKet=zalo$/);
+    // Zalo xong vẫn hỏi mã ứng dụng xác thực ngay trên trang đăng nhập cổng (CONG_VIEC_72, KICHBAN_KIEMTHU_745).
     const viaZalo = await round("mode=login&app=merchant");
-    expect(viaZalo.headers.location).toMatch(/\/merchant$/);
+    expect(viaZalo.headers.location).toMatch(/\/merchant\/dang-nhap\?buoc=ma$/);
     const access = cookieValue(viaZalo.headers["set-cookie"], "vc_access");
+    expect((await server().get("/api/v1/merchant-portal/me").set("cookie", `vc_access=${access}`)).status).toBe(401);
+    expect((await sessionFrom(application, viaZalo.headers["set-cookie"]).call("post", "/auth/mfa/verify", { body: { code: fixture.authenticator("0909111222") } })).status).toBe(204);
     const me = await server().get("/api/v1/merchant-portal/me").set("cookie", `vc_access=${access}`);
     expect(me.body.memberships[0]).toMatchObject({ merchantId: fixture.merchantId, role: "owner" });
   });

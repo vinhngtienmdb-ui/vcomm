@@ -794,6 +794,8 @@ Người phỏng vấn, người chấm, nhân viên xem phiếu của mình kh�
 |---|---|---|
 | `affiliate.view` | Xem cửa hàng liên kết, giao dịch, voucher, đối soát, báo cáo, cảnh báo | Quản trị tập đoàn, Quản trị công ty |
 | `affiliate.manage` (nhạy cảm) | Tạo, sửa hợp đồng, điểm bán; mời, khóa chủ cửa hàng; tạm ngưng, chấm dứt; tạo, gửi duyệt voucher công ty; trả lời khiếu nại đối soát | Quản trị tập đoàn, Quản trị công ty |
+| `ipos.plan.manage` | Khai báo, sửa, ngừng bán gói iPOS (CONG_VIEC_74, QUYTAC_NGHIEPVU_594) | Quản trị tập đoàn, Quản trị công ty |
+| `ipos.subscription.manage` (nhạy cảm) | Cấp, sửa, gia hạn, khóa, mở khóa, hủy thuê bao iPOS; chọn cách thu phí; hủy phiếu phí (CONG_VIEC_74, QUYTAC_NGHIEPVU_595 đến 603) | Quản trị tập đoàn, Quản trị công ty |
 
 ## 49. Cộng đồng: cộng tác viên, mua chung, ví mua sắm, bảng tin (MODULE_10 phần 1, CONG_VIEC_49)
 
@@ -1002,3 +1004,49 @@ Vai trò khác: quản trị công ty tự gán `ai.chat.use`, `ai.product_conte
 | CHUC_NANG_228 Soạn nội dung | Có | Có | Không | Có | Không |
 | CHUC_NANG_229 Hội thoại, đánh giá | Chỉ của mình | Chỉ của mình | Chỉ của mình | — | Không |
 | CHUC_NANG_229 Thống kê | Mọi công ty | Công ty mình | Không | Không | Công ty được gán (không nội dung) |
+
+## 60. Ưu tiên Smart OTP thay tin nhắn SMS (MODULE_01, MODULE_09, MODULE_11, MODULE_12, CONG_VIEC_72)
+
+- Một quyền mới của mini app Khách hàng và Đối tác (`crm`), chỉ xét tại công ty vận hành sàn (database migration 0160; danh mục `apps/api/src/permissions/permission-catalog.ts`). Quản trị tập đoàn, Quản trị công ty có sẵn; giao cho nhân viên chăm sóc khách hàng qua vai trò tùy chỉnh.
+- Quyền dùng lại: `marketplace.buyer.view` xem khối "Bảo mật đăng nhập" của người mua (MAN_HINH_80), tham số chuyển đổi, thống kê (MAN_HINH_275); `marketplace.buyer.manage` (nhạy cảm) sửa tham số chuyển đổi; `affiliate.manage` đặt lại xác thực cổng cho chủ, thu ngân (MAN_HINH_178).
+- Vai trò cổng cửa hàng liên kết: chủ cửa hàng đặt lại xác thực cho thu ngân của cửa hàng mình (MAN_HINH_177), không đặt cho chủ khác, cửa hàng khác. Không ai đặt lại được từ cổng cho tài khoản nhân viên bắt buộc xác thực hai lớp.
+- Người mua: chỉ xem, gỡ thiết bị của mình; kích hoạt, chuyển, tự hủy Smart OTP của mình. Yêu cầu xác thực hai lớp của cổng chỉ áp khi đăng nhập cổng; người là thành viên cổng đồng thời là người mua không bị hỏi mã ứng dụng xác thực trên ứng dụng VComm.
+
+| Quyền | Mini app | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|---|
+| `marketplace.buyer.security` | Khách hàng và Đối tác (`crm`) | Công ty vận hành sàn | Có | Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | `marketplace.buyer.view` | `marketplace.buyer.manage` | `marketplace.buyer.security` | `affiliate.manage` | Chủ cửa hàng | Thu ngân | Người mua |
+|---|---|---|---|---|---|---|---|
+| Xem tham số chuyển đổi, thống kê (MAN_HINH_275) | Có | Có (cần cả quyền xem) | Không | Không | Không | Không | Không |
+| Sửa tham số chuyển đổi | Không | Có | Không | Không | Không | Không | Không |
+| Xem khối "Bảo mật đăng nhập" của người mua (MAN_HINH_80) | Có | — | Cần cả quyền xem | Không | Không | Không | Không |
+| Hủy Smart OTP của người mua | Không | Không | Có | Không | Không | Không | Tự hủy của mình |
+| Đặt lại xác thực cổng cho thu ngân | Không | Không | Không | Có (MAN_HINH_178) | Có, cửa hàng mình (MAN_HINH_177) | Không | Không |
+| Đặt lại xác thực cổng cho chủ cửa hàng | Không | Không | Không | Có (MAN_HINH_178) | Không | Không | Không |
+| Thiết lập bảo mật, quên mật khẩu cổng | Không | Không | Không | Không | Của mình | Của mình | Không |
+| Thiết bị đã đăng nhập, kích hoạt, chuyển Smart OTP | Không | Không | Không | Không | Không | Không | Của mình |
+
+## 61. Mua hàng tại cửa hàng, thanh toán trong ứng dụng VComm (MODULE_09, MODULE_11, MODULE_12, MODULE_14, MODULE_06, MODULE_16, CONG_VIEC_73)
+
+- Hai quyền mới của mini app Tài chính – Kế toán (`finance`), danh mục `apps/api/src/permissions/permission-catalog.ts`. Kế toán có `finance.instore.view`; Kế toán trưởng có cả hai; Quản trị tập đoàn, Quản trị công ty có sẵn.
+- Quyền dùng lại: `retail.sale` tạo, hủy đơn chờ ở quầy tập đoàn; `retail.shift.manage` ghi lại đơn "Đã thu, lỗi ghi sổ"; quyền cài đặt cửa hàng (MAN_HINH_166) bật nhận thanh toán qua ứng dụng, phí sàn; `affiliate.manage` cài thu hộ, ủy nhiệm hóa đơn, lập bù, phạm vi `instore.checkout` và webhook của khóa API; quyền hoàn tiền hiện có (MAN_HINH_98) ghi đã hoàn tiền cho đơn tại cửa hàng.
+- Vai trò cổng cửa hàng liên kết: thu ngân, chủ cửa hàng tạo, hủy đơn chờ (thu ngân tối đa ba đơn chờ); chỉ chủ cửa hàng hủy giao dịch đã thu hộ, xem bảng chuyển tiền (MAN_HINH_282), cài webhook của khóa (MAN_HINH_232).
+- Khóa API: phạm vi `instore.checkout` (gán thêm cho khóa `loyalty.member` của cửa hàng liên kết) gọi API_330; hủy đã thanh toán theo cùng quy tắc chủ cửa hàng.
+- Người mua: chỉ thấy, thanh toán đơn đã gắn với mình; mã thanh toán chỉ cấp cho thiết bị đang giữ Smart OTP.
+
+| Quyền | Mini app | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|---|
+| `finance.instore.view` | Tài chính – Kế toán (`finance`) | Công ty | Không | Kế toán, Kế toán trưởng, Quản trị tập đoàn, Quản trị công ty |
+| `finance.instore.manage` | Tài chính – Kế toán (`finance`) | Công ty | Có | Kế toán trưởng, Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | `finance.instore.view` | `finance.instore.manage` | `affiliate.manage` | Chủ cửa hàng | Thu ngân cửa hàng | Khóa API `instore.checkout` | Người mua |
+|---|---|---|---|---|---|---|---|
+| Xem biểu phí cổng, thuế suất phí, bảng chuyển tiền (MAN_HINH_280, 281) | Có | Có | Không | Không | Không | Không | Không |
+| Sửa biểu phí cổng, thuế suất phí; ghi đã chuyển; ghi sổ phiếu thu nháp | Không | Có | Không | Không | Không | Không | Không |
+| Cài thu hộ, ủy nhiệm hóa đơn, lập bù (MAN_HINH_279) | Không | Không | Có | Không | Không | Không | Không |
+| Webhook của khóa (MAN_HINH_231, 232) | Không | Không | Có | Có, khóa của cửa hàng mình | Không | Không | Không |
+| Tạo, hủy đơn chờ chưa thanh toán | Không | Không | Không | Có | Có | Có | Không |
+| Hủy giao dịch đã thu hộ, hoàn tiền | Không | Không | Không | Có | Không | Có | Không |
+| Bảng chuyển tiền của cửa hàng (MAN_HINH_282) | Không | Không | Không | Có | Không | Không | Không |
+| Thanh toán đơn, xem hóa đơn ủy nhiệm | Không | Không | Không | Không | Không | Không | Đơn của mình |

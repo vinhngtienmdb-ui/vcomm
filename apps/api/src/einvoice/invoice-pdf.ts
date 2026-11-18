@@ -40,6 +40,8 @@ export async function invoicePdf(invoice: ProviderInvoice, issued: { invoiceNo: 
       { text: `Đơn vị bán hàng: ${invoice.seller.name ?? ""}`, bold: true, margin: [0, 8, 0, 0] },
       { text: `Mã số thuế: ${invoice.seller.taxCode ?? ""}` },
       { text: `Địa chỉ: ${invoice.seller.address ?? ""}` },
+      // Hóa đơn lập theo ủy nhiệm (CONG_VIEC_73 lát L6): dòng "Hóa đơn lập theo ủy nhiệm số … ngày …".
+      ...(invoice.note && invoice.kind === "original" ? [{ text: invoice.note, italics: true }] : []),
       { text: `Người mua hàng: ${buyerName}`, bold: true, margin: [0, 8, 0, 0] },
       { text: `Mã số thuế: ${invoice.buyer.taxCode ?? ""}` },
       { text: `Địa chỉ: ${invoice.buyer.address ?? ""}`, margin: [0, 0, 0, 8] },

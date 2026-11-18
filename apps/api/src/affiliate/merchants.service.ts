@@ -23,6 +23,7 @@ import { AuditService } from "../common/audit.service";
 import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
+import { portalSetUpSql } from "./portal-set-up";
 import type { BuyerAdminActor } from "../marketplace/buyer-admin.service";
 
 type Executor = Pick<Database, "execute">;
@@ -59,6 +60,7 @@ type MemberRow = {
   status: "invited" | "active" | "locked";
   outlet_ids: string[] | null;
   invitation_expires_at: Date | null;
+  security_set_up: boolean | null;
   version: number;
 };
 
@@ -76,6 +78,7 @@ export const memberOf = (row: MemberRow): AffiliateMember => ({
   status: row.status,
   outletIds: row.outlet_ids ?? [],
   invitationExpiresAt: row.status === "invited" && row.invitation_expires_at ? new Date(row.invitation_expires_at).toISOString() : null,
+  securitySetUp: row.security_set_up,
   version: row.version,
 });
 export const termsOf = (row: MerchantRow) => ({
@@ -112,6 +115,7 @@ export async function outletsOf(executor: Executor, merchantId: string): Promise
 export async function membersOf(executor: Executor, merchantId: string): Promise<AffiliateMember[]> {
   const rows = await executor.execute<MemberRow>(sql`
     SELECT m.id, m.full_name, m.phone, m.role, m.status, m.invitation_expires_at, m.version,
+      CASE WHEN m.user_id IS NULL THEN NULL ELSE ${portalSetUpSql(sql`m.user_id`)} END AS security_set_up,
       (SELECT array_agg(mo.outlet_id ORDER BY mo.outlet_id) FROM affiliate.member_outlets mo WHERE mo.member_id = m.id) AS outlet_ids
     FROM affiliate.members m WHERE m.merchant_id = ${merchantId} ORDER BY m.role DESC, m.invited_at`);
   return rows.rows.map(memberOf);
@@ -152,6 +156,23 @@ export async function replaceMemberOutlets(executor: Executor, memberId: string,
   await executor.execute(sql`DELETE FROM affiliate.member_outlets WHERE member_id = ${memberId}`);
   await executor.execute(sql`
     INSERT INTO affiliate.member_outlets (member_id, outlet_id) SELECT ${memberId}::uuid, unnest(${pgArray(unique)}::uuid[])`);
+}
+
+// Kích hoạt ngay thành viên vừa mời khi số điện thoại đã xác minh bằng OTP ở nơi khác (thu ngân tự đăng ký iPOS được chủ duyệt; CONG_VIEC_74, QUYTAC_NGHIEPVU_605).
+export async function activateInvitedMember(executor: Executor, memberId: string, userId: string): Promise<void> {
+  const updated = await executor.execute(sql`
+    UPDATE affiliate.members SET user_id = ${userId}, status = 'active', activated_at = now(), invitation_expires_at = NULL, updated_at = now(), version = version + 1
+    WHERE id = ${memberId} AND status = 'invited'`);
+  if (!updated.rowCount) throw new ApiError("BUSINESS_RULE", "affiliateMemberStatusInvalid");
+}
+
+// Đặt mã điểm bán dùng trong số hóa đơn iPOS (CONG_VIEC_74, QUYTAC_NGHIEPVU_619): 2 đến 10 ký tự, duy nhất trong cửa hàng. Trả false khi trùng mã.
+export async function setOutletCode(executor: Executor, merchantId: string, outletId: string, code: string): Promise<boolean> {
+  const taken = await executor.execute(sql`SELECT 1 FROM affiliate.outlets WHERE merchant_id = ${merchantId} AND code = ${code} AND id <> ${outletId}`);
+  if (taken.rows.length > 0) return false;
+  const updated = await executor.execute(sql`UPDATE affiliate.outlets SET code = ${code}, updated_at = now() WHERE id = ${outletId} AND merchant_id = ${merchantId}`);
+  if (!updated.rowCount) throw new ApiError("NOT_FOUND", "notFound");
+  return true;
 }
 
 @Injectable()
@@ -344,6 +365,10 @@ export class AffiliateMerchantsService {
       await inviteMember(transaction, { merchantId, fullName: input.fullName, phone: input.phone, role: "owner", outletIds: [], invitedBy: actor.userId });
       await this.record(actor, "affiliate_member.invite_owner", merchantId, { fullName: input.fullName }, transaction);
     });
+    return membersOf(this.database, merchantId);
+  }
+
+  members(merchantId: string): Promise<AffiliateMember[]> {
     return membersOf(this.database, merchantId);
   }
 

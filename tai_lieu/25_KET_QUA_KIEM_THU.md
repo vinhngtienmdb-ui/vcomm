@@ -864,6 +864,18 @@
 - Tự rà soát mã và dọn dẹp: Đạt.
 - Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-18 – CONG_VIEC_76 lát L1
+
+- Phạm vi: tệp dựng ảnh, luồng `kiem-tra-anh.yml`, `deploy.sh`; chạy toàn bộ kiểm thử trên PostgreSQL 17.
+- Lệnh đã chạy: vitest `apps/api` trên mã `phat-hanh/v0.14.0` (f439c11d), postgres:17.12, redis:7; 145 database migration chạy bằng vai trò không phải SUPERUSER; tự kiểm `deploy.sh`.
+- Kết quả:
+  - KICHBAN_KIEMTHU_811: Đạt (177 tệp, 986/986).
+  - KICHBAN_KIEMTHU_810: phần dựng ảnh api, web và kiểm nội dung ảnh Đạt; phần quét lỗ hổng ảnh chưa làm (chờ người dùng duyệt công cụ quét).
+  - KICHBAN_KIEMTHU_817, 823: Đạt (lệnh dữ liệu mẫu bị từ chối ở môi trường thật; tag thiếu bản vá khẩn cấp thì dừng).
+  - KICHBAN_KIEMTHU_824: phần tệp lệnh Đạt (database migration bị từ chối khi chưa sao lưu); phần người duyệt GitHub chưa thử (chưa có môi trường GitHub).
+  - Các kịch bản còn lại chờ tạo tài nguyên.
+- Không có lỗi mới. Sẽ chạy lại trên 0.14.1.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
@@ -881,3 +893,4 @@
 | LOI_13 | Kiểm thử hồi quy LOI_12 trong `c59-ky-so-pdf.test.ts` không tất định (lặp tới 5000 lần chuẩn bị và ký PDF đến khi được 2 chữ ký kết thúc byte 0x00, thời điểm ký lấy theo giờ thật) nên đôi khi quá hạn 30 giây trên CI, làm CI các nhánh đỏ ngẫu nhiên (pull request #154). Mã nguồn sản phẩm chạy đúng | Thấp | KICHBAN_KIEMTHU_598 | Làm kiểm thử tất định, nhanh; xác nhận vẫn thất bại với mã lỗi cũ của LOI_12 | Đã sửa (pull request #155, chỉ sửa kiểm thử, hợp nhất vào main 2026-11-12) |
 | LOI_14 | Kiểm thử c57-station-orders, c57-station-delivery, c55-settlements lỗi khi lần chạy vượt qua 0 giờ giờ Việt Nam: dữ liệu dựng sẵn lấy "hôm nay" một lần rồi gửi phiếu điều chỉnh giá, giai đoạn điểm thưởng sau khi ngày đã đổi nên bị từ chối ngày hiệu lực đã qua (400). Làm CI đỏ ngẫu nhiên (pull request #165, phát hành 0.11.0). Mã nguồn sản phẩm chạy đúng | Thấp | Kiểm thử của CONG_VIEC_55, 57 | Người dùng chọn 2026-11-17: sửa ngay; kiểm thử không phụ thuộc thời điểm chạy, chỉ sửa kiểm thử; kèm bổ sung LOYALTY_PARTNER_SIMULATOR vào .env.example | Đã sửa (pull request #176, chỉ sửa cấu hình kiểm thử: chờ qua 0 giờ giờ Việt Nam trước mỗi tệp; kèm LOYALTY_PARTNER_SIMULATOR trong .env.example; hợp nhất vào main 2026-11-17, có trong v0.12.0) |
 | LOI_15 | Ứng dụng VComm, màn hình cửa hàng liên kết (`apps/mobile-vcomm/src/app/cua-hang-lien-ket.tsx`, CONG_VIEC_55): ba lời gọi xác nhận giao dịch, tạo mã hội viên, quét mã truyền `body: JSON.stringify(...)` thay vì `json:` nên không gắn content-type JSON; máy chủ nhận thân rỗng, báo "Dữ liệu không hợp lệ"; khách không dùng điểm được ở cửa hàng liên kết. Phát hiện 2026-11-17 bởi phiên CONG_VIEC_73, phiên điều phối kiểm tra lại trên main | Cao | Kịch bản của CONG_VIEC_55 trên ứng dụng | Sửa ngay (người dùng 2026-11-17): sửa ba lời gọi, thêm kiểm thử, rà các màn hình khác cùng kiểu lỗi, phát hành bản vá 0.13.1; chưa triển khai nên không theo luồng khẩn cấp | Đã sửa (pull request #196, commit `491a7a0`; người dùng nghiệm thu 2026-11-17; đã phát hành v0.13.1, pull request #198; chưa triển khai) |
+| LOI_16 | Lỗ hổng mức Cao GHSA-fc5q-39xc-vjpf (picomatch, ReDoS) mới công bố, chưa có bản vá, trong `@nestjs/cli` và `@expo/cli` (công cụ dựng, phát triển); bước "Quét bảo mật" của CI thất bại trên mọi pull request từ 2026-11-18 | Cao | Quét thư viện phụ thuộc (CI) | Người dùng chấp nhận rủi ro có thời hạn đến 2026-12-18 (tài liệu 22 mục 8): bỏ qua đúng mã này trong `pnpm audit`, có bản vá thì nâng và gỡ; phiên điều phối kiểm tra bản vá định kỳ | Chấp nhận rủi ro có thời hạn (pull request #208) |
