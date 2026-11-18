@@ -32,7 +32,10 @@ export type MarketplacePermission =
   | "loyalty.fraud.manage"
   // CONG_VIEC_65: đối tác liên minh điểm.
   | "loyalty.partner.view"
-  | "loyalty.partner.manage";
+  | "loyalty.partner.manage"
+  // CONG_VIEC_74: iPOS.
+  | "ipos.plan.manage"
+  | "ipos.subscription.manage";
 
 export interface BuyerAdminActor {
   userId: string;

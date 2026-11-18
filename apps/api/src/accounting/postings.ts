@@ -70,7 +70,10 @@ export type PostingRole =
   | "instore_fee_revenue"
   | "instore_payable_internal"
   | "instore_receivable_internal"
-  | "instore_refund_payable";
+  | "instore_refund_payable"
+  // CONG_VIEC_74: phí thuê bao iPOS.
+  | "ipos_fee_receivable"
+  | "ipos_fee_revenue";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -134,6 +137,8 @@ export const postingRoles: PostingRole[] = [
   "instore_payable_internal",
   "instore_receivable_internal",
   "instore_refund_payable",
+  "ipos_fee_receivable",
+  "ipos_fee_revenue",
 ];
 
 export interface DraftLine {
@@ -178,7 +183,10 @@ export interface DraftJournal {
     | "instore_payout_owner"
     | "instore_checkout_cancel"
     | "instore_refund_receipt"
-    | "instore_refund";
+    | "instore_refund"
+    | "ipos_fee_invoice"
+    | "ipos_fee_invoice_void"
+    | "ipos_fee_deduction";
   sourceId: string;
   journalNo: string;
   date: string;

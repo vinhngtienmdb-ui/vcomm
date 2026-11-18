@@ -4,7 +4,7 @@
 - Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-17
 - Trạng thái: Đang cập nhật
-- Thay đổi theo: CONG_VIEC_71 (2026-11-17): cập nhật trạng thái giai đoạn, module, mốc phát hành theo tài liệu `03`, `23`; bỏ quản lý sản xuất khỏi phạm vi theo THAY_DOI_30
+- Thay đổi theo: CONG_VIEC_71 (2026-11-17): cập nhật trạng thái giai đoạn, module, mốc phát hành theo tài liệu `03`, `23`; bỏ quản lý sản xuất khỏi phạm vi theo THAY_DOI_30; THAY_DOI_39 qua CONG_VIEC_74 (2026-11-17): thêm MODULE_17 iPOS, trạng thái CONG_VIEC_74 đợt 1
 
 ## 1. Mục tiêu dự án
 
@@ -28,7 +28,7 @@ Xây dựng VComm: hệ thống quản trị doanh nghiệp (ERP) tập trung ch
 | 06 Giao diện | 14, 15, bản mẫu | Đã phê duyệt cho phần của các công việc đã phát hành | 2026-11-09 (MODULE_01); các module khác theo từng công việc |
 | 07 Dữ liệu và API | 16, 17 | Đã phê duyệt cho phần của các công việc đã phát hành | 2026-11-09 (MODULE_01); các module khác theo từng công việc |
 | 08 Chuẩn bị môi trường AI | 18, 19 | Đã phê duyệt | 2026-11-09 |
-| 09 Xây dựng theo module | Mã nguồn | Đang thực hiện: đã xây các phần phát hành ở 0.1.0 đến 0.11.0; CONG_VIEC_63 chưa bắt đầu | |
+| 09 Xây dựng theo module | Mã nguồn | Đang thực hiện: đã xây các phần phát hành ở 0.1.0 đến 0.11.0; CONG_VIEC_63 chưa bắt đầu; CONG_VIEC_74 (MODULE_17 iPOS) đợt 1 đã lập trình lát L0 đến L7, chờ nghiệm thu | |
 | 10 Kiểm thử | 20, 21, 22, 25 | Đang thực hiện theo từng công việc (tài liệu `25`) | |
 | 11 Nghiệm thu và phát hành | 23 | Đang thực hiện: đã phát hành 0.1.0 đến 0.11.0 | |
 | 12 Triển khai | 26 | Chưa bắt đầu: chưa triển khai phiên bản nào; tài liệu `26` chưa lập | |
@@ -56,6 +56,7 @@ Giai đoạn 03 đến 07 làm cho từng module, từng công việc trước k
 | MODULE_14 | Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy, trạm giao hàng O2O, kế hoạch mua theo ngân sách | 11 | Đã phát hành một phần: v0.5.0, v0.6.0 (CONG_VIEC_53), v0.6.0 (CONG_VIEC_57, 58); chưa triển khai |
 | MODULE_15 | Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn | 12 | Đã phát hành một phần: v0.4.0 (CONG_VIEC_50); chưa triển khai |
 | MODULE_16 | Mở rộng kinh doanh | Dropship, Open API, trợ lý AI (quản lý sản xuất đã bỏ theo THAY_DOI_30) | 12 | Đã phát hành một phần: v0.7.0 (CONG_VIEC_61), v0.9.0 (CONG_VIEC_66), v0.11.0 (CONG_VIEC_62); trợ lý AI (CONG_VIEC_63) chưa bắt đầu; CONG_VIEC_64 đã hủy; chưa triển khai |
+| MODULE_17 | iPOS | Ứng dụng bán hàng thuê bao cho cửa hàng liên kết: gói, thuê bao theo điểm bán, thu phí, bán tại quầy, ca, tồn kho đơn giản, báo cáo, đối soát trong ERP (THAY_DOI_39) | 13 | Đang thực hiện: CONG_VIEC_74 đợt 1 đã lập trình xong lát L0 đến L7, chờ nghiệm thu (in thật trên Sunmi T2, máy in Bluetooth, máy in mạng LAN, ngắt mạng thử trên máy thật khi nghiệm thu); đợt 2 (khuyến mãi, nhà cung cấp, bán nợ, bàn và món, màn hình phụ, tên miền riêng) chưa cấp mã; chưa phát hành |
 
 "Đã phát hành một phần": đã phát hành các công việc nêu (tài liệu `03`, `23`). Mức hoàn thành so với toàn bộ chức năng của module ở tài liệu `05` chưa đối chiếu từng chức năng: **CHƯA XÁC ĐỊNH**.
 

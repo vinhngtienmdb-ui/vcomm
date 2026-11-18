@@ -37,6 +37,11 @@ export const crmMenu = [
   { href: "/affiliate/merchants", key: "affiliateMerchants", permission: "affiliate.view" },
   { href: "/affiliate/vouchers", key: "affiliateVouchers", permission: "affiliate.view" },
   { href: "/affiliate/settlements", key: "affiliateSettlements", permission: "affiliate.view" },
+  // CONG_VIEC_74: iPOS (MAN_HINH_303, 304).
+  { href: "/ipos/plans", key: "iposPlans", permission: "affiliate.view" },
+  { href: "/ipos/subscriptions", key: "iposSubscriptions", permission: "affiliate.view" },
+  { href: "/ipos/fees", key: "iposFees", permission: "affiliate.view" },
+  { href: "/ipos/reconciliation", key: "iposReconciliation", permission: "affiliate.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

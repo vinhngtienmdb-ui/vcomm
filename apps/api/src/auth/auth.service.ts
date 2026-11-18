@@ -215,6 +215,25 @@ export class AuthService {
     });
   }
 
+  // Cấp phiên cho ứng dụng đã tự xác minh người dùng bằng thiết bị đã ghép và mã OTP hoặc mã PIN (iPOS, CONG_VIEC_74; QUYTAC_NGHIEPVU_607).
+  // Chạy trong giao dịch của bên gọi để gắn chuỗi phiên với thiết bị; trả kèm `familyId`.
+  async issueTrustedSession(
+    executor: Pick<Database, "insert">,
+    userId: string,
+    client: ClientInfo,
+    clientType: SessionClientType,
+    provider: IdentityProvider | "ipos_pin" | "ipos_smart_otp",
+  ): Promise<IssuedSession & { familyId: string }> {
+    const now = client.now ?? new Date();
+    const familyId = randomUUID();
+    const issued = await this.issueSession(executor, userId, familyId, client, now, true, clientType);
+    await this.audit.record(
+      { actorUserId: userId, appCode: "platform", action: "login", entityType: "core.users", entityId: userId, afterData: { provider, clientType }, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
+      executor,
+    );
+    return { ...issued, familyId };
+  }
+
   private async issueSession(
     executor: Pick<Database, "insert">,
     userId: string,

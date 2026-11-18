@@ -794,6 +794,8 @@ Người phỏng vấn, người chấm, nhân viên xem phiếu của mình kh�
 |---|---|---|
 | `affiliate.view` | Xem cửa hàng liên kết, giao dịch, voucher, đối soát, báo cáo, cảnh báo | Quản trị tập đoàn, Quản trị công ty |
 | `affiliate.manage` (nhạy cảm) | Tạo, sửa hợp đồng, điểm bán; mời, khóa chủ cửa hàng; tạm ngưng, chấm dứt; tạo, gửi duyệt voucher công ty; trả lời khiếu nại đối soát | Quản trị tập đoàn, Quản trị công ty |
+| `ipos.plan.manage` | Khai báo, sửa, ngừng bán gói iPOS (CONG_VIEC_74, QUYTAC_NGHIEPVU_594) | Quản trị tập đoàn, Quản trị công ty |
+| `ipos.subscription.manage` (nhạy cảm) | Cấp, sửa, gia hạn, khóa, mở khóa, hủy thuê bao iPOS; chọn cách thu phí; hủy phiếu phí (CONG_VIEC_74, QUYTAC_NGHIEPVU_595 đến 603) | Quản trị tập đoàn, Quản trị công ty |
 
 ## 49. Cộng đồng: cộng tác viên, mua chung, ví mua sắm, bảng tin (MODULE_10 phần 1, CONG_VIEC_49)
 

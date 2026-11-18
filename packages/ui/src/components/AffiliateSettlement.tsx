@@ -62,9 +62,10 @@ export function SettlementBreakdown({ settlement }: { settlement: AffiliateSettl
         {line(t("lineD", { percent: formatNumber(settlement.feePercent, 2) }), settlement.feeAmount)}
         {settlement.smsCount > 0 && line(t("lineF", { count: settlement.smsCount }), settlement.smsFeeAmount)}
         {line(t("lineE", { percent: formatNumber(settlement.feeTaxRate, 2) }), settlement.feeTaxAmount)}
+        {Number(settlement.iposFeeAmount) > 0 && line(t("lineG"), settlement.iposFeeAmount)}
         {adjustment !== 0 && line(t("lineAdjustment"), String(Math.abs(adjustment)), adjustment < 0 ? "−" : "")}
         <div className="dong-tien" style={{ fontWeight: 800, borderTop: "1px solid var(--mau-vien)", paddingTop: "var(--khoang-1)" }}>
-          <span>{t(adjustment !== 0 ? "lineNetAdjusted" : "lineNet")}</span>
+          <span>{t(`${adjustment !== 0 ? "lineNetAdjusted" : "lineNet"}${Number(settlement.iposFeeAmount) > 0 ? "WithG" : ""}`)}</span>
           <span>
             <SettlementNet settlement={settlement} />
           </span>
