@@ -1,10 +1,10 @@
 # CONG_VIEC_76: Hạ tầng AWS, môi trường thử nghiệm, môi trường thật và quy trình triển khai
 
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
-- Phiên bản: 0.2
+- Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-18
-- Trạng thái: Bản nháp. Người dùng trả lời ngày 2026-11-18: triển khai trước trên Supabase và Cloudflare, AWS để sau (mục 20). Chờ người dùng quyết định các câu hỏi ở mục 20.12. Chưa viết mã, chưa tạo tài nguyên.
-- Thay đổi so với 0.1: thêm mục 20 (phương án Supabase + Cloudflare). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
+- Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare và mọi đề xuất kỹ thuật ngày 2026-11-18 (mục 21); phiếu THAY_DOI_40 (mục 22). Chưa tạo tài nguyên.
+- Thay đổi so với 0.2: ghi quyết định (mục 21), nội dung THAY_DOI_40 (mục 22), tiêu chí nghiệm thu và kịch bản chờ cấp mã (mục 23), kết quả lát L1 (mục 24). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
 - Nhánh: `chuc-nang/CONG_VIEC_76-ha-tang-aws`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-18 (tự kiểm trên môi trường thật, làm đúng kiến trúc đã duyệt); tài liệu `12` mục 1 điểm 9, mục 4, mục 5; tài liệu `13` mục 1, mục 5; tài liệu `22` mục 5; tài liệu `23`.
@@ -454,7 +454,7 @@ Giá tra ngày 2026-11-18 từ trang giá và bài tổng hợp, chưa kiểm tr
 | Tạo tổ chức, tài khoản, thanh toán Supabase, Railway, Cloudflare | Làm | | |
 | Chuyển máy chủ tên miền (NS) sang Cloudflare | Làm ở nơi mua tên miền | | Soạn hướng dẫn |
 | Tạo dự án Supabase `vcomm-staging` (Singapore, Pro), tắt Data API | Duyệt | Làm sau khi người dùng duyệt (hoặc người dùng tự làm) | Soạn cấu hình cần chọn |
-| Tạo dự án, dịch vụ, volume Railway; tên miền riêng | Duyệt | Làm, hoặc phiên CONG_VIEC_76 làm qua token Railway | Soạn cấu hình (`infra/railway/*.json`) |
+| Tạo dự án, dịch vụ, volume Railway; tên miền riêng; thông tin đăng nhập kho ảnh | Duyệt | Làm, hoặc phiên CONG_VIEC_76 làm qua token Railway | Soạn cấu hình (tài liệu `26` mục 1.2) |
 | Bản ghi DNS, dự án Pages trên Cloudflare | Duyệt | Làm | Soạn danh sách bản ghi |
 | Nhập khóa bí mật dịch vụ ngoài (VNPAY thử nghiệm) | Tự nhập ở Railway; không dán vào trò chuyện | | |
 | Tạo môi trường GitHub `staging`, `production`, người duyệt; thêm token vào biến bí mật môi trường | Làm | | Soạn danh sách token và phạm vi quyền |
@@ -483,3 +483,57 @@ Công việc riêng đề xuất: (a) gửi email thật; (b) lưu tệp qua d�
 | 6 | Kho ảnh container | GitHub Container Registry riêng tư (không thêm tài khoản) | Railway tự build từ kho GitHub theo tag (không cần kho ảnh, nhưng build lại mỗi môi trường) |
 | 7 | Sao lưu trước triển khai lưu ở đâu | Bucket R2 riêng tư, mã hóa bằng khóa `age` của người dùng | Bucket Supabase Storage riêng tư |
 | 8 | Môi trường thật | Railway Pro, Supabase Small + PITR 7 ngày, Cloudflare Free; Cloudflare Pro khi mở cho người dùng ngoài | Không PITR (chỉ sao lưu hằng ngày 7 ngày) |
+
+## 21. Quyết định của người dùng (2026-11-18, lần 2)
+
+1. Triển khai đợt đầu trên Supabase + Railway + Cloudflare; AWS để sau. Phiếu THAY_DOI_40.
+2. Môi trường thật: sao lưu hằng ngày giữ 7 ngày và bật PITR 7 ngày (~240 USD/tháng); chấp nhận giảm thời gian giữ sao lưu từ 35 xuống 7 ngày ở đợt này.
+3. Dùng tên miền riêng ngay, chuyển DNS sang Cloudflare. **CHƯA XÁC ĐỊNH:** tên miền.
+4. Duyệt mọi đề xuất kỹ thuật còn lại ở mục 20.12: Railway vùng Singapore cho API, tác vụ nền, mini app; Redis của Railway; thử nghiệm lưu tệp trên volume Railway, thật dùng Supabase Storage sau công việc sửa mã nhỏ; Supabase Pro cho thử nghiệm; kho ảnh GitHub Container Registry riêng tư; sao lưu trước triển khai lên R2, mã hóa bằng age.
+
+## 22. Phiếu THAY_DOI_40 (nội dung gửi phiên điều phối ghi tài liệu `24`)
+
+- Tiêu đề: Đổi nền tảng triển khai đợt đầu từ AWS sang Supabase, Railway, Cloudflare; AWS để sau.
+- Người yêu cầu, ngày: người dùng, 2026-11-18 (trả lời đặc tả CONG_VIEC_76).
+- Nội dung: tài liệu `12` mục 2 điểm 9, mục 4, mục 5, mục 6 (thư mục `infra/`); tài liệu `13` mục 1 (cơ sở dữ liệu, Redis, lưu tệp, chạy ứng dụng, hạ tầng bằng mã, bí mật hệ thống, giám sát); tài liệu `22` mục 5 (nơi lưu khóa, token mới); tài liệu `18` mục 6 (thư mục `infra/`, tệp `.dockerignore`); lập tài liệu `26`.
+- Lý do: người dùng muốn tự kiểm sớm, chi phí thấp (thử nghiệm ~51 so với ~110 USD/tháng).
+- Ảnh hưởng: không đổi nghiệp vụ, API, dữ liệu, giao diện. Mã ứng dụng: lưu tệp qua dịch vụ S3 khác AWS cần sửa nhỏ trước môi trường thật (công việc riêng). Rủi ro: ba nhà cung cấp; Redis không có bản dự phòng; dữ liệu ở Singapore (điểm chặn tài liệu `12` mục 7 không đổi); thời gian giữ sao lưu giảm còn 7 ngày (người dùng chấp nhận).
+- Kiểm thử cần: database migration và toàn bộ kiểm thử tự động trên PostgreSQL 17; kiểm tra sau triển khai theo tài liệu `26`.
+- Mức: Lớn. Trạng thái: Đã phê duyệt (người dùng, 2026-11-18).
+
+## 23. Tiêu chí nghiệm thu và kịch bản kiểm thử (chờ phiên điều phối cấp mã)
+
+| Số tạm | Tiêu chí | Mức | Kịch bản |
+|---|---|---|---|
+| T1 | Hai ảnh build được từ tag; không chứa `.env`, khóa bí mật, mã nguồn kiểm thử; quét ảnh không còn lỗ hổng Nghiêm trọng, Cao chưa xử lý | Bắt buộc | Build bằng luồng "Kiểm tra ảnh container", kiểm nội dung ảnh |
+| T2 | Toàn bộ database migration và kiểm thử tự động đạt trên PostgreSQL 17 | Bắt buộc | Chạy `vitest` với `postgres:17` |
+| T3 | Thử nghiệm: HTTPS đúng tên miền, đăng nhập tài khoản thử, mở 11 mini app | Bắt buộc | Người dùng thử trên trình duyệt |
+| T4 | Bản web ứng dụng VComm, kho, iPOS gọi được API thử nghiệm; APK Android cài và đăng nhập được | Bắt buộc | Người dùng thử |
+| T5 | Tệp đính kèm tải lên, tải xuống được, còn sau khi khởi động lại dịch vụ `api` | Bắt buộc | Tải tệp, khởi động lại, tải xuống |
+| T6 | Tác vụ nền chạy theo lịch | Bắt buộc | Log có lượt chạy theo lịch |
+| T7 | Luồng triển khai chạy đủ bước; có bản sao lưu mã hóa trước triển khai; migration chạy lại không còn tệp mới | Bắt buộc | Đúng: chạy luồng; sai: migration lỗi thì dừng, bản cũ vẫn chạy |
+| T8 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối ở môi trường thật; môi trường `production` cần người duyệt; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | Ba kịch bản sai |
+| T9 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | Đúng: quay lui, phục hồi; sai: phiên bản không có ảnh thì dừng trước khi đổi |
+| T10 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu | Bắt buộc | Đúng: rà cấu hình; sai: gọi Data API, nối Redis từ ngoài bị từ chối |
+| T11 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | Rà tài liệu |
+| T12 | Môi trường thật: đạt T3 đến T10, `api`, `web` 2 bản, PITR bật | Bắt buộc | Lát L3 |
+
+Tổng 17 kịch bản (12 đúng, 5 sai). Xin 12 mã TIEUCHI_NGHIEMTHU, 17 mã KICHBAN_KIEMTHU.
+
+## 24. Lát L1 – kết quả (2026-11-18)
+
+Đã làm (không tạo tài nguyên):
+- `infra/docker/api.Dockerfile`: build `api` và gói phụ thuộc, cài lại chỉ thư viện chạy, bỏ mã nguồn, kiểm thử; giữ `apps/api/dist`, `database/migrations`; chạy bằng người dùng `node`.
+- `infra/docker/web.Dockerfile`, `infra/docker/start-web.mjs`: build 12 mini app với `API_ORIGIN=http://api.railway.internal:4000`, một tiến trình khởi động 12 `next start` (Nền tảng nghe `PORT`, mini app khác nghe localhost đúng cổng mặc định); một mini app dừng thì dừng container.
+- `.dockerignore` (không đưa `.env`, `.git`, tài liệu, thư mục build vào ảnh).
+- `infra/scripts/deploy.sh`: các bước `check-tag`, `build`, `record`, `backup`, `migrate`, `seed`, `release`, `verify`, `rollback` (tài liệu `26` mục 2); `infra/emergency-patches.txt`.
+- `.github/workflows/trien-khai.yml` (chạy tay từ `main`, môi trường GitHub `staging`/`production`), `.github/workflows/kiem-tra-anh.yml` (build thử hai ảnh khi đổi Dockerfile).
+- Tài liệu `26` bản nháp; cập nhật tài liệu `12`, `13`, `18`, `22`, `index` theo THAY_DOI_40.
+
+Kiểm tra:
+- Tự kiểm tệp lệnh: `check-tag` đạt với `v0.13.1`; dừng khi tag thiếu bản vá khẩn cấp, khi tag không tồn tại; `seed` bị từ chối ở `production`; môi trường không hợp lệ bị từ chối.
+- Build ảnh trên máy phiên: không làm được (proxy mạng của phiên dùng chứng chỉ riêng, không được phép chèn vào ảnh). Build kiểm bằng luồng `kiem-tra-anh.yml` trên GitHub Actions.
+- Build `api` và gói phụ thuộc bằng `pnpm` trên mã `phat-hanh/v0.14.0`: đạt.
+- Kiểm thử trên PostgreSQL 17: xem mục 24.1.
+
+Chưa làm, chờ tài nguyên hoặc lát L2: chạy thật các bước `record`, `backup`, `migrate`, `release`, `verify` (cần tài khoản, token); bản web di động lên Cloudflare Pages; `eas.json`, APK; quét lỗ hổng ảnh (đề xuất thêm hành động `aquasecurity/trivy-action`, giấy phép Apache 2.0, chờ người dùng duyệt).

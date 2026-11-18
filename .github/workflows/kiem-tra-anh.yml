@@ -1,0 +1,46 @@
+# Build thử hai ảnh container khi đổi Dockerfile hoặc tệp khởi động (CONG_VIEC_76). Không đẩy ảnh, không cần khóa bí mật.
+name: Kiểm tra ảnh container
+
+on:
+  pull_request:
+    paths:
+      - "infra/docker/**"
+      - ".dockerignore"
+      - ".github/workflows/kiem-tra-anh.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kiem-tra-anh-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ảnh ${{ matrix.anh }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        anh: [api, web]
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build ảnh
+        run: docker build -f infra/docker/${{ matrix.anh }}.Dockerfile -t vcomm-${{ matrix.anh }}:kiem-tra .
+
+      # Ảnh không được chứa tệp môi trường, mã nguồn kiểm thử.
+      - name: Kiểm nội dung ảnh
+        run: |
+          found=$(docker run --rm --entrypoint sh vcomm-${{ matrix.anh }}:kiem-tra -c 'find /app \( -name node_modules -o -name .next \) -prune -o \( -name ".env" -o -name ".env.local" -o -name ".env.production" -o -path /app/apps/api/src -o -path /app/apps/api/test \) -print')
+          if [ -n "$found" ]; then echo "Ảnh chứa tệp không được phép:"; echo "$found"; exit 1; fi
+          echo "Đạt"
+
+      - name: Kiểm khởi động (api)
+        if: matrix.anh == 'api'
+        run: docker run --rm vcomm-api:kiem-tra node -e "require('/app/apps/api/dist/database/run-migrations.js'); console.log('nạp mô-đun đạt')"

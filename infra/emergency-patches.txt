@@ -1,0 +1,2 @@
+# Tag bản vá khẩn cấp đã triển khai lên môi trường thật, mỗi dòng một tag (skill mục 8, tài liệu 26).
+# Bước check-tag của infra/scripts/deploy.sh dừng nếu tag cần triển khai không chứa các tag này.
