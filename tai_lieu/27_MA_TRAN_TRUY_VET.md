@@ -981,3 +981,13 @@ Gửi email thật qua SMTP cho các chức năng đã có (không thêm chức 
 | CHUC_NANG_04 (thư kích hoạt), CHUC_NANG_06 (đặt lại mật khẩu), các thư nhân sự, phiếu lương, ký số | TIEUCHI_NGHIEMTHU_602 đến 608; KICHBAN_KIEMTHU_827 đến 833 | `apps/api/src/common/outbound-messages.ts`, `apps/api/src/app.module.ts`, `apps/api/src/auth/password.service.ts` | `apps/api/test/c77-email-smtp.test.ts` |
 
 Toàn bộ CONG_VIEC_77: TIEUCHI_NGHIEMTHU_602 đến 608, KICHBAN_KIEMTHU_827 đến 833 đều có mã nguồn và kiểm thử tự động; không có mã nguồn không truy được về yêu cầu.
+
+## Kiểm tra bao phủ CONG_VIEC_78 – 2026-11-18
+
+Lệnh khởi tạo một lần dùng lại cơ chế kích hoạt của CHUC_NANG_04 (người dùng chọn phương án đường dẫn kích hoạt thay mật khẩu tạm ngày 2026-11-18). Mức Nhỏ: kết quả mong đợi ở tài liệu `03`; TIEUCHI_NGHIEMTHU_609 đến 613, KICHBAN_KIEMTHU_834 đến 838.
+
+| Chức năng | Màn hình | Mã nguồn | Kiểm thử tự động |
+|---|---|---|---|
+| CHUC_NANG_01 (tập đoàn gốc), CHUC_NANG_04 (kích hoạt bằng đường dẫn một lần); TIEUCHI_NGHIEMTHU_609 đến 613; KICHBAN_KIEMTHU_834 đến 838 | MAN_HINH_03 (không đổi) | `apps/api/src/database/bootstrap.ts`, `apps/api/src/users/invitations.service.ts` (`issueActivationToken` dùng chung) | `apps/api/test/c78-lenh-khoi-tao.test.ts`; hồi quy `apps/api/test/l4-invitations.test.ts` |
+
+Toàn bộ CONG_VIEC_78: TIEUCHI_NGHIEMTHU_609 đến 613, KICHBAN_KIEMTHU_834 đến 838 đều có mã nguồn và kiểm thử tự động.
