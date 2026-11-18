@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AffiliateSettlementsService } from "../src/affiliate/settlements.service";
 import { generateApiKey } from "../src/open-api/api-key-secret";
 import { operator, prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
-import { createTestUser, signIn } from "./helpers";
+import { createTestUser, signIn, waitForApiCallLogs } from "./helpers";
 import type { BuyerCall } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
 
@@ -296,7 +296,8 @@ describe("TIEUCHI_NGHIEMTHU_512: giao dịch API trên báo cáo, danh sách, nh
     expect(listed.body.data.every((item: { source: string; status: string }) => item.source === "open_api" && item.status === "completed")).toBe(true);
 
     // Nhật ký gọi ghi sau khi trả kết quả.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await waitForApiCallLogs(pool, "api_key_id = $1", [keyId], 6);
+    await waitForApiCallLogs(pool, "api_key_id = $1 AND path LIKE '/api/v1/open/affiliate/transactions%'", [keyId]);
     const logs = await fixture.call("get", `/platform/api-call-logs?apiKeyId=${keyId}&pageSize=100`);
     expect(logs.status).toBe(200);
     expect(logs.body.data.length).toBeGreaterThan(5);

@@ -6,7 +6,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { allowManualGoodsOrders, createTestUser, signIn, type Session } from "./helpers";
+import { allowManualGoodsOrders, createTestUser, signIn, waitForApiCallLogs, type Session } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -369,8 +369,10 @@ describe("TIEUCHI_NGHIEMTHU_501: nhật ký thao tác, nhật ký gọi", () => 
     const text = audit.rows.map((row) => row.data).join(" ");
     expect(text).not.toContain("001090000666");
     expect(text).toContain('"keyPrefix"');
+    const searchedPath = "/api/v1/open/customers?pageSize=5";
+    const before = (await pool.query<{ total: number }>("SELECT count(*)::int AS total FROM core.api_call_logs WHERE path = $1", [searchedPath])).rows[0]!.total;
     await send("get", "/customers?pageSize=5&q=Nguyen%20Thi%20Lan", dealerKey);
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await waitForApiCallLogs(pool, "path = $1", [searchedPath], before + 1);
     const paths = (await pool.query<{ path: string }>("SELECT path FROM core.api_call_logs WHERE path LIKE '/api/v1/open/customers%'")).rows.map((row) => row.path).join(" ");
     expect(paths).toContain("/api/v1/open/customers?pageSize=5");
     expect(paths).not.toContain("Nguyen");

@@ -10,6 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AffiliateSettlementsService } from "../src/affiliate/settlements.service";
 import { operator, prepareAffiliate, type AffiliateFixture } from "./c55-fixture";
 import type { BuyerCall } from "./marketplace-fixture";
+import { waitForApiCallLogs } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -155,8 +156,8 @@ describe("TIEUCHI_NGHIEMTHU_510: mã OTP qua Open API", () => {
     const connection = (await fixture.owner.call("get", "/merchant-portal/api-keys")).body;
     expect(connection).toMatchObject({ smsToday: 7, smsWeek: 7, smsFeeWeek: "5600" });
 
-    // Nhật ký gọi không chứa mã OTP, số điện thoại.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Nhật ký gọi không chứa mã OTP, số điện thoại. Chờ dòng của hai lần gọi bị từ chối 429 cuối ca.
+    await waitForApiCallLogs(pool, "path LIKE '/api/v1/open/affiliate/otp%' AND status_code = 429", [], 2);
     const logs = JSON.stringify((await pool.query("SELECT path FROM core.api_call_logs WHERE path LIKE '/api/v1/open/affiliate%'")).rows);
     expect(logs).not.toContain("246810");
     expect(logs).not.toContain("938680");
