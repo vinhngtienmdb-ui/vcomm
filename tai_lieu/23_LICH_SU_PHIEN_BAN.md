@@ -2,8 +2,30 @@
 
 - Mô tả: Các phiên bản đã phát hành, nội dung và phương án quay lui riêng của từng phiên bản.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-18
+- Ngày cập nhật: 2026-11-23
 - Trạng thái: Đang cập nhật
+
+## Phiên bản 0.14.2 – 2026-11-23 – Chờ phát hành
+
+- Chức năng mới:
+  - Hạ tầng môi trường thật trên máy ảo miễn phí (CONG_VIEC_76 đợt 2, THAY_DOI_42): tệp Docker Compose `infra/compose/compose.production.yml` (dịch vụ `api`, `worker`, `web`, `redis`, `cloudflared`; không mở cổng nào ra ngoài, vào qua đường hầm Cloudflare) và `env.production.example` không chứa bí mật; ảnh `api`, `web` dựng cho `linux/arm64` (máy ảo Oracle Ampere A1); `infra/scripts/deploy.sh` viết lại để triển khai qua SSH (qua Cloudflare Access): kiểm tag, dựng ảnh, ghi phiên bản đang chạy, sao lưu cơ sở dữ liệu mã hóa `age` lên R2 (bắt buộc trước migration), migration, đổi ảnh có kiểm tra sống và tự về bản trước khi lỗi, quay lui; luồng `trien-khai.yml` chạy trên máy chạy arm; luồng mới `sao-luu-hang-ngay.yml` (giữ 30 bản, chỉ chạy khi bật biến kho `SAO_LUU_HANG_NGAY`); tệp lệnh dựng máy ảo `infra/vm/cai-dat-may-ao.sh`. Bỏ Railway. Tài liệu `26` viết lại; sửa `11`, `12`, `13`, `21`, `22`. Chưa tạo tài nguyên, chưa triển khai.
+- Sửa lỗi:
+  - LOI_18 (mức Thấp): trang trả lời đề nghị nhận việc so hạn liên kết bằng giờ cơ sở dữ liệu thay vì đồng hồ ứng dụng, làm KICHBAN_KIEMTHU_527, 528 thất bại từ 2026-11-21; sửa `job-offers.service.ts` (pull request #225, đã có trong `main`).
+- Ghép giữa các công việc (hợp nhất, không rebase): nhánh phát hành tạo từ `main` `a4c17974` (sau pull request #223, đã gồm LOI_18), hợp nhất `chuc-nang/CONG_VIEC_76-ha-tang-aws` (`32ebca48`, pull request #224). Không có xung đột.
+- Thay đổi dữ liệu: không có database migration.
+- Thay đổi API: không có.
+- Quyền mới: không có.
+- Thư viện mới: không có. Ảnh dựng sẵn ghim theo phiên bản và mã băm: `cloudflare/cloudflared:2026.10.2`, `redis:7.4.11-alpine`.
+- Biến môi trường mới: không có biến ứng dụng mới; biến của tệp Compose (`VCOMM_VERSION`, `VCOMM_IMAGE_REPOSITORY`, `CLOUDFLARE_TUNNEL_TOKEN`) và biến, bí mật của môi trường GitHub `production`, `production-sao-luu` ở tài liệu `26` mục 1.3, 1.4.
+- Tác vụ nền mới: không có (sao lưu hằng ngày chạy trên GitHub Actions, không chạy trong ứng dụng).
+- Điều kiện trước khi triển khai: người dùng làm danh sách việc ở đặc tả CONG_VIEC_76 mục 28.3 (máy ảo Oracle, Cloudflare, Supabase, R2, môi trường GitHub) và các điều kiện còn mở của 0.14.1, 0.14.0; chạy KICHBAN_KIEMTHU_812 đến 814, 816, 818, 819, 821, 824, 826 trên tài nguyên thật.
+- Rủi ro: gói miễn phí (Oracle có thể thu hồi máy ảo nhàn rỗi, Supabase không sao lưu tự động, dừng sau 7 ngày không dùng); một máy ảo duy nhất; ghi ở tài liệu `26` mục 1.2, tài liệu `22`.
+- Khả năng tương thích: mã ứng dụng chỉ đổi địa chỉ API lúc dựng ảnh `web` (`http://api:4000`) và bản sửa LOI_18. Máy phát triển không ảnh hưởng.
+- Công việc gộp trong phiên bản: CONG_VIEC_76 đợt 2 (pull request #224), LOI_18 (pull request #225). Người dùng nghiệm thu ngày 2026-11-23.
+- Kiểm thử trên nhánh phát hành: `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; `mobile-warehouse` 5/5 đạt; kiểm thử API toàn bộ (PostgreSQL 16 cục bộ, `max_locks_per_transaction` 512) 180 tệp, 1011/1011 đạt; `pnpm audit --prod --audit-level high` giống `main` (1 thấp, 5 trung bình, không có mức cao); gitleaks 8.30.1 trên các commit mới của nhánh không có phát hiện. Dựng ảnh amd64, arm64, quét Trivy, chạy thử Docker Compose ở CI (`kiem-tra-anh.yml`).
+- Tag: chờ gắn tự động sau khi hợp nhất và CI trên `main` đạt.
+- Triển khai: chưa triển khai.
+- Phương án quay lui riêng của phiên bản: triển khai lại ảnh `api`, `web` của 0.14.1. Bản 0.14.2 chưa từng triển khai nên không có dữ liệu cần quay lui; không có database migration.
 
 ## Phiên bản 0.14.1 – 2026-11-18 – Đã phát hành
 

@@ -6291,14 +6291,14 @@ KICHBAN_KIEMTHU_806 đến 809 dự phòng cho đợt 2, chưa dùng. Hồi quy:
 | KICHBAN_KIEMTHU_816 | 596 | Chạy luồng "Triển khai": bước sao lưu luôn chạy, có tệp `.dump.age` trên R2 trước bước migration; chạy lại cùng phiên bản: migration báo không có tệp mới | Thủ công |
 | KICHBAN_KIEMTHU_817 | 597 | `deploy.sh seed` với `DEPLOY_ENVIRONMENT=production` dừng "không nạp dữ liệu thử trên môi trường thật" | Tự động (tệp lệnh) |
 | KICHBAN_KIEMTHU_818 | 598 | Luồng "Triển khai" hành động `quay-lui` về phiên bản trước: dịch vụ chạy ảnh cũ, kiểm tra sau triển khai đạt; giải mã bản sao lưu bằng khóa riêng, `pg_restore` vào cơ sở dữ liệu tạm (không phải cơ sở dữ liệu thật) đạt | Thủ công |
-| KICHBAN_KIEMTHU_819 | 599 | Rà cấu hình: Data API Supabase tắt; dịch vụ `redis` không có tên miền công khai; quét khóa bí mật trên commit; log không có mật khẩu, token; token chỉ có phạm vi ghi trong tài liệu `22` mục 5; cookie phiên có cờ Secure | Thủ công |
+| KICHBAN_KIEMTHU_819 | 599 | Rà cấu hình: `ufw status` chặn mọi cổng vào, danh sách bảo mật Oracle không có quy tắc vào; SSH chỉ qua `ssh.vcomm.vn` (Cloudflare Access); Data API Supabase tắt; `/opt/vcomm/.env` quyền 600; quét khóa bí mật trên commit; log không có mật khẩu, token; token chỉ có phạm vi ghi trong tài liệu `22` mục 5; cookie phiên có cờ Secure | Thủ công |
 | KICHBAN_KIEMTHU_820 | 600 | Rà tài liệu `26`: đủ môi trường, các bước, quay lui, biên bản lần triển khai | Thủ công |
-| KICHBAN_KIEMTHU_821 | 601 | Rà cấu hình Railway, Supabase: `NODE_ENV=production`, `LOYALTY_PARTNER_SIMULATOR` trống, `api`, `web` 2 bản, `worker` 1 bản `BACKGROUND_JOBS=enabled`, `api` `disabled`, compute Small, PITR 7 ngày bật | Thủ công |
-| KICHBAN_KIEMTHU_822 | 596 | Sai: migration lỗi (cơ sở dữ liệu tạm trên máy phiên, tệp migration thử có câu lệnh sai): bước migration dừng, tệp lỗi không ghi vào `schema_migrations`, luồng không sang bước đổi ảnh; không thử trên cơ sở dữ liệu thật | Thủ công |
+| KICHBAN_KIEMTHU_821 | 601 | Rà cấu hình máy ảo: `docker compose ps` một bản mỗi dịch vụ, đều healthy; `NODE_ENV=production`, `LOYALTY_PARTNER_SIMULATOR` trống; `worker` `BACKGROUND_JOBS=enabled`, `api` `disabled`; luồng "Sao lưu hằng ngày" có bản mới trong `hang-ngay/`, không quá 30 bản; giải mã, `pg_restore` một bản hằng ngày vào cơ sở dữ liệu tạm đạt | Thủ công |
+| KICHBAN_KIEMTHU_822 | 596 | Sai: migration lỗi (kiểm trên compose cục bộ trong CI, `kiem-tra-anh.yml`: sai mật khẩu cơ sở dữ liệu): bước migration dừng, phiên bản đang chạy không đổi; không thử trên cơ sở dữ liệu thật | Thủ công |
 | KICHBAN_KIEMTHU_823 | 597 | Sai: `infra/emergency-patches.txt` có tag không phải tổ tiên của tag cần triển khai: `deploy.sh check-tag` dừng | Tự động (tệp lệnh) |
 | KICHBAN_KIEMTHU_824 | 597 | Sai: chạy luồng với môi trường `production`: dừng chờ người duyệt trên GitHub; `deploy.sh migrate` ở production khi chưa sao lưu bị từ chối | Thủ công, tự động (tệp lệnh) |
-| KICHBAN_KIEMTHU_825 | 598 | Sai: quay lui về phiên bản không có ảnh trong kho: `deploy.sh rollback` dừng trước khi đổi dịch vụ nào | Thủ công |
-| KICHBAN_KIEMTHU_826 | 599 | Sai: gọi Data API của dự án Supabase bằng khóa công khai bị từ chối; nối Redis từ máy ngoài Railway không được | Thủ công |
+| KICHBAN_KIEMTHU_825 | 598 | Sai: quay lui về phiên bản không có ảnh (`deploy.sh rollback`, kiểm trên compose cục bộ trong CI): dừng trước khi đổi, `VCOMM_VERSION` không đổi; bản mới không qua kiểm tra sống thì `release` tự về phiên bản trước | Thủ công |
+| KICHBAN_KIEMTHU_826 | 599 | Sai: gọi Data API của dự án Supabase bằng khóa công khai bị từ chối; quét cổng địa chỉ IP công khai của máy ảo từ ngoài không thấy cổng mở (kể cả 22, 443); SSH thẳng vào IP máy ảo không được; nối Redis từ ngoài máy không được | Thủ công |
 
 ## TIEUCHI_NGHIEMTHU_602 đến 608: gửi email thật qua SMTP (MODULE_01, CONG_VIEC_77)
 
