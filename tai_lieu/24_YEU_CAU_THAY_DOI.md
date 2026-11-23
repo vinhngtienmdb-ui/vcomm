@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi sau khi tài liệu đã được phê duyệt.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Ngày cập nhật: 2026-11-23
 - Trạng thái: Đang cập nhật
 
 ### THAY_DOI_01: Đăng nhập bằng Zalo – 2026-11-09
@@ -596,4 +596,4 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_810 đến 826 với tệp Docker Compose mới; kiểm tra sau triển khai theo tài liệu 26.
 - Mức quy mô: Lớn (đổi kiến trúc triển khai); làm trong CONG_VIEC_76.
 - Rủi ro: gói miễn phí Supabase không có sao lưu tự động và PITR, nên bản sao lưu mã hóa trước mỗi lần triển khai là lớp bảo vệ duy nhất; dự án tự tạm dừng khi không hoạt động 7 ngày; giới hạn 500 MB cơ sở dữ liệu, 1 GB lưu tệp. Oracle có thể thu hồi máy ảo miễn phí khi dùng tài nguyên quá thấp kéo dài; một máy ảo là một điểm lỗi duy nhất; người dùng tự quản trị hệ điều hành, tường lửa, bản vá.
-- Trạng thái: Đã phê duyệt 2026-11-23 (người dùng chọn không nâng gói, dùng máy ảo Oracle Cloud miễn phí và Supabase gói miễn phí trong tổ chức VComm).
+- Trạng thái: Đã phê duyệt 2026-11-23 (người dùng chọn không nâng gói, dùng máy ảo Oracle Cloud miễn phí và Supabase gói miễn phí trong tổ chức VComm). Đã phát hành v0.14.2 (pull request #227, commit hợp nhất `4f49c013`, tag `v0.14.2`), chưa triển khai.
