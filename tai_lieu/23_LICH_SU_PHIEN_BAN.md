@@ -22,6 +22,7 @@
 - Rủi ro: gói miễn phí (Oracle có thể thu hồi máy ảo nhàn rỗi, Supabase không sao lưu tự động, dừng sau 7 ngày không dùng); một máy ảo duy nhất; ghi ở tài liệu `26` mục 1.2, tài liệu `22`.
 - Khả năng tương thích: mã ứng dụng chỉ đổi địa chỉ API lúc dựng ảnh `web` (`http://api:4000`) và bản sửa LOI_18. Máy phát triển không ảnh hưởng.
 - Công việc gộp trong phiên bản: CONG_VIEC_76 đợt 2 (pull request #224), LOI_18 (pull request #225). Người dùng nghiệm thu ngày 2026-11-23.
+- Kiểm thử trên nhánh phát hành: `pnpm install --frozen-lockfile` đạt; `pnpm typecheck` 20/20 đạt; `pnpm lint` 5/5 đạt; `mobile-warehouse` 5/5 đạt; kiểm thử API toàn bộ (PostgreSQL 16 cục bộ, `max_locks_per_transaction` 512) 180 tệp, 1011/1011 đạt; `pnpm audit --prod --audit-level high` giống `main` (1 thấp, 5 trung bình, không có mức cao); gitleaks 8.30.1 trên các commit mới của nhánh không có phát hiện. Dựng ảnh amd64, arm64, quét Trivy, chạy thử Docker Compose ở CI (`kiem-tra-anh.yml`).
 - Tag: chờ gắn tự động sau khi hợp nhất và CI trên `main` đạt.
 - Triển khai: chưa triển khai.
 - Phương án quay lui riêng của phiên bản: triển khai lại ảnh `api`, `web` của 0.14.1. Bản 0.14.2 chưa từng triển khai nên không có dữ liệu cần quay lui; không có database migration.
