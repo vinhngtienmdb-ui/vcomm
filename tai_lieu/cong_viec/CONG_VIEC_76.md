@@ -1,8 +1,8 @@
 # CONG_VIEC_76: Hạ tầng AWS, môi trường thử nghiệm, môi trường thật và quy trình triển khai
 
 - Mô tả: Viết hạ tầng bằng AWS CDK (vùng Singapore), đóng gói ứng dụng thành ảnh container chip Arm, dựng môi trường thử nghiệm (staging, dữ liệu giả) rồi môi trường thật giai đoạn 1; quy trình triển khai từ tag (GitHub Actions dùng OIDC) gồm sao lưu, database migration, quay lui; lập tài liệu `26`.
-- Phiên bản: 0.5
-- Ngày cập nhật: 2026-11-18
+- Phiên bản: 0.6
+- Ngày cập nhật: 2026-11-23
 - Trạng thái: Đang thực hiện lát L1. Người dùng duyệt phương án Supabase + Railway + Cloudflare (mục 21), phiếu THAY_DOI_40 (mục 22); ngày 2026-11-18 người dùng chọn chỉ dựng môi trường thật, tên miền `erp`, `api`, `app`, `kho`, `ipos`.vcomm.vn (mục 26, thay mục 20.4, 25 và mọi nội dung về môi trường thử nghiệm). Chưa tạo tài nguyên. Điểm chặn mở cho người dùng ngoài: mục 26.3; điểm chặn A1 đến A3 tách thành CONG_VIEC_77, 78, 79, phát hành 0.14.1 trước lần triển khai đầu (mục 27).
 - Thay đổi so với 0.2: ghi quyết định (mục 21), nội dung THAY_DOI_40 (mục 22), tiêu chí nghiệm thu và kịch bản chờ cấp mã (mục 23), kết quả lát L1 (mục 24). Mục 4 đến 10, 12, 13, 16, 18 giữ làm phương án AWS cho giai đoạn sau.
 - Mức: Lớn (thành phần hạ tầng mới, thư mục mới ở gốc dự án, thư viện mới, chạm tới bảo mật và mọi module khi triển khai).
@@ -517,9 +517,9 @@ Mã do phiên điều phối cấp ngày 2026-11-18: TIEUCHI_NGHIEMTHU_590 đế
 | TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; luôn có bản sao lưu mã hóa trước migration (không tắt được); migration chạy lại không còn tệp mới | Bắt buộc | KICHBAN_KIEMTHU_816, 822 |
 | TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối; môi trường `production` cần người duyệt; migration khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | KICHBAN_KIEMTHU_817, 823, 824 |
 | TIEUCHI_NGHIEMTHU_598 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | KICHBAN_KIEMTHU_818, 825 |
-| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | KICHBAN_KIEMTHU_819, 826 |
+| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: máy ảo không mở cổng vào (web, API, SSH chỉ qua Cloudflare Tunnel, SSH qua Cloudflare Access); Data API tắt; Redis không ra Internet; `.env` quyền 600; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | KICHBAN_KIEMTHU_819, 826 |
 | TIEUCHI_NGHIEMTHU_600 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | KICHBAN_KIEMTHU_820 |
-| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật: `NODE_ENV=production`, bộ giả lập tắt, `api` và `web` 2 bản, `worker` riêng, Supabase Small, PITR 7 ngày | Bắt buộc | KICHBAN_KIEMTHU_821 |
+| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật trên máy ảo (sửa theo THAY_DOI_42): `NODE_ENV=production`, bộ giả lập tắt, một bản mỗi dịch vụ `api`, `worker`, `web`; sao lưu trước triển khai và hằng ngày lên R2 (giữ 30 bản); khôi phục thử bản sao lưu đạt | Bắt buộc | KICHBAN_KIEMTHU_821 |
 
 ## 24. Lát L1 – kết quả (2026-11-18)
 
@@ -644,3 +644,68 @@ Tên biến đề xuất cho CONG_VIEC_77, 79 (tài liệu `26` mục 1.3; hai v
 - Kho tệp: `STORAGE_DRIVER=s3`, `S3_BUCKET`, `S3_ENDPOINT`, `S3_FORCE_PATH_STYLE=true`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (bí mật; SDK AWS tự đọc hai biến này).
 
 Bộ kiểm thử bản 0.14.0 trên PostgreSQL 17 (TIEUCHI_NGHIEMTHU_591): chạy lại trên mã 0.14.1 trước lần triển khai đầu.
+
+## 28. Đợt 2 – máy ảo Oracle, Docker Compose (THAY_DOI_42, 2026-11-23)
+
+Railway hết hạn dùng thử, người dùng không nâng gói. Môi trường thật đổi (THAY_DOI_42): api, worker, web, Redis chạy bằng Docker Compose trên một máy ảo Oracle Cloud Always Free (Singapore, Ampere A1 arm64 4 nhân 24 GB, Ubuntu); cơ sở dữ liệu và lưu tệp Supabase gói miễn phí (dự án `vcomm-production`, mã `xbtrauxpqmgqwjktcwqd`, `ap-southeast-1`, PostgreSQL 17); Cloudflare làm DNS, proxy. Không dùng tên miền tạm. Mục 20 đến 27 về Railway không còn áp dụng.
+
+### 28.1 Quyết định của người dùng (2026-11-23)
+
+1. Cổng vào: Cloudflare Tunnel (container `cloudflared`, ghim phiên bản và digest); máy ảo không mở cổng vào nào; SSH của luồng triển khai đi qua tunnel, bảo vệ bằng Cloudflare Access.
+2. Thêm luồng sao lưu hằng ngày, giữ 30 bản trên R2.
+3. Chấp nhận gián đoạn ngắn khi triển khai (một máy, một bản mỗi dịch vụ).
+4. Giữ tài khoản Oracle miễn phí, không chuyển Pay As You Go, không thêm tải giả; ghi rủi ro bị thu hồi máy và cách khôi phục vào tài liệu `26`, `22`.
+5. TIEUCHI_NGHIEMTHU_601 sửa theo THAY_DOI_42 (mục 23).
+6. Duyệt `docker/setup-qemu-action`, `docker/setup-buildx-action`; không dùng vì kho công khai được dùng máy chạy Arm của GitHub (build arm64 gốc, không giả lập).
+
+### 28.2 Thành phần đã làm
+
+| Lát | Tệp | Nội dung |
+|---|---|---|
+| L2a | `.github/workflows/kiem-tra-anh.yml` | Build, quét Trivy, kiểm kiến trúc ảnh api, web cho amd64 (`ubuntu-latest`) và arm64 (`ubuntu-24.04-arm`) |
+| L2b | `infra/compose/compose.production.yml`, `env.production.example`, `compose.kiem-tra.yml`; `infra/docker/web.Dockerfile` | Dịch vụ `api` (tác vụ nền tắt), `worker`, `web`, `redis` 7.4.11 (ghim digest), `cloudflared` 2026.10.2 (ghim digest); không mở cổng; kiểm tra sống, giới hạn bộ nhớ, log xoay vòng, `api`/`worker` hệ thống tệp chỉ đọc; địa chỉ API lúc build `http://api:4000`. Việc "Chạy thử Docker Compose" trong CI: postgres:17 cục bộ, migration hai lần, kiểm tra sống, gọi API trực tiếp và qua web |
+| L2c | `infra/scripts/deploy.sh`, `.github/workflows/trien-khai.yml`, `.github/workflows/sao-luu-hang-ngay.yml`, `infra/vm/cai-dat-may-ao.sh` | Triển khai qua SSH (Cloudflare Access service token, known_hosts ghim): check-tag, build arm64, Trivy, record, backup bắt buộc, sync, migrate, release (tự về bản trước nếu không qua kiểm tra sống), verify, rollback (kiểm ảnh trước), prune-backups; sao lưu hằng ngày 2:17 giờ Việt Nam, giữ 30 bản; tệp lệnh dựng máy (cập nhật bảo mật tự động, ufw chặn mọi cổng vào, SSH chỉ khóa, Docker, swap, người dùng `trien-khai`); CI kiểm luồng triển khai, quay lui trên compose cục bộ |
+| L2d | Tài liệu `26` (viết lại), `12`, `13`, `22`, `11`, `21` | Bỏ Railway; dựng máy ảo, Cloudflare; rủi ro nền tảng miễn phí, khôi phục khi mất máy; biến môi trường, biến GitHub |
+
+### 28.3 Việc người dùng cần làm (thay danh sách mục 26, 27)
+
+Tài khoản, DNS
+1. Cloudflare: thêm `vcomm.vn`, đổi máy chủ tên miền ở nhà đăng ký `.vn` (tắt DNSSEC trước), chờ Active (mục 25).
+2. Oracle Cloud: tạo máy ảo theo tài liệu `26` mục 5.1 (Singapore, Ubuntu 24.04 aarch64, A1 4 OCPU 24 GB); nếu báo hết dung lượng thì thử lại sau.
+3. Supabase `vcomm-production`: tắt Data API; tạo bucket riêng tư `vcomm-tep`; tạo khóa S3 (Storage → S3 access keys); tải chứng chỉ gốc SSL (Database Settings).
+
+Khóa
+4. Trên máy của người dùng: `age-keygen -o vcomm-sao-luu.key` (giữ khóa riêng an toàn, gửi khóa công khai `age1…`); `ssh-keygen -t ed25519 -f trien-khai -C trien-khai` (khóa riêng vào bí mật GitHub `DEPLOY_SSH_KEY`, khóa công khai dùng khi chạy tệp lệnh dựng máy).
+5. Cloudflare R2: bucket riêng tư `vcomm-sao-luu`, token Object Read & Write chỉ bucket này.
+6. Cloudflare Zero Trust: tunnel `vcomm-production`, đường đi, ứng dụng Access cho `ssh.vcomm.vn`, service token cho GitHub Actions, quy tắc chuyển hướng `vcomm.vn`, `www` (tài liệu `26` mục 5.2).
+7. Hộp thư doanh nghiệp: tài khoản gửi, mật khẩu ứng dụng, máy chủ, cổng SMTP.
+
+Máy ảo
+8. Chạy `sudo bash cai-dat-may-ao.sh "<khóa công khai trien-khai>"`; điền `/opt/vcomm/.env` theo `infra/compose/env.production.example` (giữ một bản riêng ngoài máy); đặt chứng chỉ gốc vào `/opt/vcomm/certificates/supabase-ca.crt`; sau khi SSH qua tunnel dùng được, xóa quy tắc cổng 22 ở danh sách bảo mật VCN.
+
+GitHub
+9. Môi trường `production` (người duyệt: người dùng; chỉ nhánh `main`) và `production-sao-luu` (không người duyệt): bí mật, biến theo tài liệu `26` mục 1.4; biến kho `SAO_LUU_HANG_NGAY=bat` khi đã đủ.
+10. Đặt gói GHCR `vcomm-api`, `vcomm-web` ở chế độ công khai (sau lần build đầu), hoặc đăng nhập `ghcr.io` trên máy ảo bằng token chỉ đọc.
+
+Phê duyệt
+11. Duyệt lần triển khai 0.14.1; quyết định danh sách B (mục 26.3) trước khi mở cho người dùng ngoài.
+
+### 28.4 Kết quả kiểm thử đợt 2
+
+Chạy trên CI pull request #224, đầu nhánh `985ff280` (2026-11-23); chi tiết ghi tài liệu `25` qua pull request #226.
+
+| Kịch bản | Kết quả | Cách kiểm |
+|---|---|---|
+| KICHBAN_KIEMTHU_810 | Đạt | Build ảnh api, web cho amd64 và arm64 (máy chạy arm gốc), Trivy, kiểm nội dung, kiểm kiến trúc |
+| KICHBAN_KIEMTHU_811 | Đạt | Theo lần chạy v0.14.1 trên PostgreSQL 17 (1011/1011); đợt 2 không đổi mã ứng dụng |
+| KICHBAN_KIEMTHU_815 (phần tác vụ nền) | Đạt | Compose cục bộ: tác vụ nền chỉ chạy ở `worker` |
+| KICHBAN_KIEMTHU_816 (phần migration) | Đạt | Compose cục bộ: migration chạy hai lần, lần hai không có tệp mới; phần sao lưu R2 chờ tài nguyên |
+| KICHBAN_KIEMTHU_817, 823 | Đạt | Nạp dữ liệu thử bị từ chối; tag thiếu bản vá khẩn cấp thì dừng |
+| KICHBAN_KIEMTHU_822 | Đạt | Migration sai mật khẩu cơ sở dữ liệu thì dừng, phiên bản đang chạy không đổi |
+| KICHBAN_KIEMTHU_824 (phần tệp lệnh) | Đạt | Migration bị từ chối khi chưa sao lưu; phần người duyệt GitHub chờ tài nguyên |
+| KICHBAN_KIEMTHU_825 | Đạt | Quay lui về phiên bản không có ảnh dừng trước khi đổi; bản mới không qua kiểm tra sống tự về bản trước |
+| KICHBAN_KIEMTHU_812 đến 814, 818, 819, 821, 826 | Chờ tài nguyên | Cần máy ảo, Cloudflare, Supabase, R2 |
+| KICHBAN_KIEMTHU_820 | Chờ người dùng | Rà tài liệu `26` |
+
+Lần chạy compose đầu (`53cb6d68`) không đạt do tệp `.env` thử đặt `EMAIL_DRIVER=log` trái quy định CONG_VIEC_77; đã sửa tệp kiểm thử, không đổi mã ứng dụng.
+

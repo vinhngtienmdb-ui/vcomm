@@ -1,0 +1,52 @@
+# Sao lưu cơ sở dữ liệu môi trường thật hằng ngày (CONG_VIEC_76, THAY_DOI_42; người dùng duyệt 2026-11-23).
+# Supabase gói miễn phí không tự sao lưu: pg_dump, mã hóa age, tải lên R2 thư mục hang-ngay/, giữ 30 bản mới nhất.
+name: Sao lưu hằng ngày
+
+on:
+  schedule:
+    # 19:17 UTC = 2:17 sáng giờ Việt Nam.
+    - cron: "17 19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sao-luu-hang-ngay
+  cancel-in-progress: false
+
+jobs:
+  sao-luu:
+    name: Sao lưu hằng ngày
+    # Chỉ chạy khi biến kho SAO_LUU_HANG_NGAY=bat (đặt sau khi có R2, khóa age, cơ sở dữ liệu thật).
+    if: vars.SAO_LUU_HANG_NGAY == 'bat'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Môi trường GitHub riêng, không cần người duyệt (chạy theo lịch), chỉ có khóa đọc cơ sở dữ liệu và ghi R2.
+    environment: production-sao-luu
+    env:
+      VERSION: hang-ngay
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+      BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+      BACKUP_PREFIX: hang-ngay
+      BACKUP_KEEP: "30"
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Cài age, công cụ AWS
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q age
+          command -v aws >/dev/null || pipx install awscli
+
+      - name: Sao lưu
+        run: infra/scripts/deploy.sh backup
+
+      - name: Giữ 30 bản mới nhất
+        run: infra/scripts/deploy.sh prune-backups

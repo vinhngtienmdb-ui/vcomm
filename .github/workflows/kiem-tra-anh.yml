@@ -1,4 +1,5 @@
-# Build thử hai ảnh container khi đổi Dockerfile hoặc tệp khởi động (CONG_VIEC_76). Không đẩy ảnh, không cần khóa bí mật.
+# Build thử hai ảnh container cho hai kiến trúc khi đổi Dockerfile hoặc tệp khởi động (CONG_VIEC_76). Không đẩy ảnh, không cần khóa bí mật.
+# arm64 là kiến trúc của máy ảo Oracle chạy môi trường thật (THAY_DOI_42); build trên máy chạy Arm của GitHub, không giả lập.
 name: Kiểm tra ảnh container
 
 on:
@@ -7,6 +8,8 @@ on:
       - "infra/docker/**"
       - ".dockerignore"
       - ".github/workflows/kiem-tra-anh.yml"
+      - "infra/compose/**"
+      - "infra/scripts/**"
   workflow_dispatch:
 
 permissions:
@@ -18,13 +21,14 @@ concurrency:
 
 jobs:
   build:
-    name: Build ảnh ${{ matrix.anh }}
-    runs-on: ubuntu-latest
+    name: Build ảnh ${{ matrix.anh }} (${{ matrix.kien_truc }})
+    runs-on: ${{ matrix.kien_truc == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
         anh: [api, web]
+        kien_truc: [amd64, arm64]
     steps:
       - name: Lấy mã nguồn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,7 +36,7 @@ jobs:
           persist-credentials: false
 
       - name: Build ảnh
-        run: docker build -f infra/docker/${{ matrix.anh }}.Dockerfile -t vcomm-${{ matrix.anh }}:kiem-tra .
+        run: docker build --platform linux/${{ matrix.kien_truc }} -f infra/docker/${{ matrix.anh }}.Dockerfile -t vcomm-${{ matrix.anh }}:kiem-tra .
 
       # Chặn lỗ hổng mức HIGH, CRITICAL đã có bản vá (người dùng duyệt Trivy 2026-11-18); lỗ hổng chưa có bản vá xử lý theo tài liệu 22 mục 8.
       - name: Quét lỗ hổng ảnh
@@ -52,6 +56,123 @@ jobs:
           if [ -n "$found" ]; then echo "Ảnh chứa tệp không được phép:"; echo "$found"; exit 1; fi
           echo "Đạt"
 
+      - name: Kiểm kiến trúc ảnh
+        run: |
+          arch=$(docker image inspect vcomm-${{ matrix.anh }}:kiem-tra --format '{{.Architecture}}')
+          [ "$arch" = "${{ matrix.kien_truc }}" ] || { echo "Ảnh là $arch, cần ${{ matrix.kien_truc }}"; exit 1; }
+          echo "Đạt: $arch"
+
       - name: Kiểm khởi động (api)
         if: matrix.anh == 'api'
         run: docker run --rm vcomm-api:kiem-tra node -e "require('/app/apps/api/dist/database/run-migrations.js'); console.log('nạp mô-đun đạt')"
+
+  # Chạy thử tệp compose của môi trường thật (THAY_DOI_42) với postgres:17 cục bộ thay Supabase, không có cloudflared.
+  chay-thu-compose:
+    name: Chạy thử Docker Compose môi trường thật
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build hai ảnh
+        run: |
+          docker build -f infra/docker/api.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-api:kiem-tra .
+          docker build -f infra/docker/web.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-web:kiem-tra .
+
+      # Môi trường thật bắt buộc EMAIL_DRIVER=smtp (CONG_VIEC_77): dùng máy chủ SMTP giả, chạy thử không gửi email.
+      - name: Tạo tệp .env thử từ tệp mẫu
+        working-directory: infra/compose
+        run: |
+          mkdir -p certificates
+          sed -e 's/^VCOMM_VERSION=$/VCOMM_VERSION=kiem-tra/' \
+              -e 's/^CLOUDFLARE_TUNNEL_TOKEN=$/CLOUDFLARE_TUNNEL_TOKEN=khong-dung/' \
+              -e 's#^DATABASE_URL=$#DATABASE_URL=postgres://vcomm_ung_dung:mat_khau_kiem_tra@postgres:5432/vcomm#' \
+              -e "s/^ACCESS_TOKEN_SECRET=\$/ACCESS_TOKEN_SECRET=$(openssl rand -hex 32)/" \
+              -e "s/^MFA_SECRET_KEY=\$/MFA_SECRET_KEY=$(openssl rand -hex 32)/" \
+              -e 's/^SMTP_HOST=$/SMTP_HOST=smtp.kiem-tra.invalid/' \
+              -e 's/^SMTP_USER=$/SMTP_USER=kiem-tra/' \
+              -e 's/^SMTP_PASSWORD=$/SMTP_PASSWORD=kiem-tra/' \
+              -e 's/^SMTP_FROM=$/SMTP_FROM=kiem-tra@vcomm.test/' \
+              -e 's/^STORAGE_DRIVER=s3$/STORAGE_DRIVER=local/' \
+              env.production.example > .env
+          echo "STORAGE_DIRECTORY=/tmp/tep" >> .env
+
+      - name: Bật cơ sở dữ liệu, Redis
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml up -d --wait postgres redis
+
+      - name: Database migration (chạy hai lần, lần hai không còn tệp mới)
+        working-directory: infra/compose
+        run: |
+          docker compose -f compose.production.yml -f compose.kiem-tra.yml run --rm --no-deps api node apps/api/dist/database/run-migrations.js
+          second=$(docker compose -f compose.production.yml -f compose.kiem-tra.yml run --rm --no-deps api node apps/api/dist/database/run-migrations.js)
+          echo "$second"
+          echo "$second" | grep -q "Không có database migration mới"
+
+      - name: Bật api, worker, web và chờ kiểm tra sống
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml up -d --wait --wait-timeout 300 api worker web
+
+      - name: Gọi thử
+        working-directory: infra/compose
+        run: |
+          for url in http://127.0.0.1:4000/api/v1/auth/methods http://127.0.0.1:3000/dang-nhap http://127.0.0.1:3000/api/v1/auth/methods http://127.0.0.1:3000/catalog; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url")
+            echo "$url: $code"
+            case "$code" in 200|307|308) ;; *) exit 1 ;; esac
+          done
+          # Tác vụ nền chỉ chạy ở worker.
+          docker compose -f compose.production.yml -f compose.kiem-tra.yml logs api | grep -q "Không chạy tác vụ nền"
+          if docker compose -f compose.production.yml -f compose.kiem-tra.yml logs worker | grep -q "Không chạy tác vụ nền"; then echo "worker không chạy tác vụ nền"; exit 1; fi
+          echo "Đạt"
+
+      # Luồng triển khai (infra/scripts/deploy.sh) chạy trên compose cục bộ thay máy ảo: KICHBAN_KIEMTHU_817, 822 đến 825.
+      - name: Kiểm luồng triển khai, quay lui trên compose cục bộ
+        env:
+          DEPLOY_SSH_HOST: local
+          DEPLOY_SKIP_PULL: "1"
+          DEPLOY_WAIT_TIMEOUT: "120"
+          DEPLOY_COMPOSE_FILES: -f compose.production.yml -f compose.kiem-tra.yml
+          IMAGE_REPOSITORY: ghcr.io/vinhngtienmdb-ui
+        run: |
+          set -u
+          export DEPLOY_DIRECTORY="$PWD/infra/compose"
+          r=ghcr.io/vinhngtienmdb-ui
+          for v in 0.0.1 0.0.2; do docker tag $r/vcomm-api:kiem-tra $r/vcomm-api:$v; docker tag $r/vcomm-web:kiem-tra $r/vcomm-web:$v; done
+          # Bản lỗi: ảnh web thay bằng ảnh api (không nghe cổng 3000) nên không qua kiểm tra sống.
+          docker tag $r/vcomm-api:kiem-tra $r/vcomm-api:0.0.3; docker tag $r/vcomm-api:kiem-tra $r/vcomm-web:0.0.3
+          d=infra/scripts/deploy.sh
+          expect_fail() { if "$@"; then echo "SAI: lệnh lẽ ra phải dừng: $*"; exit 1; else echo "Đạt (dừng đúng): $*"; fi; }
+          VERSION=0.0.1 $d release
+          VERSION=0.0.1 $d record && grep -qx 0.0.1 tam_thoi/phien-ban-truoc-trien-khai.txt
+          expect_fail $d seed
+          expect_fail env VERSION=0.0.2 $d migrate
+          BACKUP_DONE=1 VERSION=0.0.2 $d migrate
+          VERSION=0.0.2 $d release
+          expect_fail env ROLLBACK_VERSION=9.9.9 $d rollback
+          grep -qx 'VCOMM_VERSION=0.0.2' infra/compose/.env
+          ROLLBACK_VERSION=0.0.1 $d rollback
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          expect_fail env VERSION=0.0.3 $d release
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          docker compose -f infra/compose/compose.production.yml -f infra/compose/compose.kiem-tra.yml ps --format '{{.Service}} {{.Health}}' | tee /dev/stderr | grep -v redis | grep -v postgres | awk '$2!="healthy"{bad=1} END{exit bad}'
+          # Migration lỗi (sai mật khẩu cơ sở dữ liệu) thì dừng, không đổi phiên bản.
+          cp infra/compose/.env tam_thoi/env.bak
+          sed -i 's#mat_khau_kiem_tra@#sai_mat_khau@#' infra/compose/.env
+          expect_fail env BACKUP_DONE=1 VERSION=0.0.2 $d migrate
+          cp tam_thoi/env.bak infra/compose/.env
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          echo "Luồng triển khai, quay lui: đạt"
+
+      - name: Log khi lỗi
+        if: failure()
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml logs --tail 200
+
+      - name: Dọn
+        if: always()
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml down -v

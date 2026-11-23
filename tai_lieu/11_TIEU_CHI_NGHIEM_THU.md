@@ -858,9 +858,9 @@ Không gắn chức năng nghiệp vụ; truy vết về tài liệu `12` mục 
 | TIEUCHI_NGHIEMTHU_596 | Luồng triển khai chạy đủ bước; luôn có bản sao lưu mã hóa trước migration (không tắt được); migration chạy lại không còn tệp mới | Bắt buộc | L2 |
 | TIEUCHI_NGHIEMTHU_597 | Luồng chặn đúng: nạp dữ liệu thử bị từ chối; môi trường `production` cần người duyệt; migration khi chưa sao lưu bị từ chối; tag thiếu bản vá khẩn cấp thì dừng | Bắt buộc | L2 |
 | TIEUCHI_NGHIEMTHU_598 | Quay lui: triển khai lại ảnh cũ; phục hồi bản sao lưu sang cơ sở dữ liệu khác | Bắt buộc | L2 |
-| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: Data API tắt; Redis không ra Internet; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_599 | Bảo mật phần D: máy ảo không mở cổng vào (web, API, SSH chỉ qua Cloudflare Tunnel, SSH qua Cloudflare Access); Data API tắt; Redis không ra Internet; `.env` quyền 600; khóa không có trong mã, log; token phạm vi tối thiểu; cookie có cờ Secure | Bắt buộc | L2 |
 | TIEUCHI_NGHIEMTHU_600 | Tài liệu `26` đủ môi trường, các bước, quay lui, biên bản | Bắt buộc | L2 |
-| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật: `NODE_ENV=production`, bộ giả lập tắt, `api` và `web` 2 bản, `worker` riêng, Supabase Small, PITR 7 ngày | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_601 | Cấu hình môi trường thật trên máy ảo (sửa theo THAY_DOI_42): `NODE_ENV=production`, bộ giả lập tắt, một bản mỗi dịch vụ `api`, `worker`, `web`; sao lưu trước triển khai và hằng ngày lên R2 (giữ 30 bản); khôi phục thử bản sao lưu đạt | Bắt buộc | L2 |
 
 ## MODULE_01 Gửi email thật qua SMTP (CONG_VIEC_77, THAY_DOI_41)
 

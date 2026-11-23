@@ -1,22 +1,17 @@
-# Triển khai một phiên bản lên môi trường thật, hoặc quay lui (CONG_VIEC_76, tài liệu 26 mục 2).
-# Đợt đầu chỉ có môi trường thật (quyết định của người dùng 2026-11-18); tệp lệnh vẫn nhận staging để dùng khi dựng lại môi trường thử nghiệm.
-# Chạy tay. Môi trường GitHub "production" bắt người dùng duyệt từng lần chạy. Khóa bí mật nằm trong biến bí mật của môi trường GitHub.
+# Triển khai một phiên bản lên môi trường thật (máy ảo Oracle, Docker Compose), hoặc quay lui (CONG_VIEC_76, THAY_DOI_42, tài liệu 26 mục 2).
+# Chạy tay từ nhánh main. Môi trường GitHub "production" bắt người dùng duyệt từng lần chạy. Khóa bí mật nằm trong biến bí mật của môi trường GitHub.
+# Chạy trên máy Arm của GitHub để build ảnh linux/arm64 đúng kiến trúc máy ảo.
 name: Triển khai
 
 on:
   workflow_dispatch:
     inputs:
       phien_ban:
-        description: "Mã phiên bản, ví dụ 0.14.0 (phải có tag v0.14.0)"
+        description: "Mã phiên bản, ví dụ 0.14.1 (phải có tag v0.14.1)"
         required: true
         type: string
-      moi_truong:
-        description: "Môi trường"
-        required: true
-        type: choice
-        options: [production]
       hanh_dong:
-        description: "trien-khai: sao lưu, migration, đổi ảnh. quay-lui: đổi ảnh về phiên bản đã nhập, không chạy migration"
+        description: "trien-khai: sao lưu, migration, đổi phiên bản. quay-lui: về phiên bản đã nhập, không chạy migration"
         required: true
         type: choice
         default: trien-khai
@@ -26,36 +21,33 @@ permissions:
   contents: read
   packages: write
 
-# Mỗi môi trường chỉ một lần triển khai tại một thời điểm; không hủy lần đang chạy.
 concurrency:
-  group: trien-khai-${{ inputs.moi_truong }}
+  group: trien-khai-production
   cancel-in-progress: false
 
 jobs:
   trien-khai:
-    name: ${{ inputs.hanh_dong }} ${{ inputs.phien_ban }} lên ${{ inputs.moi_truong }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    environment: ${{ inputs.moi_truong }}
+    name: ${{ inputs.hanh_dong }} ${{ inputs.phien_ban }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    environment: production
     env:
-      DEPLOY_ENVIRONMENT: ${{ inputs.moi_truong }}
       VERSION: ${{ inputs.phien_ban }}
       IMAGE_REPOSITORY: ghcr.io/${{ github.repository_owner }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
-      RAILWAY_SERVICE_API_ID: ${{ vars.RAILWAY_SERVICE_API_ID }}
-      RAILWAY_SERVICE_WORKER_ID: ${{ vars.RAILWAY_SERVICE_WORKER_ID }}
-      RAILWAY_SERVICE_WEB_ID: ${{ vars.RAILWAY_SERVICE_WEB_ID }}
       BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
       BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+      BACKUP_PREFIX: production
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      DEPLOY_SSH_HOST: ${{ vars.DEPLOY_SSH_HOST }}
+      DEPLOY_SSH_KEY_FILE: ${{ github.workspace }}/tam_thoi/ssh/khoa
+      DEPLOY_SSH_KNOWN_HOSTS_FILE: ${{ github.workspace }}/tam_thoi/ssh/known_hosts
+      CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+      CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
       PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
       PUBLIC_WEB_URL: ${{ vars.PUBLIC_WEB_URL }}
-      # Ảnh đang chạy trước khi đổi được in ra log của bước "Ghi ảnh đang chạy" (dùng khi quay lui).
-      PREVIOUS_IMAGES_FILE: tam_thoi/anh-truoc-trien-khai.txt
     steps:
       - name: Chỉ triển khai từ nhánh main
         if: github.ref != 'refs/heads/main'
@@ -72,29 +64,33 @@ jobs:
       - name: Kiểm tag và bản vá khẩn cấp
         run: infra/scripts/deploy.sh check-tag
 
+      - name: Chuẩn bị khóa SSH (chỉ trong máy chạy, xóa khi xong)
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ vars.DEPLOY_SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 tam_thoi/ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$DEPLOY_SSH_KEY_FILE" && chmod 600 "$DEPLOY_SSH_KEY_FILE"
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" > "$DEPLOY_SSH_KNOWN_HOSTS_FILE"
+
       - name: Đăng nhập kho ảnh GitHub
         env:
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REGISTRY_USER: ${{ github.actor }}
         run: echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
 
-      # Ảnh đã có (build ở lần chạy trước) thì dùng lại, không build lại.
-      - name: Build và đẩy ảnh (nếu chưa có)
+      - name: Build và đẩy ảnh arm64 (nếu chưa có)
         if: inputs.hanh_dong == 'trien-khai'
         run: |
           if docker manifest inspect "$IMAGE_REPOSITORY/vcomm-api:$VERSION" >/dev/null 2>&1 && docker manifest inspect "$IMAGE_REPOSITORY/vcomm-web:$VERSION" >/dev/null 2>&1; then
             echo "Ảnh $VERSION đã có, không build lại."
+            docker pull --quiet "$IMAGE_REPOSITORY/vcomm-api:$VERSION"
+            docker pull --quiet "$IMAGE_REPOSITORY/vcomm-web:$VERSION"
           else
             infra/scripts/deploy.sh build
           fi
 
       # Chặn lỗ hổng mức HIGH, CRITICAL đã có bản vá trước khi sao lưu, migration (người dùng duyệt Trivy 2026-11-18).
-      - name: Tải ảnh về máy chạy để quét
-        if: inputs.hanh_dong == 'trien-khai'
-        run: |
-          docker pull "$IMAGE_REPOSITORY/vcomm-api:$VERSION"
-          docker pull "$IMAGE_REPOSITORY/vcomm-web:$VERSION"
-
       - name: Quét lỗ hổng ảnh api
         if: inputs.hanh_dong == 'trien-khai'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (2026-04-22)
@@ -117,27 +113,32 @@ jobs:
           exit-code: "1"
           format: table
 
-      - name: Ghi ảnh đang chạy
+      - name: Ghi phiên bản đang chạy
         run: infra/scripts/deploy.sh record
 
-      # Luôn sao lưu trước migration, không tắt được (quyết định của người dùng 2026-11-18).
-      - name: Cài age
+      # Luôn sao lưu trước migration, không tắt được (Supabase gói miễn phí không tự sao lưu).
+      - name: Cài age, công cụ AWS
         if: inputs.hanh_dong == 'trien-khai'
-        run: sudo apt-get update -q && sudo apt-get install -y -q age
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q age
+          command -v aws >/dev/null || pipx install awscli
 
       - name: Sao lưu cơ sở dữ liệu
         if: inputs.hanh_dong == 'trien-khai'
         run: infra/scripts/deploy.sh backup
 
+      - name: Chép tệp compose lên máy ảo
+        run: infra/scripts/deploy.sh sync
+
       - name: Database migration
         if: inputs.hanh_dong == 'trien-khai'
         run: infra/scripts/deploy.sh migrate
 
-      - name: Đổi ảnh các dịch vụ
+      - name: Đổi phiên bản (tự về phiên bản trước nếu không qua kiểm tra sống)
         if: inputs.hanh_dong == 'trien-khai'
         run: infra/scripts/deploy.sh release
 
-      - name: Quay lui ảnh
+      - name: Quay lui
         if: inputs.hanh_dong == 'quay-lui'
         env:
           ROLLBACK_VERSION: ${{ inputs.phien_ban }}
@@ -145,3 +146,7 @@ jobs:
 
       - name: Kiểm tra sau triển khai
         run: infra/scripts/deploy.sh verify
+
+      - name: Xóa khóa SSH
+        if: always()
+        run: rm -rf tam_thoi/ssh
