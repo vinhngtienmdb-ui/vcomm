@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-12
+- Ngày cập nhật: 2026-11-23
 - Trạng thái: Đang cập nhật
 
 ## 2026-11-23
@@ -15,6 +15,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_76 đợt 2 (THAY_DOI_42) và LOI_18. Phát hành 0.14.2 (CONG_VIEC_76 đợt 2, LOI_18): pull request #227, tag `v0.14.2` trên `4f49c013`, kiểm thử API 1011/1011 đạt, dựng ảnh amd64, arm64 và chạy thử Docker Compose đạt. Không database migration, không đổi API. Chưa triển khai; chờ người dùng làm danh sách việc ở đặc tả CONG_VIEC_76 mục 28.3.
 - Tạo dự án Supabase vcomm-production (mã `xbtrauxpqmgqwjktcwqd`, tổ chức VComm, ap-southeast-1, PostgreSQL 17, chưa chạy database migration) theo phê duyệt của người dùng.
 - LOI_18 (Thấp): KICHBAN_KIEMTHU_527, 528 thất bại từ khi ngày thật qua 2026-11-21 do trang trả lời đề nghị nhận việc so hạn bằng giờ cơ sở dữ liệu; sửa dùng đồng hồ ứng dụng (pull request #225, hợp nhất `d7444d9a`).
 - CONG_VIEC_76 đợt 2: phiên con làm L2a đến L2d (pull request nháp #224, kết quả kiểm thử pull request nháp #226).
