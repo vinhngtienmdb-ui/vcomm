@@ -9,6 +9,7 @@ on:
       - ".dockerignore"
       - ".github/workflows/kiem-tra-anh.yml"
       - "infra/compose/**"
+      - "infra/scripts/**"
   workflow_dispatch:
 
 permissions:
@@ -123,6 +124,44 @@ jobs:
           docker compose -f compose.production.yml -f compose.kiem-tra.yml logs api | grep -q "Không chạy tác vụ nền"
           if docker compose -f compose.production.yml -f compose.kiem-tra.yml logs worker | grep -q "Không chạy tác vụ nền"; then echo "worker không chạy tác vụ nền"; exit 1; fi
           echo "Đạt"
+
+      # Luồng triển khai (infra/scripts/deploy.sh) chạy trên compose cục bộ thay máy ảo: KICHBAN_KIEMTHU_817, 822 đến 825.
+      - name: Kiểm luồng triển khai, quay lui trên compose cục bộ
+        env:
+          DEPLOY_SSH_HOST: local
+          DEPLOY_SKIP_PULL: "1"
+          DEPLOY_WAIT_TIMEOUT: "120"
+          DEPLOY_COMPOSE_FILES: -f compose.production.yml -f compose.kiem-tra.yml
+          IMAGE_REPOSITORY: ghcr.io/vinhngtienmdb-ui
+        run: |
+          set -u
+          export DEPLOY_DIRECTORY="$PWD/infra/compose"
+          r=ghcr.io/vinhngtienmdb-ui
+          for v in 0.0.1 0.0.2; do docker tag $r/vcomm-api:kiem-tra $r/vcomm-api:$v; docker tag $r/vcomm-web:kiem-tra $r/vcomm-web:$v; done
+          # Bản lỗi: ảnh web thay bằng ảnh api (không nghe cổng 3000) nên không qua kiểm tra sống.
+          docker tag $r/vcomm-api:kiem-tra $r/vcomm-api:0.0.3; docker tag $r/vcomm-api:kiem-tra $r/vcomm-web:0.0.3
+          d=infra/scripts/deploy.sh
+          expect_fail() { if "$@"; then echo "SAI: lệnh lẽ ra phải dừng: $*"; exit 1; else echo "Đạt (dừng đúng): $*"; fi; }
+          VERSION=0.0.1 $d release
+          VERSION=0.0.1 $d record && grep -qx 0.0.1 tam_thoi/phien-ban-truoc-trien-khai.txt
+          expect_fail $d seed
+          expect_fail env VERSION=0.0.2 $d migrate
+          BACKUP_DONE=1 VERSION=0.0.2 $d migrate
+          VERSION=0.0.2 $d release
+          expect_fail env ROLLBACK_VERSION=9.9.9 $d rollback
+          grep -qx 'VCOMM_VERSION=0.0.2' infra/compose/.env
+          ROLLBACK_VERSION=0.0.1 $d rollback
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          expect_fail env VERSION=0.0.3 $d release
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          docker compose -f infra/compose/compose.production.yml -f infra/compose/compose.kiem-tra.yml ps --format '{{.Service}} {{.Health}}' | tee /dev/stderr | grep -v redis | grep -v postgres | awk '$2!="healthy"{bad=1} END{exit bad}'
+          # Migration lỗi (sai mật khẩu cơ sở dữ liệu) thì dừng, không đổi phiên bản.
+          cp infra/compose/.env tam_thoi/env.bak
+          sed -i 's#mat_khau_kiem_tra@#sai_mat_khau@#' infra/compose/.env
+          expect_fail env BACKUP_DONE=1 VERSION=0.0.2 $d migrate
+          cp tam_thoi/env.bak infra/compose/.env
+          grep -qx 'VCOMM_VERSION=0.0.1' infra/compose/.env
+          echo "Luồng triển khai, quay lui: đạt"
 
       - name: Log khi lỗi
         if: failure()
