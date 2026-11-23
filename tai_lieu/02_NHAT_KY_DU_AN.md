@@ -10,10 +10,14 @@
 ### Quyết định
 
 - CONG_VIEC_76: Railway hết hạn dùng thử; người dùng không nâng gói Railway, Supabase. Cấp THAY_DOI_42: môi trường thật chạy api, worker, web, Redis bằng Docker trên máy ảo Oracle Cloud Always Free Singapore; Supabase gói miễn phí trong tổ chức VComm (không sao lưu tự động, không PITR; sao lưu mã hóa trước mỗi lần triển khai là bắt buộc). Tên miền: chờ vcomm.vn chuyển sang Cloudflare, không dùng tên miền tạm. Người dùng tự nhập cấu hình SMTP.
+- CONG_VIEC_76 đợt 2 (THAY_DOI_42), người dùng chọn: cổng vào qua Cloudflare Tunnel, máy ảo không mở cổng vào; thêm sao lưu hằng ngày lên R2 giữ 30 bản; chấp nhận gián đoạn 10 đến 30 giây mỗi lần triển khai; giữ tài khoản Oracle miễn phí, chấp nhận rủi ro máy ảo bị thu hồi (khôi phục bằng tệp lệnh dựng máy, tệp Docker Compose và bản sao lưu); TIEUCHI_NGHIEMTHU_601 sửa theo THAY_DOI_42.
+- LOI_18: người dùng nghiệm thu bản sửa, hợp nhất ngay vào `main` để gỡ chặn CI, phát hành cùng phiên bản kế tiếp.
 
 ### Công việc đã thực hiện
 
 - Tạo dự án Supabase vcomm-production (mã `xbtrauxpqmgqwjktcwqd`, tổ chức VComm, ap-southeast-1, PostgreSQL 17, chưa chạy database migration) theo phê duyệt của người dùng.
+- LOI_18 (Thấp): KICHBAN_KIEMTHU_527, 528 thất bại từ khi ngày thật qua 2026-11-21 do trang trả lời đề nghị nhận việc so hạn bằng giờ cơ sở dữ liệu; sửa dùng đồng hồ ứng dụng (pull request #225, hợp nhất `d7444d9a`).
+- CONG_VIEC_76 đợt 2: phiên con làm L2a đến L2d (pull request nháp #224, kết quả kiểm thử pull request nháp #226).
 - Chạy thử toàn bộ dự án 0.14.1 trong máy chứa của phiên; người dùng không truy cập được từ bên ngoài, đã dừng.
 
 ### Vấn đề tồn đọng
