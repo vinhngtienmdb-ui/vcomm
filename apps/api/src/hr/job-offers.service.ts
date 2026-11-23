@@ -371,7 +371,7 @@ export class JobOffersService implements OnModuleInit {
     const row = (
       await executor.execute<OfferRow & { candidate_name: string; company_name: string; open: boolean }>(sql`
       SELECT x.*, c.full_name AS candidate_name, co.legal_name AS company_name,
-        (x.status = 'sent' AND o.response_token_expires_at > now()) AS open
+        (x.status = 'sent' AND o.response_token_expires_at > ${this.clock.now().toISOString()}::timestamptz) AS open
       FROM (${this.select()} WHERE o.response_token_hash = ${tokenHash(token)}) x
       JOIN hr.job_offers o ON o.id = x.id JOIN hr.candidates c ON c.id = x.candidate_id JOIN core.companies co ON co.id = x.company_id
       WHERE c.erased_at IS NULL${lock ? sql` FOR UPDATE OF o` : sql``}`)
