@@ -1,0 +1,102 @@
+# Môi trường thật VComm trên một máy ảo (CONG_VIEC_76, THAY_DOI_42): Docker Compose, ảnh arm64 từ GHCR.
+# Đặt cùng tệp .env (theo env.production.example, quyền 600) trong /opt/vcomm. Phiên bản chạy: biến VCOMM_VERSION trong .env.
+# Không mở cổng nào ra ngoài: cloudflared nối ra Cloudflare Tunnel, Cloudflare chuyển erp.vcomm.vn → web:3000, api.vcomm.vn → api:4000.
+name: vcomm
+
+x-log: &log
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+x-api: &api
+  image: ${VCOMM_IMAGE_REPOSITORY:-ghcr.io/vinhngtienmdb-ui}/vcomm-api:${VCOMM_VERSION:?Thiếu VCOMM_VERSION trong .env}
+  env_file: [.env]
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  volumes:
+    # Chứng chỉ gốc Supabase (công khai) để kiểm chứng chỉ cơ sở dữ liệu (sslrootcert trong DATABASE_URL).
+    - ./certificates:/app/infra/certificates:ro
+  depends_on:
+    redis: { condition: service_healthy }
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/auth/methods').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+    interval: 15s
+    timeout: 5s
+    retries: 4
+    start_period: 60s
+  networks: [noi-bo]
+  <<: *log
+
+services:
+  api:
+    <<: *api
+    environment:
+      NODE_ENV: production
+      API_PORT: "4000"
+      REDIS_URL: redis://redis:6379
+      BACKGROUND_JOBS: disabled
+    mem_limit: 2g
+
+  # Cùng ảnh api, chỉ chạy tác vụ nền (BullMQ); không nhận yêu cầu từ ngoài.
+  worker:
+    <<: *api
+    environment:
+      NODE_ENV: production
+      API_PORT: "4000"
+      REDIS_URL: redis://redis:6379
+      BACKGROUND_JOBS: enabled
+    mem_limit: 2g
+
+  web:
+    image: ${VCOMM_IMAGE_REPOSITORY:-ghcr.io/vinhngtienmdb-ui}/vcomm-web:${VCOMM_VERSION:?Thiếu VCOMM_VERSION trong .env}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/dang-nhap').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 90s
+    mem_limit: 4g
+    networks: [noi-bo]
+    <<: *log
+
+  redis:
+    image: redis:7.4.11-alpine@sha256:d9436322172a5b482c187bf1f363d3c4fea086fcca6b9c8a94de8f0f39ed3193
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    restart: unless-stopped
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    mem_limit: 1g
+    networks: [noi-bo]
+    <<: *log
+
+  # Cloudflare Tunnel (người dùng duyệt 2026-11-23): nối ra ngoài, máy ảo không mở cổng vào.
+  # Đường đi (erp, api, ssh) cấu hình ở Cloudflare Zero Trust; ssh.vcomm.vn → ssh://host.docker.internal:22, bảo vệ bằng Cloudflare Access.
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.2@sha256:0e56c13c7058fcef9c4f0e7d83372f82330548dbf8f8b366f3d8b506526d93b2
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?Thiếu CLOUDFLARE_TUNNEL_TOKEN trong .env}
+    restart: unless-stopped
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      web: { condition: service_healthy }
+    mem_limit: 256m
+    networks: [noi-bo]
+    <<: *log
+
+volumes:
+  redis-data:
+
+networks:
+  noi-bo:

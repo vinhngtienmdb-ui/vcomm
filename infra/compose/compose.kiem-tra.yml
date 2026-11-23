@@ -1,0 +1,29 @@
+# Chạy thử compose.production.yml trong CI (CONG_VIEC_76, KICHBAN_KIEMTHU_810): thay Supabase bằng postgres:17 cục bộ,
+# mở cổng ra localhost để gọi thử, không chạy cloudflared. Không dùng trên máy ảo thật.
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: vcomm_ung_dung
+      POSTGRES_PASSWORD: mat_khau_kiem_tra
+      POSTGRES_DB: vcomm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vcomm_ung_dung -d vcomm"]
+      interval: 5s
+      retries: 20
+    networks: [noi-bo]
+
+  api:
+    ports: ["127.0.0.1:4000:4000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  worker:
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  web:
+    ports: ["127.0.0.1:3000:3000"]
+
+  cloudflared:
+    profiles: [khong-chay]

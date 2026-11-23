@@ -8,6 +8,7 @@ on:
       - "infra/docker/**"
       - ".dockerignore"
       - ".github/workflows/kiem-tra-anh.yml"
+      - "infra/compose/**"
   workflow_dispatch:
 
 permissions:
@@ -63,3 +64,72 @@ jobs:
       - name: Kiểm khởi động (api)
         if: matrix.anh == 'api'
         run: docker run --rm vcomm-api:kiem-tra node -e "require('/app/apps/api/dist/database/run-migrations.js'); console.log('nạp mô-đun đạt')"
+
+  # Chạy thử tệp compose của môi trường thật (THAY_DOI_42) với postgres:17 cục bộ thay Supabase, không có cloudflared.
+  chay-thu-compose:
+    name: Chạy thử Docker Compose môi trường thật
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build hai ảnh
+        run: |
+          docker build -f infra/docker/api.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-api:kiem-tra .
+          docker build -f infra/docker/web.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-web:kiem-tra .
+
+      - name: Tạo tệp .env thử từ tệp mẫu
+        working-directory: infra/compose
+        run: |
+          mkdir -p certificates
+          sed -e 's/^VCOMM_VERSION=$/VCOMM_VERSION=kiem-tra/' \
+              -e 's/^CLOUDFLARE_TUNNEL_TOKEN=$/CLOUDFLARE_TUNNEL_TOKEN=khong-dung/' \
+              -e 's#^DATABASE_URL=$#DATABASE_URL=postgres://vcomm_ung_dung:mat_khau_kiem_tra@postgres:5432/vcomm#' \
+              -e "s/^ACCESS_TOKEN_SECRET=\$/ACCESS_TOKEN_SECRET=$(openssl rand -hex 32)/" \
+              -e "s/^MFA_SECRET_KEY=\$/MFA_SECRET_KEY=$(openssl rand -hex 32)/" \
+              -e 's/^EMAIL_DRIVER=smtp$/EMAIL_DRIVER=log/' \
+              -e 's/^STORAGE_DRIVER=s3$/STORAGE_DRIVER=local/' \
+              env.production.example > .env
+          echo "STORAGE_DIRECTORY=/tmp/tep" >> .env
+
+      - name: Bật cơ sở dữ liệu, Redis
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml up -d --wait postgres redis
+
+      - name: Database migration (chạy hai lần, lần hai không còn tệp mới)
+        working-directory: infra/compose
+        run: |
+          docker compose -f compose.production.yml -f compose.kiem-tra.yml run --rm --no-deps api node apps/api/dist/database/run-migrations.js
+          second=$(docker compose -f compose.production.yml -f compose.kiem-tra.yml run --rm --no-deps api node apps/api/dist/database/run-migrations.js)
+          echo "$second"
+          echo "$second" | grep -q "Không có database migration mới"
+
+      - name: Bật api, worker, web và chờ kiểm tra sống
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml up -d --wait --wait-timeout 300 api worker web
+
+      - name: Gọi thử
+        working-directory: infra/compose
+        run: |
+          for url in http://127.0.0.1:4000/api/v1/auth/methods http://127.0.0.1:3000/dang-nhap http://127.0.0.1:3000/api/v1/auth/methods http://127.0.0.1:3000/catalog; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url")
+            echo "$url: $code"
+            case "$code" in 200|307|308) ;; *) exit 1 ;; esac
+          done
+          # Tác vụ nền chỉ chạy ở worker.
+          docker compose -f compose.production.yml -f compose.kiem-tra.yml logs api | grep -q "Không chạy tác vụ nền"
+          if docker compose -f compose.production.yml -f compose.kiem-tra.yml logs worker | grep -q "Không chạy tác vụ nền"; then echo "worker không chạy tác vụ nền"; exit 1; fi
+          echo "Đạt"
+
+      - name: Log khi lỗi
+        if: failure()
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml logs --tail 200
+
+      - name: Dọn
+        if: always()
+        working-directory: infra/compose
+        run: docker compose -f compose.production.yml -f compose.kiem-tra.yml down -v
