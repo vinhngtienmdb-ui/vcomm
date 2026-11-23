@@ -1,7 +1,7 @@
 # MỤC LỤC BỘ TÀI LIỆU THIẾT KẾ
 
 - Dự án: VComm
-- Ngày cập nhật: 2026-11-18
+- Ngày cập nhật: 2026-11-23
 
 | Số | Tệp | Tên tài liệu | Mô tả | Giai đoạn | Trạng thái |
 |---|---|---|---|---|---|
