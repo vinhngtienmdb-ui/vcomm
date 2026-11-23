@@ -5,6 +5,22 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## 2026-11-23
+
+### Quyết định
+
+- CONG_VIEC_76: Railway hết hạn dùng thử; người dùng không nâng gói Railway, Supabase. Cấp THAY_DOI_42: môi trường thật chạy api, worker, web, Redis bằng Docker trên máy ảo Oracle Cloud Always Free Singapore; Supabase gói miễn phí trong tổ chức VComm (không sao lưu tự động, không PITR; sao lưu mã hóa trước mỗi lần triển khai là bắt buộc). Tên miền: chờ vcomm.vn chuyển sang Cloudflare, không dùng tên miền tạm. Người dùng tự nhập cấu hình SMTP.
+
+### Công việc đã thực hiện
+
+- Tạo dự án Supabase vcomm-production (mã `xbtrauxpqmgqwjktcwqd`, tổ chức VComm, ap-southeast-1, PostgreSQL 17, chưa chạy database migration) theo phê duyệt của người dùng.
+- Chạy thử toàn bộ dự án 0.14.1 trong máy chứa của phiên; người dùng không truy cập được từ bên ngoài, đã dừng.
+
+### Vấn đề tồn đọng
+
+- Người dùng chuẩn bị: đặt mật khẩu cơ sở dữ liệu Supabase, tài khoản Oracle Cloud, chuyển vcomm.vn sang Cloudflare, tài khoản gửi email SMTP, thông tin tập đoàn cho lệnh khởi tạo.
+- Sửa tài liệu 26 và quy trình triển khai theo THAY_DOI_42 trước lần triển khai đầu.
+
 ## 2026-11-18
 
 ### Quyết định

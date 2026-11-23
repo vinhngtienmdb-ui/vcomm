@@ -589,3 +589,11 @@
 - Rủi ro: hạn mức gửi của hộp thư doanh nghiệp thấp hơn dịch vụ gửi hàng loạt; thư dễ vào thư rác nếu tên miền thiếu bản ghi SPF, DKIM. Người dùng chỉ có số điện thoại không nhận tin qua lớp này.
 - Trạng thái: Đã phê duyệt 2026-11-18 (người dùng chọn email doanh nghiệp có sẵn qua SMTP).
 
+### THAY_DOI_42: Chạy môi trường thật trên máy ảo Oracle Cloud miễn phí và Supabase gói miễn phí thay Railway, Supabase Pro – 2026-11-23
+- Người yêu cầu: người dùng, 2026-11-23. Công việc: CONG_VIEC_76.
+- Nội dung thay đổi: THAY_DOI_40 và tài liệu 26 ghi api, worker, web, Redis chạy trên Railway Singapore, cơ sở dữ liệu Supabase Pro (sao lưu 7 ngày, PITR 7 ngày). Railway hết hạn dùng thử, người dùng không nâng gói. Đổi sang: api, worker, web, Redis chạy bằng Docker Compose trên một máy ảo Oracle Cloud Always Free (Singapore, 4 nhân, 24 GB); cơ sở dữ liệu và lưu tệp trên Supabase gói miễn phí, tổ chức VComm, dự án vcomm-production (mã `xbtrauxpqmgqwjktcwqd`, ap-southeast-1, PostgreSQL 17, tạo 2026-11-23). Ảnh lấy từ GHCR như cũ; Cloudflare giữ vai trò DNS và proxy cho tên miền vcomm.vn.
+- Thành phần bị ảnh hưởng: tài liệu 12, 13, 22, 26; quy trình `trien-khai.yml`, `infra/scripts/deploy.sh`; thêm tệp Docker Compose cho máy ảo; không đổi mã ứng dụng, cơ sở dữ liệu, API.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_810 đến 826 với tệp Docker Compose mới; kiểm tra sau triển khai theo tài liệu 26.
+- Mức quy mô: Lớn (đổi kiến trúc triển khai); làm trong CONG_VIEC_76.
+- Rủi ro: gói miễn phí Supabase không có sao lưu tự động và PITR, nên bản sao lưu mã hóa trước mỗi lần triển khai là lớp bảo vệ duy nhất; dự án tự tạm dừng khi không hoạt động 7 ngày; giới hạn 500 MB cơ sở dữ liệu, 1 GB lưu tệp. Oracle có thể thu hồi máy ảo miễn phí khi dùng tài nguyên quá thấp kéo dài; một máy ảo là một điểm lỗi duy nhất; người dùng tự quản trị hệ điều hành, tường lửa, bản vá.
+- Trạng thái: Đã phê duyệt 2026-11-23 (người dùng chọn không nâng gói, dùng máy ảo Oracle Cloud miễn phí và Supabase gói miễn phí trong tổ chức VComm).
