@@ -2,7 +2,7 @@
 
 - Mô tả: Kết quả từng lần kiểm thử và danh sách lỗi.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-11
+- Ngày cập nhật: 2026-11-23
 - Trạng thái: Đang cập nhật
 
 ## Lần kiểm thử 2026-11-09 – CONG_VIEC_02
@@ -909,6 +909,25 @@
 - Phạm vi: tag `v0.14.1` (commit `89f83292`), postgres:17, redis:7.
 - Lệnh đã chạy: vitest `apps/api` (180 tệp), 145 database migration chạy trong kiểm thử.
 - Kết quả: KICHBAN_KIEMTHU_811 Đạt (1011/1011, 1202 giây). Không có lỗi mới.
+
+## Lần kiểm thử 2026-11-23 – CONG_VIEC_76 đợt 2 (THAY_DOI_42)
+
+- Phạm vi: pull request #224, đầu nhánh `985ff280`: ảnh arm64, tệp Docker Compose môi trường thật, `deploy.sh` triển khai qua SSH, luồng `trien-khai.yml`, `sao-luu-hang-ngay.yml`, tệp lệnh dựng máy ảo.
+- Lệnh đã chạy: luồng `kiem-tra-anh.yml` trên GitHub Actions: build, Trivy, kiểm nội dung, kiểm kiến trúc ảnh api, web cho amd64 (`ubuntu-latest`) và arm64 (`ubuntu-24.04-arm`); việc "Chạy thử Docker Compose môi trường thật" (postgres:17 cục bộ thay Supabase, không có cloudflared) gồm migration, gọi thử và kiểm luồng triển khai, quay lui bằng `deploy.sh` chế độ cục bộ; `docker compose config`; `bash -n` hai tệp lệnh; tự kiểm `deploy.sh check-tag` với `v0.14.1`.
+- Kết quả:
+  - KICHBAN_KIEMTHU_810: Đạt (bốn ảnh build được; Trivy không có lỗ hổng mức Cao, Nghiêm trọng đã có bản vá; ảnh đúng kiến trúc; không có `.env`, mã nguồn kiểm thử).
+  - KICHBAN_KIEMTHU_811: Đạt theo lần chạy v0.14.1 (2026-11-18, 1011/1011); đợt 2 không đổi mã ứng dụng (chỉ đổi địa chỉ API lúc build ảnh web).
+  - KICHBAN_KIEMTHU_816: phần migration Đạt trên compose cục bộ (lần đầu chạy đủ tệp, lần hai "Không có database migration mới"); phần sao lưu lên R2 chờ tài nguyên.
+  - KICHBAN_KIEMTHU_817, 823: Đạt (nạp dữ liệu thử bị từ chối; tag thiếu bản vá khẩn cấp thì dừng).
+  - KICHBAN_KIEMTHU_822: Đạt trên compose cục bộ (migration lỗi do sai mật khẩu cơ sở dữ liệu thì dừng, phiên bản đang chạy không đổi).
+  - KICHBAN_KIEMTHU_824: phần tệp lệnh Đạt (migration bị từ chối khi chưa sao lưu); phần người duyệt môi trường GitHub `production` chờ tài nguyên.
+  - KICHBAN_KIEMTHU_825: Đạt trên compose cục bộ (quay lui về phiên bản không có ảnh dừng trước khi đổi; bản mới không qua kiểm tra sống thì tự về phiên bản trước; các dịch vụ healthy sau đó).
+  - Tác vụ nền chỉ chạy ở `worker`, không chạy ở `api` (phần của KICHBAN_KIEMTHU_815): Đạt trên compose cục bộ.
+  - Gọi thử qua web (API qua chuyển tiếp của mini app Nền tảng, `/catalog`): 200.
+  - KICHBAN_KIEMTHU_812 đến 815, 818, 819, 821, 826: chờ tài nguyên (máy ảo, Cloudflare, Supabase, R2). KICHBAN_KIEMTHU_820: chờ người dùng rà tài liệu `26`.
+- Lần chạy đầu của việc chạy thử compose (đầu nhánh `53cb6d68`) Không đạt: api, worker dừng khi khởi động vì CONG_VIEC_77 bắt buộc `EMAIL_DRIVER=smtp` ở môi trường thật, tệp `.env` thử đặt `log`; sửa cấu hình thử (SMTP giả), không đổi mã ứng dụng; không cấp mã lỗi (lỗi của tệp kiểm thử).
+- Kiểm tra bảo mật phần B, C: luồng "Quét bảo mật" đạt trên các commit của nhánh.
+- Không có lỗi mới. Việc kiểm tra kiểu, lint, kiểm thử của CI chịu ảnh hưởng LOI_18 (lỗi có sẵn trên `main`, sửa ở pull request #225).
 
 ## Lỗi phát hiện 2026-11-10
 
