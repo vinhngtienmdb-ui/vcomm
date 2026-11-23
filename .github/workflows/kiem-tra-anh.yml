@@ -82,6 +82,7 @@ jobs:
           docker build -f infra/docker/api.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-api:kiem-tra .
           docker build -f infra/docker/web.Dockerfile -t ghcr.io/vinhngtienmdb-ui/vcomm-web:kiem-tra .
 
+      # Môi trường thật bắt buộc EMAIL_DRIVER=smtp (CONG_VIEC_77): dùng máy chủ SMTP giả, chạy thử không gửi email.
       - name: Tạo tệp .env thử từ tệp mẫu
         working-directory: infra/compose
         run: |
@@ -91,7 +92,10 @@ jobs:
               -e 's#^DATABASE_URL=$#DATABASE_URL=postgres://vcomm_ung_dung:mat_khau_kiem_tra@postgres:5432/vcomm#' \
               -e "s/^ACCESS_TOKEN_SECRET=\$/ACCESS_TOKEN_SECRET=$(openssl rand -hex 32)/" \
               -e "s/^MFA_SECRET_KEY=\$/MFA_SECRET_KEY=$(openssl rand -hex 32)/" \
-              -e 's/^EMAIL_DRIVER=smtp$/EMAIL_DRIVER=log/' \
+              -e 's/^SMTP_HOST=$/SMTP_HOST=smtp.kiem-tra.invalid/' \
+              -e 's/^SMTP_USER=$/SMTP_USER=kiem-tra/' \
+              -e 's/^SMTP_PASSWORD=$/SMTP_PASSWORD=kiem-tra/' \
+              -e 's/^SMTP_FROM=$/SMTP_FROM=kiem-tra@vcomm.test/' \
               -e 's/^STORAGE_DRIVER=s3$/STORAGE_DRIVER=local/' \
               env.production.example > .env
           echo "STORAGE_DIRECTORY=/tmp/tep" >> .env
