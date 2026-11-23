@@ -692,5 +692,20 @@ Phê duyệt
 
 ### 28.4 Kết quả kiểm thử đợt 2
 
-Ghi sau khi CI chạy xong (mục 28.5) và gửi phiên điều phối ghi tài liệu `25`.
+Chạy trên CI pull request #224, đầu nhánh `985ff280` (2026-11-23); chi tiết ghi tài liệu `25` qua pull request #226.
+
+| Kịch bản | Kết quả | Cách kiểm |
+|---|---|---|
+| KICHBAN_KIEMTHU_810 | Đạt | Build ảnh api, web cho amd64 và arm64 (máy chạy arm gốc), Trivy, kiểm nội dung, kiểm kiến trúc |
+| KICHBAN_KIEMTHU_811 | Đạt | Theo lần chạy v0.14.1 trên PostgreSQL 17 (1011/1011); đợt 2 không đổi mã ứng dụng |
+| KICHBAN_KIEMTHU_815 (phần tác vụ nền) | Đạt | Compose cục bộ: tác vụ nền chỉ chạy ở `worker` |
+| KICHBAN_KIEMTHU_816 (phần migration) | Đạt | Compose cục bộ: migration chạy hai lần, lần hai không có tệp mới; phần sao lưu R2 chờ tài nguyên |
+| KICHBAN_KIEMTHU_817, 823 | Đạt | Nạp dữ liệu thử bị từ chối; tag thiếu bản vá khẩn cấp thì dừng |
+| KICHBAN_KIEMTHU_822 | Đạt | Migration sai mật khẩu cơ sở dữ liệu thì dừng, phiên bản đang chạy không đổi |
+| KICHBAN_KIEMTHU_824 (phần tệp lệnh) | Đạt | Migration bị từ chối khi chưa sao lưu; phần người duyệt GitHub chờ tài nguyên |
+| KICHBAN_KIEMTHU_825 | Đạt | Quay lui về phiên bản không có ảnh dừng trước khi đổi; bản mới không qua kiểm tra sống tự về bản trước |
+| KICHBAN_KIEMTHU_812 đến 814, 818, 819, 821, 826 | Chờ tài nguyên | Cần máy ảo, Cloudflare, Supabase, R2 |
+| KICHBAN_KIEMTHU_820 | Chờ người dùng | Rà tài liệu `26` |
+
+Lần chạy compose đầu (`53cb6d68`) không đạt do tệp `.env` thử đặt `EMAIL_DRIVER=log` trái quy định CONG_VIEC_77; đã sửa tệp kiểm thử, không đổi mã ứng dụng.
 
